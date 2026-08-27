@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 54" fill="none">
+  <g transform="translate(2, 2)">
+    <rect width="50" height="50" rx="14" fill="#12103f" stroke="#c1ff72" stroke-width="2"/>
+    <polygon points="12,20 18,8 24,18" fill="#c1ff72" />
+    <polygon points="38,20 32,8 26,18" fill="#c1ff72" />
+    <polygon points="14,19 18,12 22,18" fill="#12103f" />
+    <polygon points="36,19 32,12 28,18" fill="#12103f" />
+    <rect x="11" y="18" width="28" height="22" rx="10" fill="#17144d" stroke="#c1ff72" stroke-width="1.5"/>
+    <circle cx="19" cy="27" r="3" fill="#c1ff72" />
+    <circle cx="31" cy="27" r="3" fill="#c1ff72" />
+    <circle cx="20" cy="26" r="1.2" fill="#0a0929" />
+    <circle cx="32" cy="26" r="1.2" fill="#0a0929" />
+    <polygon points="25,32 23.5,30.5 26.5,30.5" fill="#c1ff72" />
+    <line x1="7" y1="27" x2="13" y2="28" stroke="#c1ff72" stroke-width="1.2" opacity="0.8"/>
+    <line x1="7" y1="31" x2="13" y2="31" stroke="#c1ff72" stroke-width="1.2" opacity="0.8"/>
+    <line x1="43" y1="27" x2="37" y2="28" stroke="#c1ff72" stroke-width="1.2" opacity="0.8"/>
+    <line x1="43" y1="31" x2="37" y2="31" stroke="#c1ff72" stroke-width="1.2" opacity="0.8"/>
+  </g>
+  <text x="64" y="36" font-family="'Blinker', sans-serif" font-size="28" font-weight="800" fill="#ffffff" letter-spacing="-0.5">meow<tspan fill="#c1ff72">lab</tspan></text>
+  <rect x="175" y="18" width="36" height="18" rx="4" fill="#c1ff72" fill-opacity="0.15" stroke="#c1ff72" stroke-width="1"/>
+  <text x="183" y="31" font-family="'Blinker', sans-serif" font-size="11" font-weight="800" fill="#c1ff72">.AI</text>
+</svg>

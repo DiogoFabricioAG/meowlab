@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="16" fill="#0a0929"/>
+  <polygon points="14,28 22,12 30,24" fill="#c1ff72" />
+  <polygon points="50,28 42,12 34,24" fill="#c1ff72" />
+  <polygon points="17,26 23,16 28,24" fill="#0a0929" />
+  <polygon points="47,26 41,16 36,24" fill="#0a0929" />
+  <rect x="14" y="22" width="36" height="28" rx="14" fill="#12103f" stroke="#c1ff72" stroke-width="2.5"/>
+  <circle cx="24" cy="34" r="4" fill="#c1ff72" />
+  <circle cx="40" cy="34" r="4" fill="#c1ff72" />
+  <circle cx="25" cy="33" r="1.5" fill="#0a0929" />
+  <circle cx="41" cy="33" r="1.5" fill="#0a0929" />
+  <polygon points="32,40 30,38 34,38" fill="#c1ff72" />
+  <path d="M29 42 Q32 44 35 42" stroke="#c1ff72" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <line x1="10" y1="35" x2="18" y2="36" stroke="#c1ff72" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="10" y1="39" x2="18" y2="39" stroke="#c1ff72" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="54" y1="35" x2="46" y2="36" stroke="#c1ff72" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="54" y1="39" x2="46" y2="39" stroke="#c1ff72" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+</svg>

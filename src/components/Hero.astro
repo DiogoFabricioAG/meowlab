@@ -1,0 +1,73 @@
+---
+import WhatsAppSimulator from './WhatsAppSimulator.astro';
+---
+
+<section class="relative pt-12 pb-24 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Hero Header Text -->
+    <div class="text-center max-w-4xl mx-auto space-y-6">
+      <!-- Announcement Pill -->
+      <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-surface border border-neon/30 shadow-neon text-xs font-title font-bold text-slate-200">
+        <span class="px-2 py-0.5 rounded-full bg-neon text-obsidian text-[10px] font-black uppercase">NUEVO v2.4</span>
+        <span class="text-slate-300">Agentes de Facturación, Leads y ERP Conectados a WhatsApp</span>
+        <span class="text-neon">→</span>
+      </div>
+
+      <!-- Main Catchy Title -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08]">
+        Tu Fuerza Laboral de <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon via-white to-neon">Agentes de IA</span> en WhatsApp.
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        En <span class="text-white font-semibold">MeowLab</span> desarrollamos agentes inteligentes felinos: ultrarrápidos, ágiles y precisos. Elige un <span class="text-neon font-semibold">Agente Dedicado</span> conectado a tus bases de datos privadas o contrata nuestros <span class="text-neon font-semibold">Servicios Micro-SaaS</span> on-demand por chat.
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <a href="#simulador" class="btn-primary px-8 py-4 rounded-2xl text-base font-title font-black shadow-neon tracking-wide">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <span>Probar Simulador Interactivo</span>
+        </a>
+        <a href="/dedicado" class="btn-secondary px-8 py-4 rounded-2xl text-base font-title font-bold">
+          <span>Ver Agentes Dedicados</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t border-white/10 max-w-3xl mx-auto">
+        <div class="p-3 bg-surface/40 rounded-xl border border-white/5">
+          <div class="text-2xl sm:text-3xl font-title font-black text-neon">0.8 seg</div>
+          <div class="text-xs text-slate-400 font-medium">Tiempo medio de respuesta</div>
+        </div>
+        <div class="p-3 bg-surface/40 rounded-xl border border-white/5">
+          <div class="text-2xl sm:text-3xl font-title font-black text-white">99.9%</div>
+          <div class="text-xs text-slate-400 font-medium">Disponibilidad 24/7/365</div>
+        </div>
+        <div class="p-3 bg-surface/40 rounded-xl border border-white/5">
+          <div class="text-2xl sm:text-3xl font-title font-black text-neon">+85%</div>
+          <div class="text-xs text-slate-400 font-medium">Ahorro en tiempo operativo</div>
+        </div>
+        <div class="p-3 bg-surface/40 rounded-xl border border-white/5">
+          <div class="text-2xl sm:text-3xl font-title font-black text-white">100%</div>
+          <div class="text-xs text-slate-400 font-medium">Nativo en WhatsApp Business</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Interactive Simulator Section -->
+    <div id="simulador" class="pt-16">
+      <div class="text-center mb-6">
+        <span class="text-xs font-title font-extrabold uppercase tracking-widest text-neon">INTERACTIVE DEMO</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Experimenta el Poder de un Agente Felino</h2>
+        <p class="text-slate-400 text-sm mt-1">Prueba emitir una factura, consultar un ERP o calificar un lead en tiempo real.</p>
+      </div>
+      <WhatsAppSimulator />
+    </div>
+  </div>
+</section>

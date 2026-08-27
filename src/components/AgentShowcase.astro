@@ -1,0 +1,134 @@
+---
+const agents = [
+  {
+    id: 'billcat',
+    name: 'BillCat',
+    role: 'Agente Facturador Multi-Empresa',
+    type: 'Servicio SaaS',
+    badgeClass: 'bg-neon/15 text-neon border-neon/30',
+    icon: '⚡',
+    description: 'Envías un audio, foto o texto en WhatsApp y emite tu factura electrónica formal (SUNAT/SAT) con PDF y XML en 3 segundos.',
+    features: ['Transcripción de audio a factura', 'Validación automática RUC/DNI', 'Envío automático por correo/WhatsApp'],
+    link: '/servicios#billcat'
+  },
+  {
+    id: 'huntercat',
+    name: 'HunterCat',
+    role: 'Calificador de Leads & SDR',
+    type: 'Dedicado / SaaS',
+    badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+    icon: '🎯',
+    description: 'Atiende prospectos a cualquier hora, responde consultas con información real de tus productos y agenda reuniones en Google Calendar.',
+    features: ['Calificación de presupuesto BANT', 'Integración con Calendar & CRM', 'Respuesta en menos de 2 segundos'],
+    link: '/agentes#huntercat'
+  },
+  {
+    id: 'nexuscat',
+    name: 'NexusCat Enterprise',
+    role: 'Conector ERP & Base de Datos',
+    type: 'Exclusivo Dedicado',
+    badgeClass: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+    icon: '🛡️',
+    description: 'Agente privado conectado a tus servidores PostgreSQL, MySQL, SAP o Salesforce para consultar inventario, despachos y métricas.',
+    features: ['Consultas SQL seguras vía chat', 'Permisos por rol de usuario', 'Auditoría y logs encriptados'],
+    link: '/dedicado'
+  },
+  {
+    id: 'pawscollect',
+    name: 'PawsCollect',
+    role: 'Cobranzas y Pasarelas de Pago',
+    type: 'Servicio SaaS',
+    badgeClass: 'bg-neon/15 text-neon border-neon/30',
+    icon: '💳',
+    description: 'Notificaciones automáticas y cordiales de cuentas por cobrar, generación de links de pago y conciliación inmediata.',
+    features: ['Links Stripe, Yape, Plin y SPEI', 'Recordatorios amables escalonados', 'Conciliación bancaria en tiempo real'],
+    link: '/servicios#pawscollect'
+  },
+  {
+    id: 'whiskercare',
+    name: 'WhiskerCare',
+    role: 'Soporte y Postventa 24/7',
+    type: 'Dedicado / SaaS',
+    badgeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+    icon: '🐾',
+    description: 'Resuelve el 80% de dudas frecuentes, rastrea pedidos de e-commerce y deriva casos complejos a humanos con resumen listo.',
+    features: ['Rastreo de envíos en tiempo real', 'Derivación inteligente a operadores', 'Multilenguaje y tono empático'],
+    link: '/agentes#whiskercare'
+  },
+  {
+    id: 'bookcat',
+    name: 'BookCat',
+    role: 'Reservas & Citas Médicas/Negocios',
+    type: 'Servicio SaaS',
+    badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+    icon: '📅',
+    description: 'Ideal para clínicas, restaurantes, talleres y consultorios. Gestiona cancelaciones, reprogramaciones y disponibilidad 24/7.',
+    features: ['Sincronización de horarios en vivo', 'Recordatorios anti-ausentismo', 'Cobro de seña o anticipo'],
+    link: '/agentes#bookcat'
+  }
+];
+---
+
+<section class="py-24 relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+          <span>CATÁLOGO DE AGENTES FELINOS</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          Nuestra Flota de <span class="text-neon">Especialistas IA</span>
+        </h2>
+        <p class="text-slate-300 text-base sm:text-lg mt-3 max-w-2xl">
+          Cada agente está entrenado con guardrails estrictos y habilidades específicas para tu negocio.
+        </p>
+      </div>
+
+      <a href="/agentes" class="btn-secondary px-6 py-3 rounded-xl text-sm font-title font-bold shrink-0">
+        <span>Ver todos los agentes y roles</span>
+        <span>→</span>
+      </a>
+    </div>
+
+    <!-- Agent Cards Grid -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {agents.map((agent) => (
+        <div class="glass-panel glass-panel-hover rounded-3xl p-7 border border-white/10 flex flex-col justify-between group">
+          <div>
+            <div class="flex items-start justify-between gap-4 mb-5">
+              <div class="w-12 h-12 rounded-2xl bg-surface-elevated border border-neon/30 flex items-center justify-center text-2xl shadow-neon">
+                {agent.icon}
+              </div>
+              <span class={`text-[11px] font-title font-extrabold px-3 py-1 rounded-full border ${agent.badgeClass}`}>
+                {agent.type}
+              </span>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white group-hover:text-neon transition-colors">
+              {agent.name}
+            </h3>
+            <p class="text-xs font-title font-semibold text-slate-400 mb-3">
+              {agent.role}
+            </p>
+            <p class="text-sm text-slate-300 leading-relaxed mb-6">
+              {agent.description}
+            </p>
+
+            <div class="space-y-2 border-t border-white/10 pt-4 mb-6">
+              {agent.features.map(f => (
+                <div class="flex items-center gap-2 text-xs text-slate-300">
+                  <span class="text-neon font-bold">🐾</span>
+                  <span>{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <a href={agent.link} class="btn-secondary w-full py-2.5 rounded-xl text-xs font-title font-bold text-center">
+            Ver detalles y probar demo →
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+---
+
+<Layout
+  title="Agentes de IA Dedicados para Empresas | MeowLab"
+  description="Conecta un agente de IA exclusivo a tus bases de datos privadas (PostgreSQL, SAP, CRM) a través de WhatsApp corporativo con seguridad bancaria."
+>
+  <div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+      <!-- Hero Section -->
+      <div class="text-center max-w-4xl mx-auto space-y-6">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold">
+          <span>ENTERPRISE ON-PREMISE / CLOUD PRIVADO</span>
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight">
+          Agentes Dedicados: Tu Sistema Privado <span class="text-neon">Operado por WhatsApp</span>
+        </h1>
+        <p class="text-slate-300 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
+          No más paneles complicados ni consultas manuales lentas. Tus ejecutivos, vendedores y clientes pueden consultar stock, emitir órdenes y consultar balances en tiempo real con lenguaje natural en su WhatsApp.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4 pt-2">
+          <a href="/contacto" class="btn-primary px-8 py-4 rounded-2xl font-title font-bold text-base shadow-neon">
+            Agendar Sesión de Arquitectura Técnica
+          </a>
+        </div>
+      </div>
+
+      <!-- Key Capabilities Grid -->
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass-panel rounded-3xl p-8 border border-neon/30 shadow-card">
+          <div class="w-12 h-12 rounded-2xl bg-surface-elevated border border-neon/30 flex items-center justify-center text-neon text-2xl mb-6">
+            🗄️
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Conexión a Bases de Datos Privadas</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Conectamos con PostgreSQL, MySQL, SQL Server, MongoDB o BigQuery. El agente traduce preguntas de chat a queries SQL seguras en milisegundos con permisos de solo lectura o escritura controlada.
+          </p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 border border-white/10 shadow-card">
+          <div class="w-12 h-12 rounded-2xl bg-surface-elevated border border-white/20 flex items-center justify-center text-white text-2xl mb-6">
+            ⚙️
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Integración con ERPs y CRMs</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Conectores nativos con SAP Business One, Oracle NetSuite, Odoo, Salesforce, HubSpot y APIs REST internas de tu propia infraestructura.
+          </p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 border border-neon/30 shadow-card">
+          <div class="w-12 h-12 rounded-2xl bg-surface-elevated border border-neon/30 flex items-center justify-center text-neon text-2xl mb-6">
+            🔒
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Aislamiento y VPC Propia</h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Despliegue exclusivo en tu propia nube (AWS, Google Cloud, Azure o tu propio VPS). Tus datos nunca se mezclan con los de otros clientes ni se usan para entrenar IAs públicas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Real Architecture Diagram View -->
+      <div class="glass-panel rounded-3xl p-8 sm:p-12 border border-white/10">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white text-center mb-10">
+          Arquitectura de Despliegue Dedicado
+        </h2>
+
+        <div class="grid lg:grid-cols-3 gap-6 text-center">
+          <div class="bg-obsidian/80 p-6 rounded-2xl border border-white/10">
+            <div class="text-3xl mb-3">📱</div>
+            <h4 class="font-title font-bold text-white text-lg">1. Capa de Interacción</h4>
+            <p class="text-xs text-slate-400 mt-2">WhatsApp Business API Oficial con número corporativo exclusivo y verificación verde.</p>
+          </div>
+
+          <div class="bg-obsidian/80 p-6 rounded-2xl border border-neon/40 shadow-neon">
+            <div class="text-3xl mb-3">🧠</div>
+            <h4 class="font-title font-bold text-neon text-lg">2. MeowCore Enterprise Engine</h4>
+            <p class="text-xs text-slate-400 mt-2">Orquestador de agentes privados, validación de esquemas JSON, rate limiting y guardrails anti-alucinación.</p>
+          </div>
+
+          <div class="bg-obsidian/80 p-6 rounded-2xl border border-white/10">
+            <div class="text-3xl mb-3">🏢</div>
+            <h4 class="font-title font-bold text-white text-lg">3. Backend & Bases de Datos</h4>
+            <p class="text-xs text-slate-400 mt-2">Tus bases de datos PostgreSQL/SQL y APIs ERP protegidas bajo túnel VPN o IPs en lista blanca.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deployment Stages -->
+      <div class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto">
+          <h2 class="text-3xl font-extrabold text-white">Etapas de Implementación (5-10 Días)</h2>
+          <p class="text-slate-400 text-sm mt-2">Metodología ágil garantizada para poner en producción tu agente.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="glass-panel p-6 rounded-2xl border border-white/10">
+            <div class="font-title font-black text-neon text-2xl mb-1">Día 1-2</div>
+            <div class="font-bold text-white mb-2">Discovery & Mapeo API</div>
+            <p class="text-xs text-slate-300">Revisamos tus esquemas de base de datos, credenciales y flujos de negocio a automatizar.</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-white/10">
+            <div class="font-title font-black text-neon text-2xl mb-1">Día 3-5</div>
+            <div class="font-bold text-white mb-2">Construcción & Prompts</div>
+            <p class="text-xs text-slate-300">Entrenamiento de funciones, generación de conectores y configuración de guardrails de seguridad.</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-white/10">
+            <div class="font-title font-black text-neon text-2xl mb-1">Día 6-8</div>
+            <div class="font-bold text-white mb-2">Pruebas en Staging</div>
+            <p class="text-xs text-slate-300">Simulación intensiva de miles de consultas de borde, validación de respuestas y auditoría de seguridad.</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-neon/40 shadow-neon">
+            <div class="font-title font-black text-neon text-2xl mb-1">Día 9-10</div>
+            <div class="font-bold text-white mb-2">Pase a Producción</div>
+            <p class="text-xs text-slate-300">Conexión con tu número de WhatsApp oficial, capacitación a tu equipo y monitoreo 24/7 activo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <CtaBanner />
+</Layout>

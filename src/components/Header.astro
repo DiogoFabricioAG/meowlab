@@ -1,0 +1,179 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+
+const navItems = [
+  { href: '/', label: 'Inicio' },
+  { href: '/agentes', label: 'Catálogo de Agentes' },
+  { href: '/dedicado', label: 'Agentes Dedicados' },
+  { href: '/servicios', label: 'Servicios Micro-SaaS' },
+  { href: '/contacto', label: 'Contacto & Demo' },
+];
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-white/10 bg-obsidian/85 backdrop-blur-xl transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-neon rounded-xl p-1" data-astro-reload>
+      <div class="w-10 h-10 rounded-xl bg-surface border border-neon/30 flex items-center justify-center group-hover:border-neon group-hover:shadow-neon transition-all duration-300 relative overflow-hidden">
+        <svg viewBox="0 0 64 64" class="w-7 h-7" fill="none">
+          <polygon points="14,28 22,12 30,24" fill="#c1ff72" />
+          <polygon points="50,28 42,12 34,24" fill="#c1ff72" />
+          <rect x="14" y="22" width="36" height="28" rx="14" fill="#18154e" stroke="#c1ff72" stroke-width="2.5"/>
+          <circle cx="24" cy="34" r="4" fill="#c1ff72" class="group-hover:scale-125 transition-transform origin-center" />
+          <circle cx="40" cy="34" r="4" fill="#c1ff72" class="group-hover:scale-125 transition-transform origin-center" />
+          <circle cx="25" cy="33" r="1.5" fill="#0a0929" />
+          <circle cx="41" cy="33" r="1.5" fill="#0a0929" />
+          <polygon points="32,40 30,38 34,38" fill="#c1ff72" />
+          <path d="M29 42 Q32 44 35 42" stroke="#c1ff72" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="flex items-center">
+        <span class="font-title text-2xl font-black text-white tracking-tight">meow<span class="text-neon">lab</span></span>
+        <span class="ml-2 px-1.5 py-0.5 text-[10px] font-title font-extrabold tracking-wider bg-neon/15 text-neon border border-neon/30 rounded">AGENCY</span>
+      </div>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center gap-1 bg-surface/60 border border-white/10 rounded-full px-4 py-1.5">
+      {navItems.map((item) => {
+        const isActive = currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href));
+        return (
+          <a
+            href={item.href}
+            class={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+              isActive
+                ? 'bg-neon text-obsidian shadow-neon font-title font-bold'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {item.label}
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- Actions -->
+    <div class="hidden lg:flex items-center gap-3">
+      <!-- Purr Sound button -->
+      <button
+        id="purr-btn"
+        class="px-3 py-2 rounded-xl bg-surface border border-white/10 text-slate-300 hover:text-neon hover:border-neon/40 text-xs font-title font-bold flex items-center gap-1.5 transition-all"
+        title="Modo Sonido Felino"
+      >
+        <span class="text-base">🐱</span>
+        <span id="purr-text">Purr: ON</span>
+      </button>
+
+      <!-- Live status indicator -->
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neon/10 border border-neon/25">
+        <span class="w-2 h-2 rounded-full bg-neon animate-ping"></span>
+        <span class="text-xs font-title font-bold text-neon">24/7 WHATSAPP ONLINE</span>
+      </div>
+
+      <!-- CTA -->
+      <a href="/contacto" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-title font-bold tracking-wide">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+          <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.97.53 1.768.784 2.8.785 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.772-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.067-1.109-.067-.291-.093-.667-.22-1.154-.43-2.062-.89-3.411-2.984-3.514-3.12-.103-.137-.837-1.113-.837-2.122 0-1.009.528-1.506.716-1.713.188-.207.41-.258.547-.258.137 0 .274.002.394.008.127.006.297-.048.464.354.173.417.592 1.442.645 1.547.053.104.088.227.018.366-.07.139-.105.226-.209.349-.104.123-.219.274-.313.368-.104.104-.213.218-.092.426.121.208.539.888 1.156 1.438.795.708 1.464.928 1.672 1.032.208.104.33.087.452-.053.122-.139.522-.609.661-.818.139-.208.278-.174.469-.104.191.07 1.217.574 1.426.678.209.104.348.156.399.243.052.087.052.504-.092.909z"/>
+        </svg>
+        <span>Desplegar Agente</span>
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button
+      id="mobile-menu-btn"
+      class="md:hidden p-2 rounded-lg bg-surface border border-white/10 text-white hover:text-neon"
+      aria-label="Abrir menú"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Dropdown -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-white/10 bg-obsidian/95 px-4 pt-2 pb-6 space-y-2">
+    {navItems.map((item) => (
+      <a
+        href={item.href}
+        class={`block px-4 py-3 rounded-xl text-base font-semibold ${
+          currentPath === item.href ? 'bg-neon text-obsidian font-title font-bold' : 'text-slate-300 hover:bg-white/5'
+        }`}
+      >
+        {item.label}
+      </a>
+    ))}
+    <div class="pt-4 flex flex-col gap-2">
+      <a href="/contacto" class="btn-primary w-full py-3 rounded-xl text-center font-title font-bold">
+        Hablar con Agente WhatsApp
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  function setupHeader() {
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Purr Synthesizer using Web Audio API
+    const purrBtn = document.getElementById('purr-btn');
+    const purrText = document.getElementById('purr-text');
+    let soundEnabled = true;
+
+    function playMeowSound() {
+      if (!soundEnabled) return;
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        const ctx = new AudioContext();
+        
+        // Soft synth meow
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        const now = ctx.currentTime;
+        
+        // Pitch envelope (meow curve)
+        osc.frequency.setValueAtTime(550, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.35);
+        
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } catch (e) {
+        console.log('Audio disabled or not supported');
+      }
+    }
+
+    if (purrBtn && purrText) {
+      purrBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        purrText.textContent = soundEnabled ? 'Purr: ON' : 'Purr: OFF';
+        if (soundEnabled) playMeowSound();
+      });
+    }
+
+    // Expose meow sound globally
+    (window as any).meowSound = playMeowSound;
+  }
+
+  setupHeader();
+  document.addEventListener('astro:page-load', setupHeader);
+</script>

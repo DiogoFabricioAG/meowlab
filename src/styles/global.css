@@ -1,0 +1,165 @@
+@font-face {
+  font-family: 'Actor';
+  src: url('/fonts/Actor-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Blinker';
+  src: url('/fonts/Blinker-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-obsidian: #0a0929;
+  --color-neon: #c1ff72;
+  --color-neon-hover: #a8f748;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #0a0929;
+  color: #f8fafc;
+  font-family: 'Actor', sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: #0a0929;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Blinker', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0929;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1b59;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c1ff72;
+}
+
+/* Glass & Glow utilities */
+.glass-panel {
+  background: rgba(18, 16, 63, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(26, 23, 84, 0.85);
+  border-color: rgba(193, 255, 114, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px -10px rgba(10, 9, 41, 0.9), 0 0 25px -5px rgba(193, 255, 114, 0.15);
+}
+
+.badge-neon {
+  background: rgba(193, 255, 114, 0.12);
+  border: 1px solid rgba(193, 255, 114, 0.3);
+  color: #c1ff72;
+}
+
+.btn-primary {
+  background-color: #c1ff72;
+  color: #0a0929;
+  font-family: 'Blinker', sans-serif;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.btn-primary:hover {
+  background-color: #a8f748;
+  box-shadow: 0 0 25px rgba(193, 255, 114, 0.55);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: 'Blinker', sans-serif;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: #c1ff72;
+  color: #c1ff72;
+  transform: translateY(-2px);
+}
+
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

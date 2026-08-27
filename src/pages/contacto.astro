@@ -1,0 +1,190 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Contacto & Demo en Vivo | MeowLab"
+  description="Habla con un asesor o prueba en vivo nuestros agentes de IA en WhatsApp. Cotiza tu solución dedicada o activa tu servicio SaaS."
+>
+  <div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-12 gap-12 items-start">
+        <!-- Left Column: Form & Info -->
+        <div class="lg:col-span-7 space-y-8">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+              <span>HABLEMOS DE TU PROYECTO</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight">
+              Despliega tu Agente Felino <span class="text-neon">en WhatsApp</span>
+            </h1>
+            <p class="text-slate-300 text-base mt-3">
+              Cuéntanos qué proceso deseas automatizar y te asignaremos un agente de demostración configurado para tu sector.
+            </p>
+          </div>
+
+          <!-- Contact Form -->
+          <form id="contact-form" class="glass-panel p-8 rounded-3xl border border-white/10 space-y-5 shadow-card">
+            <div class="grid sm:grid-cols-2 gap-5">
+              <div class="space-y-2">
+                <label class="text-xs font-title font-bold text-slate-300">Tu Nombre *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Andrés Morales"
+                  class="w-full bg-obsidian border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+                />
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-title font-bold text-slate-300">Empresa / Negocio *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Distribuidora Global"
+                  class="w-full bg-obsidian border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+                />
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-5">
+              <div class="space-y-2">
+                <label class="text-xs font-title font-bold text-slate-300">WhatsApp con código de país *</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="Ej. +51 987 654 321"
+                  class="w-full bg-obsidian border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+                />
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-title font-bold text-slate-300">Correo Electrónico *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="andres@tuempresa.com"
+                  class="w-full bg-obsidian border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-title font-bold text-slate-300">¿Qué tipo de agente necesitas? *</label>
+              <select class="w-full bg-obsidian border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-neon transition-colors">
+                <option value="factura">⚡ BillCat (Agente Facturador por WhatsApp)</option>
+                <option value="dedicado">🛡️ Agente Dedicado (Conexión a ERP / PostgreSQL / CRM propio)</option>
+                <option value="leads">🎯 HunterCat (Calificación de Leads & Ventas)</option>
+                <option value="cobranzas">💳 PawsCollect (Cobranzas & Pasarelas)</option>
+                <option value="custom">🐱 Agente a Medida con Flujos Especiales</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-title font-bold text-slate-300">Detalles adicionales (volumen de mensajes, sistemas que usas, etc.)</label>
+              <textarea
+                rows="3"
+                placeholder="Actualmente recibimos unas 3,000 consultas al mes en WhatsApp y usamos PostgreSQL para el inventario..."
+                class="w-full bg-obsidian border border-white/15 rounded-xl p-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary w-full py-4 rounded-xl text-base font-title font-bold shadow-neon">
+              Solicitar Demo en Vivo y Cotización 🐾
+            </button>
+          </form>
+
+          <div id="form-success" class="hidden p-6 rounded-2xl bg-neon/15 border border-neon/40 text-center text-neon font-title font-bold">
+            ¡Miau! 🐱 Recibimos tu solicitud. Te enviaremos un mensaje directo a tu WhatsApp en los próximos 5 minutos para activar tu demo.
+          </div>
+        </div>
+
+        <!-- Right Column: Direct WhatsApp QR & Agent Concierge -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="glass-panel p-8 rounded-3xl border border-neon/30 shadow-neon text-center space-y-6">
+            <div class="w-16 h-16 rounded-2xl bg-surface-elevated border-2 border-neon flex items-center justify-center mx-auto text-3xl shadow-neon">
+              🐱
+            </div>
+            <div>
+              <h3 class="text-2xl font-bold text-white">Chatea Ahora Mismo</h3>
+              <p class="text-xs text-slate-300 mt-1">Escanea el código con tu celular para abrir el chat del Agente Concierge de MeowLab en WhatsApp.</p>
+            </div>
+
+            <!-- Visual QR Mockup -->
+            <div class="w-52 h-52 bg-white p-4 rounded-2xl mx-auto flex items-center justify-center shadow-lg relative">
+              <svg viewBox="0 0 100 100" class="w-full h-full">
+                <!-- QR matrix mockup pattern -->
+                <rect width="100" height="100" fill="white"/>
+                <rect x="5" y="5" width="30" height="30" fill="#0a0929"/>
+                <rect x="10" y="10" width="20" height="20" fill="white"/>
+                <rect x="15" y="15" width="10" height="10" fill="#0a0929"/>
+
+                <rect x="65" y="5" width="30" height="30" fill="#0a0929"/>
+                <rect x="70" y="10" width="20" height="20" fill="white"/>
+                <rect x="75" y="15" width="10" height="10" fill="#0a0929"/>
+
+                <rect x="5" y="65" width="30" height="30" fill="#0a0929"/>
+                <rect x="10" y="70" width="20" height="20" fill="white"/>
+                <rect x="15" y="75" width="10" height="10" fill="#0a0929"/>
+
+                <!-- QR Data Blocks -->
+                <rect x="42" y="10" width="16" height="6" fill="#0a0929"/>
+                <rect x="42" y="22" width="10" height="12" fill="#0a0929"/>
+                <rect x="55" y="26" width="6" height="8" fill="#0a0929"/>
+                <rect x="10" y="42" width="12" height="16" fill="#0a0929"/>
+                <rect x="26" y="42" width="8" height="8" fill="#0a0929"/>
+                <rect x="38" y="42" width="24" height="24" fill="#0a0929"/>
+                <circle cx="50" cy="54" r="5" fill="#c1ff72"/>
+                <rect x="66" y="42" width="8" height="14" fill="#0a0929"/>
+                <rect x="78" y="42" width="16" height="8" fill="#0a0929"/>
+                <rect x="42" y="70" width="16" height="10" fill="#0a0929"/>
+                <rect x="62" y="66" width="12" height="14" fill="#0a0929"/>
+                <rect x="78" y="76" width="16" height="18" fill="#0a0929"/>
+                <rect x="42" y="84" width="32" height="10" fill="#0a0929"/>
+              </svg>
+            </div>
+
+            <a
+              href="https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20probar%20una%20demo%20de%20sus%20agentes%20de%20IA%20para%20mi%20empresa."
+              target="_blank"
+              class="btn-primary w-full py-3.5 rounded-xl font-title font-bold text-sm"
+            >
+              Abrir Directo en WhatsApp Web ↗
+            </a>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl border border-white/10 space-y-3 text-xs text-slate-300">
+            <div class="flex items-center gap-3">
+              <span class="text-neon font-bold text-base">📍</span>
+              <span>Laboratorio Central: meowlab.ai Cloud Infrastructure</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-neon font-bold text-base">⚡</span>
+              <span>SLA de Soporte: Respuesta en menos de 15 minutos</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-neon font-bold text-base">🛡️</span>
+              <span>Seguridad de Datos: Cumplimiento RGPD / Cifrado E2E</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  function setupContactForm() {
+    const form = document.getElementById('contact-form');
+    const successMsg = document.getElementById('form-success');
+    if (form && successMsg) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        form.classList.add('hidden');
+        successMsg.classList.remove('hidden');
+        if ((window as any).meowSound) (window as any).meowSound();
+      });
+    }
+  }
+
+  setupContactForm();
+  document.addEventListener('astro:page-load', setupContactForm);
+</script>

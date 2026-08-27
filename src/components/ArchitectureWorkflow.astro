@@ -1,0 +1,74 @@
+---
+---
+<section class="py-24 bg-surface/20 border-t border-white/10 relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+        <span>ARQUITECTURA & PIPELINE MEOWCORE</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        ¿Cómo Funciona la Conexión con tu Negocio?
+      </h2>
+      <p class="text-slate-300 text-base sm:text-lg mt-4">
+        Desde que un usuario envía un mensaje o audio en WhatsApp hasta que se genera una factura o se consulta tu base de datos en milisegundos.
+      </p>
+    </div>
+
+    <!-- 4 Step Pipeline Cards -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+      <!-- Step 1 -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/10 relative">
+        <div class="text-4xl font-title font-black text-neon/30 mb-2">01</div>
+        <div class="text-lg font-bold text-white mb-2">Input en WhatsApp</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          El cliente o tu colaborador envía un texto, mensaje de voz, comprobante o foto a través de WhatsApp Business API Oficial.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="glass-panel rounded-3xl p-6 border border-neon/30 relative shadow-neon">
+        <div class="text-4xl font-title font-black text-neon mb-2">02</div>
+        <div class="text-lg font-bold text-white mb-2">MeowCore AI Gateway</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Transcripción instantánea por Whisper, análisis de intención por LLM, aplicación de guardrails de seguridad y enrutamiento por rol.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/10 relative">
+        <div class="text-4xl font-title font-black text-neon/30 mb-2">03</div>
+        <div class="text-lg font-bold text-white mb-2">Conexión a Sistemas</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Para agentes dedicados: conexión directa con PostgreSQL / ERP / CRM. Para agentes SaaS: emisión ante entidades tributarias y pasarelas.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/10 relative">
+        <div class="text-4xl font-title font-black text-neon/30 mb-2">04</div>
+        <div class="text-lg font-bold text-white mb-2">Respuesta en &lt;1.8s</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Entrega de factura en PDF/XML, confirmación de cita en Calendar, link de pago o reporte en el mismo chat de WhatsApp.
+        </p>
+      </div>
+    </div>
+
+    <!-- Security Box -->
+    <div class="mt-12 glass-panel rounded-3xl p-8 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-neon/10 border border-neon/30 flex items-center justify-center text-neon shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold text-white">Privacidad y Seguridad de Nivel Bancario</h4>
+          <p class="text-xs text-slate-300 mt-1">Tus datos nunca se usan para re-entrenar modelos públicos. Cifrado TLS 1.3 y opciones On-Premise para empresas.</p>
+        </div>
+      </div>
+      <a href="/dedicado#seguridad" class="btn-secondary px-5 py-2.5 rounded-xl text-xs font-title font-bold shrink-0">
+        Ver Arquitectura de Seguridad →
+      </a>
+    </div>
+  </div>
+</section>

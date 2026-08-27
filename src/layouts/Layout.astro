@@ -1,0 +1,85 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = 'MeowLab | Agencia de Agentes de IA en WhatsApp para Empresas',
+  description = 'Automatiza tus ventas, facturación electrónica, atención y conexión ERP con agentes de IA dedicados y servicios multi-tenant 24/7 en WhatsApp.',
+  image = '/favicon.svg',
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth bg-obsidian">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0929" />
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Client Router for Instant View Transitions -->
+    <ClientRouter />
+  </head>
+  <body class="bg-obsidian text-slate-100 font-sans selection:bg-neon selection:text-obsidian flex flex-col min-h-screen relative">
+    <!-- Ambient Cyber Glows -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-neon/5 blur-[140px] pointer-events-none rounded-full -z-10"></div>
+    <div class="fixed bottom-0 right-0 w-[500px] h-[400px] bg-[#312e81]/15 blur-[160px] pointer-events-none rounded-full -z-10"></div>
+
+    <!-- Header Navigation -->
+    <Header currentPath={currentPath} />
+
+    <!-- Main Page Content -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <Footer />
+
+    <!-- Persistent Floating WhatsApp Quick-Chat -->
+    <aside class="fixed bottom-6 right-6 z-40 flex items-center gap-3">
+      <a
+        href="/contacto"
+        class="group relative flex items-center gap-3 bg-surface-elevated hover:bg-surface border border-neon/40 hover:border-neon shadow-neon rounded-full px-4 py-3 text-white transition-all duration-300 transform hover:scale-105"
+        title="Probar demo en WhatsApp"
+      >
+        <span class="relative flex h-3.5 w-3.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-neon"></span>
+        </span>
+        <div class="flex flex-col text-left">
+          <span class="text-[11px] font-title font-bold text-neon uppercase tracking-wider">Agente MeowLab</span>
+          <span class="text-xs font-semibold text-white">Chatear en WhatsApp</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-neon text-obsidian flex items-center justify-center font-bold">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+          </svg>
+        </div>
+      </a>
+    </aside>
+  </body>
+</html>

@@ -1,0 +1,357 @@
+---
+---
+<div class="w-full max-w-4xl mx-auto rounded-3xl overflow-hidden glass-panel border border-neon/30 shadow-neon-lg">
+  <!-- Top Bar -->
+  <div class="bg-surface-elevated px-6 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+    <!-- WhatsApp Agent Header -->
+    <div class="flex items-center gap-3.5">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-obsidian border-2 border-neon flex items-center justify-center p-1.5 shadow-neon">
+          <svg viewBox="0 0 64 64" class="w-full h-full" fill="none">
+            <polygon points="14,28 22,12 30,24" fill="#c1ff72" />
+            <polygon points="50,28 42,12 34,24" fill="#c1ff72" />
+            <rect x="14" y="22" width="36" height="28" rx="14" fill="#18154e" stroke="#c1ff72" stroke-width="2.5"/>
+            <circle cx="24" cy="34" r="4" fill="#c1ff72" />
+            <circle cx="40" cy="34" r="4" fill="#c1ff72" />
+            <polygon points="32,40 30,38 34,38" fill="#c1ff72" />
+          </svg>
+        </div>
+        <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-neon border-2 border-surface-elevated"></span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h4 id="sim-agent-name" class="font-title font-bold text-lg text-white">BillCat • Agente Facturador</h4>
+          <span class="px-2 py-0.5 text-[10px] font-title font-extrabold bg-neon/20 text-neon border border-neon/40 rounded-full">VERIFICADO</span>
+        </div>
+        <p id="sim-agent-desc" class="text-xs text-slate-300">Responde en 0.8s • Emite Facturas Electrónicas SUNAT/SAT/AFIP</p>
+      </div>
+    </div>
+
+    <!-- Agent Switcher Tabs -->
+    <div class="flex items-center gap-1.5 bg-obsidian/80 p-1 rounded-xl border border-white/10" id="sim-agent-tabs">
+      <button
+        data-agent="factura"
+        class="sim-tab active px-3 py-1.5 rounded-lg text-xs font-title font-bold transition-all bg-neon text-obsidian shadow-neon"
+      >
+        ⚡ BillCat (Facturas)
+      </button>
+      <button
+        data-agent="dedicado"
+        class="sim-tab px-3 py-1.5 rounded-lg text-xs font-title font-bold text-slate-300 hover:text-white transition-all"
+      >
+        🛡️ NexusCat (ERP Dedicado)
+      </button>
+      <button
+        data-agent="leads"
+        class="sim-tab px-3 py-1.5 rounded-lg text-xs font-title font-bold text-slate-300 hover:text-white transition-all"
+      >
+        🎯 HunterCat (Leads SDR)
+      </button>
+      <button
+        data-agent="cobranzas"
+        class="sim-tab px-3 py-1.5 rounded-lg text-xs font-title font-bold text-slate-300 hover:text-white transition-all"
+      >
+        💳 PawsCollect (Cobros)
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Area (WhatsApp Styled) -->
+  <div class="h-[430px] p-6 overflow-y-auto bg-[#080721] bg-grid-pattern flex flex-col gap-4" id="sim-chat-box">
+    <!-- Security Notice -->
+    <div class="self-center bg-surface/80 border border-neon/20 px-4 py-1.5 rounded-full text-center max-w-md">
+      <p class="text-[11px] text-slate-300 font-sans flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        Cifrado de extremo a extremo • Conexión MeowCore v2.4
+      </p>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="sim-messages" class="flex flex-col gap-3.5">
+      <!-- Default Initial BillCat Messages -->
+      <div class="self-start max-w-[85%] sm:max-w-[70%] bg-surface border border-white/10 p-4 rounded-2xl rounded-tl-sm text-sm text-slate-100 shadow-card">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs font-title font-bold text-neon">BillCat (IA Facturadora)</span>
+          <span class="text-[10px] text-slate-400">10:42 AM</span>
+        </div>
+        <p>¡Miau! 🐱 Soy tu Agente Facturador de MeowLab. Envíame un texto, foto de pedido o audio con los datos de tu cliente y emitiré la factura electrónica al instante.</p>
+      </div>
+    </div>
+
+    <!-- Typing Indicator (Hidden by default) -->
+    <div id="sim-typing" class="hidden self-start bg-surface border border-white/10 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5 w-20">
+      <span class="w-2 h-2 rounded-full bg-neon animate-bounce"></span>
+      <span class="w-2 h-2 rounded-full bg-neon animate-bounce [animation-delay:0.2s]"></span>
+      <span class="w-2 h-2 rounded-full bg-neon animate-bounce [animation-delay:0.4s]"></span>
+    </div>
+  </div>
+
+  <!-- Quick Prompts Pills -->
+  <div class="bg-surface/90 px-6 py-2.5 border-t border-white/5 flex items-center gap-2 overflow-x-auto" id="sim-quick-prompts">
+    <span class="text-xs text-slate-400 font-title font-bold whitespace-nowrap">Sugerencias:</span>
+    <button class="sim-pill text-xs font-medium bg-obsidian hover:bg-neon hover:text-obsidian text-slate-200 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap transition-colors" data-prompt="Facturar a RUC 20601234567 por 1 Licencia Anual MeowLab $590">
+      📝 "Facturar a RUC 20601234567 por $590..."
+    </button>
+    <button class="sim-pill text-xs font-medium bg-obsidian hover:bg-neon hover:text-obsidian text-slate-200 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap transition-colors" data-prompt="Emitir boleta para Juan Perez DNI 44556677 por $120">
+      🧾 "Boleta para DNI 44556677..."
+    </button>
+    <button class="sim-pill text-xs font-medium bg-obsidian hover:bg-neon hover:text-obsidian text-slate-200 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap transition-colors" data-prompt="¿Cuántas facturas emití hoy y cuánto es el total?">
+      📊 "¿Total facturado hoy?"
+    </button>
+  </div>
+
+  <!-- Chat Input Bar -->
+  <div class="bg-surface-elevated p-4 border-t border-white/10 flex items-center gap-3">
+    <button class="p-2 rounded-xl bg-obsidian text-slate-400 hover:text-neon border border-white/10 transition-colors" title="Adjuntar archivo o comprobante">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+      </svg>
+    </button>
+    <button class="p-2 rounded-xl bg-obsidian text-slate-400 hover:text-neon border border-white/10 transition-colors" title="Simular nota de voz / audio">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+      </svg>
+    </button>
+    <input
+      id="sim-input"
+      type="text"
+      placeholder="Escribe un mensaje de prueba al agente..."
+      class="flex-1 bg-obsidian border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon transition-colors"
+    />
+    <button
+      id="sim-send-btn"
+      class="btn-primary p-2.5 px-4 rounded-xl text-sm font-title font-bold"
+    >
+      <span>Enviar</span>
+      <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  function setupSimulator() {
+    const agents = {
+      factura: {
+        name: 'BillCat • Agente Facturador',
+        desc: 'Responde en 0.8s • Emite Facturas Electrónicas SUNAT/SAT/AFIP',
+        initial: '¡Miau! 🐱 Soy tu Agente Facturador de MeowLab. Envíame un texto, foto de pedido o audio con los datos de tu cliente y emitiré la factura electrónica al instante.',
+        pills: [
+          { label: '📝 "Facturar a RUC 20601234567 por $590..."', prompt: 'Facturar a RUC 20601234567 por 1 Licencia Anual MeowLab $590' },
+          { label: '🧾 "Boleta para DNI 44556677..."', prompt: 'Emitir boleta para Juan Perez DNI 44556677 por $120' },
+          { label: '📊 "¿Total facturado hoy?"', prompt: '¿Cuántas facturas emití hoy y cuánto es el total?' },
+        ],
+        response: (text: string) => {
+          if (text.includes('RUC') || text.includes('Facturar') || text.includes('590')) {
+            return `✅ <b>¡Factura F001-000492 Generada con Éxito!</b><br/><br/>
+            • <b>Emisor:</b> MeowLab Cloud Tech SAC<br/>
+            • <b>Cliente:</b> TECH INVERSIONES S.A.C (RUC 20601234567)<br/>
+            • <b>Concepto:</b> 1x Licencia Anual MeowLab<br/>
+            • <b>Total:</b> $590.00 USD (IGV/IVA incluido)<br/>
+            • <b>Estado:</b> ACEPTADA Y VALIDADA EN SUNAT 🟢<br/><br/>
+            📄 <span style="color:#c1ff72;text-decoration:underline;">[Descargar PDF_Factura_F001-492.pdf]</span> | 📦 <span style="color:#c1ff72;text-decoration:underline;">[Descargar XML]</span><br/>
+            <i>¿Deseas que se la envíe automáticamente al WhatsApp del cliente?</i>`;
+          }
+          if (text.includes('boleta') || text.includes('DNI')) {
+            return `✅ <b>Boleta Electrónica B001-001280 emitida</b> para Juan Pérez (DNI 44556677) por $120.00. Comprobante enviado y sincronizado con tu sistema contable. 📄✨`;
+          }
+          return `📊 <b>Resumen del Día:</b> Has emitido 18 facturas electrónicas hoy por un total de <b>$4,850.00 USD</b>. Todos los comprobantes están sincronizados en tiempo real. 🐾`;
+        }
+      },
+      dedicado: {
+        name: 'NexusCat • Agente Privado ERP/CRM',
+        desc: 'Conectado de forma segura a PostgreSQL / SAP / Salesforce de tu empresa',
+        initial: '🔐 Conexión segura establecida con ERP corporativo. Puedo consultar inventario, actualizar órdenes, consultar cartera de clientes y disparar pipelines internos vía WhatsApp.',
+        pills: [
+          { label: '📦 "Consultar stock SKU #9822"', prompt: '¿Tenemos stock disponible del SKU #9822 en almacén central?' },
+          { label: '👥 "¿Cuál es el balance de cliente CorpX?"', prompt: 'Consultar estado de cuenta y facturas pendientes de cliente CorpX' },
+          { label: '⚡ "Ejecutar pipeline de despacho #4091"', prompt: 'Ejecutar orden de despacho #4091 y notificar al transportista' },
+        ],
+        response: (text: string) => {
+          if (text.includes('SKU') || text.includes('stock')) {
+            return `🔍 <b>Consulta a Base de Datos PostgreSQL (ERP):</b><br/><br/>
+            • <b>Producto:</b> Sensor Industrial CatEye v4 (SKU #9822)<br/>
+            • <b>Almacén Central (Lima):</b> 142 unidades disponibles.<br/>
+            • <b>Almacén Secundario:</b> 35 unidades en tránsito.<br/>
+            • <b>Precio Unitario:</b> $85.00 USD<br/>
+            • <b>Último movimiento:</b> Despachadas 10 unids hace 40 mins (Orden #8821).`;
+          }
+          return `💼 <b>Reporte de Cuenta Corporativa (CRM):</b> Cliente CorpX tiene 1 factura pendiente por $1,200 (vence en 4 días) y límite crediticio de $15,000 disponible.`;
+        }
+      },
+      leads: {
+        name: 'HunterCat • Calificador SDR & Ventas',
+        desc: 'Atención 24/7 en <2s • Calificación BANT • Agenda en Google Calendar',
+        initial: '🎯 ¡Hola! Soy HunterCat. Atiendo prospectos entrantes en WhatsApp, filtro leads calificados y agendo llamadas directamente en el calendario de tus ejecutivos de venta.',
+        pills: [
+          { label: '📅 "Quiero agendar una demo mañana"', prompt: 'Hola, vi su software y quiero agendar una reunión para mañana en la tarde' },
+          { label: '💰 "¿Cuáles son sus planes de precios?"', prompt: '¿Cuánto cuesta implementar un agente dedicado para 5000 clientes al mes?' },
+          { label: '🏢 "Somos una empresa inmobiliaria"', prompt: 'Somos una inmobiliaria con 10 proyectos y queremos automatizar WhatsApp' },
+        ],
+        response: (text: string) => {
+          if (text.includes('demo') || text.includes('reunión') || text.includes('mañana')) {
+            return `📅 ¡Excelente! Tengo disponibilidad para mañana en los siguientes horarios:<br/><br/>
+            1️⃣ <b>3:30 PM</b> (Hora Perú / Colombia)<br/>
+            2️⃣ <b>5:00 PM</b> (Hora Perú / Colombia)<br/><br/>
+            Responde con el número de tu preferencia y agendaré la videollamada con nuestro Lead Architect en tu Google Calendar con link de Google Meet. 🚀`;
+          }
+          return `🎯 Entendido. Para una empresa con tu volumen, nuestro Agente Dedicado con conector CRM reduce los tiempos de atención en un 88%. ¿Prefieres que te pase un desglose técnico o agendamos 15 minutos con un especialista?`;
+        }
+      },
+      cobranzas: {
+        name: 'PawsCollect • Cobranzas & Pagos',
+        desc: 'Recordatorios cordiales • Links de pago Stripe/Yape/SPEI • Conciliación',
+        initial: '💳 Hola, soy PawsCollect. Gestiono recordatorios amables de pago por WhatsApp y genero links directos con verificación automática en tu pasarela.',
+        pills: [
+          { label: '💸 "Enviar link de pago cuota $75"', prompt: 'Generar link de pago para cliente #391 cuota de $75' },
+          { label: '🔔 "¿A quién le toca recordatorio hoy?"', prompt: 'Lista de clientes con vencimiento de pago hoy' },
+          { label: '✅ "Confirmar comprobante recibido"', prompt: 'Acabo de transferir $150, aquí está la captura' },
+        ],
+        response: (text: string) => {
+          return `💳 <b>Link de Pago Generado:</b><br/><br/>
+          • <b>Monto:</b> $75.00 USD<br/>
+          • <b>Enlace Seguro:</b> <span style="color:#c1ff72;">pay.meowlab.ai/checkout/inv_8829</span><br/>
+          • <b>Métodos Aceptados:</b> Tarjeta de Crédito, Yape/Plin, SPEI, Transferencia bancaria.<br/>
+          Una vez pagado, conciliaré el saldo automáticamente en tu sistema en tiempo real. 🐾`;
+        }
+      }
+    };
+
+    let currentAgentKey = 'factura';
+
+    const tabButtons = document.querySelectorAll('.sim-tab');
+    const agentNameEl = document.getElementById('sim-agent-name');
+    const agentDescEl = document.getElementById('sim-agent-desc');
+    const messagesBox = document.getElementById('sim-messages');
+    const typingEl = document.getElementById('sim-typing');
+    const quickPromptsBox = document.getElementById('sim-quick-prompts');
+    const inputEl = document.getElementById('sim-input') as HTMLInputElement;
+    const sendBtn = document.getElementById('sim-send-btn');
+    const chatBox = document.getElementById('sim-chat-box');
+
+    function renderAgent(key: string) {
+      currentAgentKey = key;
+      const agent = agents[key as keyof typeof agents];
+      if (!agent) return;
+
+      if (agentNameEl) agentNameEl.textContent = agent.name;
+      if (agentDescEl) agentDescEl.textContent = agent.desc;
+
+      tabButtons.forEach(btn => {
+        const bKey = btn.getAttribute('data-agent');
+        if (bKey === key) {
+          btn.className = 'sim-tab px-3 py-1.5 rounded-lg text-xs font-title font-bold transition-all bg-neon text-obsidian shadow-neon';
+        } else {
+          btn.className = 'sim-tab px-3 py-1.5 rounded-lg text-xs font-title font-bold text-slate-300 hover:text-white transition-all';
+        }
+      });
+
+      if (messagesBox) {
+        messagesBox.innerHTML = `
+          <div class="self-start max-w-[85%] sm:max-w-[70%] bg-surface border border-white/10 p-4 rounded-2xl rounded-tl-sm text-sm text-slate-100 shadow-card">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-title font-bold text-neon">${agent.name.split('•')[0]}</span>
+              <span class="text-[10px] text-slate-400">Ahora</span>
+            </div>
+            <p>${agent.initial}</p>
+          </div>
+        `;
+      }
+
+      if (quickPromptsBox) {
+        quickPromptsBox.innerHTML = `
+          <span class="text-xs text-slate-400 font-title font-bold whitespace-nowrap">Sugerencias:</span>
+          ${agent.pills.map(p => `
+            <button class="sim-pill text-xs font-medium bg-obsidian hover:bg-neon hover:text-obsidian text-slate-200 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap transition-colors" data-prompt="${p.prompt}">
+              ${p.label}
+            </button>
+          `).join('')}
+        `;
+        attachPillListeners();
+      }
+
+      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleSend(text: string) {
+      if (!text.trim() || !messagesBox) return;
+
+      const userMsgHtml = `
+        <div class="self-end max-w-[85%] sm:max-w-[70%] bg-[#005c4b] text-white p-3.5 px-4 rounded-2xl rounded-tr-sm text-sm shadow-card">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] text-emerald-200">Tú (Cliente)</span>
+            <span class="text-[10px] text-emerald-200">Ahora</span>
+          </div>
+          <p>${text}</p>
+        </div>
+      `;
+      messagesBox.insertAdjacentHTML('beforeend', userMsgHtml);
+      if (inputEl) inputEl.value = '';
+      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Play soft sound if available
+      if ((window as any).meowSound) (window as any).meowSound();
+
+      // Show typing
+      if (typingEl) typingEl.classList.remove('hidden');
+      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+      setTimeout(() => {
+        if (typingEl) typingEl.classList.add('hidden');
+        const agent = agents[currentAgentKey as keyof typeof agents];
+        const replyText = agent ? agent.response(text) : '¡Miau! Mensaje procesado.';
+
+        const agentMsgHtml = `
+          <div class="self-start max-w-[85%] sm:max-w-[70%] bg-surface border border-white/10 p-4 rounded-2xl rounded-tl-sm text-sm text-slate-100 shadow-card animate-fadeIn">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-title font-bold text-neon">${agent.name.split('•')[0]}</span>
+              <span class="text-[10px] text-slate-400">Ahora</span>
+            </div>
+            <div>${replyText}</div>
+          </div>
+        `;
+        messagesBox.insertAdjacentHTML('beforeend', agentMsgHtml);
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+      }, 750);
+    }
+
+    function attachPillListeners() {
+      const pills = document.querySelectorAll('.sim-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const prompt = pill.getAttribute('data-prompt') || '';
+          handleSend(prompt);
+        });
+      });
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const agentKey = btn.getAttribute('data-agent');
+        if (agentKey) renderAgent(agentKey);
+      });
+    });
+
+    if (sendBtn) {
+      sendBtn.addEventListener('click', () => {
+        if (inputEl) handleSend(inputEl.value);
+      });
+    }
+
+    if (inputEl) {
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          handleSend(inputEl.value);
+        }
+      });
+    }
+
+    attachPillListeners();
+  }
+
+  setupSimulator();
+  document.addEventListener('astro:page-load', setupSimulator);
+</script>

@@ -1,0 +1,252 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+
+const allAgents = [
+  {
+    id: 'billcat',
+    name: 'BillCat',
+    role: 'Agente Facturador Electrónico',
+    category: 'finanzas',
+    type: 'Servicio Micro-SaaS',
+    avatar: '⚡',
+    badge: 'Popular',
+    badgeClass: 'bg-neon text-obsidian font-bold',
+    description: 'Transforma audios, notas de voz, fotos de notas de venta y mensajes de texto en facturas electrónicas oficiales válidas en SUNAT/SAT/AFIP en menos de 3 segundos.',
+    specs: {
+      speed: '< 1.2s',
+      input: 'Audio, Foto, Texto, JSON',
+      output: 'PDF firmado, XML, Link WhatsApp',
+      integration: 'WhatsApp Cloud API / Webhook'
+    }
+  },
+  {
+    id: 'huntercat',
+    name: 'HunterCat',
+    role: 'Calificador SDR & Captación de Leads',
+    category: 'ventas',
+    type: 'Dedicado / SaaS',
+    avatar: '🎯',
+    badge: 'Ventas 24/7',
+    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
+    description: 'Responde a prospectos de anuncios de WhatsApp en menos de 2 segundos, filtra clientes calificados según presupuesto y agenda reuniones en Google Calendar automáticamente.',
+    specs: {
+      speed: '< 1.8s',
+      input: 'Chat WhatsApp, Formularios Lead Ads',
+      output: 'Lead Calificado en CRM + Cita en Calendar',
+      integration: 'HubSpot, Salesforce, Pipedrive'
+    }
+  },
+  {
+    id: 'nexuscat',
+    name: 'NexusCat Private ERP',
+    role: 'Conector de Base de Datos & ERP Empresarial',
+    category: 'dedicado',
+    type: 'Exclusivo Dedicado',
+    avatar: '🛡️',
+    badge: 'Enterprise',
+    badgeClass: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40',
+    description: 'Tu propio agente interno desplegado en tu servidor privado. Ejecuta consultas SQL seguras para consultar stock de almacén, balances de clientes, órdenes de despacho y KPIs.',
+    specs: {
+      speed: '< 2.0s',
+      input: 'Comandos de lenguaje natural por WhatsApp',
+      output: 'Reportes de datos, Gráficos, Actualizaciones DB',
+      integration: 'PostgreSQL, SAP, MySQL, Oracle, REST API'
+    }
+  },
+  {
+    id: 'pawscollect',
+    name: 'PawsCollect',
+    role: 'Agente de Cobranzas & Pasarelas',
+    category: 'finanzas',
+    type: 'Servicio Micro-SaaS',
+    avatar: '💳',
+    badge: 'Finanzas',
+    badgeClass: 'bg-neon/20 text-neon border border-neon/40',
+    description: 'Realiza seguimiento automático y amable a facturas vencidas o por vencer, envía enlaces de pago directo (Stripe, Yape, Plin, SPEI) y concilia las cuentas bancarias.',
+    specs: {
+      speed: '< 1.5s',
+      input: 'Listado de vencimientos / Estado de cuenta',
+      output: 'Links de pago dinámicos + Conciliación',
+      integration: 'Stripe, MercadoPago, Niubiz, Bancos'
+    }
+  },
+  {
+    id: 'whiskercare',
+    name: 'WhiskerCare',
+    role: 'Atención al Cliente & Mesa de Ayuda',
+    category: 'soporte',
+    type: 'Dedicado / SaaS',
+    avatar: '🐾',
+    badge: 'Soporte',
+    badgeClass: 'bg-sky-500/20 text-sky-300 border border-sky-500/40',
+    description: 'Atiende dudas frecuentes, políticas de devolución, consultas de envíos de e-commerce y deriva tickets difíciles a asesores humanos con un resumen ejecutivo listo.',
+    specs: {
+      speed: '< 1.0s',
+      input: 'Preguntas de usuarios, Códigos de Tracking',
+      output: 'Respuestas instantáneas + Escalado inteligente',
+      integration: 'Zendesk, Shopify, WooCommerce, Freshdesk'
+    }
+  },
+  {
+    id: 'bookcat',
+    name: 'BookCat',
+    role: 'Gestor de Reservas & Calendarios',
+    category: 'operaciones',
+    type: 'Servicio Micro-SaaS',
+    avatar: '📅',
+    badge: 'Reservas',
+    badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+    description: 'Diseñado para clínicas, dentistas, salones, restaurantes y talleres. Comprueba disponibilidad en tiempo real, reserva cupos y envía recordatorios para evitar inasistencias.',
+    specs: {
+      speed: '< 1.4s',
+      input: 'Fechas, servicios solicitados por el paciente/cliente',
+      output: 'Bloqueo en agenda + Recordatorio con confirmación',
+      integration: 'Google Calendar, Cal.com, Calendly'
+    }
+  }
+];
+---
+
+<Layout
+  title="Catálogo de Agentes Felinos de IA | MeowLab"
+  description="Explora todos los agentes de IA de WhatsApp disponibles: Agentes Dedicados con conexión ERP y Agentes de Servicio Micro-SaaS."
+>
+  <div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Page Header -->
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+          <span>CATÁLOGO Y ROLES ESPECIALIZADOS</span>
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight">
+          Nuestra Flota de <span class="text-neon">Agentes Felinos</span>
+        </h1>
+        <p class="text-slate-300 text-base sm:text-lg mt-4">
+          Cada agente tiene una especialidad concreta, guardrails entrenados y conectores nativos a WhatsApp.
+        </p>
+
+        <!-- Category Filters -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-8" id="catalog-filters">
+          <button data-cat="all" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-neon text-obsidian shadow-neon transition-all">
+            Todos los Agentes
+          </button>
+          <button data-cat="dedicado" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
+            🛡️ Dedicados ERP / DB
+          </button>
+          <button data-cat="finanzas" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
+            ⚡ Facturación & Cobros
+          </button>
+          <button data-cat="ventas" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
+            🎯 Ventas & Leads
+          </button>
+          <button data-cat="soporte" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
+            🐾 Soporte & Ayuda
+          </button>
+        </div>
+      </div>
+
+      <!-- Agent Cards Grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="catalog-grid">
+        {allAgents.map((agent) => (
+          <div class="agent-card glass-panel rounded-3xl p-8 border border-white/10 flex flex-col justify-between group hover:border-neon/50 transition-all duration-300 shadow-card" data-category={agent.category}>
+            <div>
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-surface-elevated border border-neon/30 flex items-center justify-center text-3xl shadow-neon group-hover:scale-110 transition-transform">
+                  {agent.avatar}
+                </div>
+                <span class={`text-xs font-title font-bold px-3 py-1 rounded-full ${agent.badgeClass}`}>
+                  {agent.badge}
+                </span>
+              </div>
+
+              <div class="mb-1 text-xs font-title font-bold text-neon uppercase tracking-wider">
+                {agent.type}
+              </div>
+              <h2 class="text-2xl font-bold text-white group-hover:text-neon transition-colors">
+                {agent.name}
+              </h2>
+              <p class="text-xs font-semibold text-slate-400 mb-4">
+                {agent.role}
+              </p>
+
+              <p class="text-sm text-slate-300 leading-relaxed mb-6">
+                {agent.description}
+              </p>
+
+              <!-- Technical Specs Card -->
+              <div class="bg-obsidian/80 rounded-2xl p-4 border border-white/5 space-y-2 text-xs font-mono mb-6">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Velocidad:</span>
+                  <span class="text-neon font-bold">{agent.specs.speed}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Entrada:</span>
+                  <span class="text-slate-300">{agent.specs.input}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Salida:</span>
+                  <span class="text-slate-300">{agent.specs.output}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Conexión:</span>
+                  <span class="text-emerald-400">{agent.specs.integration}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <a href="/contacto" class="btn-primary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
+                Probar {agent.name} en WhatsApp
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Custom Agent Request -->
+      <div class="mt-16 glass-panel rounded-3xl p-8 sm:p-12 border border-neon/30 text-center max-w-3xl mx-auto space-y-4">
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-white">¿Necesitas un Agente con un Rol a Medida?</h3>
+        <p class="text-slate-300 text-sm">
+          Podemos entrenar un agente felino con la base de conocimiento específica de tu empresa, documentos PDF, manuales de procedimiento y APIs privadas.
+        </p>
+        <a href="/dedicado" class="btn-secondary px-8 py-3.5 rounded-xl font-title font-bold text-sm inline-flex items-center gap-2">
+          <span>Solicitar Agente Personalizado</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <CtaBanner />
+</Layout>
+
+<script>
+  function setupCatalogFilters() {
+    const buttons = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.agent-card');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.getAttribute('data-cat');
+        
+        buttons.forEach(b => {
+          b.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all';
+        });
+        btn.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-neon text-obsidian shadow-neon transition-all';
+
+        cards.forEach(card => {
+          const cardCat = card.getAttribute('data-category');
+          if (cat === 'all' || cardCat === cat) {
+            (card as HTMLElement).style.display = 'flex';
+          } else {
+            (card as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  setupCatalogFilters();
+  document.addEventListener('astro:page-load', setupCatalogFilters);
+</script>

@@ -1,0 +1,151 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+---
+
+<Layout
+  title="Servicios Micro-SaaS de IA por WhatsApp | MeowLab"
+  description="Servicios de IA listos para usar en WhatsApp: Facturación electrónica automática con BillCat, cobranzas inteligentes y más."
+>
+  <div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+      <!-- Header -->
+      <div class="text-center max-w-4xl mx-auto space-y-6">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold">
+          <span>SERVICIOS MICRO-SAAS ON-DEMAND</span>
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight">
+          Agentes Especializados <span class="text-neon">Listos en 60 Segundos</span>
+        </h1>
+        <p class="text-slate-300 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
+          No necesitas desarrollar nada ni contratar ingenieros. Conéctate a nuestros agentes compartidos por WhatsApp y empieza a emitir facturas, cobrar o atender clientes hoy mismo.
+        </p>
+      </div>
+
+      <!-- Focus on BillCat -->
+      <div id="billcat" class="glass-panel rounded-3xl p-8 sm:p-14 border border-neon/40 shadow-neon-lg relative overflow-hidden">
+        <div class="grid lg:grid-cols-12 gap-10 items-center">
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon text-obsidian text-xs font-title font-black">
+              ⭐ PRODUCTO ESTRELLA
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              BillCat • Tu Facturador Electrónico por WhatsApp
+            </h2>
+            <p class="text-slate-300 text-base leading-relaxed">
+              ¿Cansado de entrar a portales tributarios lentos o sistemas engorrosos? Con <strong>BillCat</strong>, solo tienes que enviarle un audio o mensaje de WhatsApp con los datos de venta:
+            </p>
+
+            <div class="bg-obsidian/90 p-5 rounded-2xl border border-white/10 font-mono text-xs text-slate-300 space-y-2">
+              <p class="text-neon font-bold">// Ejemplo de mensaje que le envías por WhatsApp:</p>
+              <p class="text-white">"Emite factura a RUC 20609876543 por 2 Consultorías de Marketing a $350 cada una, al crédito 15 días."</p>
+            </div>
+
+            <ul class="space-y-3 text-sm text-slate-200">
+              <li class="flex items-center gap-3">
+                <span class="text-neon font-bold">⚡</span>
+                <span>Emisión y validación oficial ante entidades tributarias en <strong>menos de 2 segundos</strong>.</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-neon font-bold">📄</span>
+                <span>Genera automáticamente el <strong>PDF profesional</strong> con tu logo y el archivo <strong>XML firmado</strong>.</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-neon font-bold">🎙️</span>
+                <span>Soporta <strong>audios de voz</strong>, fotos de notas de pedido físicas y texto informal.</span>
+              </li>
+            </ul>
+
+            <div class="pt-4">
+              <a href="/contacto" class="btn-primary px-8 py-4 rounded-xl text-sm font-title font-bold shadow-neon">
+                Activar BillCat para mi Empresa →
+              </a>
+            </div>
+          </div>
+
+          <!-- Right Mockup Card -->
+          <div class="lg:col-span-5 bg-surface-elevated p-6 rounded-3xl border border-white/10 shadow-card">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🐱</span>
+                <div>
+                  <div class="font-title font-bold text-white text-sm">BillCat Pro v2</div>
+                  <div class="text-[10px] text-neon">EN LÍNEA 24/7</div>
+                </div>
+              </div>
+              <span class="text-xs font-mono text-slate-400">#F001-892</span>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div class="bg-obsidian p-3 rounded-xl border border-white/5">
+                <span class="text-slate-500">Cliente:</span>
+                <p class="text-white font-bold">SERVICIOS DIGITALES LATAM SAC</p>
+                <p class="text-slate-400">RUC: 20609876543</p>
+              </div>
+
+              <div class="bg-obsidian p-3 rounded-xl border border-white/5 space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">2x Consultoría Marketing:</span>
+                  <span class="text-white font-bold">$700.00</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">IGV / IVA (18%):</span>
+                  <span class="text-white font-bold">$126.00</span>
+                </div>
+                <div class="flex justify-between border-t border-white/10 pt-1 text-neon font-title font-bold text-sm">
+                  <span>TOTAL EMITIDO:</span>
+                  <span>$826.00 USD</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-neon/10 border border-neon/30 rounded-xl text-center text-neon font-title font-bold">
+                ✓ COMPROBANTE VALIDADO Y REGISTRADO
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Micro-SaaS Agents (PawsCollect & HunterCat) -->
+      <div class="grid md:grid-cols-2 gap-8">
+        <div id="pawscollect" class="glass-panel rounded-3xl p-8 sm:p-10 border border-white/10 shadow-card flex flex-col justify-between">
+          <div>
+            <div class="text-3xl mb-4">💳</div>
+            <h3 class="text-2xl font-extrabold text-white mb-2">PawsCollect • Cobranzas en Piloto Automático</h3>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+              Recuerda pagos pendientes con mensajes cordiales en WhatsApp, envía botones de pago con tarjeta, transferencia o billeteras móviles y actualiza tu estado contable al instante.
+            </p>
+            <ul class="space-y-2.5 text-xs text-slate-300 mb-8">
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Sin fricción para tus clientes</li>
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Links compatibles con Stripe, MercadoPago, Yape</li>
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Reduce cuentas incobrables en un 45%</li>
+            </ul>
+          </div>
+          <a href="/contacto" class="btn-secondary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
+            Probar PawsCollect
+          </a>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 sm:p-10 border border-white/10 shadow-card flex flex-col justify-between">
+          <div>
+            <div class="text-3xl mb-4">🎯</div>
+            <h3 class="text-2xl font-extrabold text-white mb-2">HunterCat • Calificador & SDR Inmediato</h3>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+              Captura los leads que llegan de campañas de publicidad, califica su interés con preguntas dinámicas y agenda reuniones directamente en el calendario de tus comerciales.
+            </p>
+            <ul class="space-y-2.5 text-xs text-slate-300 mb-8">
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Respuesta garantizada en menos de 2 segundos</li>
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Sincronización con Google Calendar y Outlook</li>
+              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Detección de intención de compra con IA</li>
+            </ul>
+          </div>
+          <a href="/contacto" class="btn-secondary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
+            Probar HunterCat
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <CtaBanner />
+</Layout>

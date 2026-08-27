@@ -1,0 +1,69 @@
+---
+const testimonials = [
+  {
+    quote: "Implementamos BillCat en WhatsApp para nuestras 14 sucursales. Los clientes nos mandan audio con su RUC y la factura sale en 2 segundos. Redujimos un 90% el reclamo por comprobantes.",
+    author: "Carlos Mendoza",
+    role: "Director de Operaciones",
+    company: "Grupo Ferretero Del Norte",
+    agentUsed: "BillCat (Facturación)",
+    metric: "4,200 facturas/mes"
+  },
+  {
+    quote: "NexusCat se conectó a nuestra base PostgreSQL privada en menos de 48 horas. Ahora nuestros 35 vendedores consultan stock y listas de precios desde la calle por WhatsApp sin llamar al almacén.",
+    author: "Sofía Arismendi",
+    role: "Gerente de Tecnología",
+    company: "Distribuidora Logística Andina",
+    agentUsed: "NexusCat (ERP Dedicado)",
+    metric: "-70% llamadas internas"
+  },
+  {
+    quote: "HunterCat responde a los prospectos de Facebook Ads a las 2 AM cuando nosotros dormimos, califica el interés y les reserva cita con link de Google Meet. Triplicamos la tasa de cierre.",
+    author: "Mateo Valdivia",
+    role: "Fundador",
+    company: "Inmobiliaria Skyline",
+    agentUsed: "HunterCat (SDR Leads)",
+    metric: "3.2x Conversión de Leads"
+  }
+];
+---
+
+<section class="py-24 border-t border-white/10 relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+        <span>CASOS DE ÉXITO REALES</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        Empresas que Ya Operan con <span class="text-neon">MeowLab</span>
+      </h2>
+      <p class="text-slate-300 text-base sm:text-lg mt-4">
+        Descubre cómo transformaron sus flujos de trabajo diarios utilizando WhatsApp como su canal operativo principal.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      {testimonials.map(t => (
+        <div class="glass-panel rounded-3xl p-8 border border-white/10 flex flex-col justify-between relative">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-title font-bold px-3 py-1 bg-neon/15 text-neon border border-neon/30 rounded-full">
+                {t.agentUsed}
+              </span>
+              <span class="text-xs font-title font-bold text-white">
+                {t.metric}
+              </span>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6 italic">
+              "{t.quote}"
+            </p>
+          </div>
+
+          <div class="border-t border-white/10 pt-4">
+            <div class="font-title font-bold text-white text-base">{t.author}</div>
+            <div class="text-xs text-slate-400">{t.role} • {t.company}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,55 @@
+---
+const faqs = [
+  {
+    q: "¿Cuál es la diferencia entre un Agente Dedicado y un Agente de Servicio?",
+    a: "Un Agente Dedicado es un desarrollo privado para tu empresa, con integración a tus bases de datos internas (SQL, ERP, CRM) y flujos únicos. Un Agente de Servicio (como BillCat de Facturación) es un micro-SaaS compartido: múltiples empresas le escriben a un mismo número oficial para emitir facturas o cobrar sin necesidad de configurar servidores."
+  },
+  {
+    q: "¿Cómo funciona el Agente Facturador (BillCat) en WhatsApp?",
+    a: "Le escribes por WhatsApp un texto, le envías un audio diciendo 'Factura a RUC 2060... por 500 dólares' o subes una foto del pedido. BillCat transcribe el mensaje, valida los datos del cliente ante la entidad tributaria (SUNAT, SAT, etc.), genera la factura formal y te devuelve el PDF y XML oficial en segundos."
+  },
+  {
+    q: "¿Qué seguridad tienen mis datos al conectar un Agente Dedicado con mi ERP?",
+    a: "Máxima seguridad empresarial. Los agentes dedicados pueden desplegarse en tu propia VPC o en servidores privados con túneles seguros (VPN/SSH). No compartimos datos con terceros ni utilizamos tu información confidencial para entrenar modelos públicos."
+  },
+  {
+    q: "¿Cuánto tiempo toma implementar un Agente en WhatsApp?",
+    a: "Los Agentes de Servicio (Micro-SaaS) se activan en menos de 5 minutos escaneando un QR. Los Agentes Dedicados con integración compleja a ERPs y APIs privadas toman entre 5 a 10 días laborables de puesta en marcha."
+  },
+  {
+    q: "¿Los agentes entienden audios de WhatsApp con ruido o acentos?",
+    a: "Sí. Utilizamos Whisper de alta precisión optimizado para español de Latinoamérica y modismos comerciales, permitiendo interpretar audios de voz con ruido ambiental sin problemas."
+  }
+];
+---
+
+<section class="py-24 bg-surface/20 border-t border-white/10">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
+        <span>PREGUNTAS FRECUENTES</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        Todo lo que Necesitas Saber
+      </h2>
+    </div>
+
+    <div class="space-y-4">
+      {faqs.map((faq, index) => (
+        <details class="group glass-panel rounded-2xl border border-white/10 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300">
+          <summary class="flex items-center justify-between cursor-pointer focus:outline-none">
+            <h3 class="text-lg font-title font-bold text-white group-open:text-neon transition-colors">
+              {faq.q}
+            </h3>
+            <span class="text-neon font-title font-black text-xl transition-transform duration-300 group-open:rotate-45">
+              +
+            </span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-300 leading-relaxed border-t border-white/5 pt-4">
+            {faq.a}
+          </p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
