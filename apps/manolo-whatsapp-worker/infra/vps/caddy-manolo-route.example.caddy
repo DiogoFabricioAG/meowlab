@@ -1,0 +1,9 @@
+# Añadir dentro del bloque de facturas.meowlab.tech, antes del handle general.
+handle_path /internal/manolo/* {
+	reverse_proxy manolo-bridge:3000
+}
+
+# El frontend existente queda como fallback del host.
+handle {
+	reverse_proxy facturaya-ai-web-1:80
+}

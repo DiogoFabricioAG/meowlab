@@ -42,6 +42,38 @@
 - **Efectos de Audio:** Sintetizador felino Web Audio API (*Modo Ronroneo 🐱*).
 - **Despliegue:** 100% estático / Docker / VPS con Nginx o Caddy.
 
+## 🐾 Estructura del ecosistema
+
+La landing de MeowLab y la plataforma conversacional viven en el mismo
+repositorio, pero cada aplicación conserva su propio ciclo de desarrollo y
+despliegue:
+
+```text
+D:\meowlab
+├─ src/                         # Landing pública de MeowLab
+├─ public/                      # Marca, fuentes e imágenes
+└─ apps/
+   └─ manolo-whatsapp-worker/   # Worker, bridge, roles, TUI y migraciones
+```
+
+Manolo sigue teniendo un webhook único registrado en Meta. El Worker se
+despliega desde `apps/manolo-whatsapp-worker` con Wrangler y el bridge Node se
+construye para el VPS desde ese mismo proyecto. Los secretos locales y los
+artefactos de desarrollo quedan fuera del repositorio.
+
+La documentación técnica comienza en [`docs/README.md`](docs/README.md). Los
+agentes de desarrollo y revisión deben usar [`AGENTS.md`](AGENTS.md) como router
+para cargar únicamente el contexto correspondiente a su tarea.
+
+```powershell
+cd D:\meowlab\apps\manolo-whatsapp-worker
+npm ci
+npm test
+npm run typecheck
+npm run build:node
+npm run deploy
+```
+
 ---
 
 ## 💻 Desarrollo Local

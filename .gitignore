@@ -12,3 +12,12 @@ pnpm-debug.log*
 test.py
 test.txt
 build_app.py
+
+# Manolo WhatsApp Worker: local secrets and generated artifacts
+apps/manolo-whatsapp-worker/.dev.vars
+apps/manolo-whatsapp-worker/.wrangler/
+apps/manolo-whatsapp-worker/backups/
+apps/manolo-whatsapp-worker/output/
+apps/manolo-whatsapp-worker/tmp/
+apps/manolo-whatsapp-worker/worker-startup.cpuprofile
+.tmp-meowlab-assets/

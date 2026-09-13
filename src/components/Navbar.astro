@@ -1,0 +1,123 @@
+---
+import MeowLogo from './ui/MeowLogo.astro';
+import TablerIcon from './ui/TablerIcon.astro';
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+
+const navLinks = [
+  { name: 'Asistentes y casos', href: '#agentes' },
+  { name: '¿Cómo funciona?', href: '#como-funciona' },
+  { name: 'Preguntas frecuentes', href: '#faq' },
+];
+---
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-200 border-b border-surface-border" id="main-header">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative flex items-center justify-between h-20">
+      
+      <!-- Left: Logo -->
+      <div class="flex items-center">
+        <a href="/" class="group flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-forest rounded-xl">
+          <MeowLogo size="md" />
+        </a>
+      </div>
+
+      <!-- Center: Navigation Links (Desktop - Perfectly Centered) -->
+      <nav class="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" aria-label="Navegación principal">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class="text-sm font-medium text-content-secondary hover:text-brand-forest transition-colors py-1 whitespace-nowrap"
+          >
+            {link.name}
+          </a>
+        ))}
+      </nav>
+
+      <!-- Right: Action Buttons -->
+      <div class="hidden sm:flex items-center gap-3">
+        <a
+          href="/contacto"
+          class="hidden lg:inline-flex text-sm font-medium text-content-secondary hover:text-content-main transition-colors px-3 py-2 rounded-xl"
+        >
+          Iniciar sesión
+        </a>
+        <a
+          href="#empezar"
+          class="btn-primary text-sm font-medium px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5"
+        >
+          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} />
+          <span>Probar en WhatsApp</span>
+        </a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="flex md:hidden items-center gap-2">
+        <a
+          href="#empezar"
+          class="btn-primary text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-1"
+        >
+          <TablerIcon name="brand-whatsapp" size={14} strokeWidth={2} />
+          <span>WhatsApp</span>
+        </a>
+        <button
+          type="button"
+          id="mobile-menu-btn"
+          class="p-2 rounded-xl text-content-secondary hover:text-content-main hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-brand-forest"
+          aria-label="Abrir menú"
+          aria-expanded="false"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-surface-border bg-white px-4 pt-3 pb-6 space-y-3">
+    {navLinks.map((link) => (
+      <a
+        href={link.href}
+        class="mobile-nav-link block px-3 py-2.5 text-base font-medium text-content-secondary hover:text-brand-forest hover:bg-surface-subtle rounded-xl transition-colors text-center"
+      >
+        {link.name}
+      </a>
+    ))}
+    <div class="pt-2 border-t border-surface-border flex flex-col gap-2">
+      <a
+        href="/contacto"
+        class="block px-3 py-2 text-center text-sm font-medium text-content-secondary hover:text-content-main rounded-xl"
+      >
+        Iniciar sesión
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const links = document.querySelectorAll('.mobile-nav-link');
+
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', (!isExpanded).toString());
+      menu.classList.toggle('hidden');
+    });
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+</script>

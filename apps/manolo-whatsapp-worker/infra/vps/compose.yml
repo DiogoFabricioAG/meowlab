@@ -1,0 +1,117 @@
+name: manolo-platform
+
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Define POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Define POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - manolo_postgres_data:/var/lib/postgresql/data
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    networks:
+      - manolo_internal
+    shm_size: 128mb
+    mem_limit: 768m
+    mem_reservation: 256m
+    cpus: 1.0
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  bridge:
+    build:
+      context: ../..
+      dockerfile: infra/vps/bridge.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:?Define POSTGRES_USER in .env}:${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:?Define POSTGRES_DB in .env}
+      GROQ_API_KEY_FILE: /run/secrets/groq_api_key
+      VPS_BRIDGE_HMAC_SECRET_FILE: /run/secrets/vps_bridge_hmac_secret
+      CREDENTIALS_ENCRYPTION_KEY_FILE: /run/secrets/credentials_encryption_key
+      FACTURAYA_BASE_URL: ${FACTURAYA_BASE_URL:-https://facturas.meowlab.tech}
+      PRINT_ADVISOR_MODEL: ${PRINT_ADVISOR_MODEL:-openai/gpt-oss-120b}
+      PORT: 3000
+      TZ: UTC
+    expose:
+      - "3000"
+    secrets:
+      - groq_api_key
+      - vps_bridge_hmac_secret
+      - credentials_encryption_key
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      manolo_internal: {}
+      manolo_egress: {}
+      manolo_ingress:
+        aliases:
+          - manolo-bridge
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    mem_limit: 384m
+    mem_reservation: 128m
+    cpus: 0.75
+    pids_limit: 128
+    stop_grace_period: 30s
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+volumes:
+  manolo_postgres_data:
+    name: manolo_postgres_data
+
+secrets:
+  groq_api_key:
+    file: ./secrets/groq_api_key
+  vps_bridge_hmac_secret:
+    file: ./secrets/vps_bridge_hmac_secret
+  credentials_encryption_key:
+    file: ./secrets/credentials_encryption_key
+
+networks:
+  manolo_internal:
+    name: manolo_internal
+    internal: true
+  manolo_egress:
+    name: manolo_egress
+  manolo_ingress:
+    name: manolo_ingress
+    external: true

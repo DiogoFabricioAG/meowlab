@@ -1,0 +1,147 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+
+const steps = [
+  {
+    number: '01',
+    title: 'Escríbele un mensaje o mándale un audio',
+    description: 'Pídele lo que necesitas con tus propias palabras, como si le estuvieras hablando a alguien de tu equipo.',
+    snippet: {
+      from: 'Tú (WhatsApp)',
+      text: '¿Salió alguna compra pública hoy para obras en Junín?',
+      type: 'user'
+    }
+  },
+  {
+    number: '02',
+    title: 'El asistente hace el trabajo pesado',
+    description: 'Revisa las páginas oficiales o los datos de tu empresa y filtra solo lo que de verdad te interesa.',
+    snippet: {
+      from: 'Asistente MeowLab',
+      text: 'Revisando convocatorias de hoy... Encontré 2 opciones con montos y fechas ideales.',
+      type: 'agent'
+    }
+  },
+  {
+    number: '03',
+    title: 'Recibes la respuesta lista en tu chat',
+    description: 'Te entrega la información resumida, el PDF listo o el documento para que tomes decisiones al instante.',
+    snippet: {
+      from: 'Resultado en tu WhatsApp',
+      text: 'Aquí tienes las 2 opciones con sus requisitos y el plazo para postular.',
+      type: 'result'
+    }
+  }
+];
+---
+
+<section class="py-20 md:py-28 bg-white" id="como-funciona">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Header -->
+    <div class="text-center max-w-2xl mx-auto mb-16 md:mb-20 space-y-4">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+        <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
+        <span>Fácil y sin vueltas</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight">
+        Tan fácil como chatear con un amigo.
+      </h2>
+      <p class="text-lg text-content-secondary font-normal">
+        No tienes que entrar a páginas enredadas ni aprender a usar sistemas nuevos. Todo pasa en la aplicación que ya usas todos los días.
+      </p>
+    </div>
+
+    <!-- 3-Step Horizontal Flow -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative items-stretch">
+      
+      {steps.map((step, idx) => {
+        const isHighlighted = idx === 1;
+        return (
+          <div class={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
+            isHighlighted
+              ? 'bg-brand-forest text-white border border-brand-forest shadow-elevated md:-translate-y-2'
+              : 'bg-white text-content-main border border-surface-border hover:border-brand-forest/20 shadow-card'
+          }`}>
+            
+            {isHighlighted && (
+              <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-mint/10 rounded-full blur-2xl pointer-events-none"></div>
+            )}
+
+            <div>
+              <!-- Step Number Pill & Arrow -->
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                  <span class={`font-mono text-xs font-bold px-3 py-1 rounded-full ${
+                    isHighlighted
+                      ? 'bg-brand-mint text-brand-forest'
+                      : 'bg-brand-mint/50 text-brand-forest'
+                  }`}>
+                    {step.number}
+                  </span>
+                  {isHighlighted && (
+                    <span class="text-[10px] font-semibold text-brand-mint uppercase tracking-wider bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
+                      Paso clave
+                    </span>
+                  )}
+                </div>
+                {idx < 2 && (
+                  <span class={`hidden md:inline text-lg ${
+                    isHighlighted ? 'text-brand-mint/60' : 'text-content-muted'
+                  }`}>
+                    →
+                  </span>
+                )}
+              </div>
+
+              <!-- Title & Description -->
+              <h3 class={`text-xl font-bold mb-2.5 ${isHighlighted ? 'text-white' : 'text-content-main'}`}>
+                {step.title}
+              </h3>
+              <p class={`text-sm leading-relaxed mb-6 font-normal ${
+                isHighlighted ? 'text-brand-mint/90' : 'text-content-secondary'
+              }`}>
+                {step.description}
+              </p>
+            </div>
+
+            <!-- Micro Window / Message Preview -->
+            <div class={`pt-4 border-t ${isHighlighted ? 'border-white/15' : 'border-surface-border'}`}>
+              <div class={`rounded-2xl p-4 text-xs space-y-1.5 ${
+                isHighlighted
+                  ? 'bg-white/10 border border-white/20 backdrop-blur-xs text-white'
+                  : step.snippet.type === 'user'
+                  ? 'bg-surface-subtle border border-surface-border'
+                  : 'bg-brand-mint-light border border-brand-mint/60 shadow-xs'
+              }`}>
+                <div class="flex items-center justify-between text-[11px] font-medium">
+                  <span class={isHighlighted ? 'text-brand-mint' : 'text-content-muted'}>
+                    {step.snippet.from}
+                  </span>
+                  {step.snippet.type === 'agent' && (
+                    <span class={`w-2 h-2 rounded-full ${isHighlighted ? 'bg-[#25D366]' : 'bg-brand-forest'} animate-pulse`}></span>
+                  )}
+                  {step.snippet.type === 'result' && (
+                    <span class="text-brand-forest font-semibold">Listo</span>
+                  )}
+                </div>
+                <div class={`font-normal leading-relaxed ${
+                  isHighlighted 
+                    ? 'text-white font-medium' 
+                    : step.snippet.type === 'result' 
+                    ? 'text-brand-forest font-medium' 
+                    : 'text-content-main'
+                }`}>
+                  {step.snippet.text}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        );
+      })}
+
+    </div>
+
+  </div>
+</section>

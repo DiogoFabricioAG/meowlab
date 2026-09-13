@@ -4,48 +4,56 @@ export default {
   theme: {
     extend: {
       colors: {
-        obsidian: {
-          DEFAULT: '#0a0929',
-          50: '#f4f4fa',
-          100: '#e8e7f5',
-          200: '#c5c3e6',
-          700: '#231f6d',
-          800: '#17154a',
-          900: '#100e3a',
-          950: '#0a0929',
+        brand: {
+          forest: '#0C493C',
+          'forest-hover': '#08372D',
+          'forest-dark': '#062821',
+          mint: '#D8F0E5',
+          'mint-light': '#F0F9F5',
+          'mint-subtle': '#E7F5EE',
+          'mint-dark': '#8BC9AD',
         },
         surface: {
-          DEFAULT: '#12103f',
-          elevated: '#18154e',
-          hover: '#1f1b63',
-          border: 'rgba(255, 255, 255, 0.08)',
+          DEFAULT: '#FFFFFF',
+          subtle: '#F7F9F7',
+          muted: '#EEF2EF',
+          border: '#E8ECE9',
+          'border-subtle': '#F0F3F1',
+          'border-mint': '#C3E5D4',
         },
-        neon: {
-          DEFAULT: '#c1ff72',
-          hover: '#a8f748',
-          glow: 'rgba(193, 255, 114, 0.35)',
-          muted: 'rgba(193, 255, 114, 0.12)',
+        content: {
+          main: '#111816',
+          secondary: '#586561',
+          muted: '#8A9691',
+          faint: '#BDC7C2',
         },
       },
       fontFamily: {
+        sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         title: ['Blinker', 'sans-serif'],
-        sans: ['Actor', 'sans-serif'],
+        display: ['Blinker', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      borderRadius: {
+        'xl': '14px',
+        '2xl': '20px',
+        '3xl': '28px',
       },
       boxShadow: {
-        'neon': '0 0 25px -5px rgba(193, 255, 114, 0.4)',
-        'neon-lg': '0 0 45px -5px rgba(193, 255, 114, 0.55)',
-        'card': '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+        'soft': '0 10px 40px rgba(20, 40, 30, 0.05)',
+        'card': '0 4px 20px rgba(12, 73, 60, 0.04)',
+        'hover': '0 14px 35px -8px rgba(12, 73, 60, 0.08)',
+        'elevated': '0 20px 50px -12px rgba(12, 73, 60, 0.12)',
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
+        'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
+        pulseSubtle: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
         },
-      }
+      },
     },
   },
   plugins: [],

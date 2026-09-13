@@ -1,0 +1,98 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+
+const faqs = [
+  {
+    question: '¿Necesito instalar alguna aplicación extra o tener una computadora?',
+    answer: 'No. Todo funciona dentro del WhatsApp que ya tienes instalado en tu teléfono o en tu computadora con WhatsApp Web. No necesitas descargar ningún programa, instalar aplicaciones pesadas ni aprender menús complicados. Si sabes mandar un mensaje de texto o un audio, ya sabes usar MeowLab.',
+  },
+  {
+    question: '¿Cómo funciona la emisión de facturas ante SUNAT? ¿Tiene valor legal?',
+    answer: 'Es 100% legal y oficial. MeowLab se conecta de forma segura con el sistema de facturación electrónica autorizado. Cuando le pides una factura o boleta, valida el RUC del cliente, calcula los impuestos (IGV) y genera de inmediato el PDF oficial y el archivo XML firmado por SUNAT, listos para descargar o reenviar.',
+  },
+  {
+    question: '¿Cómo busca el asistente las compras públicas y licitaciones del SEACE?',
+    answer: 'El asistente monitorea continuamente las convocatorias públicas del SEACE y entidades del Estado peruano. Filtra únicamente las oportunidades que coincidan con tu rubro, tu constancia del RNP y tu zona geográfica, y te envía cada mañana un resumen con los presupuestos y las bases listas para postular.',
+  },
+  {
+    question: '¿Es segura la información de mi empresa, inventarios y clientes?',
+    answer: 'Completamente segura. La información de tu negocio está aislada de forma estricta por empresa y protegida con cifrado de extremo a extremo. Tus datos de ventas, inventario y cotizaciones son privados y nunca se comparten con terceros ni con otras empresas.',
+  },
+  {
+    question: '¿Qué pasa si mi negocio usa Excel, Google Sheets o un sistema propio?',
+    answer: 'Podemos conectar a tu asistente directamente con tus hojas de Google Sheets, archivos Excel o bases de datos existentes. No tienes que cambiar tu forma de trabajar: tu equipo sigue llenando sus hojas de siempre y el asistente consulta o actualiza los datos al instante desde WhatsApp.',
+  },
+  {
+    question: '¿Puedo probarlo antes de contratar? ¿Cómo empiezo?',
+    answer: 'Sí, puedes probar el asistente gratis y ver cómo responde en vivo directamente en tu WhatsApp. No requiere tarjeta de crédito ni contratos forzosos. Si te convence y deseas adaptarlo a tu catálogo o procesos específicos, lo dejamos configurado en menos de 24 horas.',
+  },
+];
+---
+
+<section class="py-20 md:py-28 bg-surface-subtle/40 border-y border-surface-border" id="faq">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Header -->
+    <div class="text-center space-y-4 mb-14 md:mb-16">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+        <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
+        <span>Resolvemos tus dudas</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight">
+        Preguntas frecuentes antes de empezar.
+      </h2>
+
+      <p class="text-base sm:text-lg text-content-secondary max-w-2xl mx-auto leading-relaxed font-normal">
+        Todo lo que necesitas saber sobre cómo tus nuevos asistentes felinos trabajan en tu WhatsApp de forma segura y sencilla.
+      </p>
+    </div>
+
+    <!-- Accordion List -->
+    <div class="space-y-4">
+      {faqs.map((faq, index) => (
+        <details 
+          class="group bg-white rounded-2xl border border-surface-border transition-all duration-200 overflow-hidden open:border-brand-mint open:shadow-soft"
+          open={index === 0}
+        >
+          <summary class="flex items-center justify-between gap-4 p-5 sm:p-6 cursor-pointer font-bold text-base sm:text-lg text-content-main hover:text-brand-forest transition-colors list-none select-none">
+            <span class="leading-snug">{faq.question}</span>
+            <div class="w-8 h-8 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-center shrink-0 text-content-secondary group-open:bg-brand-mint-light group-open:border-brand-mint group-open:text-brand-forest transition-all">
+              <svg 
+                class="w-4 h-4 transition-transform duration-200 group-open:rotate-180" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                stroke-width="2.2"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </summary>
+
+          <div class="px-5 pb-5 sm:px-6 sm:pb-6 pt-1 text-sm sm:text-base text-content-secondary leading-relaxed border-t border-surface-border/50">
+            <p>{faq.answer}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <!-- Bottom Contact Support Note -->
+    <div class="mt-12 text-center p-6 rounded-2xl bg-white border border-surface-border shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-left space-y-1">
+        <p class="text-sm font-bold text-content-main">¿Tienes una pregunta sobre un caso específico de tu negocio?</p>
+        <p class="text-xs text-content-secondary">Estamos conectados en WhatsApp para responderte en menos de 5 minutos.</p>
+      </div>
+
+      <a
+        href="https://wa.me/51987654321?text=Hola%20MeowLab,%20tengo%20una%20consulta%20sobre%20los%20asistentes."
+        target="_blank"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-forest text-white text-xs font-semibold hover:bg-brand-forest-dark transition-all shadow-xs shrink-0"
+      >
+        <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} />
+        <span>Consultar por WhatsApp</span>
+      </a>
+    </div>
+
+  </div>
+</section>

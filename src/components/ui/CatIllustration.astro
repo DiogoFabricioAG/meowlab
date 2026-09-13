@@ -1,0 +1,56 @@
+---
+interface Props {
+  variant?: 'laptop' | 'search' | 'invoice' | 'custom' | 'chat';
+  className?: string;
+  size?: number;
+}
+
+const { variant = 'laptop', className = '', size = 80 } = Astro.props;
+---
+
+<div class={`inline-flex items-center justify-center relative ${className}`}>
+  <!-- Official MeowLab Cat Frame -->
+  <div 
+    class="relative rounded-2xl bg-brand-forest flex items-center justify-center p-2.5 shadow-card group-hover:scale-105 transition-transform duration-200"
+    style={`width: ${size}px; height: ${size}px;`}
+  >
+    <!-- The authentic meowlab-cat.png -->
+    <img 
+      src="/meowlab-cat.png" 
+      alt="meowlab cat" 
+      class="w-full h-full object-contain select-none"
+      loading="lazy"
+    />
+
+    <!-- Contextual micro badge for agent specialty -->
+    {variant === 'search' && (
+      <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-white border border-surface-border shadow-sm flex items-center justify-center text-brand-forest">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    )}
+
+    {variant === 'invoice' && (
+      <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-white border border-surface-border shadow-sm flex items-center justify-center text-brand-forest">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+    )}
+
+    {variant === 'custom' && (
+      <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-white border border-surface-border shadow-sm flex items-center justify-center text-brand-forest">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+    )}
+
+    {variant === 'laptop' && (
+      <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-brand-mint text-brand-forest shadow-sm flex items-center justify-center">
+        <span class="w-2 h-2 rounded-full bg-brand-forest animate-pulse"></span>
+      </div>
+    )}
+  </div>
+</div>

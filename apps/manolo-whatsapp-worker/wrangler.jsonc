@@ -1,0 +1,124 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "whatsapp-webhook-meta",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public"
+  },
+  "r2_buckets": [
+    {
+      "binding": "ENTERPRISE_DOCUMENTS",
+      "bucket_name": "whatsapp-webhook-meta-enterprise-documents"
+    }
+  ],
+  "browser": {
+    "binding": "BROWSER"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "whatsapp-webhook-meta-db",
+      "database_id": "9040fc7c-000a-4d4b-9946-5f230827bf06",
+      "migrations_dir": "migrations"
+    },
+    {
+      "binding": "PRINT_DB",
+      "database_name": "gamarra_db",
+      "database_id": "2854138d-a7c5-4272-a923-6aeaa7e62ccc"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "development",
+    "META_GRAPH_API_VERSION": "",
+    "WHATSAPP_PHONE_NUMBER_ID": "",
+    "GROQ_MODEL": "llama-3.1-8b-instant",
+    "GROQ_VISION_MODEL": "qwen/qwen3.6-27b",
+    "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
+    "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",
+    "PRINT_ADVISOR_MODEL": "openai/gpt-oss-120b",
+    "ENTERPRISE_AI_PROVIDER": "openai",
+    "ENTERPRISE_AI_BASE_URL": "https://api.openai.com/v1",
+    "ENTERPRISE_AI_MODEL": "gpt-5.6-luna",
+    "ENTERPRISE_AI_REASONING_EFFORT": "high",
+    "VPS_BRIDGE_ENABLED": "false",
+    "VPS_BRIDGE_API_URL": "",
+    "VPS_PLATFORM_SHADOW_ENABLED": "false",
+    "STORE_DESIGN_API_URL": "https://tienda-virtual-swart.vercel.app/api/internal/store-design",
+    "STORE_PAYMENT_NOTIFICATION_URL": "https://whatsapp-webhook-meta-production.diogofabricio17.workers.dev/internal/store/payment"
+  },
+  "secrets": {
+    "required": [
+      "WHATSAPP_VERIFY_TOKEN",
+      "META_APP_SECRET",
+      "META_ACCESS_TOKEN",
+      "GROQ_API_KEY",
+      "NEON_DATABASE_URL",
+      "STORE_DESIGN_API_SECRET",
+      "VPS_BRIDGE_HMAC_SECRET"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "env": {
+    "production": {
+      "name": "whatsapp-webhook-meta-production",
+      "browser": {
+        "binding": "BROWSER"
+      },
+      "r2_buckets": [
+        {
+          "binding": "ENTERPRISE_DOCUMENTS",
+          "bucket_name": "whatsapp-webhook-meta-enterprise-documents"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "whatsapp-webhook-meta-db",
+          "database_id": "9040fc7c-000a-4d4b-9946-5f230827bf06",
+          "migrations_dir": "migrations"
+        },
+        {
+          "binding": "PRINT_DB",
+          "database_name": "gamarra_db",
+          "database_id": "2854138d-a7c5-4272-a923-6aeaa7e62ccc"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "META_GRAPH_API_VERSION": "v25.0",
+        "WHATSAPP_PHONE_NUMBER_ID": "1266091906580349",
+        "GROQ_MODEL": "llama-3.1-8b-instant",
+        "GROQ_VISION_MODEL": "qwen/qwen3.6-27b",
+        "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
+        "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",
+        "PRINT_ADVISOR_MODEL": "openai/gpt-oss-120b",
+        "ENTERPRISE_AI_PROVIDER": "openai",
+        "ENTERPRISE_AI_BASE_URL": "https://api.openai.com/v1",
+        "ENTERPRISE_AI_MODEL": "gpt-5.6-luna",
+        "ENTERPRISE_AI_REASONING_EFFORT": "high",
+        "VPS_BRIDGE_ENABLED": "true",
+        "VPS_BRIDGE_API_URL": "https://facturas.meowlab.tech/internal/manolo",
+        "VPS_PLATFORM_SHADOW_ENABLED": "true",
+        "STORE_DESIGN_API_URL": "https://tienda-virtual-swart.vercel.app/api/internal/store-design",
+        "STORE_PAYMENT_NOTIFICATION_URL": "https://whatsapp-webhook-meta-production.diogofabricio17.workers.dev/internal/store/payment"
+      },
+      "secrets": {
+        "required": [
+          "WHATSAPP_VERIFY_TOKEN",
+          "META_APP_SECRET",
+          "META_ACCESS_TOKEN",
+          "GROQ_API_KEY",
+          "OPENAI_API_KEY",
+          "NEON_DATABASE_URL",
+          "STORE_DESIGN_API_SECRET",
+          "VPS_BRIDGE_HMAC_SECRET"
+        ]
+      }
+    }
+  }
+}

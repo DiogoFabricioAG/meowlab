@@ -1,0 +1,30 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Configura APP_DOMAIN en .env.production}
+      TLS_EMAIL: ${TLS_EMAIL:?Configura TLS_EMAIL en .env.production}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      default: {}
+      manolo_ingress: {}
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  manolo_ingress:
+    name: manolo_ingress
+    external: true

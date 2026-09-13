@@ -1,0 +1,36 @@
+{
+  "name": "whatsapp-webhook-meta",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --env production",
+    "users:tui": "node tools/users-tui-vps.mjs",
+    "users:tui:check": "node tools/users-tui-vps.mjs --check",
+    "users:tui:d1": "node tools/users-tui.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:tui": "node --test tools/users-tui/*.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "build:node": "esbuild src/node/server.ts --bundle --platform=node --format=esm --packages=external --target=node22 --outfile=dist/node/server.mjs && esbuild src/node/admin/facturaya-admin.ts --bundle --platform=node --format=esm --packages=external --target=node22 --outfile=dist/node/facturaya-admin.mjs",
+    "cf-typegen": "wrangler types",
+    "migration:backup:d1": "powershell -ExecutionPolicy Bypass -File tools/export-d1-backups.ps1",
+    "migration:verify:d1": "node --no-warnings tools/verify-d1-backup.mjs",
+    "migration:prepare:postgres": "node --no-warnings tools/build-postgres-import.mjs",
+    "migration:verify:print-parity": "node --no-warnings tools/verify-print-postgres-parity.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.18.7",
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.23.1",
+    "esbuild": "0.28.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.113.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "pg": "^8.23.0"
+  }
+}

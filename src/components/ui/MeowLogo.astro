@@ -1,0 +1,40 @@
+---
+interface Props {
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+  theme?: 'dark' | 'light';
+}
+
+const { className = '', size = 'md', theme = 'dark' } = Astro.props;
+
+const sizes = {
+  sm: { iconBox: 'w-7 h-7 p-1 rounded-lg', imgSize: 'w-5 h-5', fontSize: 'text-base' },
+  md: { iconBox: 'w-9 h-9 p-1.5 rounded-xl', imgSize: 'w-6 h-6', fontSize: 'text-xl' },
+  lg: { iconBox: 'w-11 h-11 p-2 rounded-2xl', imgSize: 'w-7 h-7', fontSize: 'text-2xl' },
+};
+
+const s = sizes[size] || sizes.md;
+const isLight = theme === 'light';
+---
+
+<div class={`inline-flex items-center gap-2.5 select-none ${className}`}>
+  <!-- Official MeowLab Cat Icon from meowlab-cat.png -->
+  <div class={`flex items-center justify-center transition-transform group-hover:scale-105 ${s.iconBox} ${
+    isLight 
+      ? 'bg-white/15 border border-white/20' 
+      : 'bg-brand-forest shadow-sm'
+  }`}>
+    <img 
+      src="/meowlab-cat.png" 
+      alt="meowlab cat" 
+      class={`${s.imgSize} object-contain`} 
+      loading="eager"
+      decoding="async"
+    />
+  </div>
+
+  <!-- Wordmark: meowlab -->
+  <span class={`font-title tracking-tight font-semibold flex items-center ${s.fontSize} ${isLight ? 'text-white' : 'text-content-main'}`}>
+    <span>meow</span><span class={isLight ? 'text-brand-mint font-normal' : 'text-brand-forest font-bold'}>lab</span>
+  </span>
+</div>

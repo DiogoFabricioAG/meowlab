@@ -1,67 +1,168 @@
 ---
+import MeowLogo from './ui/MeowLogo.astro';
+import TablerIcon from './ui/TablerIcon.astro';
+
+const currentYear = new Date().getFullYear();
+
+const assistantLinks = [
+  { name: 'Buscador de Licitaciones', href: '/#agentes' },
+  { name: 'Facturación Electrónica SUNAT', href: '/#agentes' },
+  { name: 'Creador de Cotizaciones en PDF', href: '/#agentes' },
+  { name: 'Consultas de Almacén y Stock', href: '/#agentes' },
+  { name: 'Gestor de Cobranzas', href: '/#agentes' },
+  { name: 'Atención a Clientes 24/7', href: '/#agentes' },
+];
+
+const platformLinks = [
+  { name: '¿Cómo funciona?', href: '/#como-funciona' },
+  { name: 'Simulador en WhatsApp', href: '/#empezar' },
+  { name: 'Asistente personalizado', href: '/contacto' },
+  { name: 'Conexión a Excel y Sheets', href: '/#agentes' },
+  { name: 'Seguridad y Privacidad', href: '/contacto' },
+];
+
+const companyLinks = [
+  { name: 'Iniciar sesión', href: '/contacto' },
+  { name: 'Hablar con un asesor', href: 'https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20conocer%20m%C3%A1s.' },
+  { name: 'Preguntas frecuentes', href: '/contacto' },
+  { name: 'Contacto directo', href: '/contacto' },
+];
 ---
-<footer class="border-t border-white/10 bg-obsidian/95 pt-16 pb-12 text-slate-400 text-sm">
+
+<footer class="bg-surface-subtle/40 border-t border-surface-border pt-16 pb-12 md:pt-20 md:pb-16 text-content-secondary">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-white/10">
-      <!-- Col 1: Brand with white cat speaking meow (green) lab (white) -->
-      <div class="md:col-span-2 space-y-4">
-        <a href="/" class="flex items-center gap-2.5">
-          <div class="w-10 h-10 relative flex items-center justify-center overflow-hidden rounded-xl bg-surface border border-white/10 p-1">
-            <img src="/meowlab-cat.png" alt="MeowLab" class="w-full h-full object-contain filter brightness-110" />
-          </div>
-          <span class="font-title text-2xl font-black tracking-tight"><span class="text-neon">meow</span><span class="text-white">lab</span></span>
+    
+    <!-- Main Multi-Column Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-14 border-b border-surface-border">
+      
+      <!-- Column 1: Brand, Value Proposition & WhatsApp Status (Span 5) -->
+      <div class="lg:col-span-5 space-y-5">
+        <a href="/" class="inline-block focus:outline-none focus:ring-2 focus:ring-brand-forest rounded-xl">
+          <MeowLogo size="md" />
         </a>
-        <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
-          Agencia líder de Agentes de IA en WhatsApp. Soluciones dedicadas para empresas y micro-SaaS de facturación, ventas y soporte en tiempo real.
+
+        <p class="text-sm text-content-secondary leading-relaxed max-w-sm">
+          Tu asistente inteligente en WhatsApp para hacer avanzar tu negocio. Monitorea compras del Estado, emite facturas ante SUNAT y consulta tu inventario sin salir de tu chat de siempre.
         </p>
-        <div class="flex items-center gap-3 pt-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-neon animate-pulse"></span>
-          <span class="text-xs font-title font-bold text-neon">Sistemas Operativos 99.99%</span>
+
+        <!-- Live Status Pill -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
+          <span>Sistemas operativos en WhatsApp</span>
+        </div>
+
+      </div>
+
+      <!-- Column 2: Asistentes (Span 3) -->
+      <div class="lg:col-span-3 space-y-4">
+        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+          Asistentes para tu negocio
+        </h3>
+        <ul class="space-y-2.5 text-sm">
+          {assistantLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+              >
+                {link.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 3: Plataforma (Span 2) -->
+      <div class="lg:col-span-2 space-y-4">
+        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+          Plataforma
+        </h3>
+        <ul class="space-y-2.5 text-sm">
+          {platformLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+              >
+                {link.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 4: Contacto & Acceso (Span 2) -->
+      <div class="lg:col-span-2 space-y-4">
+        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+          Contacto
+        </h3>
+        <ul class="space-y-2.5 text-sm">
+          {companyLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+              >
+                {link.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="pt-2 text-xs text-content-muted">
+          <p class="font-medium text-content-main">Lima, Perú</p>
+          <p class="text-[11px] mt-0.5">Operaciones para todo el país</p>
         </div>
       </div>
 
-      <!-- Col 2: Agentes -->
-      <div class="space-y-3">
-        <h4 class="font-title font-bold text-white text-sm">Agentes</h4>
-        <ul class="space-y-2 text-xs">
-          <li><a href="/servicios#billcat" class="hover:text-neon transition-colors">BillCat (Facturador)</a></li>
-          <li><a href="/agentes#huntercat" class="hover:text-neon transition-colors">HunterCat (Leads SDR)</a></li>
-          <li><a href="/dedicado" class="hover:text-neon transition-colors">NexusCat (ERP Dedicado)</a></li>
-          <li><a href="/servicios#pawscollect" class="hover:text-neon transition-colors">PawsCollect (Cobranzas)</a></li>
-          <li><a href="/agentes#whiskercare" class="hover:text-neon transition-colors">WhiskerCare (Soporte)</a></li>
-        </ul>
+    </div>
+
+    <!-- Trust & Security Ribbon -->
+    <div class="py-8 border-b border-surface-border grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-content-secondary">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+          <TablerIcon name="brand-whatsapp" size={17} className="text-[#25D366]" strokeWidth={2} />
+        </div>
+        <div>
+          <span class="font-bold text-content-main block">100% en WhatsApp</span>
+          <span class="text-content-muted">Sin instalar apps ni programas nuevos</span>
+        </div>
       </div>
 
-      <!-- Col 3: Soluciones -->
-      <div class="space-y-3">
-        <h4 class="font-title font-bold text-white text-sm">Soluciones</h4>
-        <ul class="space-y-2 text-xs">
-          <li><a href="/dedicado" class="hover:text-neon transition-colors">Agentes Dedicados</a></li>
-          <li><a href="/servicios" class="hover:text-neon transition-colors">Servicios Micro-SaaS</a></li>
-          <li><a href="/dedicado#seguridad" class="hover:text-neon transition-colors">Seguridad & VPC</a></li>
-          <li><a href="/agentes" class="hover:text-neon transition-colors">Catálogo de Roles</a></li>
-        </ul>
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+          <TablerIcon name="receipt-tax" size={17} strokeWidth={2} />
+        </div>
+        <div>
+          <span class="font-bold text-content-main block">Validez oficial SUNAT</span>
+          <span class="text-content-muted">Comprobantes legales con XML y PDF</span>
+        </div>
       </div>
 
-      <!-- Col 4: Contacto & VPS -->
-      <div class="space-y-3">
-        <h4 class="font-title font-bold text-white text-sm">Despliegue & Soporte</h4>
-        <ul class="space-y-2 text-xs">
-          <li><a href="/contacto" class="hover:text-neon transition-colors">Contacto Comercial</a></li>
-          <li><a href="https://github.com/DiogoFabricioAG/meowlab" target="_blank" class="hover:text-neon transition-colors">GitHub Repository</a></li>
-          <li><span class="text-slate-500">Deploy: VPS / Docker Ready</span></li>
-          <li><span class="text-slate-500">Engine: Astro + MeowCore</span></li>
-        </ul>
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+          <TablerIcon name="check" size={17} strokeWidth={2.2} />
+        </div>
+        <div>
+          <span class="font-bold text-content-main block">Privacidad garantizada</span>
+          <span class="text-content-muted">Tus datos seguros y cifrados de extremo a extremo</span>
+        </div>
       </div>
     </div>
 
-    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <p>© 2026 MeowLab. Todos los derechos reservados. Hecho con Astro y amor felino 🐱⚡</p>
+    <!-- Bottom Copyright & Legal Links -->
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-content-muted">
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <p>© {currentYear} MeowLab. Todos los derechos reservados.</p>
+        <span class="hidden sm:inline text-surface-border">•</span>
+        <p>Hecho en Perú para hacer avanzar a tu empresa.</p>
+      </div>
+
       <div class="flex items-center gap-6">
-        <a href="#" class="hover:text-neon">Términos de Servicio</a>
-        <a href="#" class="hover:text-neon">Política de Privacidad</a>
-        <a href="#" class="hover:text-neon">Seguridad</a>
+        <a href="/contacto" class="hover:text-brand-forest transition-colors">Términos</a>
+        <a href="/contacto" class="hover:text-brand-forest transition-colors">Privacidad</a>
+        <a href="/contacto" class="hover:text-brand-forest transition-colors">Libro de Reclamaciones</a>
       </div>
     </div>
+
   </div>
 </footer>

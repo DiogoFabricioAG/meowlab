@@ -1,0 +1,599 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+
+// Data for the 3 agents demonstrated in the runtime
+const agentsData = [
+  {
+    id: 'licitaciones',
+    name: 'Buscador de Licitaciones',
+    subtitle: 'Encuentra compras del Estado para tu rubro',
+    icon: 'file-search' as const,
+    badge: '3 oportunidades hoy',
+    time: '10:42 a. m.',
+    userQuery: '¿Hay compras del Estado en Cusco para obras de saneamiento esta semana?',
+    agentIntro: '¡Hola Andrés! Encontré 2 compras públicas ideales para tu empresa:',
+    card: {
+      type: 'tender',
+      tag: 'Oportunidad sugerida • Saneamiento',
+      title: 'Instalación de red de agua potable y saneamiento en San Sebastián',
+      entity: 'Municipalidad Distrital de San Sebastián • Cusco',
+      budget: 'Presupuesto: S/ 1,240,500.00',
+      deadline: 'Plazo para postular: en 5 días',
+    },
+    buttons: ['Ver resumen en PDF', 'Ver requisitos clave'],
+  },
+  {
+    id: 'facturacion',
+    name: 'Asistente de Facturas',
+    subtitle: 'Crea y envía facturas en segundos',
+    icon: 'receipt-tax' as const,
+    badge: 'Aprobada al instante',
+    time: '10:43 a. m.',
+    userQuery: 'Haz una factura para Constructora San José por S/ 8,450 más IGV por servicios de ingeniería',
+    agentIntro: '¡Listo! Tu factura ya fue emitida y aprobada por SUNAT:',
+    card: {
+      type: 'invoice',
+      tag: 'Factura F001-000428 • Aprobada',
+      title: 'Servicios de ingeniería civil y supervisión de obra',
+      entity: 'Cliente: Constructora San José S.A.C. • RUC 20601234567',
+      budget: 'Total a cobrar: S/ 9,971.00',
+      deadline: 'Estado: Lista para enviar a tu cliente',
+    },
+    buttons: ['Descargar Factura PDF', 'Enviar por WhatsApp'],
+  },
+  {
+    id: 'erp',
+    name: 'Asistente de tu Negocio',
+    subtitle: 'Pregúntale por precios, stock o ventas',
+    icon: 'database-cog' as const,
+    badge: 'Te responde al segundo',
+    time: '10:44 a. m.',
+    userQuery: '¿Cuánto cemento nos queda en el almacén de Lurín y a qué precio está la bolsa?',
+    agentIntro: 'Revisé tu almacén y estos son los datos que tienes en este momento:',
+    card: {
+      type: 'erp',
+      tag: 'Almacén Lurín • Datos al minuto',
+      title: 'Cemento Portland Tipo I (Bolsas de 42.5 kg)',
+      entity: 'Ubicación: Pasillo B • Almacén Principal',
+      budget: 'Stock actual: 1,840 bolsas',
+      deadline: 'Precio de venta: S/ 28.50 por bolsa',
+    },
+    buttons: ['Apartar bolsas', 'Compartir con un cliente'],
+  },
+];
+---
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center" id="whatsapp-runtime-container">
+  
+  <!-- LEFT: Authentic WhatsApp Simulation Window (Span 7) -->
+  <div class="order-2 lg:order-1 lg:col-span-7 w-full">
+    <div class="relative bg-surface-subtle border border-surface-border rounded-3xl p-3 sm:p-5 md:p-6 shadow-soft overflow-hidden">
+      
+      <!-- Header Bar: WhatsApp Business Status -->
+      <div class="flex items-center justify-between gap-3 pb-4 border-b border-surface-border">
+        <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+            <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
+            <span>En tu propio WhatsApp</span>
+          </div>
+          <span class="text-xs text-content-muted hidden sm:inline">Sin apps extras</span>
+        </div>
+      </div>
+
+      <!-- Authentic WhatsApp Phone / Web Window -->
+      <div class="w-full bg-[#EFEAE2] border border-[#D1D7DB] rounded-2xl shadow-card overflow-hidden flex flex-col relative min-h-[450px] mt-4">
+      
+      <!-- WhatsApp Subtle Doodle Canvas Background -->
+      <div 
+        class="absolute inset-0 pointer-events-none opacity-35 bg-repeat"
+        style="background-image: radial-gradient(#CCD0D5 0.75px, transparent 0.75px), radial-gradient(#CCD0D5 0.75px, #EFEAE2 0.75px); background-size: 20px 20px; background-position: 0 0, 10px 10px;"
+      ></div>
+
+      <!-- 1. Authentic WhatsApp Chat Header -->
+      <div class="relative z-10 bg-[#F0F2F5] border-b border-[#E9EDEF] px-4 py-2.5 flex items-center justify-between shadow-xs">
+        
+        <!-- Contact Identity -->
+        <div class="flex items-center gap-3">
+          <!-- Back arrow on mobile -->
+          <span class="sm:hidden text-[#54656F] text-lg font-bold">←</span>
+          
+          <!-- Contact Avatar -->
+          <div class="relative w-10 h-10 rounded-full bg-brand-forest flex items-center justify-center p-1.5 flex-shrink-0 shadow-sm">
+            <img src="/meowlab-cat.png" alt="MeowLab Cat" class="w-full h-full object-contain" />
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#25D366] border-2 border-[#F0F2F5]"></span>
+          </div>
+
+          <!-- Contact Name & Real-time Status -->
+          <div class="leading-tight">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-semibold text-[#111B21]" id="wa-header-name">Buscador de Licitaciones</span>
+              <!-- Verified WhatsApp Badge -->
+              <span class="w-3.5 h-3.5 rounded-full bg-[#25D366] text-white flex items-center justify-center text-[9px] font-bold" title="Cuenta de empresa oficial verificada">✓</span>
+            </div>
+            <span class="text-[11px] text-[#25D366] font-medium block" id="wa-header-status">en línea</span>
+          </div>
+        </div>
+
+        <!-- Right Header Icons (Video, Phone, Menu) -->
+        <div class="flex items-center gap-3.5 text-[#54656F]">
+          <!-- Video Call -->
+          <button type="button" class="hover:text-content-main transition-colors p-1" title="Videollamada">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          <!-- Phone Call -->
+          <button type="button" class="hover:text-content-main transition-colors p-1" title="Llamada de voz">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </button>
+          <!-- Search in chat -->
+          <button type="button" class="hover:text-content-main transition-colors p-1 hidden sm:block" title="Buscar en el chat">
+            <TablerIcon name="search" size={16} strokeWidth={2} />
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 2. Chat Canvas with Messages -->
+      <div class="relative z-10 p-4 sm:p-5 flex-1 space-y-3 overflow-y-auto" id="wa-chat-scroll">
+        
+        <!-- E2E Security Notice (Authentic WhatsApp Business notice) -->
+        <div class="flex justify-center my-1">
+          <div class="bg-[#FFEECD] text-[#54656F] text-[10px] sm:text-[11px] px-3 py-1 rounded-lg text-center max-w-sm shadow-xs flex items-center gap-1.5 border border-[#F5D8A0]/60">
+            <svg class="w-3.5 h-3.5 text-[#54656F] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <span>Mensajes seguros y directos. Tu asistente de MeowLab te ayuda en las tareas del día a día.</span>
+          </div>
+        </div>
+
+        <!-- Date Pill -->
+        <div class="flex justify-center mb-2">
+          <span class="bg-[#FFFFFF]/90 backdrop-blur-xs text-[#54656F] text-[10px] font-medium uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-2xs">
+            Hoy
+          </span>
+        </div>
+
+        <!-- OUTGOING BUBBLE (User Message) -->
+        <div class="flex justify-end transition-all duration-300" id="wa-user-bubble-container">
+          <div class="relative bg-[#D9FDD3] text-[#111B21] px-3.5 py-2 rounded-2xl rounded-tr-xs max-w-[88%] sm:max-w-[80%] shadow-xs text-xs sm:text-[13px] leading-relaxed">
+            <p id="wa-user-text">
+              <span id="wa-user-text-content"></span><span id="wa-user-cursor" class="inline-block w-[2px] h-[13px] bg-[#111B21] ml-0.5 align-middle animate-pulse"></span>
+            </p>
+            <!-- Tail -->
+            <span class="absolute top-0 -right-1.5 w-2 h-2.5 overflow-hidden">
+              <span class="block w-2.5 h-2.5 bg-[#D9FDD3] -rotate-45 transform origin-top-left"></span>
+            </span>
+            <!-- Timestamp + Double Blue Checkmark -->
+            <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] mt-1 -mb-0.5">
+              <span id="wa-user-time">10:42 a. m.</span>
+              <!-- Checkmark status (single check, double grey, or double blue) -->
+              <span id="wa-user-checks" class="text-[#8696A0] font-bold tracking-tighter text-xs" title="Enviando">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPING INDICATOR (Shown smoothly during transitions) -->
+        <div id="wa-typing-bubble" class="hidden items-start gap-2 pt-1 transition-all duration-200">
+          <div class="relative bg-white px-4 py-2.5 rounded-2xl rounded-tl-xs shadow-xs flex items-center gap-1.5">
+            <span class="absolute top-0 -left-1.5 w-2 h-2.5 overflow-hidden">
+              <span class="block w-2.5 h-2.5 bg-white rotate-45 transform origin-top-right"></span>
+            </span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce [animation-delay:0.4s]"></span>
+          </div>
+        </div>
+
+        <!-- INCOMING BUBBLE (Agent Message) -->
+        <div class="flex items-start gap-2 transition-all duration-300" id="wa-agent-bubble-container">
+          <div class="relative bg-white text-[#111B21] px-3.5 py-2.5 rounded-2xl rounded-tl-xs max-w-[95%] sm:max-w-[90%] shadow-xs space-y-2.5 text-xs sm:text-[13px]">
+            
+            <!-- Tail -->
+            <span class="absolute top-0 -left-1.5 w-2 h-2.5 overflow-hidden">
+              <span class="block w-2.5 h-2.5 bg-white rotate-45 transform origin-top-right"></span>
+            </span>
+
+            <!-- Sender Header in WhatsApp Business -->
+            <div class="flex items-center justify-between border-b border-[#F0F2F5] pb-1.5">
+              <span class="font-semibold text-brand-forest text-xs flex items-center gap-1" id="wa-agent-label">
+                Buscador de Licitaciones
+              </span>
+              <span class="text-[10px] text-[#667781]">Asistente de compras</span>
+            </div>
+
+            <!-- Agent Intro Text -->
+            <p class="text-[#3B4A54] leading-relaxed" id="wa-agent-intro">
+              ¡Hola Andrés! Encontré 2 compras públicas ideales para tu empresa:
+            </p>
+
+            <!-- Structured WhatsApp Interactive Result Card -->
+            <div class="bg-[#F7F9FA] border border-[#E9EDEF] rounded-xl p-3 space-y-2 text-xs" id="wa-agent-card">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] font-semibold text-brand-forest uppercase tracking-wider bg-brand-mint/60 px-2 py-0.5 rounded-md" id="wa-card-tag">
+                  Oportunidad sugerida • Saneamiento
+                </span>
+              </div>
+              <div class="font-semibold text-[#111B21] text-xs sm:text-sm leading-snug" id="wa-card-title">
+                Instalación de red de agua potable y saneamiento en San Sebastián
+              </div>
+              <div class="text-[11px] text-[#667781]" id="wa-card-entity">
+                Municipalidad Distrital de San Sebastián • Cusco
+              </div>
+              <div class="flex items-center justify-between pt-1.5 border-t border-[#E9EDEF] text-[11px]">
+                <span class="font-bold text-content-main" id="wa-card-budget">Presupuesto: S/ 1,240,500.00</span>
+                <span class="text-brand-forest font-medium" id="wa-card-deadline">Plazo para postular: en 5 días</span>
+              </div>
+            </div>
+
+            <!-- WhatsApp Interactive Action Buttons -->
+            <div class="pt-1 flex flex-col sm:flex-row gap-1.5" id="wa-agent-buttons-container">
+              <button type="button" class="w-full text-center py-2 px-3 rounded-lg border border-[#E9EDEF] bg-[#F7F9FA] hover:bg-[#EAEFF2] text-brand-forest font-medium text-xs transition-colors flex items-center justify-center gap-1.5">
+                <TablerIcon name="file-invoice" size={14} strokeWidth={2} />
+                <span id="wa-btn-1">Ver resumen en PDF</span>
+              </button>
+              <button type="button" class="w-full text-center py-2 px-3 rounded-lg border border-[#E9EDEF] bg-[#F7F9FA] hover:bg-[#EAEFF2] text-content-main font-medium text-xs transition-colors flex items-center justify-center gap-1.5">
+                <TablerIcon name="check" size={14} strokeWidth={2} />
+                <span id="wa-btn-2">Ver requisitos clave</span>
+              </button>
+            </div>
+
+            <!-- Timestamp -->
+            <div class="text-right text-[10px] text-[#667781] pt-0.5">
+              <span id="wa-agent-time">10:42 a. m.</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. Authentic WhatsApp Input Bar -->
+      <div class="relative z-10 bg-[#F0F2F5] border-t border-[#E9EDEF] px-3 py-2.5 flex items-center gap-2 sm:gap-3">
+        <!-- Emoji Button -->
+        <button type="button" class="text-[#54656F] hover:text-[#111B21] transition-colors p-1" title="Emoticonos">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+
+        <!-- Attach Button -->
+        <button type="button" class="text-[#54656F] hover:text-[#111B21] transition-colors p-1" title="Adjuntar documento o comprobante">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+          </svg>
+        </button>
+
+        <!-- Input Field Container -->
+        <div class="flex-1 bg-white rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#111B21] flex items-center justify-between shadow-2xs border border-[#E9EDEF]">
+          <span class="text-[#8696A0] truncate" id="wa-input-placeholder">Pídele algo por WhatsApp a tu asistente...</span>
+        </div>
+
+        <!-- Voice Memo / Send Button -->
+        <button type="button" class="w-9 h-9 rounded-full bg-[#00A884] text-white flex items-center justify-center hover:bg-[#008f6f] transition-colors shadow-sm flex-shrink-0" title="Enviar nota de voz o mensaje">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Main Headline, Value Proposition, CTAs & Timer Switcher (Span 5) -->
+  <div class="order-1 lg:order-2 lg:col-span-5 space-y-4 text-left flex flex-col justify-center">
+    <!-- Slot for Title, Subtitle, CTAs, and Trust points (Sin contratos forzosos) -->
+    <slot />
+
+    <!-- Timer & Agent Switcher directly below Sin contratos forzosos -->
+    <div class="pt-4 border-t border-surface-border/80 space-y-3">
+      <!-- Header with Status and WhatsApp Story Segments -->
+      <div class="flex items-center justify-between px-1">
+        <span class="text-xs font-bold text-content-main uppercase tracking-wider">
+          Mira cómo te responde cada asistente:
+        </span>
+        <span class="text-[11px] text-content-muted flex items-center gap-1.5 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
+          <span id="runtime-timer-status" class="text-brand-forest font-semibold">Siguiente en 8s</span>
+        </span>
+      </div>
+
+      <!-- WhatsApp Status Story Segments (3 horizontal pill bars) -->
+      <div class="grid grid-cols-3 gap-2 px-1" role="progressbar" aria-label="Progreso de cambio entre asistentes">
+        {agentsData.map((_, i) => (
+          <div class="h-1.5 bg-surface-border/80 rounded-full overflow-hidden relative">
+            <div 
+              class="agent-story-segment h-full bg-brand-forest rounded-full transition-all duration-75"
+              style={i === 0 ? "width: 0%;" : "width: 0%;"}
+            ></div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Agent Switcher Tabs (3 columns grid) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" role="tablist" aria-label="Cambiar de asistente en la simulación de WhatsApp">
+        {agentsData.map((agent, index) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? 'true' : 'false'}
+            data-agent-id={agent.id}
+            data-index={index}
+            class={`agent-tab-btn w-full text-left bg-white border rounded-xl p-2.5 transition-all duration-300 relative group shadow-xs ${
+              index === 0 
+                ? 'border-brand-forest ring-2 ring-brand-mint shadow-hover bg-brand-mint-light/30' 
+                : 'border-surface-border hover:border-brand-mint/80'
+            }`}
+          >
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-brand-mint-light border border-brand-mint/60 flex items-center justify-center text-brand-forest flex-shrink-0 group-hover:scale-105 transition-transform">
+                <TablerIcon name={agent.icon} size={15} strokeWidth={1.75} />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold text-content-main truncate flex items-center gap-1">
+                  <span class="truncate">{agent.name.replace('Buscador de ', '').replace('Asistente de ', '')}</span>
+                  <span class="text-[#25D366] text-[10px]">✓</span>
+                </div>
+                <div class="text-[10px] text-content-secondary truncate">
+                  {agent.badge}
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Client-side Motion and Transition Controller -->
+<script define:vars={{ agentsData }}>
+  let currentIndex = 0;
+  const CYCLE_DURATION = 8000; // 8 seconds per agent for natural typing + reading
+  let startTime = Date.now();
+  let progressAnimFrame = null;
+  let typeInterval = null;
+  let sequenceTimeouts = [];
+
+  const headerName = document.getElementById('wa-header-name');
+  const headerStatus = document.getElementById('wa-header-status');
+  const userTextContent = document.getElementById('wa-user-text-content');
+  const userCursor = document.getElementById('wa-user-cursor');
+  const userTime = document.getElementById('wa-user-time');
+  const userChecks = document.getElementById('wa-user-checks');
+  const agentLabel = document.getElementById('wa-agent-label');
+  const agentIntro = document.getElementById('wa-agent-intro');
+  const cardTag = document.getElementById('wa-card-tag');
+  const cardTitle = document.getElementById('wa-card-title');
+  const cardEntity = document.getElementById('wa-card-entity');
+  const cardBudget = document.getElementById('wa-card-budget');
+  const cardDeadline = document.getElementById('wa-card-deadline');
+  const btn1 = document.getElementById('wa-btn-1');
+  const btn2 = document.getElementById('wa-btn-2');
+  const agentTime = document.getElementById('wa-agent-time');
+  const typingBubble = document.getElementById('wa-typing-bubble');
+  const agentBubble = document.getElementById('wa-agent-bubble-container');
+  const userBubble = document.getElementById('wa-user-bubble-container');
+  const tabs = document.querySelectorAll('.agent-tab-btn');
+  const storySegments = document.querySelectorAll('.agent-story-segment');
+  const runtimeTimerStatus = document.getElementById('runtime-timer-status');
+  const chatScroll = document.getElementById('wa-chat-scroll');
+
+  const ACTIVE_CLASSES = ['border-brand-forest', 'ring-2', 'ring-brand-mint', 'shadow-hover', 'bg-brand-mint-light/30'];
+  const INACTIVE_CLASSES = ['border-surface-border'];
+  let isHovered = false;
+
+  function clearAllTimers() {
+    if (typeInterval) {
+      clearInterval(typeInterval);
+      typeInterval = null;
+    }
+    sequenceTimeouts.forEach((t) => clearTimeout(t));
+    sequenceTimeouts = [];
+  }
+
+  function updateActiveTabUI(index) {
+    tabs.forEach((tab, i) => {
+      const isSelected = i === index;
+      tab.setAttribute('aria-selected', isSelected.toString());
+
+      if (isSelected) {
+        tab.classList.remove(...INACTIVE_CLASSES);
+        tab.classList.add(...ACTIVE_CLASSES);
+      } else {
+        tab.classList.remove(...ACTIVE_CLASSES);
+        tab.classList.add(...INACTIVE_CLASSES);
+      }
+
+      // Reset story bars immediately on switch so there is zero latency/flash
+      if (storySegments[i]) {
+        storySegments[i].style.width = i < index ? '100%' : '0%';
+      }
+    });
+  }
+
+  function renderAgentData(data) {
+    if (!headerName) return;
+
+    clearAllTimers();
+
+    // 1. Initial State: Reset incoming bubble, show outgoing bubble ready to type
+    if (headerName) headerName.textContent = data.name;
+    if (headerStatus) headerStatus.textContent = 'en línea';
+    if (typingBubble) {
+      typingBubble.classList.add('hidden');
+      typingBubble.classList.remove('flex');
+    }
+    if (agentBubble) agentBubble.classList.add('opacity-0', 'translate-y-2');
+    if (userBubble) userBubble.classList.remove('opacity-0');
+
+    if (userTime) userTime.textContent = data.time;
+    if (userChecks) {
+      userChecks.textContent = '✓';
+      userChecks.className = 'text-[#8696A0] font-bold tracking-tighter text-xs';
+    }
+
+    if (userTextContent) userTextContent.textContent = '';
+    if (userCursor) userCursor.style.display = 'inline-block';
+
+    const fullText = data.userQuery;
+    let charIndex = 0;
+
+    // Small natural delay before person starts typing (180ms)
+    const startDelay = setTimeout(() => {
+      typeInterval = setInterval(() => {
+        charIndex++;
+        if (userTextContent) {
+          userTextContent.textContent = fullText.slice(0, charIndex);
+        }
+
+        // Keep chat scrolled into view as user bubble expands
+        if (chatScroll && charIndex % 16 === 0) {
+          chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+        }
+
+        if (charIndex >= fullText.length) {
+          clearInterval(typeInterval);
+          typeInterval = null;
+
+          if (userCursor) userCursor.style.display = 'none';
+
+          // User finished typing and message is sent: double grey check
+          if (userChecks) {
+            userChecks.textContent = '✓✓';
+            userChecks.className = 'text-[#8696A0] font-bold tracking-tighter text-xs';
+          }
+
+          // Step 1: Assistant reads message (double blue check) & starts typing
+          const t1 = setTimeout(() => {
+            if (userChecks) {
+              userChecks.textContent = '✓✓';
+              userChecks.className = 'text-[#53BDEB] font-bold tracking-tighter text-xs';
+            }
+            if (headerStatus) headerStatus.textContent = 'escribiendo...';
+            if (typingBubble) {
+              typingBubble.classList.remove('hidden');
+              typingBubble.classList.add('flex');
+            }
+            if (chatScroll) {
+              chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+            }
+          }, 320);
+          sequenceTimeouts.push(t1);
+
+          // Step 2: Assistant finishes typing and delivers message
+          const t2 = setTimeout(() => {
+            if (headerStatus) headerStatus.textContent = 'en línea';
+            if (typingBubble) {
+              typingBubble.classList.add('hidden');
+              typingBubble.classList.remove('flex');
+            }
+
+            if (agentLabel) agentLabel.textContent = data.name;
+            if (agentIntro) agentIntro.textContent = data.agentIntro;
+            if (cardTag) cardTag.textContent = data.card.tag;
+            if (cardTitle) cardTitle.textContent = data.card.title;
+            if (cardEntity) cardEntity.textContent = data.card.entity;
+            if (cardBudget) cardBudget.textContent = data.card.budget;
+            if (cardDeadline) cardDeadline.textContent = data.card.deadline;
+            if (btn1 && data.buttons[0]) btn1.textContent = data.buttons[0];
+            if (btn2 && data.buttons[1]) btn2.textContent = data.buttons[1];
+            if (agentTime) agentTime.textContent = data.time;
+
+            if (agentBubble) {
+              agentBubble.classList.remove('opacity-0', 'translate-y-2');
+            }
+
+            if (chatScroll) {
+              chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+            }
+          }, 1200);
+          sequenceTimeouts.push(t2);
+        }
+      }, 19);
+    }, 180);
+    sequenceTimeouts.push(startDelay);
+  }
+
+  function updateProgress() {
+    if (isHovered) return;
+
+    const elapsed = Date.now() - startTime;
+    const pct = Math.min(100, (elapsed / CYCLE_DURATION) * 100);
+    const secondsLeft = Math.max(1, Math.ceil((CYCLE_DURATION - elapsed) / 1000));
+
+    // 1. Update WhatsApp Status Story Segments
+    storySegments.forEach((seg, i) => {
+      if (i < currentIndex) {
+        seg.style.width = '100%';
+      } else if (i === currentIndex) {
+        seg.style.width = `${pct}%`;
+      } else {
+        seg.style.width = '0%';
+      }
+    });
+
+    // 2. Update header status label
+    if (runtimeTimerStatus) {
+      runtimeTimerStatus.textContent = `Siguiente en ${secondsLeft}s`;
+    }
+
+    if (elapsed >= CYCLE_DURATION) {
+      goToNextAgent();
+    } else {
+      progressAnimFrame = requestAnimationFrame(updateProgress);
+    }
+  }
+
+  function goToAgent(index) {
+    currentIndex = index;
+    startTime = Date.now();
+    updateActiveTabUI(currentIndex);
+    renderAgentData(agentsData[currentIndex]);
+    startCycle(); // Restart animation cycle for the new agent
+  }
+
+  function goToNextAgent() {
+    const next = (currentIndex + 1) % agentsData.length;
+    goToAgent(next);
+  }
+
+  function startCycle() {
+    startTime = Date.now();
+    if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+    if (!isHovered) {
+      progressAnimFrame = requestAnimationFrame(updateProgress);
+    }
+  }
+
+  // Setup click listeners on tabs
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const idx = parseInt(tab.getAttribute('data-index') || '0', 10);
+      goToAgent(idx);
+    });
+  });
+
+  // Start initial cycle
+  goToAgent(0);
+
+  // Pause on hover
+  const container = document.getElementById('whatsapp-runtime-container');
+  if (container) {
+    container.addEventListener('mouseenter', () => {
+      isHovered = true;
+      if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+      if (runtimeTimerStatus) runtimeTimerStatus.textContent = 'Pausado (cursor encima)';
+    });
+    container.addEventListener('mouseleave', () => {
+      isHovered = false;
+      startCycle();
+    });
+  }
+</script>

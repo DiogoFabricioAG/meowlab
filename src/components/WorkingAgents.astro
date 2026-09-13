@@ -1,0 +1,342 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+
+// Comprehensive catalog of 8 functional business agents
+const agents = [
+  {
+    id: 'licitaciones',
+    category: 'ventas',
+    categoryLabel: 'Compras del Estado',
+    title: 'Buscador de Licitaciones y SEACE',
+    description: 'Rastrea convocatorias públicas y privadas todos los días. Te envía un reporte matutino con los requerimientos, montos y fechas límite de postulación.',
+    tablerIcon: 'file-search' as const,
+    status: 'Alerta 8:00 a. m.',
+    features: [
+      'Monitoreo automático de SEACE y Gob.pe',
+      'Filtrado por tu RNP, especialidad y región',
+      'Bases completas y cronograma en PDF',
+    ],
+    metrics: [
+      { label: 'Cobertura', value: 'Todo el Perú' },
+      { label: 'Frecuencia', value: 'Cada mañana' },
+      { label: 'Ahorro', value: '2 hrs / día' },
+    ],
+    highlight: 'Filtra compras públicas con montos desde S/ 50K hasta S/ 10M+',
+  },
+  {
+    id: 'facturas',
+    category: 'finanzas',
+    categoryLabel: 'Comprobantes SUNAT',
+    title: 'Emisión de Facturas y Boletas',
+    description: 'Genera comprobantes electrónicos validados ante SUNAT con solo dictar los datos por mensaje o audio. Descarga y comparte el PDF y XML al instante.',
+    tablerIcon: 'receipt-tax' as const,
+    status: 'Validada ante SUNAT',
+    features: [
+      'Validación oficial directa ante SUNAT',
+      'Facturas, boletas, notas de crédito y débito',
+      'Envío automático de PDF y XML al cliente',
+    ],
+    metrics: [
+      { label: 'Emisión', value: '< 10 segundos' },
+      { label: 'Validez', value: '100% legal' },
+      { label: 'Formato', value: 'PDF + XML' },
+    ],
+    highlight: 'Factura desde la calle o en obra sin entrar al portal de SUNAT',
+  },
+  {
+    id: 'cotizaciones',
+    category: 'ventas',
+    categoryLabel: 'Cierre de Ventas',
+    title: 'Creador de Cotizaciones y Proformas',
+    description: 'Dile qué productos o servicios necesita tu cliente y te prepara una proforma institucional en PDF con tu logo, RUC, precios y condiciones de pago.',
+    tablerIcon: 'file-invoice' as const,
+    status: 'PDF con tu marca',
+    features: [
+      'Cálculo automático de IGV, subtotales y descuentos',
+      'Plantilla elegante con tu logo y firma autorizada',
+      'Vigencia y condiciones comerciales configurables',
+    ],
+    metrics: [
+      { label: 'Diseño', value: 'Con tu logo' },
+      { label: 'Formato', value: 'PDF listo' },
+      { label: 'Velocidad', value: 'En 30 seg' },
+    ],
+    highlight: 'Cierra ventas al instante antes de que el cliente cotice con otro',
+  },
+  {
+    id: 'almacen',
+    category: 'operaciones',
+    categoryLabel: 'Inventario y Almacén',
+    title: 'Consultas de Almacén y Stock',
+    description: 'Tu equipo comercial o de despacho puede preguntar cuánto stock queda de cualquier producto, en qué pasillo o sede está y a qué precio venderlo.',
+    tablerIcon: 'package' as const,
+    status: 'Stock en tiempo real',
+    features: [
+      'Consultas por voz o texto desde cualquier lugar',
+      'Ubicación exacta por sede, nave y pasillo',
+      'Precios diferenciados por cliente o volumen',
+    ],
+    metrics: [
+      { label: 'Respuesta', value: 'Al segundo' },
+      { label: 'Sincronía', value: 'En tiempo real' },
+      { label: 'Uso', value: 'Vendedores' },
+    ],
+    highlight: 'Evita prometer productos agotados o perder tiempo llamando al almacén',
+  },
+  {
+    id: 'cobranzas',
+    category: 'finanzas',
+    categoryLabel: 'Flujo de Caja',
+    title: 'Gestor de Cobranzas y Cuentas por Cobrar',
+    description: 'Monitorea qué clientes tienen facturas pendientes o por vencer y prepara recordatorios cordiales y respetuosos listos para enviar por WhatsApp.',
+    tablerIcon: 'coin' as const,
+    status: 'Control de liquidez',
+    features: [
+      'Monitoreo de vencimientos y cuentas por cobrar',
+      'Borradores de mensajes de cobro amables y claros',
+      'Reporte semanal de deudas y flujo proyectado',
+    ],
+    metrics: [
+      { label: 'Control', value: 'Cero olvidos' },
+      { label: 'Tono', value: 'Cordial y formal' },
+      { label: 'Impacto', value: '+ Liquidez' },
+    ],
+    highlight: 'Cobra a tiempo sin desgastar la relación de confianza con tu cliente',
+  },
+  {
+    id: 'tramites',
+    category: 'operaciones',
+    categoryLabel: 'Expedientes y Permisos',
+    title: 'Seguimiento de Trámites y Licencias',
+    description: 'Rastrea expedientes en municipalidades, Defensa Civil, inspecciones técnicas y registros obligatorios, alertándote con anticipación antes de cada plazo.',
+    tablerIcon: 'clipboard-check' as const,
+    status: 'Cero multas ni retrasos',
+    features: [
+      'Rastreo por número de expediente o resolución',
+      'Alertas preventivas 15 y 5 días antes de vencer',
+      'Checklist de requisitos para renovación de licencias',
+    ],
+    metrics: [
+      { label: 'Entidades', value: 'Municipios y DC' },
+      { label: 'Anticipación', value: 'Alertas previas' },
+      { label: 'Resultado', value: 'Cero multas' },
+    ],
+    highlight: 'Mantén los permisos y licencias de tu local siempre al día',
+  },
+  {
+    id: 'atencion',
+    category: 'ventas',
+    categoryLabel: 'Atención al Cliente',
+    title: 'Atención a Clientes y Pedidos 24/7',
+    description: 'Atiende consultas de compradores a cualquier hora: resuelve preguntas de tu catálogo, precios, cobertura de envíos y toma pedidos para tu equipo.',
+    tablerIcon: 'messages' as const,
+    status: 'Atención 24/7 continua',
+    features: [
+      'Respuestas amables e inmediatas día y noche',
+      'Resolución de dudas frecuentes de catálogo y precios',
+      'Registro de pedidos preliminares para tu personal',
+    ],
+    metrics: [
+      { label: 'Horario', value: '24/7 continuo' },
+      { label: 'Espera', value: '0 segundos' },
+      { label: 'Capacidad', value: 'Multi-chat' },
+    ],
+    highlight: 'Capta clientes fuera de horario y fines de semana sin contratar turnos',
+  },
+  {
+    id: 'datos',
+    category: 'operaciones',
+    categoryLabel: 'Integración a tus Datos',
+    title: 'Conexión a tus Hojas de Cálculo y Datos',
+    description: 'Enlaza a tu asistente con tus archivos Excel, Google Sheets o sistemas propios. Pídele por audio o texto tus ventas diarias, pedidos o números clave.',
+    tablerIcon: 'database-cog' as const,
+    status: 'Datos al bolsillo',
+    features: [
+      'Conexión segura con Google Sheets, Excel y SQL',
+      'Consultas en lenguaje cotidiano por mensaje o audio',
+      'Resúmenes ejecutivos diarios directo a tu celular',
+    ],
+    metrics: [
+      { label: 'Conexión', value: 'Sheets y Excel' },
+      { label: 'Entrada', value: 'Voz o texto' },
+      { label: 'Reporte', value: 'Al instante' },
+    ],
+    highlight: 'Revisa la salud de tu negocio en 10 segundos mientras estás en ruta',
+  },
+];
+
+const filterCategories = [
+  { id: 'todos', label: 'Todos los casos (8)' },
+  { id: 'ventas', label: 'Ventas y Clientes (3)' },
+  { id: 'finanzas', label: 'Facturas y Cobros (2)' },
+  { id: 'operaciones', label: 'Operaciones y Almacén (3)' },
+];
+---
+
+<section class="py-20 md:py-28 bg-surface-subtle/60 border-y border-surface-border" id="agentes">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Heading -->
+    <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+        <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
+        <span>Casos de uso reales y comprobados</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight">
+        Pequeños agentes que trabajan por ti en segundo plano.
+      </h2>
+      <p class="text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
+        Descubre todo lo que pueden resolver en tu día a día. Procesos concretos que te ahorran horas de oficina, errores manuales y llamadas innecesarias:
+      </p>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex flex-wrap items-center justify-center gap-2 pb-8" role="tablist" aria-label="Filtrar casos de uso">
+      {filterCategories.map((cat, index) => (
+        <button
+          type="button"
+          data-filter={cat.id}
+          class={`filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 ${
+            index === 0
+              ? 'bg-brand-forest text-white shadow-xs'
+              : 'bg-white text-content-secondary border border-surface-border hover:border-brand-mint hover:text-brand-forest'
+          }`}
+        >
+          {cat.label}
+        </button>
+      ))}
+    </div>
+
+    <!-- 8 Cards Grid (2-Column Responsive Layout with Rich Graphical Blocks) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8" id="agents-grid">
+      {agents.map((agent) => (
+        <div 
+          class="agent-card card-clean p-6 sm:p-7 flex flex-col justify-between group transition-all duration-300 hover:border-brand-mint hover:shadow-soft bg-white rounded-3xl border border-surface-border"
+          data-category={agent.category}
+        >
+          
+          <!-- Top Content Area -->
+          <div class="space-y-4">
+            <!-- Header with Category, Icon & Status -->
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-brand-mint-light border border-brand-mint/60 flex items-center justify-center text-brand-forest group-hover:bg-brand-mint/60 group-hover:scale-105 transition-all duration-200 flex-shrink-0">
+                  <TablerIcon name={agent.tablerIcon} size={22} strokeWidth={1.75} />
+                </div>
+                <div>
+                  <span class="text-[11px] font-semibold text-brand-forest uppercase tracking-wider block font-mono">
+                    {agent.categoryLabel}
+                  </span>
+                  <h3 class="text-lg sm:text-xl font-bold text-content-main leading-snug">
+                    {agent.title}
+                  </h3>
+                </div>
+              </div>
+
+              <!-- Status Badge -->
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface-subtle border border-surface-border text-content-secondary flex-shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
+                <span>{agent.status}</span>
+              </span>
+            </div>
+
+            <!-- Description -->
+            <p class="text-sm text-content-secondary leading-relaxed font-normal">
+              {agent.description}
+            </p>
+
+            <!-- Key Capabilities List (Graphical Resource 1) -->
+            <div class="pt-3 border-t border-surface-border/70 space-y-2 text-xs text-content-secondary">
+              {agent.features.map((feat) => (
+                <div class="flex items-center gap-2">
+                  <span class="w-4 h-4 rounded-full bg-brand-mint-light border border-brand-mint/80 text-brand-forest flex items-center justify-center text-[10px] font-bold shrink-0">✓</span>
+                  <span class="font-medium text-content-main">{feat}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Bottom Graphical Resource Block: Structured Facts Panel & Highlight Strip -->
+          <div class="pt-4 mt-4 border-t border-surface-border/70 space-y-3">
+            <!-- Structured Metrics Panel (Graphical Resource 2) -->
+            <div class="bg-surface-subtle/70 border border-surface-border rounded-2xl p-3 grid grid-cols-3 gap-2 text-center">
+              {agent.metrics.map((m) => (
+                <div class="space-y-0.5">
+                  <div class="text-[10px] font-medium text-content-muted uppercase tracking-wider">{m.label}</div>
+                  <div class="font-bold text-content-main text-xs">{m.value}</div>
+                </div>
+              ))}
+            </div>
+
+            <!-- Benefit Highlight Banner (Graphical Resource 3) -->
+            <div class="px-3.5 py-2.5 rounded-xl bg-brand-mint-light/40 border border-brand-mint/60 flex items-center gap-2 text-xs text-brand-forest font-semibold">
+              <TablerIcon name="bolt" size={15} strokeWidth={2.2} className="shrink-0 text-brand-forest" />
+              <span class="truncate">{agent.highlight}</span>
+            </div>
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+    <!-- Custom Agent Bottom Callout -->
+    <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white border border-surface-border shadow-card flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-1.5 text-center md:text-left">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-mint text-brand-forest text-xs font-semibold">
+          <span>¿Tienes otro proceso en tu negocio?</span>
+        </div>
+        <h4 class="text-lg sm:text-xl font-bold text-content-main">
+          Creamos un asistente felino personalizado a tu medida
+        </h4>
+        <p class="text-sm text-content-secondary max-w-xl">
+          Si usas un software específico, un formato de inventario propio o reglas especiales, podemos configurar y entrenar a tu agente en menos de 24 horas.
+        </p>
+      </div>
+
+      <a
+        href="https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20un%20asistente%20personalizado%20para%20mi%20empresa."
+        target="_blank"
+        class="btn-primary flex-shrink-0 px-6 py-3.5 rounded-xl text-sm font-medium shadow-sm flex items-center gap-2"
+      >
+        <TablerIcon name="brand-whatsapp" size={18} strokeWidth={2} />
+        <span>Pedir agente a medida</span>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Filter Script -->
+<script>
+  function setupCategoryFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.agent-card');
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const category = btn.getAttribute('data-filter');
+
+        // Update active button state
+        filterBtns.forEach((b) => {
+          b.classList.remove('bg-brand-forest', 'text-white', 'shadow-xs');
+          b.classList.add('bg-white', 'text-content-secondary', 'border', 'border-surface-border');
+        });
+        btn.classList.remove('bg-white', 'text-content-secondary', 'border', 'border-surface-border');
+        btn.classList.add('bg-brand-forest', 'text-white', 'shadow-xs');
+
+        // Filter cards
+        cards.forEach((card) => {
+          const cardCat = card.getAttribute('data-category');
+          if (category === 'todos' || cardCat === category) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  }
+
+  setupCategoryFilters();
+  document.addEventListener('astro:page-load', setupCategoryFilters);
+</script>

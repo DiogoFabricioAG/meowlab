@@ -1,0 +1,60 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+---
+
+<section class="py-20 md:py-28 bg-white" id="empezar">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Deep Forest Green Banner Container -->
+    <div class="relative bg-brand-forest rounded-3xl p-8 sm:p-12 md:p-16 overflow-hidden shadow-elevated">
+      
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Column: Copy & Action -->
+        <div class="lg:col-span-8 space-y-6 text-white">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-brand-mint text-xs font-medium backdrop-blur-sm">
+            <TablerIcon name="brand-whatsapp" size={14} className="text-[#25D366]" strokeWidth={2} />
+            <span>Empieza en 2 minutos</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.15]">
+            Haz que tus tareas avancen hoy mismo.
+          </h2>
+
+          <p class="text-base sm:text-lg text-brand-mint/90 max-w-xl font-normal leading-relaxed">
+            Pruébalo con un mensaje de WhatsApp. Sin instalaciones pesadas, sin contratos raros y sin enredos técnicos.
+          </p>
+
+          <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <a
+              href="https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20probar%20un%20asistente%20en%20WhatsApp%20para%20mi%20negocio."
+              target="_blank"
+              class="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-white text-brand-forest hover:bg-brand-mint text-base font-semibold shadow-sm transition-all duration-200"
+            >
+              <TablerIcon name="brand-whatsapp" size={20} className="text-[#25D366]" strokeWidth={2} />
+              <span>Escribir a MeowLab por WhatsApp</span>
+            </a>
+            <span class="text-xs text-brand-mint/70 self-center">
+              Pruébalo gratis • Te respondemos en segundos
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Column: Official MeowLab Cat Working on Laptop -->
+        <div class="lg:col-span-4 flex justify-center lg:justify-end">
+          <div class="w-36 h-36 sm:w-44 sm:h-44 p-4 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/15 flex items-center justify-center shadow-lg">
+            <img 
+              src="/assets/meowlab-cat-laptop.png" 
+              alt="meowlab cat laptop" 
+              class="w-full h-full object-contain drop-shadow-md"
+              loading="lazy" 
+            />
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>

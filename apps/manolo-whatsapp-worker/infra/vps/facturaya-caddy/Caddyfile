@@ -1,0 +1,48 @@
+{
+	email {$TLS_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+	}
+
+	handle_path /internal/manolo/* {
+		reverse_proxy manolo-bridge:3000
+	}
+
+	handle {
+		reverse_proxy facturaya-ai-web-1:80
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+radar.meowlab.tech {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+		X-Radar-Deployment "2026-08-18"
+	}
+
+	reverse_proxy licitaciones-web:80
+
+	log {
+		output stdout
+		format console
+	}
+}
