@@ -1,28 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
-import WorkingAgents from '../components/WorkingAgents.astro';
-import HowItWorks from '../components/HowItWorks.astro';
+import AgentesDetalle from '../components/AgentesDetalle.astro';
+import DashboardSupervision from '../components/DashboardSupervision.astro';
+import EquipoGatos from '../components/EquipoGatos.astro';
 import Faq from '../components/Faq.astro';
-import FinalCta from '../components/FinalCta.astro';
 ---
 
 <Layout
-  title="meowlab | Tu asistente en WhatsApp para hacer avanzar tu negocio"
-  description="Pídele que encuentre compras del Estado, emita tus facturas o revise información de tu negocio. Todo desde tu WhatsApp de siempre, sin enredos técnicos."
+  title="meowlab | Agentes de IA en WhatsApp para Empresas"
+  description="Delega ventas, facturación electrónica SUNAT y compras del Estado con agentes inteligentes en WhatsApp. Diseñado para pymes y operaciones reales."
 >
   <!-- 1. Hero Section con simulador interactivo -->
   <Hero />
 
-  <!-- 2. Catálogo de asistentes y casos de uso -->
-  <WorkingAgents />
+  <!-- 2. Catálogo de agentes y vista de detalle con casos de uso -->
+  <AgentesDetalle />
 
-  <!-- 3. Cómo funciona -->
-  <HowItWorks />
+  <!-- 3. Mini sección de dashboard, modularidad y supervisión -->
+  <DashboardSupervision />
 
-  <!-- 4. Preguntas frecuentes (FAQ) -->
+  <!-- 4. Coordinación multi-agente para negocios -->
+  <EquipoGatos />
+
+  <!-- 5. Preguntas frecuentes (FAQ con modularidad) -->
   <Faq />
-
-  <!-- 5. CTA final -->
-  <FinalCta />
 </Layout>

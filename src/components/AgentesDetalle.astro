@@ -1,0 +1,1960 @@
+---
+// AgentesDetalle.astro - Catálogo interactivo de agentes y vista modal de detalle
+// Iconos profesionales con @lucide/astro (sin emojis).
+// Paleta refinada de bajo contraste (Azul pizarra: Facturas, Verde bosque suave: Licitaciones, Terracota cálido: Ventas).
+// Secciones: Casos de uso interactivos con simulación de chat + Flujo INPUT / OUTPUT.
+
+import TablerIcon from './ui/TablerIcon.astro';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ArrowLeftRight,
+  Check,
+  CheckCheck,
+  FileText,
+  FileCheck,
+  FileSpreadsheet,
+  Mic,
+  Camera,
+  Code,
+  ShieldCheck,
+  Clock,
+  Search,
+  Bell,
+  User,
+  MapPin,
+  Receipt,
+  MessageSquare,
+  Send,
+  Play,
+  X
+} from '@lucide/astro';
+
+const agentsData = [
+  {
+    id: "facturas",
+    name: "Facturas",
+    colorName: "azul",
+    theme: {
+      primary: "#2B5C7F",
+      dark: "#1E435E",
+      light: "#F3F7FA",
+      border: "#D6E2EC",
+      glow: "rgba(43, 92, 127, 0.08)",
+      badgeBg: "#E6EFF5",
+      badgeText: "#204561",
+      hoverBorder: "#9BBFD7"
+    },
+    tag: "Facturación SUNAT & Cobranzas",
+    summary: "De un mensaje a un comprobante electrónico listo ante SUNAT.",
+    description: "Genera comprobantes electrónicos con validez legal ante SUNAT con solo dictar los datos por WhatsApp (texto o nota de voz). Valida RUC, emite factura o boleta, y envía el PDF y XML a tu cliente y a tu caja al instante.",
+
+    // Casos de uso interactivos con diálogo visual (sin emojis)
+    useCases: [
+      {
+        id: "caso-audio",
+        title: "Emisión por audio o mensaje",
+        badge: "Operación en 8s",
+        summary: "Dicta los datos de la venta mientras estás en movimiento y recibe la factura lista para tu cliente.",
+        icon: "mic",
+        dialogue: {
+          userMessage: "Factura para Constructora San José RUC 20601234567 por 3 escritorios ejecutivos a S/ 500 cada uno más IGV",
+          userType: "audio",
+          audioDuration: "0:08",
+          agentStatus: "Validando RUC en padrón SUNAT y calculando IGV (18%)...",
+          agentReply: "Listo Andrés, tu Factura F001-000428 ha sido emitida y aprobada por SUNAT con éxito.",
+          card: {
+            title: "Factura Electrónica F001-000428",
+            client: "Constructora San José S.A.C. · RUC 20601234567",
+            total: "Total: S/ 1,770.00 (IGV incluido)",
+            status: "Aprobada por SUNAT · CDR y XML oficial generado"
+          }
+        },
+        steps: [
+          "Envías un audio o mensaje rápido con el RUC y los productos.",
+          "El agente consulta el padrón oficial de SUNAT para asegurar Razón Social y domicilio.",
+          "Genera el PDF con tu logotipo y el XML firmado, listo para reenviar a tu cliente."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la emisión de facturas por audio en WhatsApp"
+      },
+      {
+        id: "caso-cobranzas",
+        title: "Cobranza preventiva sin roces",
+        badge: "Gestión preventiva",
+        summary: "Detecta comprobantes pendientes de pago y redacta un mensaje respetuoso con tus datos de transferencia.",
+        icon: "clock",
+        dialogue: {
+          userMessage: "¿Qué facturas de esta semana siguen pendientes de pago en almacén?",
+          userType: "text",
+          agentStatus: "Revisando estado de pagos y vencimientos en FacturaYa...",
+          agentReply: "Tienes 2 facturas pendientes. He preparado un recordatorio cordial para Constructora San José con fecha límite hoy.",
+          card: {
+            title: "Recordatorio de Pago Sugerido",
+            client: "Constructora San José S.A.C. · Saldo S/ 3,450.00",
+            total: "Vencimiento: Hoy a las 6:00 p. m.",
+            status: "Listo para enviar por WhatsApp con datos bancarios"
+          }
+        },
+        steps: [
+          "El agente identifica los comprobantes con fecha de cobro próxima o vencida.",
+          "Redacta un mensaje amable con el resumen de la deuda y cuentas bancarias.",
+          "Te permite enviar el recordatorio con un solo tap y actualiza tu flujo de caja."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar el recordatorio de cobranzas en WhatsApp"
+      },
+      {
+        id: "caso-anulacion",
+        title: "Notas de crédito y corrección",
+        badge: "Sin enredos",
+        summary: "Si hubo un error en cantidades o una devolución, emite notas de crédito en segundos sin llamar al contador.",
+        icon: "file",
+        dialogue: {
+          userMessage: "Anula la factura F001-000420 por devolución total de mercadería",
+          userType: "text",
+          agentStatus: "Generando Nota de Crédito Electrónica según normativa SUNAT...",
+          agentReply: "Emití la Nota de Crédito NC01-000085 vinculada a la factura F001-000420. Saldo anulado y comunicado a SUNAT.",
+          card: {
+            title: "Nota de Crédito NC01-000085",
+            client: "Motivo: Anulación de la operación (Tipo 01)",
+            total: "Monto ajustado: S/ 1,200.00",
+            status: "Transmitida a SUNAT con éxito"
+          }
+        },
+        steps: [
+          "Indicas el comprobante a modificar y el motivo de la anulación.",
+          "El agente genera la nota de crédito electrónica y la transmite a SUNAT.",
+          "Envía el nuevo comprobante al cliente y actualiza los saldos contables."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la emisión de notas de crédito en WhatsApp"
+      }
+    ],
+
+    // INPUT / OUTPUT
+    io: {
+      inputTitle: "Lo que tú o tu cliente envían",
+      inputs: [
+        { title: "Texto o nota de voz", desc: "Dicta RUC, productos y monto en lenguaje natural.", icon: "mic" },
+        { title: "Foto de pedido o libreta", desc: "Foto de ticket manual, comanda o nota de venta en papel.", icon: "camera" },
+        { title: "RUC o cliente frecuente", desc: "Basta el número de RUC o el nombre de cliente habitual.", icon: "user" }
+      ],
+      outputTitle: "Lo que el agente te entrega",
+      outputs: [
+        { title: "Factura o Boleta oficial SUNAT", desc: "Comprobante electrónico con código QR, firma digital y CDR.", icon: "filecheck" },
+        { title: "PDF profesional con tu logotipo", desc: "Diseño elegante y membretado listo para compartir.", icon: "filetext" },
+        { title: "Archivo XML oficial", desc: "Archivo tributario listo para tu contador o sistema contable.", icon: "code" },
+        { title: "Envío directo al WhatsApp del cliente", desc: "Mensaje listo enviado en el mismo instante.", icon: "send" }
+      ],
+      badge: "Integración nativa con FacturaYa y sistemas autorizados por SUNAT."
+    },
+
+    cta: {
+      label: "Configurar Agente de Facturas",
+      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Facturas"
+    }
+  },
+  {
+    id: "licitaciones",
+    name: "Licitaciones",
+    colorName: "verde",
+    theme: {
+      primary: "#1E5E4E",
+      dark: "#144237",
+      light: "#F3F8F5",
+      border: "#D2E5DB",
+      glow: "rgba(30, 94, 78, 0.08)",
+      badgeBg: "#E2EFE7",
+      badgeText: "#15473B",
+      hoverBorder: "#95C7B2"
+    },
+    tag: "Compras del Estado & SEACE",
+    summary: "Busca convocatorias públicas y privadas que sí encajan contigo.",
+    description: "Rastrea convocatorias en SEACE y Gob.pe todos los días. Filtra según tu RNP, rubro y capacidad, enviándote cada mañana un reporte con montos, requisitos clave y bases oficiales en PDF.",
+
+    // Casos de uso interactivos con diálogo visual (sin emojis)
+    useCases: [
+      {
+        id: "caso-seace",
+        title: "Monitoreo matutino según tu RNP",
+        badge: "Reporte 8:00 AM",
+        summary: "Cada mañana recibes por WhatsApp las oportunidades detectadas durante la noche que coinciden con tu perfil.",
+        icon: "bell",
+        dialogue: {
+          userMessage: "Configuración: Notifícame obras de agua y saneamiento en Cusco o Junín mayores a S/ 500,000",
+          userType: "text",
+          agentStatus: "Filtrando convocatorias publicadas en SEACE en las últimas 24 horas...",
+          agentReply: "Buenos días Carlos, encontré 2 licitaciones ideales para tu empresa hoy:",
+          card: {
+            title: "Instalación de red de agua potable en San Sebastián",
+            client: "Municipalidad Distrital de San Sebastián · Cusco",
+            total: "Presupuesto: S/ 1,240,500.00",
+            status: "Plazo para postular: en 5 días hábiles · Bases listas"
+          }
+        },
+        steps: [
+          "Configuras tus rubros de interés, regiones de cobertura y montos mínimos.",
+          "A las 8:00 a. m. el agente te envía las convocatorias oficiales del día.",
+          "Incluye presupuesto referencial, objeto de contratación y enlace directo a bases."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar las alertas de licitaciones SEACE en WhatsApp"
+      },
+      {
+        id: "caso-bases",
+        title: "Descarga de bases y requisitos en PDF",
+        badge: "Extracción express",
+        summary: "Solicita las bases de cualquier licitación por chat y el agente descarga los documentos y extrae requisitos.",
+        icon: "file",
+        dialogue: {
+          userMessage: "¿Puedes descargarme las bases de la licitación de San Sebastián y resumirme los requisitos?",
+          userType: "text",
+          agentStatus: "Descargando expediente técnico y bases administrativas de SEACE...",
+          agentReply: "Aquí tienes el PDF oficial de las bases (84 páginas) y un resumen de las garantías solicitadas.",
+          card: {
+            title: "Bases Administrativas Oficiales.pdf",
+            client: "Garantía de fiel cumplimiento: 10% · Visita a obra opcional",
+            total: "Experiencia requerida: 2 contratos similares",
+            status: "Archivo PDF verificado y descargado"
+          }
+        },
+        steps: [
+          "Pides las bases por el nombre de la obra o número de proceso.",
+          "El agente descarga los documentos oficiales de la plataforma pública.",
+          "Te entrega el PDF y te sintetiza el perfil técnico y cronograma."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la descarga de bases en WhatsApp"
+      },
+      {
+        id: "caso-tramites",
+        title: "Seguimiento de trámites y licencias",
+        badge: "Cero multas",
+        summary: "Rastrea expedientes en municipalidades y registros obligatorios con alertas antes de cada vencimiento.",
+        icon: "clock",
+        dialogue: {
+          userMessage: "Revisa cómo va el expediente 2026-00481 en la Municipalidad de Lima",
+          userType: "text",
+          agentStatus: "Consultando mesa de partes digital y estado del trámite...",
+          agentReply: "Tu trámite de Licencia de Funcionamiento pasó a 'Revisión Técnica'. Todo en orden sin observaciones.",
+          card: {
+            title: "Expediente Municipal 2026-00481",
+            client: "Subgerencia de Comercialización · MML",
+            total: "Estado: En evaluación final (Día 8 de 15)",
+            status: "Próxima alerta programada en 48 horas"
+          }
+        },
+        steps: [
+          "Registras el número de expediente o trámite en seguimiento.",
+          "El agente consulta el estado del trámite y te alerta de observaciones.",
+          "Te avisa con antelación para subsanar documentos y evitar rechazos."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar el seguimiento de trámites en WhatsApp"
+      }
+    ],
+
+    // INPUT / OUTPUT
+    io: {
+      inputTitle: "Lo que tú configuras o preguntas",
+      inputs: [
+        { title: "RNP y rubros autorizados", desc: "Bienes, servicios u obras según tu constancia oficial OSCE.", icon: "user" },
+        { title: "Regiones de cobertura", desc: "Zonas donde operas (ej. Lima, Junín, Cusco o a nivel nacional).", icon: "map" },
+        { title: "Montos y tipos de concurso", desc: "Rangos de presupuesto (ej. desde S/ 40,000 hasta S/ 4,500,000).", icon: "receipt" }
+      ],
+      outputTitle: "Lo que el agente te entrega",
+      outputs: [
+        { title: "Reporte matutino 8:00 a. m.", desc: "Oportunidades nocturnas que coinciden con tu especialidad.", icon: "bell" },
+        { title: "Ficha ejecutiva con montos y plazos", desc: "Entidad convocante, presupuesto y fecha límite para postular.", icon: "filetext" },
+        { title: "Bases oficiales en PDF descargables", desc: "Documento oficial del concurso directo a tu WhatsApp.", icon: "filecheck" },
+        { title: "Alertas de prórrogas y consultas", desc: "Avisos inmediatos ante cualquier cambio en el cronograma SEACE.", icon: "clock" }
+      ],
+      badge: "Conexión directa y continua con portales del Estado (SEACE v3, OSCE y Gob.pe)."
+    },
+
+    cta: {
+      label: "Configurar Agente de Licitaciones",
+      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Licitaciones"
+    }
+  },
+  {
+    id: "ventas",
+    name: "Ventas",
+    colorName: "rojo",
+    theme: {
+      primary: "#9B4A42",
+      dark: "#7A3730",
+      light: "#FAF5F4",
+      border: "#ECDDDA",
+      glow: "rgba(155, 74, 66, 0.08)",
+      badgeBg: "#F6E9E7",
+      badgeText: "#78352F",
+      hoverBorder: "#D8ABA4"
+    },
+    tag: "Atención 24/7 & Proformas PDF",
+    summary: "Responde a clientes 24/7, envía catálogo y genera cotizaciones en PDF.",
+    description: "Atiende a tus clientes en WhatsApp día y noche. Resuelve dudas sobre tu catálogo, precios y cobertura, califica a los compradores y elabora cotizaciones y proformas en PDF con tu logo para cerrar ventas al instante.",
+
+    // Casos de uso interactivos con diálogo visual (sin emojis)
+    useCases: [
+      {
+        id: "caso-atencion",
+        title: "Atención 24/7 y catálogo",
+        badge: "Respuesta en 3s",
+        summary: "Un cliente escribe un fin de semana solicitando precios: el agente atiende, envía fotos y califica la compra.",
+        icon: "message",
+        dialogue: {
+          userMessage: "Hola, ¿tienen stock de pintura látex satinada blanca y hacen envíos a San Isidro?",
+          userType: "text",
+          agentStatus: "Consultando disponibilidad en almacén y zona de despacho...",
+          agentReply: "Hola, sí tenemos stock en baldes de 5 galones. El envío a San Isidro llega mañana mismo sin costo adicional.",
+          card: {
+            title: "Pintura Látex Satinada Premium (5 Galones)",
+            client: "Precio de lista: S/ 145.00 · Stock disponible: 34 baldes",
+            total: "Despacho gratuito en 24h",
+            status: "¿Deseas que te reservemos las unidades para entrega?"
+          }
+        },
+        steps: [
+          "Un comprador escribe fuera de horario de oficina.",
+          "El agente responde amablemente de inmediato con información clara.",
+          "Califica el interés del cliente y recopila los datos para despacho."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la atención comercial 24/7 en WhatsApp"
+      },
+      {
+        id: "caso-cotizacion",
+        title: "Creador de cotizaciones en PDF",
+        badge: "Documento oficial",
+        summary: "Calcula precios, subtotales e IGV y entrega una propuesta comercial formal con tu marca.",
+        icon: "file",
+        dialogue: {
+          userMessage: "Prepárame una cotización formal para Inversiones Lima SAC por 20 unidades del producto A",
+          userType: "text",
+          agentStatus: "Aplicando descuento mayorista y generando proforma membretada...",
+          agentReply: "Te comparto la cotización formal COT-2026-089 en PDF con tu logo, vigencia de 15 días y cuentas bancarias.",
+          card: {
+            title: "Cotización Comercial COT-2026-089.pdf",
+            client: "Cliente: Inversiones Lima S.A.C. · RUC 20551234567",
+            total: "Total: S/ 4,200.00 (Incluye IGV y flete)",
+            status: "Documento PDF generado y listo para enviar"
+          }
+        },
+        steps: [
+          "El cliente solicita un presupuesto formal para su empresa.",
+          "El agente recopila ítems, precios y condiciones comerciales pactadas.",
+          "Genera un PDF elegante con tu logotipo, RUC y vigencia de oferta."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la creación de cotizaciones en WhatsApp"
+      },
+      {
+        id: "caso-almacen",
+        title: "Consultas de almacén en tiempo real",
+        badge: "Stock al segundo",
+        summary: "Tu equipo de ventas o despacho pregunta por voz o texto la disponibilidad y ubicación en almacén.",
+        icon: "search",
+        dialogue: {
+          userMessage: "¿Cuánto cemento nos queda en el almacén de Lurín y a qué precio está la bolsa?",
+          userType: "text",
+          agentStatus: "Conectando con base de datos de inventario / Google Sheets...",
+          agentReply: "Revisé tu almacén y estos son los datos exactos que tienes en este momento:",
+          card: {
+            title: "Cemento Portland Tipo I (Bolsas 42.5 kg)",
+            client: "Ubicación: Pasillo B · Almacén Lurín",
+            total: "Stock actual: 1,840 bolsas · Precio: S/ 28.50 c/u",
+            status: "Datos verificados hace 2 minutos"
+          }
+        },
+        steps: [
+          "Tu vendedor pregunta desde la calle la disponibilidad de un producto.",
+          "El agente consulta el inventario en tiempo real.",
+          "Responde al instante con la cantidad disponible y el precio autorizado."
+        ],
+        whatsappPrompt: "Hola MeowLab, quiero probar la consulta de stock en WhatsApp"
+      }
+    ],
+
+    // INPUT / OUTPUT
+    io: {
+      inputTitle: "Lo que llega a tu WhatsApp",
+      inputs: [
+        { title: "Preguntas de clientes 24/7", desc: "Consultas de precios, catálogo, fotos y tiempos de entrega.", icon: "message" },
+        { title: "Consultas de tu equipo de ventas", desc: "¿Cuánto nos queda en almacén y a qué precio está?", icon: "search" },
+        { title: "Solicitudes de cotización formal", desc: "Lista de productos para preparar una propuesta de venta.", icon: "filetext" }
+      ],
+      outputTitle: "Lo que el agente entrega",
+      outputs: [
+        { title: "Respuestas comerciales amables", desc: "Atención cálida, resolución de objeciones y catálogo digital.", icon: "check" },
+        { title: "Cotizaciones oficiales en PDF", desc: "Proformas formateadas con tu marca, logo y términos comerciales.", icon: "filecheck" },
+        { title: "Stock e inventario al minuto", desc: "Conexión directa a tus hojas de Google Sheets o inventario.", icon: "spreadsheet" },
+        { title: "Pase directo a asesor humano", desc: "Alerta a tu equipo cuando el comprador está listo para transferir.", icon: "bell" }
+      ],
+      badge: "Sincronizado con tus hojas de Google Sheets, Excel y catálogo oficial de productos."
+    },
+
+    cta: {
+      label: "Configurar Agente de Ventas",
+      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Ventas"
+    }
+  }
+];
+
+const assetsData = {
+  facturas: "/assets/gato-facturas.png",
+  licitaciones: "/assets/gato-licitaciones.png",
+  ventas: "/assets/gato-ventas.png"
+};
+---
+
+<section class="py-20 md:py-28 bg-[#FAFBF9] border-y border-surface-border" id="agentes">
+  <meowlab-detail>
+    <div class="md-wrap">
+      <div class="md-heading text-center max-w-3xl mx-auto mb-10 md:mb-14 space-y-3">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight font-title">
+          Un gato para cada trabajo
+        </h2>
+        <p class="md-intro text-base sm:text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
+          Explora tus agentes especializados y descubre cómo resuelven las tareas operativas de tu empresa directamente en WhatsApp.
+        </p>
+      </div>
+
+      <!-- Grid of Agent Cards (Server-rendered with Lucide icons) -->
+      <div class="md-grid">
+        {agentsData.map((agent) => (
+          <button
+            type="button"
+            class="md-card"
+            data-kind={agent.id}
+            aria-haspopup="dialog"
+            aria-label={`Ver detalles de ${agent.name}`}
+          >
+            <div class="md-card-top">
+              <span class="md-card-pill">{agent.tag}</span>
+              <span class="md-expand" aria-hidden="true">
+                <ArrowUpRight class="w-4 h-4" />
+              </span>
+            </div>
+
+            <h3 class="md-card-title">{agent.name}</h3>
+            <p class="md-summary">{agent.summary}</p>
+
+            <div class="md-art" aria-hidden="true">
+              <img
+                src={assetsData[agent.id as keyof typeof assetsData]}
+                alt={agent.name}
+                class="md-cat"
+                width={400}
+                height={400}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+
+            <div class="md-explore">
+              <span>Conocer y probar agente</span>
+              <ArrowRight class="w-4 h-4 md-explore-arrow" />
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Pre-rendered Dialog Modals for each agent with Lucide Icons and ZERO emojis -->
+    <dialog id="agent-detail-dialog">
+      <button type="button" class="md-close" aria-label="Cerrar detalle">
+        <X class="w-5 h-5" />
+      </button>
+
+      {agentsData.map((agent, aIdx) => (
+        <div
+          class={`md-dialog-content ${aIdx === 0 ? 'active' : 'hidden'}`}
+          data-agent-content={agent.id}
+          hidden={aIdx !== 0}
+          style={`--theme-primary:${agent.theme.primary};--theme-dark:${agent.theme.dark};--theme-light:${agent.theme.light};--theme-border:${agent.theme.border};--theme-glow:${agent.theme.glow};`}
+        >
+          <!-- Head Section -->
+          <div class="md-dialog-head">
+            <div>
+              <span class="md-dialog-badge" style={`background:${agent.theme.badgeBg};color:${agent.theme.badgeText};`}>
+                <ShieldCheck class="w-3.5 h-3.5" />
+                <span>{agent.tag}</span>
+              </span>
+              <h2 class="md-dialog-title">{agent.name}</h2>
+              <p class="md-description">{agent.description}</p>
+            </div>
+
+            <div class="md-dialog-cat-box" style={`background:${agent.theme.light};border:1px solid ${agent.theme.border};`}>
+              <img
+                src={assetsData[agent.id as keyof typeof assetsData]}
+                alt={agent.name}
+                class="md-dialog-cat"
+                width={120}
+                height={120}
+              />
+            </div>
+          </div>
+
+          <!-- 1. CASOS DE USO INTERACTIVOS -->
+          <section class="md-section-block">
+            <div class="md-section-title-wrap">
+              <h3 class="md-section-title">
+                <MessageSquare class="w-4 h-4" style={`color:${agent.theme.primary};`} />
+                <span>Casos de uso interactivos</span>
+              </h3>
+              <span class="md-section-subtitle">Explora cómo interactúa el agente directamente en WhatsApp</span>
+            </div>
+
+            <div class="md-cases-box">
+              <!-- Tabs -->
+              <div class="md-case-tabs" role="tablist" aria-label={`Casos de uso de ${agent.name}`}>
+                {agent.useCases.map((uc, uIdx) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`tab-${agent.id}-${uIdx}`}
+                    class={`md-case-tab ${uIdx === 0 ? 'active' : ''}`}
+                    data-tab-index={uIdx}
+                    aria-selected={uIdx === 0 ? 'true' : 'false'}
+                    aria-controls={`panel-${agent.id}-${uIdx}`}
+                  >
+                    {uc.icon === 'mic' && <Mic class="w-4 h-4" />}
+                    {uc.icon === 'clock' && <Clock class="w-4 h-4" />}
+                    {uc.icon === 'file' && <FileText class="w-4 h-4" />}
+                    {uc.icon === 'bell' && <Bell class="w-4 h-4" />}
+                    {uc.icon === 'message' && <MessageSquare class="w-4 h-4" />}
+                    {uc.icon === 'search' && <Search class="w-4 h-4" />}
+                    <span>{uc.title}</span>
+                  </button>
+                ))}
+              </div>
+
+              <!-- Case Panels -->
+              {agent.useCases.map((uc, uIdx) => (
+                <div
+                  id={`panel-${agent.id}-${uIdx}`}
+                  role="tabpanel"
+                  aria-labelledby={`tab-${agent.id}-${uIdx}`}
+                  class={`md-case-view ${uIdx === 0 ? 'active' : 'hidden'}`}
+                  data-case-panel={uIdx}
+                  hidden={uIdx !== 0}
+                >
+                  <!-- Left: WhatsApp Simulation -->
+                  <div class="md-mini-chat">
+                    {uc.dialogue.userType === 'audio' ? (
+                      <div class="md-chat-bubble user audio">
+                        <div class="md-audio-row">
+                          <div class="md-audio-play">
+                            <Play class="w-3.5 h-3.5 fill-current ml-0.5" />
+                          </div>
+                          <div class="md-audio-waves" aria-hidden="true">
+                            <span style="height: 35%;"></span>
+                            <span style="height: 65%;"></span>
+                            <span style="height: 40%;"></span>
+                            <span style="height: 90%;"></span>
+                            <span style="height: 55%;"></span>
+                            <span style="height: 75%;"></span>
+                            <span style="height: 100%;"></span>
+                            <span style="height: 60%;"></span>
+                            <span style="height: 80%;"></span>
+                            <span style="height: 45%;"></span>
+                            <span style="height: 70%;"></span>
+                            <span style="height: 30%;"></span>
+                          </div>
+                          <span class="md-audio-time">{uc.dialogue.audioDuration || '0:08'}</span>
+                          <Mic class="w-3.5 h-3.5 text-[#25D366] shrink-0" />
+                        </div>
+                        <p class="md-audio-transcript">
+                          "{uc.dialogue.userMessage}"
+                        </p>
+                        <div class="md-chat-meta">
+                          <span>10:42 a. m.</span>
+                          <CheckCheck class="w-3.5 h-3.5 text-[#53bdeb]" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div class="md-chat-bubble user">
+                        <p>{uc.dialogue.userMessage}</p>
+                        <div class="md-chat-meta">
+                          <span>10:42 a. m.</span>
+                          <CheckCheck class="w-3.5 h-3.5 text-[#53bdeb]" />
+                        </div>
+                      </div>
+                    )}
+
+                    <div class="md-chat-status">
+                      <ShieldCheck class="w-3.5 h-3.5 shrink-0" />
+                      <span>{uc.dialogue.agentStatus}</span>
+                    </div>
+
+                    <div class="md-chat-bubble agent">
+                      <p>{uc.dialogue.agentReply}</p>
+
+                      <div class="md-chat-card">
+                        <div class="md-chat-card-top">
+                          <FileText class="w-4 h-4 shrink-0 text-slate-700" />
+                          <span class="md-chat-card-title">{uc.dialogue.card.title}</span>
+                        </div>
+                        <div class="md-chat-card-sub">{uc.dialogue.card.client}</div>
+                        <div class="md-chat-card-total">
+                          <span>{uc.dialogue.card.total}</span>
+                          <span class="md-chat-card-badge">
+                            <CheckCheck class="w-3.5 h-3.5 inline-block -mt-0.5" /> {uc.dialogue.card.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="md-chat-meta agent-meta">
+                        <span>10:42 a. m.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Right: Case Explanation & Direct WhatsApp Action -->
+                  <div class="md-case-details">
+                    <div>
+                      <span class="md-case-badge">{uc.badge}</span>
+                      <h4 class="md-case-title">{uc.title}</h4>
+                      <p class="md-case-summary">{uc.summary}</p>
+
+                      <ul class="md-case-steps">
+                        {uc.steps.map((step, sIdx) => (
+                          <li>
+                            <span class="md-step-num">{sIdx + 1}</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <a
+                      href={`https://wa.me/51923790280?text=${encodeURIComponent(uc.whatsappPrompt)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="md-cta-btn"
+                    >
+                      <Send class="w-4 h-4" />
+                      <span>Probar este caso por WhatsApp</span>
+                      <ArrowRight class="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <!-- 2. FLUJO INPUT / OUTPUT -->
+          <section class="md-section-block">
+            <div class="md-section-title-wrap">
+              <h3 class="md-section-title">
+                <ArrowLeftRight class="w-4 h-4" style={`color:${agent.theme.primary};`} />
+                <span>Flujo de Operación: INPUT / OUTPUT</span>
+              </h3>
+              <span class="md-section-subtitle">Qué recibe el agente y qué documentos oficiales te entrega</span>
+            </div>
+
+            <div class="md-io-wrapper">
+              <div class="md-io-grid">
+                <!-- INPUT Column -->
+                <div class="md-io-column">
+                  <div class="md-io-col-title">
+                    <span class="md-io-badge in">INPUT</span>
+                    <span>{agent.io.inputTitle}</span>
+                  </div>
+                  <ul class="md-io-items">
+                    {agent.io.inputs.map((inp) => (
+                      <li class="md-io-item">
+                        <span class="md-io-icon">
+                          {inp.icon === 'mic' && <Mic class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'camera' && <Camera class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'user' && <User class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'map' && <MapPin class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'receipt' && <Receipt class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'message' && <MessageSquare class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'search' && <Search class="w-4 h-4 text-slate-500" />}
+                          {inp.icon === 'filetext' && <FileText class="w-4 h-4 text-slate-500" />}
+                        </span>
+                        <div class="md-io-item-text">
+                          <span class="md-io-item-title">{inp.title}</span>
+                          <span class="md-io-item-desc">{inp.desc}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <!-- Connector -->
+                <div class="md-io-divider">
+                  <div class="md-io-circle">
+                    <ArrowRight class="w-4 h-4" />
+                  </div>
+                  <span class="md-io-divider-label">Procesa el Agente</span>
+                </div>
+
+                <!-- OUTPUT Column -->
+                <div class="md-io-column">
+                  <div class="md-io-col-title">
+                    <span class="md-io-badge out">OUTPUT</span>
+                    <span>{agent.io.outputTitle}</span>
+                  </div>
+                  <ul class="md-io-items">
+                    {agent.io.outputs.map((out) => (
+                      <li class="md-io-item">
+                        <span class="md-io-icon" style={`color:${agent.theme.primary};`}>
+                          {out.icon === 'filecheck' && <FileCheck class="w-4 h-4" />}
+                          {out.icon === 'filetext' && <FileText class="w-4 h-4" />}
+                          {out.icon === 'code' && <Code class="w-4 h-4" />}
+                          {out.icon === 'send' && <Send class="w-4 h-4" />}
+                          {out.icon === 'bell' && <Bell class="w-4 h-4" />}
+                          {out.icon === 'clock' && <Clock class="w-4 h-4" />}
+                          {out.icon === 'check' && <CheckCheck class="w-4 h-4" />}
+                          {out.icon === 'spreadsheet' && <FileSpreadsheet class="w-4 h-4" />}
+                        </span>
+                        <div class="md-io-item-text">
+                          <span class="md-io-item-title">{out.title}</span>
+                          <span class="md-io-item-desc">{out.desc}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div class="md-io-footer">
+                <ShieldCheck class="w-4 h-4 shrink-0" style={`color:${agent.theme.primary};`} />
+                <span>{agent.io.badge}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Footer WhatsApp CTA -->
+          <div class="md-dialog-footer">
+            <a
+              href={agent.cta.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md-cta-btn"
+            >
+              <TablerIcon name="brand-whatsapp" size={18} className="text-[#25D366]" strokeWidth={2.2} />
+              <span>{agent.cta.label}</span>
+              <ArrowRight class="w-4 h-4" />
+            </a>
+
+            <span class="md-cta-trust">
+              <Check class="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Sin instalaciones · Activación en menos de 24 horas</span>
+            </span>
+          </div>
+        </div>
+      ))}
+    </dialog>
+  </meowlab-detail>
+</section>
+
+<style is:global>
+  meowlab-detail {
+    --bg: #FAFBF9;
+    --paper: #ffffff;
+    --ink: #111816;
+    --muted: #586561;
+    --line: #e4e8ed;
+    --accent: #0C493C;
+    display: block;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Actor', sans-serif;
+    padding: clamp(24px, 5vw, 64px) clamp(16px, 4vw, 32px);
+  }
+  meowlab-detail * {
+    box-sizing: border-box;
+  }
+  meowlab-detail button,
+  meowlab-detail a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  meowlab-detail .md-wrap {
+    max-width: 1180px;
+    margin: auto;
+  }
+  meowlab-detail .md-heading {
+    text-align: center;
+    max-width: 48rem;
+    margin: 0 auto 2.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  meowlab-detail .md-heading h2 {
+    margin: 0;
+  }
+  meowlab-detail .md-intro {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 40rem;
+    color: var(--muted);
+    margin: 0 auto;
+  }
+  meowlab-detail .md-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Cards on main page with refined muted colors */
+  meowlab-detail .md-card {
+    position: relative;
+    text-align: left;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    min-width: 0;
+    height: 465px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    padding: 24px 24px 20px;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  meowlab-detail .md-card[data-kind="facturas"]:hover,
+  meowlab-detail .md-card[data-kind="facturas"]:focus-visible {
+    border-color: #9BBFD7;
+    box-shadow: 0 10px 28px rgba(43, 92, 127, 0.08);
+  }
+  meowlab-detail .md-card[data-kind="licitaciones"]:hover,
+  meowlab-detail .md-card[data-kind="licitaciones"]:focus-visible {
+    border-color: #95C7B2;
+    box-shadow: 0 10px 28px rgba(30, 94, 78, 0.08);
+  }
+  meowlab-detail .md-card[data-kind="ventas"]:hover,
+  meowlab-detail .md-card[data-kind="ventas"]:focus-visible {
+    border-color: #D8ABA4;
+    box-shadow: 0 10px 28px rgba(155, 74, 66, 0.08);
+  }
+
+  meowlab-detail .md-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  meowlab-detail .md-card-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 9999px;
+  }
+  meowlab-detail [data-kind="facturas"] .md-card-pill {
+    background: #E6EFF5;
+    color: #204561;
+  }
+  meowlab-detail [data-kind="licitaciones"] .md-card-pill {
+    background: #E2EFE7;
+    color: #15473B;
+  }
+  meowlab-detail [data-kind="ventas"] .md-card-pill {
+    background: #F6E9E7;
+    color: #78352F;
+  }
+
+  meowlab-detail .md-card-title {
+    font-size: 1.55rem;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: #111816;
+    margin: 4px 0 2px;
+  }
+  meowlab-detail .md-expand {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: #f1f4f0;
+    color: #55775d;
+    transition: background 0.25s, color 0.25s;
+  }
+  meowlab-detail [data-kind="facturas"]:hover .md-expand {
+    background: #2B5C7F;
+    color: white;
+  }
+  meowlab-detail [data-kind="licitaciones"]:hover .md-expand {
+    background: #1E5E4E;
+    color: white;
+  }
+  meowlab-detail [data-kind="ventas"]:hover .md-expand {
+    background: #9B4A42;
+    color: white;
+  }
+
+  meowlab-detail .md-summary {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--muted);
+    margin-top: 6px;
+    min-height: 40px;
+  }
+  meowlab-detail .md-art {
+    position: relative;
+    display: block;
+    flex: 1;
+    min-height: 220px;
+    margin: 0 -24px;
+    isolation: isolate;
+  }
+  meowlab-detail .md-art:before {
+    content: '';
+    position: absolute;
+    width: 125%;
+    height: 170px;
+    bottom: -28px;
+    left: -10%;
+    border-radius: 50%;
+    filter: blur(14px);
+    transform: rotate(-16deg);
+    transition: transform 0.65s;
+  }
+  meowlab-detail .md-card[data-kind="facturas"] .md-art:before {
+    background: linear-gradient(120deg, #e8eff5, #f3f7fa, #edf2f7);
+  }
+  meowlab-detail .md-card[data-kind="licitaciones"] .md-art:before {
+    background: linear-gradient(100deg, #e4ede8, #f3f8f5, #eaf1ec);
+  }
+  meowlab-detail .md-card[data-kind="ventas"] .md-art:before {
+    background: linear-gradient(100deg, #f8ebe9, #faf5f4, #faeeeb);
+  }
+
+  meowlab-detail .md-cat {
+    position: absolute;
+    width: 100%;
+    height: 235px;
+    object-fit: contain;
+    inset: 10px 0 auto;
+    filter: invert(1);
+    transition: transform 0.5s;
+    transform-origin: 50% 80%;
+  }
+  meowlab-detail .md-card:hover .md-cat,
+  meowlab-detail .md-card:focus-visible .md-cat {
+    transform: translateY(-4px) scale(0.99);
+  }
+  meowlab-detail .md-card:hover .md-art:before {
+    transform: rotate(-5deg) translateY(-4px);
+  }
+
+  meowlab-detail .md-explore {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    margin-top: 14px;
+    color: #111816;
+  }
+  meowlab-detail .md-explore-arrow {
+    transition: transform 0.2s;
+  }
+  meowlab-detail .md-card:hover .md-explore-arrow {
+    transform: translateX(3px);
+  }
+  meowlab-detail [data-kind="facturas"]:hover .md-explore {
+    color: #2B5C7F;
+  }
+  meowlab-detail [data-kind="licitaciones"]:hover .md-explore {
+    color: #1E5E4E;
+  }
+  meowlab-detail [data-kind="ventas"]:hover .md-explore {
+    color: #9B4A42;
+  }
+
+  /* MODAL DIALOG STYLES */
+  meowlab-detail dialog {
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    width: min(1080px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    background: var(--paper);
+    color: var(--ink);
+    overflow: hidden !important;
+    box-shadow: 0 35px 120px rgba(15, 23, 42, 0.22);
+  }
+  meowlab-detail dialog:not([open]) {
+    display: none !important;
+  }
+  meowlab-detail dialog::backdrop {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Guarantee robust hidden state */
+  meowlab-detail .hidden,
+  meowlab-detail [hidden] {
+    display: none !important;
+  }
+
+  meowlab-detail .md-dialog-content {
+    display: none !important;
+    padding: clamp(24px, 4vw, 44px);
+    position: relative;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  meowlab-detail .md-dialog-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  meowlab-detail .md-dialog-content::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  meowlab-detail .md-dialog-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  meowlab-detail .md-dialog-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  meowlab-detail .md-dialog-content.active {
+    display: block !important;
+  }
+
+  meowlab-detail .md-close {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    z-index: 20;
+    border: 0;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s, color 0.2s;
+  }
+  meowlab-detail .md-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* Dynamic Dialog Header with Theme Colors */
+  meowlab-detail .md-dialog-head {
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  meowlab-detail .md-dialog-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    margin-bottom: 10px;
+  }
+  meowlab-detail .md-dialog-title {
+    font-size: clamp(2rem, 3.8vw, 2.8rem);
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    color: #111816;
+  }
+  meowlab-detail .md-description {
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0;
+  }
+  meowlab-detail .md-dialog-cat-box {
+    width: 140px;
+    height: 140px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  meowlab-detail .md-dialog-cat {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: invert(1);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* SECTIONS */
+  meowlab-detail .md-section-block {
+    margin-bottom: 30px;
+  }
+  meowlab-detail .md-section-title-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  meowlab-detail .md-section-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #111816;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  meowlab-detail .md-section-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* SECTION 1: INTERACTIVE USE CASES (Flattened — no outer card wrapper) */
+  meowlab-detail .md-cases-box {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  meowlab-detail .md-case-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    scrollbar-width: thin;
+  }
+  meowlab-detail .md-case-tab {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  meowlab-detail .md-case-tab:hover {
+    border-color: var(--theme-primary);
+    color: var(--theme-primary);
+  }
+  meowlab-detail .md-case-tab.active {
+    background: var(--theme-primary);
+    border-color: var(--theme-primary);
+    color: white;
+    box-shadow: 0 4px 12px var(--theme-glow);
+  }
+
+  meowlab-detail .md-case-view {
+    display: none !important;
+  }
+  meowlab-detail .md-case-view.active {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+    animation: mdFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes mdFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Left: Mini WhatsApp Chat Simulation */
+  meowlab-detail .md-mini-chat {
+    background: #efeae2;
+    border: 1px solid #d1d7db;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+  meowlab-detail .md-chat-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    max-width: 88%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+  meowlab-detail .md-chat-bubble.user {
+    align-self: flex-end;
+    background: #d9fdd3;
+    color: #111b21;
+    border-top-right-radius: 2px;
+  }
+  meowlab-detail .md-chat-bubble.agent {
+    align-self: flex-start;
+    background: #ffffff;
+    color: #111b21;
+    border-top-left-radius: 2px;
+  }
+  meowlab-detail .md-chat-bubble.audio {
+    width: 100%;
+    max-width: 92%;
+  }
+  meowlab-detail .md-audio-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  meowlab-detail .md-audio-play {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #25D366;
+    color: white;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  meowlab-detail .md-audio-waves {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
+    height: 18px;
+    flex: 1;
+  }
+  meowlab-detail .md-audio-waves span {
+    width: 3px;
+    background: #8696a0;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  meowlab-detail .md-audio-time {
+    font-size: 0.75rem;
+    color: #667781;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  meowlab-detail .md-audio-transcript {
+    margin: 8px 0 0;
+    font-size: 0.8rem;
+    color: #111b21;
+    line-height: 1.4;
+    font-style: italic;
+    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    padding-top: 6px;
+  }
+  meowlab-detail .md-chat-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #667781;
+    margin-top: 4px;
+  }
+  meowlab-detail .md-chat-meta.agent-meta {
+    justify-content: flex-start;
+  }
+  meowlab-detail .md-chat-status {
+    font-size: 0.75rem;
+    color: var(--theme-primary);
+    font-weight: 600;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 9999px;
+  }
+  meowlab-detail .md-chat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+  }
+  meowlab-detail .md-chat-card-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  meowlab-detail .md-chat-card-title {
+    font-weight: 700;
+    color: #111816;
+    margin: 0;
+  }
+  meowlab-detail .md-chat-card-sub {
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+  }
+  meowlab-detail .md-chat-card-total {
+    font-weight: 700;
+    color: var(--theme-primary);
+    font-size: 0.82rem;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  meowlab-detail .md-chat-card-badge {
+    font-size: 0.75rem;
+    color: #15803d;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Right: Case steps & action (Clean left border instead of nested heavy card) */
+  meowlab-detail .md-case-details {
+    background: transparent;
+    border: 0;
+    border-left: 2px solid var(--theme-border);
+    border-radius: 0;
+    padding: 4px 0 4px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  meowlab-detail .md-case-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--theme-light);
+    color: var(--theme-primary);
+    width: fit-content;
+    margin-bottom: 8px;
+  }
+  meowlab-detail .md-case-title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #111816;
+    margin: 0 0 6px;
+  }
+  meowlab-detail .md-case-summary {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+  meowlab-detail .md-case-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  meowlab-detail .md-case-steps li {
+    display: flex;
+    gap: 10px;
+    font-size: 0.84rem;
+    color: #334155;
+    line-height: 1.45;
+  }
+  meowlab-detail .md-step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--theme-light);
+    color: var(--theme-primary);
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* SECTION 2: INPUT / OUTPUT ARCHITECTURE (Flattened — no outer box or mini-cards) */
+  meowlab-detail .md-io-wrapper {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  meowlab-detail .md-io-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  meowlab-detail .md-io-column {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  meowlab-detail .md-io-col-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #111816;
+    margin: 0 0 6px;
+  }
+  meowlab-detail .md-io-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  meowlab-detail .md-io-badge.in {
+    background: #e2e8f0;
+    color: #334155;
+  }
+  meowlab-detail .md-io-badge.out {
+    background: var(--theme-primary);
+    color: white;
+  }
+  meowlab-detail .md-io-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  meowlab-detail .md-io-item {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    padding: 10px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  meowlab-detail .md-io-item:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  meowlab-detail .md-io-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  meowlab-detail .md-io-item-text {
+    display: flex;
+    flex-direction: column;
+  }
+  meowlab-detail .md-io-item-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.3;
+  }
+  meowlab-detail .md-io-item-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  meowlab-detail .md-io-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 4px;
+  }
+  meowlab-detail .md-io-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--theme-light);
+    border: 2px solid var(--theme-primary);
+    color: var(--theme-primary);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 3px 10px var(--theme-glow);
+  }
+  meowlab-detail .md-io-divider-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    text-align: center;
+    max-width: 72px;
+    line-height: 1.2;
+  }
+  meowlab-detail .md-io-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #edf2f7;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  /* MODAL FOOTER & WHATSAPP CTA */
+  meowlab-detail .md-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  meowlab-detail .md-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    color: #ffffff;
+    background: var(--theme-primary);
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.93rem;
+    font-weight: 600;
+    transition: box-shadow 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 16px var(--theme-glow);
+  }
+  meowlab-detail .md-cta-btn:hover {
+    background: var(--theme-dark);
+    box-shadow: 0 6px 20px var(--theme-glow);
+  }
+  meowlab-detail .md-cta-trust {
+    font-size: 0.84rem;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Responsive styles */
+  @media (max-width: 960px) {
+    meowlab-detail .md-grid {
+      grid-template-columns: 1fr;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    meowlab-detail .md-case-view,
+    meowlab-detail .md-case-view.active {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+    meowlab-detail .md-case-details {
+      border-left: 0;
+      border-top: 1px solid #e2e8f0;
+      padding: 16px 0 0;
+    }
+    meowlab-detail .md-io-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px;
+    }
+    meowlab-detail .md-io-divider {
+      transform: none;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    meowlab-detail .md-io-divider .md-io-circle svg {
+      transform: rotate(90deg);
+    }
+    meowlab-detail .md-io-divider-label {
+      max-width: none;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 640px) {
+    meowlab-detail {
+      padding: 24px 14px;
+    }
+    meowlab-detail dialog {
+      width: calc(100vw - 16px);
+      max-height: calc(100dvh - 16px);
+      border-radius: 14px;
+      overflow: hidden !important;
+      margin: auto;
+    }
+    meowlab-detail .md-close {
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: rgba(241, 245, 249, 0.95);
+      border-radius: 8px;
+    }
+    meowlab-detail .md-dialog-content {
+      max-height: calc(100dvh - 16px);
+      padding: 48px 14px 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+    meowlab-detail .md-dialog-content::-webkit-scrollbar-track {
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    meowlab-detail .md-dialog-head {
+      grid-template-columns: 1fr 64px;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+    }
+    meowlab-detail .md-dialog-title {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+    meowlab-detail .md-description {
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+    meowlab-detail .md-dialog-cat-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+    }
+    meowlab-detail .md-dialog-cat {
+      width: 54px;
+      height: 54px;
+    }
+    meowlab-detail .md-cases-box {
+      padding: 0;
+    }
+    meowlab-detail .md-case-tabs {
+      gap: 6px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    meowlab-detail .md-case-tab {
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    meowlab-detail .md-mini-chat {
+      padding: 12px 10px;
+      border-radius: 12px;
+    }
+    meowlab-detail .md-chat-bubble {
+      max-width: 96%;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    meowlab-detail .md-audio-waves {
+      gap: 1.5px;
+    }
+    meowlab-detail .md-audio-waves span {
+      width: 2.5px;
+    }
+    meowlab-detail .md-chat-card {
+      padding: 10px;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    meowlab-detail .md-case-details {
+      padding: 14px 0 0;
+    }
+    meowlab-detail .md-case-title {
+      font-size: 0.98rem;
+    }
+    meowlab-detail .md-case-summary {
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+    }
+    meowlab-detail .md-case-steps {
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    meowlab-detail .md-case-steps li {
+      font-size: 0.78rem;
+      gap: 8px;
+    }
+    meowlab-detail .md-step-num {
+      width: 18px;
+      height: 18px;
+      font-size: 0.75rem;
+    }
+    meowlab-detail .md-io-wrapper {
+      padding: 0;
+    }
+    meowlab-detail .md-io-column {
+      padding: 12px;
+    }
+    meowlab-detail .md-io-item {
+      padding: 8px 0;
+      gap: 8px;
+    }
+    meowlab-detail .md-dialog-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+    }
+    meowlab-detail .md-cta-btn {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+    }
+    meowlab-detail .md-cta-trust {
+      justify-content: center;
+      text-align: center;
+      font-size: 0.76rem;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    if (customElements.get('meowlab-detail')) return;
+
+    customElements.define('meowlab-detail', class extends HTMLElement {
+      private ready = false;
+      private abort?: AbortController;
+      private dialog!: HTMLDialogElement;
+      private origin?: HTMLElement;
+      private animation?: Animation;
+      private closing = false;
+      private oldOverflow = '';
+
+      connectedCallback() {
+        requestAnimationFrame(() => this.setup());
+      }
+
+      setup() {
+        if (!this.isConnected) return;
+        this.abort?.abort();
+        this.abort = new AbortController();
+        const opts = { signal: this.abort.signal };
+
+        this.dialog = this.querySelector('#agent-detail-dialog') as HTMLDialogElement;
+        if (!this.dialog) return;
+
+        const cards = this.querySelectorAll<HTMLElement>('.md-card');
+        cards.forEach((card) => {
+          const kind = card.dataset.kind;
+          card.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (kind) this.open(kind, card);
+          }, opts);
+        });
+
+        // Close button
+        const closeBtn = this.dialog.querySelector('.md-close');
+        closeBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.close();
+        }, opts);
+
+        // Backdrop click
+        this.dialog.addEventListener('click', (e) => {
+          if (e.target === this.dialog) {
+            const r = this.dialog.getBoundingClientRect();
+            if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+              this.close();
+            }
+          }
+        }, opts);
+
+        this.dialog.addEventListener('cancel', (e) => {
+          e.preventDefault();
+          this.close();
+        }, opts);
+
+        // Setup case tabs within each agent panel
+        this.dialog.querySelectorAll<HTMLElement>('.md-dialog-content').forEach((panel) => {
+          const tabs = panel.querySelectorAll<HTMLElement>('.md-case-tab');
+          const views = panel.querySelectorAll<HTMLElement>('.md-case-view');
+
+          tabs.forEach((tab) => {
+            tab.addEventListener('click', (e) => {
+              e.preventDefault();
+              const idx = tab.dataset.tabIndex;
+              if (idx === undefined) return;
+
+              tabs.forEach((t) => {
+                const isActive = t === tab;
+                t.classList.toggle('active', isActive);
+                t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+              });
+
+              views.forEach((v) => {
+                const isMatch = v.dataset.casePanel === idx;
+                v.classList.toggle('active', isMatch);
+                v.classList.toggle('hidden', !isMatch);
+                if (isMatch) {
+                  v.removeAttribute('hidden');
+                  v.style.display = 'grid';
+                } else {
+                  v.setAttribute('hidden', '');
+                  v.style.display = 'none';
+                }
+              });
+            }, opts);
+          });
+        });
+
+        this.ready = true;
+      }
+
+      open(kind: string, card: HTMLElement) {
+        if (!this.dialog || this.dialog.open) return;
+        this.origin = card;
+        this.closing = false;
+
+        // Show only the clicked agent's content
+        const contents = this.dialog.querySelectorAll<HTMLElement>('.md-dialog-content');
+        contents.forEach((c) => {
+          const isSelected = c.dataset.agentContent === kind;
+          c.classList.toggle('active', isSelected);
+          c.classList.toggle('hidden', !isSelected);
+
+          if (isSelected) {
+            c.removeAttribute('hidden');
+            c.style.display = 'block';
+            c.scrollTop = 0;
+
+            // Reset tabs to first tab inside this active agent
+            const tabs = c.querySelectorAll<HTMLElement>('.md-case-tab');
+            const views = c.querySelectorAll<HTMLElement>('.md-case-view');
+
+            tabs.forEach((tab, tIdx) => {
+              const isFirst = tIdx === 0;
+              tab.classList.toggle('active', isFirst);
+              tab.setAttribute('aria-selected', isFirst ? 'true' : 'false');
+            });
+
+            views.forEach((view, vIdx) => {
+              const isFirst = vIdx === 0;
+              view.classList.toggle('active', isFirst);
+              view.classList.toggle('hidden', !isFirst);
+              if (isFirst) {
+                view.removeAttribute('hidden');
+                view.style.display = 'grid';
+              } else {
+                view.setAttribute('hidden', '');
+                view.style.display = 'none';
+              }
+            });
+          } else {
+            c.setAttribute('hidden', '');
+            c.style.display = 'none';
+          }
+        });
+
+        this.dialog.showModal();
+        this.dialog.scrollTop = 0;
+        this.oldOverflow = document.documentElement.style.overflow;
+        document.documentElement.style.overflow = 'hidden';
+
+        const closeBtn = this.dialog.querySelector('.md-close') as HTMLElement;
+        closeBtn?.focus({ preventScroll: true });
+
+        // Smooth FLIP expand animation from card to modal
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const a = card.getBoundingClientRect();
+          const b = this.dialog.getBoundingClientRect();
+          this.animation = this.dialog.animate([
+            {
+              transform: `translate(${a.left + a.width / 2 - b.left - b.width / 2}px, ${a.top + a.height / 2 - b.top - b.height / 2}px) scale(${a.width / b.width}, ${a.height / b.height})`,
+              opacity: 0.3
+            },
+            {
+              transform: 'none',
+              opacity: 1
+            }
+          ], {
+            duration: 390,
+            easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+          });
+        }
+      }
+
+      async close() {
+        if (!this.dialog || !this.dialog.open || this.closing) return;
+        this.closing = true;
+        this.animation?.cancel();
+
+        // Smooth exit animation
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          try {
+            await this.dialog.animate([
+              { opacity: 1, transform: 'translateY(0) scale(1)' },
+              { opacity: 0, transform: 'translateY(14px) scale(0.97)' }
+            ], {
+              duration: 150,
+              easing: 'ease-in',
+              fill: 'forwards'
+            }).finished;
+          } catch {}
+        }
+
+        this.dialog.close();
+        this.dialog.getAnimations().forEach((a) => a.cancel());
+        document.documentElement.style.overflow = this.oldOverflow || '';
+        this.origin?.focus({ preventScroll: true });
+        this.closing = false;
+      }
+
+      disconnectedCallback() {
+        this.abort?.abort();
+        if (this.dialog?.open) {
+          this.dialog.close();
+          document.documentElement.style.overflow = '';
+        }
+        this.ready = false;
+      }
+    });
+
+    document.addEventListener('astro:page-load', () => {
+      const el = document.querySelector('meowlab-detail') as any;
+      if (el && typeof el.setup === 'function') {
+        el.setup();
+      }
+    });
+  })();
+</script>

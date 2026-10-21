@@ -8,7 +8,9 @@ const agentsData = [
     name: 'Buscador de Licitaciones',
     subtitle: 'Encuentra compras del Estado para tu rubro',
     icon: 'file-search' as const,
+    image: '/assets/gato-licitaciones-light.svg',
     badge: '3 oportunidades hoy',
+    reaction: '⚡',
     time: '10:42 a. m.',
     userQuery: '¿Hay compras del Estado en Cusco para obras de saneamiento esta semana?',
     agentIntro: '¡Hola Andrés! Encontré 2 compras públicas ideales para tu empresa:',
@@ -27,7 +29,9 @@ const agentsData = [
     name: 'Asistente de Facturas',
     subtitle: 'Crea y envía facturas en segundos',
     icon: 'receipt-tax' as const,
+    image: '/assets/gato-facturas-light.svg',
     badge: 'Aprobada al instante',
+    reaction: '✅',
     time: '10:43 a. m.',
     userQuery: 'Haz una factura para Constructora San José por S/ 8,450 más IGV por servicios de ingeniería',
     agentIntro: '¡Listo! Tu factura ya fue emitida y aprobada por SUNAT:',
@@ -46,7 +50,9 @@ const agentsData = [
     name: 'Asistente de tu Negocio',
     subtitle: 'Pregúntale por precios, stock o ventas',
     icon: 'database-cog' as const,
+    image: '/assets/gato-ventas-light.svg',
     badge: 'Te responde al segundo',
+    reaction: '📦',
     time: '10:44 a. m.',
     userQuery: '¿Cuánto cemento nos queda en el almacén de Lurín y a qué precio está la bolsa?',
     agentIntro: 'Revisé tu almacén y estos son los datos que tienes en este momento:',
@@ -66,22 +72,9 @@ const agentsData = [
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center" id="whatsapp-runtime-container">
   
   <!-- LEFT: Authentic WhatsApp Simulation Window (Span 7) -->
-  <div class="order-2 lg:order-1 lg:col-span-7 w-full">
-    <div class="relative bg-surface-subtle border border-surface-border rounded-3xl p-3 sm:p-5 md:p-6 shadow-soft overflow-hidden">
-      
-      <!-- Header Bar: WhatsApp Business Status -->
-      <div class="flex items-center justify-between gap-3 pb-4 border-b border-surface-border">
-        <div class="flex items-center gap-2.5">
-          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
-            <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
-            <span>En tu propio WhatsApp</span>
-          </div>
-          <span class="text-xs text-content-muted hidden sm:inline">Sin apps extras</span>
-        </div>
-      </div>
-
-      <!-- Authentic WhatsApp Phone / Web Window -->
-      <div class="w-full bg-[#EFEAE2] border border-[#D1D7DB] rounded-2xl shadow-card overflow-hidden flex flex-col relative min-h-[450px] mt-4">
+  <div class="order-2 lg:order-1 lg:col-span-7 w-full" id="whatsapp-chat-window">
+    <!-- Authentic WhatsApp Phone / Web Window (Fixed Height to prevent layout jumping) -->
+    <div class="w-full bg-[#EFEAE2] border border-[#D1D7DB] rounded-2xl shadow-card overflow-hidden flex flex-col relative h-[540px] sm:h-[580px]">
       
       <!-- WhatsApp Subtle Doodle Canvas Background -->
       <div 
@@ -90,7 +83,7 @@ const agentsData = [
       ></div>
 
       <!-- 1. Authentic WhatsApp Chat Header -->
-      <div class="relative z-10 bg-[#F0F2F5] border-b border-[#E9EDEF] px-4 py-2.5 flex items-center justify-between shadow-xs">
+      <div class="relative z-10 bg-[#F0F2F5] border-b border-[#E9EDEF] px-4 py-2.5 flex items-center justify-between shadow-xs flex-shrink-0">
         
         <!-- Contact Identity -->
         <div class="flex items-center gap-3">
@@ -98,8 +91,8 @@ const agentsData = [
           <span class="sm:hidden text-[#54656F] text-lg font-bold">←</span>
           
           <!-- Contact Avatar -->
-          <div class="relative w-10 h-10 rounded-full bg-brand-forest flex items-center justify-center p-1.5 flex-shrink-0 shadow-sm">
-            <img src="/meowlab-cat.png" alt="MeowLab Cat" class="w-full h-full object-contain" />
+          <div class="relative w-10 h-10 rounded-full bg-white border border-[#D1D7DB] flex items-center justify-center p-1 flex-shrink-0 shadow-xs overflow-hidden">
+            <img id="wa-header-avatar-img" src={agentsData[0].image} alt={agentsData[0].name} class="w-full h-full object-contain mix-blend-multiply" />
             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#25D366] border-2 border-[#F0F2F5]"></span>
           </div>
 
@@ -107,10 +100,13 @@ const agentsData = [
           <div class="leading-tight">
             <div class="flex items-center gap-1.5">
               <span class="text-sm font-semibold text-[#111B21]" id="wa-header-name">Buscador de Licitaciones</span>
-              <!-- Verified WhatsApp Badge -->
-              <span class="w-3.5 h-3.5 rounded-full bg-[#25D366] text-white flex items-center justify-center text-[9px] font-bold" title="Cuenta de empresa oficial verificada">✓</span>
+              <!-- Verified WhatsApp Official Badge -->
+              <svg viewBox="0 0 18 18" width="14" height="14" class="inline-block flex-shrink-0" title="Cuenta oficial verificada">
+                <circle cx="9" cy="9" r="8.5" fill="#25D366"/>
+                <path d="M5.5 9.2l2.3 2.3 4.8-4.8" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
-            <span class="text-[11px] text-[#25D366] font-medium block" id="wa-header-status">en línea</span>
+            <span class="text-xs text-[#25D366] font-medium block mt-0.5" id="wa-header-status">en línea</span>
           </div>
         </div>
 
@@ -136,12 +132,12 @@ const agentsData = [
 
       </div>
 
-      <!-- 2. Chat Canvas with Messages -->
-      <div class="relative z-10 p-4 sm:p-5 flex-1 space-y-3 overflow-y-auto" id="wa-chat-scroll">
+      <!-- 2. Chat Canvas with Messages (flex-1 min-h-0 with internal scroll) -->
+      <div class="relative z-10 p-4 sm:p-5 flex-1 min-h-0 space-y-3.5 overflow-y-auto" id="wa-chat-scroll">
         
         <!-- E2E Security Notice (Authentic WhatsApp Business notice) -->
         <div class="flex justify-center my-1">
-          <div class="bg-[#FFEECD] text-[#54656F] text-[10px] sm:text-[11px] px-3 py-1 rounded-lg text-center max-w-sm shadow-xs flex items-center gap-1.5 border border-[#F5D8A0]/60">
+          <div class="bg-[#FFEECD] text-[#54656F] text-xs px-3 py-1 rounded-lg text-center max-w-sm shadow-xs flex items-center gap-1.5 border border-[#F5D8A0]/60">
             <svg class="w-3.5 h-3.5 text-[#54656F] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
             </svg>
@@ -151,101 +147,122 @@ const agentsData = [
 
         <!-- Date Pill -->
         <div class="flex justify-center mb-2">
-          <span class="bg-[#FFFFFF]/90 backdrop-blur-xs text-[#54656F] text-[10px] font-medium uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-2xs">
+          <span class="rounded-full bg-white px-3 py-0.5 text-xs font-medium text-[#667781] shadow-2xs">
             Hoy
           </span>
         </div>
 
-        <!-- OUTGOING BUBBLE (User Message) -->
-        <div class="flex justify-end transition-all duration-300" id="wa-user-bubble-container">
-          <div class="relative bg-[#D9FDD3] text-[#111B21] px-3.5 py-2 rounded-2xl rounded-tr-xs max-w-[88%] sm:max-w-[80%] shadow-xs text-xs sm:text-[13px] leading-relaxed">
+        <!-- OUTGOING BUBBLE (User Message - Revealed on Send) -->
+        <div class="flex justify-end transition-all duration-300 opacity-0 translate-y-2 hidden" id="wa-user-bubble-container">
+          <div class="relative bg-[#D9FDD3] text-[#111B21] px-3.5 py-2 rounded-2xl rounded-br-none max-w-[88%] sm:max-w-[80%] shadow-xs text-xs sm:text-[13.5px] leading-relaxed">
             <p id="wa-user-text">
-              <span id="wa-user-text-content"></span><span id="wa-user-cursor" class="inline-block w-[2px] h-[13px] bg-[#111B21] ml-0.5 align-middle animate-pulse"></span>
+              <span id="wa-user-text-content"></span>
             </p>
-            <!-- Tail -->
-            <span class="absolute top-0 -right-1.5 w-2 h-2.5 overflow-hidden">
-              <span class="block w-2.5 h-2.5 bg-[#D9FDD3] -rotate-45 transform origin-top-left"></span>
-            </span>
-            <!-- Timestamp + Double Blue Checkmark -->
-            <div class="flex items-center justify-end gap-1 text-[10px] text-[#667781] mt-1 -mb-0.5">
+            <!-- Authentic WDS Tail (bottom-right with shadow) -->
+            <svg viewBox="0 0 8 13" width="8" height="13" class="absolute bottom-0 -right-[8px] pointer-events-none">
+              <path opacity="0.13" d="M5.188 12H0V0.807l6.467 8.625C7.526 10.844 6.958 12 5.188 12z" fill="#000000"/>
+              <path d="M5.188 13H0V1.807l6.467 8.625C7.526 11.844 6.958 13 5.188 13z" fill="#D9FDD3"/>
+            </svg>
+            <!-- Timestamp + Checkmark Status -->
+            <div class="flex items-center justify-end gap-1 text-[11px] leading-[15px] text-[rgba(17,27,33,0.45)] mt-1 -mb-0.5">
               <span id="wa-user-time">10:42 a. m.</span>
-              <!-- Checkmark status (single check, double grey, or double blue) -->
-              <span id="wa-user-checks" class="text-[#8696A0] font-bold tracking-tighter text-xs" title="Enviando">✓</span>
+              <!-- Checkmark status SVG (single check, double grey, or double blue) -->
+              <span id="wa-user-checks" class="text-[#8696A0] inline-flex items-center opacity-75" title="Enviado">
+                <svg viewBox="0 0 16 11" height="11" width="16" fill="currentColor">
+                  <path d="M11.071.653a.457.457 0 0 0-.304-.102.493.493 0 0 0-.381.178l-6.19 7.636-2.011-2.175a.463.463 0 0 0-.349-.158.467.467 0 0 0-.338.131.537.537 0 0 0-.14.353.54.54 0 0 0 .13.363l2.39 2.576a.465.465 0 0 0 .349.158.457.457 0 0 0 .368-.189l6.596-8.14a.504.504 0 0 0 .103-.36.516.516 0 0 0-.223-.271z" />
+                </svg>
+              </span>
             </div>
           </div>
         </div>
 
         <!-- TYPING INDICATOR (Shown smoothly during transitions) -->
         <div id="wa-typing-bubble" class="hidden items-start gap-2 pt-1 transition-all duration-200">
-          <div class="relative bg-white px-4 py-2.5 rounded-2xl rounded-tl-xs shadow-xs flex items-center gap-1.5">
-            <span class="absolute top-0 -left-1.5 w-2 h-2.5 overflow-hidden">
-              <span class="block w-2.5 h-2.5 bg-white rotate-45 transform origin-top-right"></span>
-            </span>
-            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce"></span>
-            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce [animation-delay:0.2s]"></span>
-            <span class="w-1.5 h-1.5 rounded-full bg-[#667781] animate-bounce [animation-delay:0.4s]"></span>
+          <div class="relative bg-white px-3.5 py-2.5 rounded-2xl rounded-bl-none shadow-xs flex items-center gap-1.5">
+            <!-- Authentic WDS Tail (bottom-left with shadow) -->
+            <svg viewBox="0 0 8 13" width="8" height="13" class="absolute bottom-0 -left-[8px] pointer-events-none">
+              <path opacity="0.13" d="M2.812 12H8V0.807L1.533 9.432C0.474 10.844 1.042 12 2.812 12z" fill="#000000"/>
+              <path d="M2.812 13H8V1.807L1.533 10.432C0.474 11.844 1.042 13 2.812 13z" fill="#FFFFFF"/>
+            </svg>
+            <div class="flex items-center gap-1 py-1">
+              <span class="animate-wa-bounce block h-[7px] w-[7px] rounded-full bg-[#8696A0]" style="animation-delay: 0s"></span>
+              <span class="animate-wa-bounce block h-[7px] w-[7px] rounded-full bg-[#8696A0]" style="animation-delay: 0.2s"></span>
+              <span class="animate-wa-bounce block h-[7px] w-[7px] rounded-full bg-[#8696A0]" style="animation-delay: 0.4s"></span>
+            </div>
           </div>
         </div>
 
         <!-- INCOMING BUBBLE (Agent Message) -->
-        <div class="flex items-start gap-2 transition-all duration-300" id="wa-agent-bubble-container">
-          <div class="relative bg-white text-[#111B21] px-3.5 py-2.5 rounded-2xl rounded-tl-xs max-w-[95%] sm:max-w-[90%] shadow-xs space-y-2.5 text-xs sm:text-[13px]">
+        <div class="flex items-start gap-2 transition-all duration-300 opacity-0 translate-y-2 hidden" id="wa-agent-bubble-container">
+          <div class="relative bg-white text-[#111B21] px-3.5 pt-2.5 pb-2 rounded-2xl rounded-bl-none max-w-[95%] sm:max-w-[90%] shadow-xs space-y-2 text-xs sm:text-[13.5px]">
             
-            <!-- Tail -->
-            <span class="absolute top-0 -left-1.5 w-2 h-2.5 overflow-hidden">
-              <span class="block w-2.5 h-2.5 bg-white rotate-45 transform origin-top-right"></span>
-            </span>
+            <!-- Authentic WDS Tail (bottom-left with shadow) -->
+            <svg viewBox="0 0 8 13" width="8" height="13" class="absolute bottom-0 -left-[8px] pointer-events-none">
+              <path opacity="0.13" d="M2.812 12H8V0.807L1.533 9.432C0.474 10.844 1.042 12 2.812 12z" fill="#000000"/>
+              <path d="M2.812 13H8V1.807L1.533 10.432C0.474 11.844 1.042 13 2.812 13z" fill="#FFFFFF"/>
+            </svg>
 
             <!-- Sender Header in WhatsApp Business -->
             <div class="flex items-center justify-between border-b border-[#F0F2F5] pb-1.5">
-              <span class="font-semibold text-brand-forest text-xs flex items-center gap-1" id="wa-agent-label">
-                Buscador de Licitaciones
+              <span class="font-semibold text-brand-forest text-xs flex items-center gap-1.5" id="wa-agent-label">
+                <img id="wa-bubble-avatar-img" src={agentsData[0].image} alt="" class="w-4 h-4 object-contain rounded-full inline-block" />
+                <span id="wa-agent-label-name">Buscador de Licitaciones</span>
               </span>
-              <span class="text-[10px] text-[#667781]">Asistente de compras</span>
+              <span class="text-xs text-[#8696A0]">Asistente IA</span>
             </div>
 
             <!-- Agent Intro Text -->
-            <p class="text-[#3B4A54] leading-relaxed" id="wa-agent-intro">
+            <p class="text-[#111B21] leading-relaxed" id="wa-agent-intro">
               ¡Hola Andrés! Encontré 2 compras públicas ideales para tu empresa:
             </p>
 
             <!-- Structured WhatsApp Interactive Result Card -->
             <div class="bg-[#F7F9FA] border border-[#E9EDEF] rounded-xl p-3 space-y-2 text-xs" id="wa-agent-card">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-[10px] font-semibold text-brand-forest uppercase tracking-wider bg-brand-mint/60 px-2 py-0.5 rounded-md" id="wa-card-tag">
+                <span class="text-xs font-semibold text-brand-forest uppercase tracking-wider bg-brand-mint/60 px-2 py-0.5 rounded-md" id="wa-card-tag">
                   Oportunidad sugerida • Saneamiento
                 </span>
               </div>
               <div class="font-semibold text-[#111B21] text-xs sm:text-sm leading-snug" id="wa-card-title">
                 Instalación de red de agua potable y saneamiento en San Sebastián
               </div>
-              <div class="text-[11px] text-[#667781]" id="wa-card-entity">
+              <div class="text-xs text-[#667781]" id="wa-card-entity">
                 Municipalidad Distrital de San Sebastián • Cusco
               </div>
-              <div class="flex items-center justify-between pt-1.5 border-t border-[#E9EDEF] text-[11px]">
+              <div class="flex items-center justify-between pt-1.5 border-t border-[#E9EDEF] text-xs">
                 <span class="font-bold text-content-main" id="wa-card-budget">Presupuesto: S/ 1,240,500.00</span>
                 <span class="text-brand-forest font-medium" id="wa-card-deadline">Plazo para postular: en 5 días</span>
               </div>
             </div>
 
-            <!-- WhatsApp Interactive Action Buttons -->
-            <div class="pt-1 flex flex-col sm:flex-row gap-1.5" id="wa-agent-buttons-container">
-              <button type="button" class="w-full text-center py-2 px-3 rounded-lg border border-[#E9EDEF] bg-[#F7F9FA] hover:bg-[#EAEFF2] text-brand-forest font-medium text-xs transition-colors flex items-center justify-center gap-1.5">
-                <TablerIcon name="file-invoice" size={14} strokeWidth={2} />
+            <!-- Reaction & Timestamp Row (anchored right under the message text/card, above buttons) -->
+            <div class="flex items-center justify-between pt-0.5 px-0.5">
+              <!-- WhatsApp Reaction Badge (snug with message text) -->
+              <div id="wa-agent-reaction-pill" class="inline-flex items-center rounded-full border border-[#E9EDEF] bg-[#F7F9FA] px-2 py-0.5 text-xs leading-none shadow-2xs transition-transform duration-300 transform scale-0">
+                <span id="wa-agent-reaction-emoji">⚡</span>
+                <span class="ml-1 text-xs font-medium text-[#667781]">1</span>
+              </div>
+
+              <!-- Timestamp -->
+              <div class="text-right text-[11px] leading-[15px] text-[rgba(17,27,33,0.45)]">
+                <span id="wa-agent-time">10:42 a. m.</span>
+              </div>
+            </div>
+
+            <!-- WhatsApp Cloud API Authentic Interactive Action Buttons (seamlessly docked to card bottom) -->
+            <div class="border-t border-[#E9EDEF] -mx-3.5 -mb-2 overflow-hidden rounded-b-2xl rounded-bl-none" id="wa-agent-buttons-container">
+              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-medium text-[#00A884] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF] first:border-t-0">
+                <TablerIcon name="file-invoice" size={15} strokeWidth={2} />
                 <span id="wa-btn-1">Ver resumen en PDF</span>
               </button>
-              <button type="button" class="w-full text-center py-2 px-3 rounded-lg border border-[#E9EDEF] bg-[#F7F9FA] hover:bg-[#EAEFF2] text-content-main font-medium text-xs transition-colors flex items-center justify-center gap-1.5">
-                <TablerIcon name="check" size={14} strokeWidth={2} />
+              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-medium text-[#00A884] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF]">
+                <TablerIcon name="check" size={15} strokeWidth={2} />
                 <span id="wa-btn-2">Ver requisitos clave</span>
               </button>
             </div>
 
-            <!-- Timestamp -->
-            <div class="text-right text-[10px] text-[#667781] pt-0.5">
-              <span id="wa-agent-time">10:42 a. m.</span>
-            </div>
-
           </div>
+
         </div>
 
       </div>
@@ -267,19 +284,29 @@ const agentsData = [
         </button>
 
         <!-- Input Field Container -->
-        <div class="flex-1 bg-white rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#111B21] flex items-center justify-between shadow-2xs border border-[#E9EDEF]">
-          <span class="text-[#8696A0] truncate" id="wa-input-placeholder">Pídele algo por WhatsApp a tu asistente...</span>
+        <div class="flex-1 bg-white rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#111B21] flex items-center shadow-2xs border border-[#E9EDEF] min-h-[38px] overflow-hidden">
+          <!-- Static Placeholder (shown when idle) -->
+          <span class="text-[#8696A0] truncate select-none" id="wa-input-placeholder">Pídele algo por WhatsApp a tu asistente...</span>
+          <!-- Active Animated Typing Prompt (shown during typing) -->
+          <div class="hidden items-center w-full min-w-0 overflow-hidden" id="wa-input-active-container">
+            <span class="text-[#111B21] whitespace-nowrap font-normal text-xs sm:text-[13.5px] flex-shrink-0" id="wa-input-typed-content"></span>
+            <span id="wa-input-cursor" class="inline-block w-[1.5px] h-[14px] bg-[#00A884] ml-0.5 align-middle flex-shrink-0 animate-pulse"></span>
+          </div>
         </div>
 
-        <!-- Voice Memo / Send Button -->
-        <button type="button" class="w-9 h-9 rounded-full bg-[#00A884] text-white flex items-center justify-center hover:bg-[#008f6f] transition-colors shadow-sm flex-shrink-0" title="Enviar nota de voz o mensaje">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+        <!-- Send Button (Paper Airplane) -->
+        <button 
+          type="button" 
+          id="wa-send-btn"
+          class="w-9 h-9 rounded-full bg-[#00A884] text-white flex items-center justify-center hover:bg-[#008f6f] transition-all duration-150 shadow-sm flex-shrink-0" 
+          title="Enviar mensaje"
+        >
+          <svg class="w-4 h-4 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
           </svg>
         </button>
       </div>
 
-    </div>
     </div>
   </div>
 
@@ -295,8 +322,8 @@ const agentsData = [
         <span class="text-xs font-bold text-content-main uppercase tracking-wider">
           Mira cómo te responde cada asistente:
         </span>
-        <span class="text-[11px] text-content-muted flex items-center gap-1.5 font-medium">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
+        <span class="text-xs text-content-muted flex items-center gap-1.5 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#25D366]"></span>
           <span id="runtime-timer-status" class="text-brand-forest font-semibold">Siguiente en 8s</span>
         </span>
       </div>
@@ -324,20 +351,20 @@ const agentsData = [
             data-index={index}
             class={`agent-tab-btn w-full text-left bg-white border rounded-xl p-2.5 transition-all duration-300 relative group shadow-xs ${
               index === 0 
-                ? 'border-brand-forest ring-2 ring-brand-mint shadow-hover bg-brand-mint-light/30' 
+                ? 'border-transparent ring-2 ring-brand-mint shadow-hover bg-brand-mint-light/30' 
                 : 'border-surface-border hover:border-brand-mint/80'
             }`}
           >
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-brand-mint-light border border-brand-mint/60 flex items-center justify-center text-brand-forest flex-shrink-0 group-hover:scale-105 transition-transform">
-                <TablerIcon name={agent.icon} size={15} strokeWidth={1.75} />
+              <div class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border/80 flex items-center justify-center p-0.5 flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                <img src={agent.image} alt={agent.name} class="w-full h-full object-contain mix-blend-multiply" />
               </div>
               <div class="min-w-0 flex-1">
                 <div class="text-xs font-bold text-content-main truncate flex items-center gap-1">
                   <span class="truncate">{agent.name.replace('Buscador de ', '').replace('Asistente de ', '')}</span>
-                  <span class="text-[#25D366] text-[10px]">✓</span>
+                  <span class="text-[#25D366] text-xs">✓</span>
                 </div>
-                <div class="text-[10px] text-content-secondary truncate">
+                <div class="text-xs text-content-secondary truncate">
                   {agent.badge}
                 </div>
               </div>
@@ -361,10 +388,15 @@ const agentsData = [
   let typeInterval = null;
   let sequenceTimeouts = [];
 
+  const SINGLE_CHECK_SVG = `<svg viewBox="0 0 16 11" height="11" width="16" fill="currentColor" class="inline-block"><path d="M11.071.653a.457.457 0 0 0-.304-.102.493.493 0 0 0-.381.178l-6.19 7.636-2.011-2.175a.463.463 0 0 0-.349-.158.467.467 0 0 0-.338.131.537.537 0 0 0-.14.353.54.54 0 0 0 .13.363l2.39 2.576a.465.465 0 0 0 .349.158.457.457 0 0 0 .368-.189l6.596-8.14a.504.504 0 0 0 .103-.36.516.516 0 0 0-.223-.271z" /></svg>`;
+  const DOUBLE_CHECK_SVG = `<svg viewBox="0 0 16 11" height="11" width="16" fill="currentColor" class="inline-block"><path d="M11.071.653a.457.457 0 0 0-.304-.102.493.493 0 0 0-.381.178l-6.19 7.636-2.011-2.175a.463.463 0 0 0-.349-.158.467.467 0 0 0-.338.131.537.537 0 0 0-.14.353.54.54 0 0 0 .13.363l2.39 2.576a.465.465 0 0 0 .349.158.457.457 0 0 0 .368-.189l6.596-8.14a.504.504 0 0 0 .103-.36.516.516 0 0 0-.223-.271z" /><path d="M15.071.653a.457.457 0 0 0-.304-.102.493.493 0 0 0-.381.178l-6.19 7.636-1.2-1.298-.728.897 1.58 1.704a.465.465 0 0 0 .349.158.457.457 0 0 0 .368-.189l6.596-8.14a.504.504 0 0 0 .103-.36.516.516 0 0 0-.193-.484z" /></svg>`;
+
   const headerName = document.getElementById('wa-header-name');
   const headerStatus = document.getElementById('wa-header-status');
+  const headerAvatarImg = document.getElementById('wa-header-avatar-img');
+  const bubbleAvatarImg = document.getElementById('wa-bubble-avatar-img');
+  const agentLabelName = document.getElementById('wa-agent-label-name');
   const userTextContent = document.getElementById('wa-user-text-content');
-  const userCursor = document.getElementById('wa-user-cursor');
   const userTime = document.getElementById('wa-user-time');
   const userChecks = document.getElementById('wa-user-checks');
   const agentLabel = document.getElementById('wa-agent-label');
@@ -380,14 +412,22 @@ const agentsData = [
   const typingBubble = document.getElementById('wa-typing-bubble');
   const agentBubble = document.getElementById('wa-agent-bubble-container');
   const userBubble = document.getElementById('wa-user-bubble-container');
+  const reactionPill = document.getElementById('wa-agent-reaction-pill');
+  const reactionEmoji = document.getElementById('wa-agent-reaction-emoji');
+  const inputPlaceholder = document.getElementById('wa-input-placeholder');
+  const inputActiveContainer = document.getElementById('wa-input-active-container');
+  const inputTypedContent = document.getElementById('wa-input-typed-content');
+  const inputCursor = document.getElementById('wa-input-cursor');
+  const sendBtn = document.getElementById('wa-send-btn');
   const tabs = document.querySelectorAll('.agent-tab-btn');
   const storySegments = document.querySelectorAll('.agent-story-segment');
   const runtimeTimerStatus = document.getElementById('runtime-timer-status');
   const chatScroll = document.getElementById('wa-chat-scroll');
 
-  const ACTIVE_CLASSES = ['border-brand-forest', 'ring-2', 'ring-brand-mint', 'shadow-hover', 'bg-brand-mint-light/30'];
+  const ACTIVE_CLASSES = ['border-transparent', 'ring-2', 'ring-brand-mint', 'shadow-hover', 'bg-brand-mint-light/30'];
   const INACTIVE_CLASSES = ['border-surface-border'];
-  let isHovered = false;
+  let isVisible = true;
+  let pausedElapsed = 0;
 
   function clearAllTimers() {
     if (typeInterval) {
@@ -396,6 +436,23 @@ const agentsData = [
     }
     sequenceTimeouts.forEach((t) => clearTimeout(t));
     sequenceTimeouts = [];
+
+    if (sendBtn) {
+      sendBtn.classList.remove('scale-90');
+    }
+    if (inputActiveContainer) {
+      inputActiveContainer.classList.add('hidden');
+      inputActiveContainer.classList.remove('flex');
+    }
+    if (inputPlaceholder) {
+      inputPlaceholder.classList.remove('hidden');
+    }
+    if (inputTypedContent) {
+      inputTypedContent.textContent = '';
+    }
+    if (inputActiveContainer) {
+      inputActiveContainer.scrollLeft = 0;
+    }
   }
 
   function updateActiveTabUI(index) {
@@ -423,106 +480,175 @@ const agentsData = [
 
     clearAllTimers();
 
-    // 1. Initial State: Reset incoming bubble, show outgoing bubble ready to type
+    // 1. Initial State: reset header, hide chat bubbles and reactions, prepare input composer
     if (headerName) headerName.textContent = data.name;
     if (headerStatus) headerStatus.textContent = 'en línea';
+    if (headerAvatarImg && data.image) {
+      headerAvatarImg.src = data.image;
+      headerAvatarImg.alt = data.name;
+    }
     if (typingBubble) {
       typingBubble.classList.add('hidden');
       typingBubble.classList.remove('flex');
     }
-    if (agentBubble) agentBubble.classList.add('opacity-0', 'translate-y-2');
-    if (userBubble) userBubble.classList.remove('opacity-0');
-
-    if (userTime) userTime.textContent = data.time;
-    if (userChecks) {
-      userChecks.textContent = '✓';
-      userChecks.className = 'text-[#8696A0] font-bold tracking-tighter text-xs';
+    if (agentBubble) {
+      agentBubble.classList.add('opacity-0', 'translate-y-2', 'hidden');
+    }
+    if (reactionPill) {
+      reactionPill.classList.add('scale-0');
+      reactionPill.classList.remove('scale-100');
+    }
+    if (userBubble) {
+      userBubble.classList.add('opacity-0', 'translate-y-2', 'hidden');
     }
 
-    if (userTextContent) userTextContent.textContent = '';
-    if (userCursor) userCursor.style.display = 'inline-block';
+    if (userTime) userTime.textContent = data.time;
+    if (userTextContent) userTextContent.textContent = data.userQuery;
+    if (userChecks) {
+      userChecks.innerHTML = SINGLE_CHECK_SVG;
+      userChecks.className = 'text-[#8696A0] inline-flex items-center opacity-75';
+    }
+
+    // Prepare animated typing in the input composer at the bottom
+    if (inputPlaceholder) inputPlaceholder.classList.add('hidden');
+    if (inputActiveContainer) {
+      inputActiveContainer.classList.remove('hidden');
+      inputActiveContainer.classList.add('flex');
+    }
+    if (inputTypedContent) inputTypedContent.textContent = '';
+    if (inputCursor) inputCursor.style.display = 'inline-block';
 
     const fullText = data.userQuery;
     let charIndex = 0;
 
-    // Small natural delay before person starts typing (180ms)
+    // Small natural pause before typing begins in the composer bar (150ms)
     const startDelay = setTimeout(() => {
       typeInterval = setInterval(() => {
         charIndex++;
-        if (userTextContent) {
-          userTextContent.textContent = fullText.slice(0, charIndex);
-        }
-
-        // Keep chat scrolled into view as user bubble expands
-        if (chatScroll && charIndex % 16 === 0) {
-          chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+        if (inputTypedContent) {
+          inputTypedContent.textContent = fullText.slice(0, charIndex);
+          if (inputActiveContainer) {
+            inputActiveContainer.scrollLeft = inputActiveContainer.scrollWidth;
+          }
         }
 
         if (charIndex >= fullText.length) {
           clearInterval(typeInterval);
           typeInterval = null;
 
-          if (userCursor) userCursor.style.display = 'none';
+          if (inputCursor) inputCursor.style.display = 'none';
 
-          // User finished typing and message is sent: double grey check
-          if (userChecks) {
-            userChecks.textContent = '✓✓';
-            userChecks.className = 'text-[#8696A0] font-bold tracking-tighter text-xs';
-          }
-
-          // Step 1: Assistant reads message (double blue check) & starts typing
-          const t1 = setTimeout(() => {
-            if (userChecks) {
-              userChecks.textContent = '✓✓';
-              userChecks.className = 'text-[#53BDEB] font-bold tracking-tighter text-xs';
-            }
-            if (headerStatus) headerStatus.textContent = 'escribiendo...';
-            if (typingBubble) {
-              typingBubble.classList.remove('hidden');
-              typingBubble.classList.add('flex');
-            }
-            if (chatScroll) {
-              chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
-            }
-          }, 320);
-          sequenceTimeouts.push(t1);
-
-          // Step 2: Assistant finishes typing and delivers message
-          const t2 = setTimeout(() => {
-            if (headerStatus) headerStatus.textContent = 'en línea';
-            if (typingBubble) {
-              typingBubble.classList.add('hidden');
-              typingBubble.classList.remove('flex');
+          // Step 1: User finishes typing in input bar. Pause 260ms, then press send button
+          const tPress = setTimeout(() => {
+            if (sendBtn) {
+              sendBtn.classList.add('scale-90');
             }
 
-            if (agentLabel) agentLabel.textContent = data.name;
-            if (agentIntro) agentIntro.textContent = data.agentIntro;
-            if (cardTag) cardTag.textContent = data.card.tag;
-            if (cardTitle) cardTitle.textContent = data.card.title;
-            if (cardEntity) cardEntity.textContent = data.card.entity;
-            if (cardBudget) cardBudget.textContent = data.card.budget;
-            if (cardDeadline) cardDeadline.textContent = data.card.deadline;
-            if (btn1 && data.buttons[0]) btn1.textContent = data.buttons[0];
-            if (btn2 && data.buttons[1]) btn2.textContent = data.buttons[1];
-            if (agentTime) agentTime.textContent = data.time;
+            // Step 2: Send button releases, input resets, outgoing bubble pops into chat
+            const tSend = setTimeout(() => {
+              if (sendBtn) {
+                sendBtn.classList.remove('scale-90');
+              }
+              if (inputActiveContainer) {
+                inputActiveContainer.classList.add('hidden');
+                inputActiveContainer.classList.remove('flex');
+              }
+              if (inputPlaceholder) {
+                inputPlaceholder.classList.remove('hidden');
+              }
+              if (inputTypedContent) {
+                inputTypedContent.textContent = '';
+              }
 
-            if (agentBubble) {
-              agentBubble.classList.remove('opacity-0', 'translate-y-2');
-            }
+              // Reveal outgoing bubble in conversation history
+              if (userBubble) {
+                userBubble.classList.remove('hidden');
+                void userBubble.offsetWidth;
+                userBubble.classList.remove('opacity-0', 'translate-y-2');
+              }
+              if (chatScroll) {
+                chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+              }
 
-            if (chatScroll) {
-              chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
-            }
-          }, 1200);
-          sequenceTimeouts.push(t2);
+              // Step 3: Delivered (double grey check after 280ms)
+              const tDelivered = setTimeout(() => {
+                if (userChecks) {
+                  userChecks.innerHTML = DOUBLE_CHECK_SVG;
+                  userChecks.className = 'text-[#8696A0] inline-flex items-center';
+                }
+
+                // Step 4: Read (double blue check after 280ms) & Assistant starts typing
+                const tRead = setTimeout(() => {
+                  if (userChecks) {
+                    userChecks.innerHTML = DOUBLE_CHECK_SVG;
+                    userChecks.className = 'text-[#53BDEB] inline-flex items-center';
+                  }
+                  if (headerStatus) headerStatus.textContent = 'escribiendo...';
+                  if (typingBubble) {
+                    typingBubble.classList.remove('hidden');
+                    typingBubble.classList.add('flex');
+                  }
+                  if (chatScroll) {
+                    chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+                  }
+
+                  // Step 5: Assistant finishes typing and delivers message
+                  const tAgent = setTimeout(() => {
+                    if (headerStatus) headerStatus.textContent = 'en línea';
+                    if (typingBubble) {
+                      typingBubble.classList.add('hidden');
+                      typingBubble.classList.remove('flex');
+                    }
+
+                    if (agentLabelName) agentLabelName.textContent = data.name;
+                    if (bubbleAvatarImg && data.image) bubbleAvatarImg.src = data.image;
+                    if (agentIntro) agentIntro.textContent = data.agentIntro;
+                    if (cardTag) cardTag.textContent = data.card.tag;
+                    if (cardTitle) cardTitle.textContent = data.card.title;
+                    if (cardEntity) cardEntity.textContent = data.card.entity;
+                    if (cardBudget) cardBudget.textContent = data.card.budget;
+                    if (cardDeadline) cardDeadline.textContent = data.card.deadline;
+                    if (btn1 && data.buttons[0]) btn1.textContent = data.buttons[0];
+                    if (btn2 && data.buttons[1]) btn2.textContent = data.buttons[1];
+                    if (agentTime) agentTime.textContent = data.time;
+
+                    if (agentBubble) {
+                      agentBubble.classList.remove('hidden');
+                      void agentBubble.offsetWidth;
+                      agentBubble.classList.remove('opacity-0', 'translate-y-2');
+                    }
+
+                    if (chatScroll) {
+                      chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+                    }
+
+                    // Step 6: Reaction badge pops up shortly after reply
+                    const tReaction = setTimeout(() => {
+                      if (reactionPill && reactionEmoji) {
+                        reactionEmoji.textContent = data.reaction || '⚡';
+                        reactionPill.classList.remove('scale-0');
+                        reactionPill.classList.add('scale-100');
+                      }
+                    }, 350);
+                    sequenceTimeouts.push(tReaction);
+                  }, 1200);
+                  sequenceTimeouts.push(tAgent);
+                }, 280);
+                sequenceTimeouts.push(tRead);
+              }, 280);
+              sequenceTimeouts.push(tDelivered);
+            }, 140);
+            sequenceTimeouts.push(tSend);
+          }, 260);
+          sequenceTimeouts.push(tPress);
         }
-      }, 19);
-    }, 180);
+      }, 16);
+    }, 150);
     sequenceTimeouts.push(startDelay);
   }
 
   function updateProgress() {
-    if (isHovered) return;
+    if (!isVisible) return;
 
     const elapsed = Date.now() - startTime;
     const pct = Math.min(100, (elapsed / CYCLE_DURATION) * 100);
@@ -554,6 +680,7 @@ const agentsData = [
   function goToAgent(index) {
     currentIndex = index;
     startTime = Date.now();
+    pausedElapsed = 0;
     updateActiveTabUI(currentIndex);
     renderAgentData(agentsData[currentIndex]);
     startCycle(); // Restart animation cycle for the new agent
@@ -565,9 +692,9 @@ const agentsData = [
   }
 
   function startCycle() {
-    startTime = Date.now();
+    startTime = Date.now() - pausedElapsed;
     if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
-    if (!isHovered) {
+    if (isVisible) {
       progressAnimFrame = requestAnimationFrame(updateProgress);
     }
   }
@@ -577,23 +704,86 @@ const agentsData = [
     tab.addEventListener('click', () => {
       const idx = parseInt(tab.getAttribute('data-index') || '0', 10);
       goToAgent(idx);
+
+      // Smooth scroll toward the WhatsApp simulation window
+      const chatWindow = document.getElementById('whatsapp-chat-window');
+      if (chatWindow) {
+        const headerOffset = 88;
+        const windowRect = chatWindow.getBoundingClientRect();
+        const targetScrollTop = window.pageYOffset + windowRect.top - headerOffset;
+        window.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+      }
     });
   });
 
   // Start initial cycle
   goToAgent(0);
 
-  // Pause on hover
-  const container = document.getElementById('whatsapp-runtime-container');
-  if (container) {
-    container.addEventListener('mouseenter', () => {
-      isHovered = true;
-      if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
-      if (runtimeTimerStatus) runtimeTimerStatus.textContent = 'Pausado (cursor encima)';
-    });
-    container.addEventListener('mouseleave', () => {
-      isHovered = false;
-      startCycle();
-    });
+  // Viewport Observer: Pause timer and animation when out of the screen view, resume when visible
+  const runtimeContainer = document.getElementById('whatsapp-runtime-container');
+  if ('IntersectionObserver' in window && runtimeContainer) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !document.hidden) {
+            if (!isVisible) {
+              isVisible = true;
+              startTime = Date.now() - pausedElapsed;
+              if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+              progressAnimFrame = requestAnimationFrame(updateProgress);
+            }
+          } else {
+            if (isVisible) {
+              isVisible = false;
+              pausedElapsed = Date.now() - startTime;
+              if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+            }
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(runtimeContainer);
   }
+
+  // Pause when browser tab is inactive/hidden, resume when focused if container is in viewport
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (isVisible) {
+        isVisible = false;
+        pausedElapsed = Date.now() - startTime;
+        if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+      }
+    } else {
+      if (runtimeContainer) {
+        const rect = runtimeContainer.getBoundingClientRect();
+        const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (inViewport && !isVisible) {
+          isVisible = true;
+          startTime = Date.now() - pausedElapsed;
+          if (progressAnimFrame) cancelAnimationFrame(progressAnimFrame);
+          progressAnimFrame = requestAnimationFrame(updateProgress);
+        }
+      }
+    }
+  });
 </script>
+
+<style>
+  @keyframes wa-typing-bounce {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-4px);
+    }
+  }
+  .animate-wa-bounce {
+    animation: wa-typing-bounce 1.2s ease-in-out infinite;
+  }
+</style>

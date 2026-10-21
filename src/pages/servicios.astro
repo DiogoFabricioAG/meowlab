@@ -4,145 +4,369 @@ import CtaBanner from '../components/CtaBanner.astro';
 ---
 
 <Layout
-  title="Servicios Micro-SaaS de IA por WhatsApp | MeowLab"
-  description="Servicios de IA listos para usar en WhatsApp: Facturación electrónica automática con BillCat, cobranzas inteligentes y más."
+  title="Modelos de Servicio y Especialistas en WhatsApp | MeowLab"
+  description="Conoce los dos modelos de servicio de MeowLab: Agentes de Rol listos para usar en WhatsApp (BillCat, PawsCollect, HunterCat) y Solución Dedicada a medida."
 >
-  <div class="py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-      <!-- Header -->
-      <div class="text-center max-w-4xl mx-auto space-y-6">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold">
-          <span>SERVICIOS MICRO-SAAS ON-DEMAND</span>
-        </div>
-        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight">
-          Agentes Especializados <span class="text-neon">Listos en 60 Segundos</span>
+  <div class="py-16 sm:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+      <!-- Page Header (no eyebrow pill per #rule-hero-eyebrow-chip) -->
+      <div class="max-w-3xl space-y-4">
+        <h1 class="text-3xl sm:text-5xl font-bold text-content-main tracking-tight leading-[1.12] text-balance">
+          Dos Modelos de Servicio para <span class="text-brand-forest">Operar desde WhatsApp</span>
         </h1>
-        <p class="text-slate-300 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
-          No necesitas desarrollar nada ni contratar ingenieros. Conéctate a nuestros agentes compartidos por WhatsApp y empieza a emitir facturas, cobrar o atender clientes hoy mismo.
+        <p class="text-content-muted text-base sm:text-lg leading-relaxed">
+          Comienza el mismo día con un especialista preconfigurado para facturación, licitaciones o cobranzas, o integra un asistente dedicado a la base de datos de tu empresa.
         </p>
       </div>
 
-      <!-- Focus on BillCat -->
-      <div id="billcat" class="glass-panel rounded-3xl p-8 sm:p-14 border border-neon/40 shadow-neon-lg relative overflow-hidden">
-        <div class="grid lg:grid-cols-12 gap-10 items-center">
-          <div class="lg:col-span-7 space-y-6">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon text-obsidian text-xs font-title font-black">
-              ⭐ PRODUCTO ESTRELLA
+      <!-- Two Service Tiers -->
+      <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+        <!-- Tier 1: Agentes de Rol (Listos para Usar) -->
+        <section class="bg-white border border-surface-border rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between gap-4 mb-5">
+              <div class="w-11 h-11 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
+                <!-- TablerIcon: robot -->
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 4m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" />
+                  <path d="M12 2v2" />
+                  <path d="M9 12v9" />
+                  <path d="M15 12v9" />
+                  <path d="M5 16l4 -2" />
+                  <path d="M15 14l4 2" />
+                  <path d="M9 18h6" />
+                  <path d="M10 8v.01" />
+                  <path d="M14 8v.01" />
+                </svg>
+              </div>
+              <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-subtle border border-surface-border text-content-main">
+                Suscripción Micro-SaaS
+              </span>
             </div>
-            <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              BillCat • Tu Facturador Electrónico por WhatsApp
+
+            <h2 class="text-2xl font-bold text-content-main">
+              Agentes de Rol (Listos para Usar)
             </h2>
-            <p class="text-slate-300 text-base leading-relaxed">
-              ¿Cansado de entrar a portales tributarios lentos o sistemas engorrosos? Con <strong>BillCat</strong>, solo tienes que enviarle un audio o mensaje de WhatsApp con los datos de venta:
+            <p class="text-sm text-content-muted mt-2 leading-relaxed">
+              Especialistas preentrenados para tareas concretas de facturación electrónica, seguimiento de cobranzas, búsqueda de licitaciones o calificación comercial.
             </p>
 
-            <div class="bg-obsidian/90 p-5 rounded-2xl border border-white/10 font-mono text-xs text-slate-300 space-y-2">
-              <p class="text-neon font-bold">// Ejemplo de mensaje que le envías por WhatsApp:</p>
-              <p class="text-white">"Emite factura a RUC 20609876543 por 2 Consultorías de Marketing a $350 cada una, al crédito 15 días."</p>
-            </div>
-
-            <ul class="space-y-3 text-sm text-slate-200">
-              <li class="flex items-center gap-3">
-                <span class="text-neon font-bold">⚡</span>
-                <span>Emisión y validación oficial ante entidades tributarias en <strong>menos de 2 segundos</strong>.</span>
+            <ul class="mt-6 space-y-3 text-sm text-content-main">
+              <li class="flex items-start gap-2.5">
+                <!-- TablerIcon: check -->
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Activación rápida vinculando los números autorizados de tu equipo.</span>
               </li>
-              <li class="flex items-center gap-3">
-                <span class="text-neon font-bold">📄</span>
-                <span>Genera automáticamente el <strong>PDF profesional</strong> con tu logo y el archivo <strong>XML firmado</strong>.</span>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Reconocimiento de notas de voz, fotos de pedidos y texto en WhatsApp.</span>
               </li>
-              <li class="flex items-center gap-3">
-                <span class="text-neon font-bold">🎙️</span>
-                <span>Soporta <strong>audios de voz</strong>, fotos de notas de pedido físicas y texto informal.</span>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Sin costos de infraestructura propia ni mantenimiento de servidores.</span>
               </li>
             </ul>
 
-            <div class="pt-4">
-              <a href="/contacto" class="btn-primary px-8 py-4 rounded-xl text-sm font-title font-bold shadow-neon">
-                Activar BillCat para mi Empresa →
+            <!-- Flat divider section instead of nested card (#rule-nested-cards) -->
+            <div class="border-t border-surface-border pt-5 mt-6 space-y-2">
+              <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
+                Ideal para
+              </div>
+              <p class="text-xs text-content-muted leading-relaxed">
+                Negocios y equipos comerciales que buscan resolver facturación, alertas SEACE o recordatorios de pago de inmediato desde el celular.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-4">
+            <a
+              href="/agentes"
+              class="w-full py-3.5 px-5 rounded-xl text-sm font-title font-bold border border-surface-border text-content-main hover:bg-surface-subtle inline-flex items-center justify-center gap-2 transition-colors"
+            >
+              <span>Ver roles disponibles</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Tier 2: Solución Dedicada (A Medida) -->
+        <section class="bg-surface-subtle border-2 border-brand-forest rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between gap-4 mb-5">
+              <div class="w-11 h-11 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
+                <!-- TablerIcon: building -->
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 21l18 0" />
+                  <path d="M9 8l1 0" />
+                  <path d="M9 12l1 0" />
+                  <path d="M9 16l1 0" />
+                  <path d="M14 8l1 0" />
+                  <path d="M14 12l1 0" />
+                  <path d="M14 16l1 0" />
+                  <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" />
+                </svg>
+              </div>
+              <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
+                Infraestructura Privada
+              </span>
+            </div>
+
+            <h2 class="text-2xl font-bold text-content-main">
+              Solución Dedicada (A Medida)
+            </h2>
+            <p class="text-sm text-content-muted mt-2 leading-relaxed">
+              Un asistente exclusivo conectado a tu base de datos PostgreSQL, SQL Server o ERP (SAP, Odoo) con reglas de negocio y permisos por colaborador.
+            </p>
+
+            <ul class="mt-6 space-y-3 text-sm text-content-main">
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Conexión segura a bases de datos privadas y APIs REST internas.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Despliegue en tu propia nube (VPC) o mediante túnel cifrado.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Número de WhatsApp Business exclusivo y soporte de ingeniería directo.</span>
+              </li>
+            </ul>
+
+            <!-- Flat divider section instead of nested card (#rule-nested-cards) -->
+            <div class="border-t border-surface-border pt-5 mt-6 space-y-2">
+              <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
+                Ideal para
+              </div>
+              <p class="text-xs text-content-muted leading-relaxed">
+                Empresas con ERP propio, catálogos de miles de ítems o políticas estrictas de privacidad y auditoría de datos.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-4">
+            <a
+              href="/dedicado"
+              class="w-full py-3.5 px-5 rounded-xl text-sm font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
+            >
+              <span>Explorar Solución Dedicada</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <!-- Featured Micro-SaaS Section: BillCat -->
+      <section id="billcat" class="bg-surface-subtle border border-surface-border rounded-2xl p-7 sm:p-10">
+        <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
+              Especialista en Facturación Electrónica
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-bold text-content-main tracking-tight">
+              BillCat · Facturación asistida desde WhatsApp
+            </h2>
+            <p class="text-content-muted text-sm sm:text-base leading-relaxed">
+              Envía un audio o mensaje con los datos de la operación. BillCat estructura la venta, verifica el RUC, calcula el IGV y te presenta un resumen claro para confirmar antes de emitir el comprobante.
+            </p>
+
+            <div class="border-l-2 border-brand-forest pl-4 py-1 text-xs sm:text-sm text-content-main font-mono">
+              "Prepara factura a RUC 20609876543 por 2 servicios de consultoría a S/ 850 más IGV."
+            </div>
+
+            <ul class="space-y-2.5 text-sm text-content-main pt-1">
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Confirmación obligatoria del borrador antes de emitir cualquier comprobante.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Entrega de archivo PDF y XML directamente en el hilo de conversación.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-forest mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Soporte para audios de voz, texto libre e imágenes de notas de pedido.</span>
+              </li>
+            </ul>
+
+            <div class="pt-2">
+              <a
+                href="/contacto"
+                class="bg-brand-forest text-white hover:bg-brand-forestDark px-6 py-3.5 rounded-xl text-sm font-title font-bold inline-flex items-center gap-2 transition-colors"
+              >
+                <span>Solicitar acceso a BillCat</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
               </a>
             </div>
           </div>
 
-          <!-- Right Mockup Card -->
-          <div class="lg:col-span-5 bg-surface-elevated p-6 rounded-3xl border border-white/10 shadow-card">
-            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl">🐱</span>
-                <div>
-                  <div class="font-title font-bold text-white text-sm">BillCat Pro v2</div>
-                  <div class="text-[10px] text-neon">EN LÍNEA 24/7</div>
-                </div>
+          <!-- Right Summary Specification (flat divide-y list, no nested dark boxes) -->
+          <div class="lg:col-span-5 bg-white border border-surface-border rounded-xl p-6">
+            <div class="flex items-center justify-between pb-4 mb-3 border-b border-surface-border">
+              <div>
+                <div class="font-title font-bold text-content-main text-sm">Resumen de Borrador Fiscal</div>
+                <div class="text-xs text-content-muted">Verificación previa en WhatsApp</div>
               </div>
-              <span class="text-xs font-mono text-slate-400">#F001-892</span>
+              <span class="text-xs font-mono font-semibold text-brand-forest bg-surface-mint px-2.5 py-1 rounded">
+                F001-0892
+              </span>
             </div>
 
-            <div class="space-y-3 text-xs">
-              <div class="bg-obsidian p-3 rounded-xl border border-white/5">
-                <span class="text-slate-500">Cliente:</span>
-                <p class="text-white font-bold">SERVICIOS DIGITALES LATAM SAC</p>
-                <p class="text-slate-400">RUC: 20609876543</p>
+            <dl class="divide-y divide-surface-border text-xs">
+              <div class="py-3 flex justify-between gap-4">
+                <dt class="text-content-muted">Adquiriente</dt>
+                <dd class="font-semibold text-content-main text-right">SERVICIOS DIGITALES SAC</dd>
               </div>
-
-              <div class="bg-obsidian p-3 rounded-xl border border-white/5 space-y-1">
-                <div class="flex justify-between">
-                  <span class="text-slate-400">2x Consultoría Marketing:</span>
-                  <span class="text-white font-bold">$700.00</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-400">IGV / IVA (18%):</span>
-                  <span class="text-white font-bold">$126.00</span>
-                </div>
-                <div class="flex justify-between border-t border-white/10 pt-1 text-neon font-title font-bold text-sm">
-                  <span>TOTAL EMITIDO:</span>
-                  <span>$826.00 USD</span>
-                </div>
+              <div class="py-3 flex justify-between gap-4">
+                <dt class="text-content-muted">RUC</dt>
+                <dd class="font-mono text-content-main text-right">20609876543</dd>
               </div>
-
-              <div class="p-3 bg-neon/10 border border-neon/30 rounded-xl text-center text-neon font-title font-bold">
-                ✓ COMPROBANTE VALIDADO Y REGISTRADO
+              <div class="py-3 flex justify-between gap-4">
+                <dt class="text-content-muted">Subtotal (2x Consultoría)</dt>
+                <dd class="font-mono text-content-main text-right">S/ 1,700.00</dd>
               </div>
-            </div>
+              <div class="py-3 flex justify-between gap-4">
+                <dt class="text-content-muted">IGV (18%)</dt>
+                <dd class="font-mono text-content-main text-right">S/ 306.00</dd>
+              </div>
+              <div class="py-3 flex justify-between gap-4 font-title font-bold text-sm text-brand-forest">
+                <dt>Total a confirmar</dt>
+                <dd class="font-mono">S/ 2,006.00</dd>
+              </div>
+            </dl>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Other Micro-SaaS Agents (PawsCollect & HunterCat) -->
+      <!-- Additional Specialists: PawsCollect & HunterCat -->
       <div class="grid md:grid-cols-2 gap-8">
-        <div id="pawscollect" class="glass-panel rounded-3xl p-8 sm:p-10 border border-white/10 shadow-card flex flex-col justify-between">
+        <section id="pawscollect" class="bg-white border border-surface-border rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
           <div>
-            <div class="text-3xl mb-4">💳</div>
-            <h3 class="text-2xl font-extrabold text-white mb-2">PawsCollect • Cobranzas en Piloto Automático</h3>
-            <p class="text-slate-300 text-sm leading-relaxed mb-6">
-              Recuerda pagos pendientes con mensajes cordiales en WhatsApp, envía botones de pago con tarjeta, transferencia o billeteras móviles y actualiza tu estado contable al instante.
+            <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center mb-4">
+              <!-- TablerIcon: credit-card -->
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 5m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                <path d="M3 10l18 0" />
+                <path d="M7 15l.01 0" />
+                <path d="M11 15l2 0" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-content-main">PawsCollect · Seguimiento de Cobranzas</h3>
+            <p class="text-content-muted text-sm leading-relaxed mt-2">
+              Envía recordatorios programados de facturas por vencer, comparte enlaces de pago autorizados y registra confirmaciones para mantener tus cuentas al día.
             </p>
-            <ul class="space-y-2.5 text-xs text-slate-300 mb-8">
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Sin fricción para tus clientes</li>
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Links compatibles con Stripe, MercadoPago, Yape</li>
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Reduce cuentas incobrables en un 45%</li>
+            <ul class="border-t border-surface-border pt-5 mt-6 space-y-2.5 text-xs text-content-main">
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Mensajes cordiales con el detalle del comprobante pendiente</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Compatible con pasarelas de pago y transferencias bancarias</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Reporte diario de compromisos de pago para tu equipo</span>
+              </li>
             </ul>
           </div>
-          <a href="/contacto" class="btn-secondary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
-            Probar PawsCollect
-          </a>
-        </div>
 
-        <div class="glass-panel rounded-3xl p-8 sm:p-10 border border-white/10 shadow-card flex flex-col justify-between">
+          <div class="pt-6">
+            <a
+              href="/contacto"
+              class="inline-flex items-center gap-2 text-sm font-title font-bold text-brand-forest hover:text-brand-forestDark transition-colors"
+            >
+              <span>Consultar por PawsCollect</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <section id="huntercat" class="bg-white border border-surface-border rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
           <div>
-            <div class="text-3xl mb-4">🎯</div>
-            <h3 class="text-2xl font-extrabold text-white mb-2">HunterCat • Calificador & SDR Inmediato</h3>
-            <p class="text-slate-300 text-sm leading-relaxed mb-6">
-              Captura los leads que llegan de campañas de publicidad, califica su interés con preguntas dinámicas y agenda reuniones directamente en el calendario de tus comerciales.
+            <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center mb-4">
+              <!-- TablerIcon: target -->
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                <path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0" />
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-content-main">HunterCat · Calificación Comercial</h3>
+            <p class="text-content-muted text-sm leading-relaxed mt-2">
+              Atiende consultas comerciales en segundos, recopila los datos clave del requerimiento y agenda reuniones directamente en el calendario de tus ejecutivos.
             </p>
-            <ul class="space-y-2.5 text-xs text-slate-300 mb-8">
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Respuesta garantizada en menos de 2 segundos</li>
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Sincronización con Google Calendar y Outlook</li>
-              <li class="flex items-center gap-2"><span class="text-neon">✓</span> Detección de intención de compra con IA</li>
+            <ul class="border-t border-surface-border pt-5 mt-6 space-y-2.5 text-xs text-content-main">
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Respuesta inmediata a prospectos de campañas y web</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Sincronización con Google Calendar y CRM comercial</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span>Derivación con resumen ejecutivo al vendedor asignado</span>
+              </li>
             </ul>
           </div>
-          <a href="/contacto" class="btn-secondary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
-            Probar HunterCat
-          </a>
-        </div>
+
+          <div class="pt-6">
+            <a
+              href="/contacto"
+              class="inline-flex items-center gap-2 text-sm font-title font-bold text-brand-forest hover:text-brand-forestDark transition-colors"
+            >
+              <span>Consultar por HunterCat</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
       </div>
     </div>
   </div>

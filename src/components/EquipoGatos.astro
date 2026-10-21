@@ -1,0 +1,44 @@
+---
+import AgentFlowDemo from './react/AgentFlowDemo.tsx';
+---
+
+<section class="py-20 md:py-28 bg-surface-subtle/50 border-b border-surface-border" id="equipo">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Section Heading: Así trabajan juntos en tu negocio -->
+    <div class="text-center max-w-3xl mx-auto mb-10 md:mb-12 space-y-3">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight text-balance">
+        Tus agentes se coordinan solos para que tú no seas el intermediario
+      </h2>
+      <p class="text-base sm:text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
+        En tu día a día, vender no termina en el precio: hay que pedir datos, emitir la factura ante SUNAT y cuadrar caja. Mira cómo tus agentes se transfieren la información de inmediato por WhatsApp sin que tengas que copiar y pegar nada.
+      </p>
+
+      <!-- 3 Quick Business Advantages (Horizontal inline summary with left borders) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 text-left">
+        <div class="border-l-2 border-brand-forest/30 pl-3.5">
+          <div class="text-xs sm:text-sm font-bold text-content-main">Venta cerrada a factura</div>
+          <div class="text-xs text-content-secondary mt-0.5">El cliente confirma y recibe su PDF + XML legal en segundos.</div>
+        </div>
+        <div class="border-l-2 border-brand-forest/30 pl-3.5">
+          <div class="text-xs sm:text-sm font-bold text-content-main">Cero digitación manual</div>
+          <div class="text-xs text-content-secondary mt-0.5">RUC y montos viajan entre agentes sin riesgo de error humano.</div>
+        </div>
+        <div class="border-l-2 border-brand-forest/30 pl-3.5">
+          <div class="text-xs sm:text-sm font-bold text-content-main">Aviso directo a gerencia</div>
+          <div class="text-xs text-content-secondary mt-0.5">Tu caja y supervisión se actualizan al instante en tiempo real.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- React Flow Interactive Simulation Board (Flat container — AgentFlowDemo has its own board surface) -->
+    <div>
+      <AgentFlowDemo client:load />
+    </div>
+
+    <p class="text-center text-xs text-content-muted mt-4">
+      * Flujo operativo real: tus agentes colaboran entre tu WhatsApp, SUNAT y tu administración con supervisión humana en todo momento.
+    </p>
+
+  </div>
+</section>

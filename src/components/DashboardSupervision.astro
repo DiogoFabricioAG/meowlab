@@ -1,0 +1,212 @@
+---
+import TablerIcon from './ui/TablerIcon.astro';
+import { Sliders, CheckCircle2, ShieldCheck, ToggleRight, ArrowRight, UserCheck, Eye } from '@lucide/astro';
+---
+
+<section class="py-20 md:py-28 bg-white border-b border-surface-border" id="supervision">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-14 md:mb-16 space-y-3">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight text-balance">
+        Elige, activa y supervisa tus agentes desde un solo lugar
+      </h2>
+
+      <p class="text-base sm:text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
+        Sin instalaciones difíciles ni contratos forzosos. Tú tienes la última palabra sobre qué tareas delega cada agente y puedes intervenir en cualquier chat al instante.
+      </p>
+    </div>
+
+    <!-- Main Grid: Steps & Interactive Dashboard Mockup -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      
+      <!-- Left Column: 3 Pasos de Gestión y Contratación (Span 5) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <div class="divide-y divide-surface-border border-y border-surface-border">
+          <!-- Step 1 -->
+          <div class="flex items-start gap-4 py-5">
+            <div class="w-9 h-9 rounded-lg bg-[#0C493C] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              1
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-base font-bold text-content-main">Elige solo los que necesitas</h3>
+              <p class="text-sm text-content-secondary leading-relaxed">
+                Totalmente modular. Puedes contratar y activar un solo agente (por ejemplo, solo Facturas o solo Ventas) y sumar más especialistas cuando tu volumen lo justifique.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flex items-start gap-4 py-5">
+            <div class="w-9 h-9 rounded-lg bg-[#0C493C] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              2
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-base font-bold text-content-main">Activación guiada en minutos</h3>
+              <p class="text-sm text-content-secondary leading-relaxed">
+                Conectamos tu número oficial de WhatsApp con tu catálogo de productos, tus reglas de precios o tus credenciales seguras de SUNAT. Sin tocar código.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex items-start gap-4 py-5">
+            <div class="w-9 h-9 rounded-lg bg-[#0C493C] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              3
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-base font-bold text-content-main">Supervisión humana en tiempo real</h3>
+              <p class="text-sm text-content-secondary leading-relaxed">
+                Monitorea cada respuesta, cotización y comprobante emitido. Si tu equipo responde manualmente en el chat, el agente se pausa solo para no duplicar mensajes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action Button -->
+        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <a
+            href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary px-6 py-3 rounded-xl text-sm font-medium shadow-sm flex items-center justify-center gap-2"
+          >
+            <TablerIcon name="brand-whatsapp" size={18} strokeWidth={2.2} className="text-[#25D366]" />
+            <span>Configurar mi primer agente</span>
+          </a>
+          <span class="text-xs text-content-muted self-center text-center">
+            Asesoría personalizada por WhatsApp
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Clean Dashboard Simulation Card (Span 7) -->
+      <div class="lg:col-span-7">
+        <div class="bg-[#FAFBF9] border border-surface-border rounded-2xl p-6 sm:p-8 space-y-5">
+          
+          <!-- Top Bar of Dashboard -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-surface-border">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#25D366]"></span>
+                <span class="text-xs font-mono font-bold text-[#0C493C] uppercase tracking-wider">
+                  Panel de Supervisión · MeowLab
+                </span>
+              </div>
+              <h4 class="text-base font-bold text-content-main mt-0.5">
+                Consorcio & Servicios Generales SAC
+              </h4>
+            </div>
+
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
+                <Eye class="w-3.5 h-3.5 text-emerald-600" />
+                <span>3 agentes en línea</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Active Agents Control Rows (Clean divide-y rows instead of nested cards) -->
+          <div class="divide-y divide-surface-border">
+            
+            <!-- Agent 1: Facturas (Azul) -->
+            <div class="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-[#F3F7FA] border border-[#D6E2EC] p-1 flex items-center justify-center shrink-0">
+                  <img src="/assets/gato-facturas-light.svg" alt="Agente de Facturas" class="w-full h-full object-contain mix-blend-multiply" />
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h5 class="text-sm font-bold text-content-main truncate">Agente de Facturas</h5>
+                    <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-[#E6EFF5] text-[#204561] font-semibold border border-[#D6E2EC]">
+                      SUNAT Oficial
+                    </span>
+                  </div>
+                  <p class="text-xs text-content-secondary truncate mt-0.5">
+                    Valida RUC, calcula IGV y emite comprobantes electrónicos PDF + XML
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 shrink-0">
+                <span class="text-xs font-medium text-[#2B5C7F] font-mono">34 facturas emitidas</span>
+                <span class="px-2.5 py-1 rounded-lg bg-[#E6EFF5] text-[#204561] text-xs font-bold flex items-center gap-1">
+                  <CheckCircle2 class="w-3.5 h-3.5 text-[#2B5C7F]" />
+                  Conectado
+                </span>
+              </div>
+            </div>
+
+            <!-- Agent 2: Licitaciones (Verde) -->
+            <div class="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-[#F3F8F5] border border-[#D2E5DB] p-1 flex items-center justify-center shrink-0">
+                  <img src="/assets/gato-licitaciones-light.svg" alt="Agente de Licitaciones" class="w-full h-full object-contain mix-blend-multiply" />
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h5 class="text-sm font-bold text-content-main truncate">Agente de Licitaciones</h5>
+                    <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-[#E2EFE7] text-[#15473B] font-semibold border border-[#D2E5DB]">
+                      Filtrado RNP
+                    </span>
+                  </div>
+                  <p class="text-xs text-content-secondary truncate mt-0.5">
+                    Monitorea compras públicas del Estado que coinciden con tu constancia RNP
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 shrink-0">
+                <span class="text-xs font-medium text-[#1E5E4E] font-mono">4 alertas hoy</span>
+                <span class="px-2.5 py-1 rounded-lg bg-[#E2EFE7] text-[#15473B] text-xs font-bold flex items-center gap-1">
+                  <CheckCircle2 class="w-3.5 h-3.5 text-[#1E5E4E]" />
+                  Monitoreando
+                </span>
+              </div>
+            </div>
+
+            <!-- Agent 3: Ventas (Rojo) -->
+            <div class="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-[#FAF5F4] border border-[#ECDDDA] p-1 flex items-center justify-center shrink-0">
+                  <img src="/assets/gato-ventas-light.svg" alt="Agente de Ventas" class="w-full h-full object-contain mix-blend-multiply" />
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h5 class="text-sm font-bold text-content-main truncate">Agente de Ventas</h5>
+                    <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-[#F6E9E7] text-[#78352F] font-semibold border border-[#ECDDDA]">
+                      Atención 24/7
+                    </span>
+                  </div>
+                  <p class="text-xs text-content-secondary truncate mt-0.5">
+                    Responde catálogo, cotiza y toma datos de clientes en WhatsApp
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 shrink-0">
+                <span class="text-xs font-medium text-[#9B4A42] font-mono">18 leads hoy</span>
+                <span class="px-2.5 py-1 rounded-lg bg-[#F6E9E7] text-[#78352F] text-xs font-bold flex items-center gap-1">
+                  <CheckCircle2 class="w-3.5 h-3.5 text-[#9B4A42]" />
+                  Operando
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Human Takeover Guarantee Footer -->
+          <div class="pt-4 border-t border-surface-border flex items-center justify-between gap-3 text-xs text-emerald-900">
+            <div class="flex items-center gap-2">
+              <UserCheck class="w-4 h-4 text-emerald-700 shrink-0" />
+              <span><b>Intervención humana garantizada:</b> Toma el control de cualquier conversación escribiendo directamente en el chat.</span>
+            </div>
+            <span class="hidden sm:inline-block font-mono text-xs text-emerald-700 shrink-0">Cero fricción</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>

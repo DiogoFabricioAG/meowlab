@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Blinker:wght@100;200;300;400;600;700;800;900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Actor&family=Blinker:wght@100;200;300;400;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,13 +18,28 @@ html {
   scroll-behavior: smooth;
   background-color: #FFFFFF;
   color: #111816;
-  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Actor', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, .font-title, .font-display {
-  font-family: 'Blinker', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+html,
+body,
+.font-sans {
+  font-family: 'Actor', sans-serif !important;
+}
+
+h1, h2, h3, h4, .font-title, .font-display {
+  font-family: 'Blinker', sans-serif !important;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.font-mono, code, pre, kbd, samp {
+  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
 }
 
 body {
@@ -57,8 +72,9 @@ body {
 .btn-primary {
   background-color: #0C493C;
   color: #FFFFFF;
+  border-radius: 12px;
   font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -67,16 +83,16 @@ body {
 
 .btn-primary:hover {
   background-color: #08372D;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(12, 73, 60, 0.15);
+  box-shadow: 0 2px 8px rgba(12, 73, 60, 0.12);
 }
 
 .btn-secondary {
   background-color: #FFFFFF;
   color: #111816;
   border: 1px solid #E8ECE9;
+  border-radius: 12px;
   font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -85,20 +101,19 @@ body {
 
 .btn-secondary:hover {
   background-color: #F7F9F7;
-  border-color: #D5DDD8;
-  transform: translateY(-1px);
+  border-color: #CBD5E1;
 }
 
 /* Cards & Surface Utilities */
 .card-clean {
   background-color: #FFFFFF;
   border: 1px solid #E8ECE9;
-  border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(20, 40, 30, 0.05);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(17, 24, 22, 0.04);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-clean:hover {
-  border-color: #D3DDD7;
-  box-shadow: 0 14px 45px rgba(20, 40, 30, 0.08);
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(12, 73, 60, 0.06);
 }

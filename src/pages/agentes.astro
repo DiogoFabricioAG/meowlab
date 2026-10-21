@@ -4,216 +4,350 @@ import CtaBanner from '../components/CtaBanner.astro';
 
 const allAgents = [
   {
+    id: 'tendercat',
+    name: 'TenderCat',
+    role: 'Buscador de Licitaciones y SEACE',
+    category: 'ventas',
+    type: 'Servicio Micro-SaaS',
+    image: '/assets/gato-licitaciones.png',
+    badge: 'Licitaciones',
+    description: 'Rastrea convocatorias públicas en SEACE y Gob.pe diariamente. Filtra oportunidades por tu RNP y envía montos, bases y cronogramas listos para evaluar.',
+    specs: {
+      speed: '< 2.0s',
+      input: 'RNP, rubro comercial, región geográfica',
+      output: 'Reporte diario matutino + resumen de bases',
+      integration: 'SEACE, Gob.pe, WhatsApp Business'
+    }
+  },
+  {
     id: 'billcat',
     name: 'BillCat',
-    role: 'Agente Facturador Electrónico',
+    role: 'Asistente de Facturación Electrónica',
     category: 'finanzas',
     type: 'Servicio Micro-SaaS',
-    avatar: '⚡',
-    badge: 'Popular',
-    badgeClass: 'bg-neon text-obsidian font-bold',
-    description: 'Transforma audios, notas de voz, fotos de notas de venta y mensajes de texto en facturas electrónicas oficiales válidas en SUNAT/SAT/AFIP en menos de 3 segundos.',
+    image: '/assets/gato-facturas.png',
+    badge: 'Facturación',
+    featured: true,
+    description: 'Prepara borradores y comprobantes electrónicos a partir de notas de voz, fotos de pedidos o mensajes de texto, validando RUC y montos antes de emitir.',
     specs: {
       speed: '< 1.2s',
-      input: 'Audio, Foto, Texto, JSON',
-      output: 'PDF firmado, XML, Link WhatsApp',
-      integration: 'WhatsApp Cloud API / Webhook'
+      input: 'Audio, foto, texto libre en WhatsApp',
+      output: 'Borrador validado, PDF y XML',
+      integration: 'WhatsApp Cloud API / Proveedor PSE-OSE'
     }
   },
   {
     id: 'huntercat',
     name: 'HunterCat',
-    role: 'Calificador SDR & Captación de Leads',
+    role: 'Calificador Comercial y Captación de Leads',
     category: 'ventas',
     type: 'Dedicado / SaaS',
-    avatar: '🎯',
-    badge: 'Ventas 24/7',
-    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
-    description: 'Responde a prospectos de anuncios de WhatsApp en menos de 2 segundos, filtra clientes calificados según presupuesto y agenda reuniones en Google Calendar automáticamente.',
+    image: '/assets/gato-ventas.png',
+    badge: 'Comercial',
+    description: 'Atiende prospectos entrantes por WhatsApp, filtra oportunidades según presupuesto o requerimiento y coordina reuniones en el calendario del equipo.',
     specs: {
       speed: '< 1.8s',
-      input: 'Chat WhatsApp, Formularios Lead Ads',
-      output: 'Lead Calificado en CRM + Cita en Calendar',
-      integration: 'HubSpot, Salesforce, Pipedrive'
+      input: 'Consultas de WhatsApp, campañas entrantes',
+      output: 'Lead calificado en CRM + cita agendada',
+      integration: 'HubSpot, Pipedrive, Google Calendar'
     }
   },
   {
     id: 'nexuscat',
     name: 'NexusCat Private ERP',
-    role: 'Conector de Base de Datos & ERP Empresarial',
+    role: 'Conector Privado de Base de Datos y ERP',
     category: 'dedicado',
     type: 'Exclusivo Dedicado',
-    avatar: '🛡️',
+    image: '/assets/gato-licitaciones.png',
     badge: 'Enterprise',
-    badgeClass: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40',
-    description: 'Tu propio agente interno desplegado en tu servidor privado. Ejecuta consultas SQL seguras para consultar stock de almacén, balances de clientes, órdenes de despacho y KPIs.',
+    description: 'Asistente interno conectado a tu infraestructura privada. Ejecuta consultas seguras de solo lectura o flujos autorizados sobre stock, saldos y despachos.',
     specs: {
       speed: '< 2.0s',
-      input: 'Comandos de lenguaje natural por WhatsApp',
-      output: 'Reportes de datos, Gráficos, Actualizaciones DB',
-      integration: 'PostgreSQL, SAP, MySQL, Oracle, REST API'
+      input: 'Consultas operativas en lenguaje natural',
+      output: 'Reportes tabulares, saldos y alertas',
+      integration: 'PostgreSQL, SAP, MySQL, REST API'
     }
   },
   {
     id: 'pawscollect',
     name: 'PawsCollect',
-    role: 'Agente de Cobranzas & Pasarelas',
+    role: 'Seguimiento de Cobranzas y Recordatorios',
     category: 'finanzas',
     type: 'Servicio Micro-SaaS',
-    avatar: '💳',
-    badge: 'Finanzas',
-    badgeClass: 'bg-neon/20 text-neon border border-neon/40',
-    description: 'Realiza seguimiento automático y amable a facturas vencidas o por vencer, envía enlaces de pago directo (Stripe, Yape, Plin, SPEI) y concilia las cuentas bancarias.',
+    image: '/assets/gato-facturas.png',
+    badge: 'Cobranzas',
+    description: 'Realiza seguimiento cordial a comprobantes por vencer o vencidos, comparte enlaces de pago autorizados y registra confirmaciones de abono.',
     specs: {
       speed: '< 1.5s',
-      input: 'Listado de vencimientos / Estado de cuenta',
-      output: 'Links de pago dinámicos + Conciliación',
-      integration: 'Stripe, MercadoPago, Niubiz, Bancos'
+      input: 'Cronograma de vencimientos y estados de cuenta',
+      output: 'Recordatorios programados + estado de cobro',
+      integration: 'Links de pago, transferencias, ERP'
     }
   },
   {
     id: 'whiskercare',
     name: 'WhiskerCare',
-    role: 'Atención al Cliente & Mesa de Ayuda',
+    role: 'Atención al Cliente y Mesa de Ayuda',
     category: 'soporte',
     type: 'Dedicado / SaaS',
-    avatar: '🐾',
+    image: '/assets/gato-ventas.png',
     badge: 'Soporte',
-    badgeClass: 'bg-sky-500/20 text-sky-300 border border-sky-500/40',
-    description: 'Atiende dudas frecuentes, políticas de devolución, consultas de envíos de e-commerce y deriva tickets difíciles a asesores humanos con un resumen ejecutivo listo.',
+    description: 'Resuelve preguntas frecuentes sobre estado de pedidos, garantías o trámites y deriva casos complejos a un asesor humano con el contexto resumido.',
     specs: {
       speed: '< 1.0s',
-      input: 'Preguntas de usuarios, Códigos de Tracking',
-      output: 'Respuestas instantáneas + Escalado inteligente',
-      integration: 'Zendesk, Shopify, WooCommerce, Freshdesk'
-    }
-  },
-  {
-    id: 'bookcat',
-    name: 'BookCat',
-    role: 'Gestor de Reservas & Calendarios',
-    category: 'operaciones',
-    type: 'Servicio Micro-SaaS',
-    avatar: '📅',
-    badge: 'Reservas',
-    badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
-    description: 'Diseñado para clínicas, dentistas, salones, restaurantes y talleres. Comprueba disponibilidad en tiempo real, reserva cupos y envía recordatorios para evitar inasistencias.',
-    specs: {
-      speed: '< 1.4s',
-      input: 'Fechas, servicios solicitados por el paciente/cliente',
-      output: 'Bloqueo en agenda + Recordatorio con confirmación',
-      integration: 'Google Calendar, Cal.com, Calendly'
+      input: 'Consultas de clientes y números de pedido',
+      output: 'Respuesta inmediata + escalado con resumen',
+      integration: 'Zendesk, Shopify, WooCommerce, API propia'
     }
   }
 ];
 ---
 
 <Layout
-  title="Catálogo de Agentes Felinos de IA | MeowLab"
-  description="Explora todos los agentes de IA de WhatsApp disponibles: Agentes Dedicados con conexión ERP y Agentes de Servicio Micro-SaaS."
+  title="Catálogo de Especialistas de IA en WhatsApp | MeowLab"
+  description="Explora los roles especializados de MeowLab en WhatsApp: facturación electrónica, licitaciones SEACE, cobranzas y conexión dedicada a ERP."
 >
-  <div class="py-16">
+  <div class="py-16 sm:py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Page Header -->
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-neon/10 border border-neon/30 text-neon text-xs font-title font-bold mb-3">
-          <span>CATÁLOGO Y ROLES ESPECIALIZADOS</span>
-        </div>
-        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight">
-          Nuestra Flota de <span class="text-neon">Agentes Felinos</span>
+      <!-- Page Header (no eyebrow pill per #rule-hero-eyebrow-chip) -->
+      <div class="max-w-3xl mb-10 sm:mb-12">
+        <h1 class="text-3xl sm:text-5xl font-bold text-content-main tracking-tight text-balance">
+          Catálogo de Especialistas para <span class="text-brand-forest">Operar en WhatsApp</span>
         </h1>
-        <p class="text-slate-300 text-base sm:text-lg mt-4">
-          Cada agente tiene una especialidad concreta, guardrails entrenados y conectores nativos a WhatsApp.
+        <p class="text-content-muted text-base sm:text-lg mt-4 leading-relaxed">
+          Cada asistente cumple una función operativa delimitada, con reglas de negocio claras y trazabilidad en cada respuesta.
         </p>
 
         <!-- Category Filters -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-8" id="catalog-filters">
-          <button data-cat="all" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-neon text-obsidian shadow-neon transition-all">
-            Todos los Agentes
+        <div class="flex flex-wrap items-center gap-2 mt-8" id="catalog-filters">
+          <button
+            data-cat="all"
+            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-brand-forest text-white border border-brand-forest transition-colors"
+          >
+            Todos los roles
           </button>
-          <button data-cat="dedicado" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
-            🛡️ Dedicados ERP / DB
+          <button
+            data-cat="dedicado"
+            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+          >
+            Dedicados ERP / DB
           </button>
-          <button data-cat="finanzas" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
-            ⚡ Facturación & Cobros
+          <button
+            data-cat="finanzas"
+            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+          >
+            Facturación y Cobros
           </button>
-          <button data-cat="ventas" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
-            🎯 Ventas & Leads
+          <button
+            data-cat="ventas"
+            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+          >
+            Licitaciones y Ventas
           </button>
-          <button data-cat="soporte" class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all">
-            🐾 Soporte & Ayuda
+          <button
+            data-cat="soporte"
+            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+          >
+            Soporte y Trámites
           </button>
         </div>
       </div>
 
-      <!-- Agent Cards Grid -->
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="catalog-grid">
+      <!-- Agent Cards Grid (no nested cards inside cards per #rule-nested-cards) -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" id="catalog-grid">
         {allAgents.map((agent) => (
-          <div class="agent-card glass-panel rounded-3xl p-8 border border-white/10 flex flex-col justify-between group hover:border-neon/50 transition-all duration-300 shadow-card" data-category={agent.category}>
+          <article
+            class={`agent-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-colors ${
+              agent.featured
+                ? 'bg-surface-subtle border-2 border-brand-forest'
+                : 'bg-white border border-surface-border hover:border-brand-forest/40'
+            }`}
+            data-category={agent.category}
+          >
             <div>
-              <div class="flex items-start justify-between gap-4 mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-surface-elevated border border-neon/30 flex items-center justify-center text-3xl shadow-neon group-hover:scale-110 transition-transform">
-                  {agent.avatar}
+              <div class="flex items-start justify-between gap-4 mb-5">
+                <div class="w-12 h-12 rounded-xl bg-surface-mint/60 border border-surface-border flex items-center justify-center p-1.5 overflow-hidden">
+                  <img src={agent.image} alt={agent.name} class="w-full h-full object-contain" loading="lazy" />
                 </div>
-                <span class={`text-xs font-title font-bold px-3 py-1 rounded-full ${agent.badgeClass}`}>
+                <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
                   {agent.badge}
                 </span>
               </div>
 
-              <div class="mb-1 text-xs font-title font-bold text-neon uppercase tracking-wider">
+              <div class="mb-1 text-xs font-title font-semibold text-brand-forest">
                 {agent.type}
               </div>
-              <h2 class="text-2xl font-bold text-white group-hover:text-neon transition-colors">
+              <h2 class="text-xl font-bold text-content-main">
                 {agent.name}
               </h2>
-              <p class="text-xs font-semibold text-slate-400 mb-4">
+              <p class="text-xs font-medium text-content-muted mb-3">
                 {agent.role}
               </p>
 
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">
+              <p class="text-sm text-content-muted leading-relaxed">
                 {agent.description}
               </p>
 
-              <!-- Technical Specs Card -->
-              <div class="bg-obsidian/80 rounded-2xl p-4 border border-white/5 space-y-2 text-xs font-mono mb-6">
-                <div class="flex justify-between">
-                  <span class="text-slate-500">Velocidad:</span>
-                  <span class="text-neon font-bold">{agent.specs.speed}</span>
+              <!-- Flat specification rows using divide-y instead of a nested card -->
+              <dl class="mt-5 pt-4 border-t border-surface-border divide-y divide-surface-border text-xs">
+                <div class="py-2 flex justify-between gap-4">
+                  <dt class="text-content-muted">Respuesta típica</dt>
+                  <dd class="font-mono font-semibold text-content-main text-right">{agent.specs.speed}</dd>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-500">Entrada:</span>
-                  <span class="text-slate-300">{agent.specs.input}</span>
+                <div class="py-2 flex justify-between gap-4">
+                  <dt class="text-content-muted">Entrada</dt>
+                  <dd class="text-content-main text-right">{agent.specs.input}</dd>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-500">Salida:</span>
-                  <span class="text-slate-300">{agent.specs.output}</span>
+                <div class="py-2 flex justify-between gap-4">
+                  <dt class="text-content-muted">Resultado</dt>
+                  <dd class="text-content-main text-right">{agent.specs.output}</dd>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-500">Conexión:</span>
-                  <span class="text-emerald-400">{agent.specs.integration}</span>
+                <div class="py-2 flex justify-between gap-4">
+                  <dt class="text-content-muted">Integración</dt>
+                  <dd class="font-medium text-brand-forest text-right">{agent.specs.integration}</dd>
                 </div>
-              </div>
+              </dl>
             </div>
 
-            <div class="space-y-2">
-              <a href="/contacto" class="btn-primary w-full py-3 rounded-xl text-center text-xs font-title font-bold">
-                Probar {agent.name} en WhatsApp
+            <div class="pt-5 mt-2">
+              <a
+                href="/contacto"
+                class="w-full py-3 px-4 rounded-xl text-center text-xs font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>Consultar por {agent.name}</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
               </a>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
-      <!-- Custom Agent Request -->
-      <div class="mt-16 glass-panel rounded-3xl p-8 sm:p-12 border border-neon/30 text-center max-w-3xl mx-auto space-y-4">
-        <h3 class="text-2xl sm:text-3xl font-extrabold text-white">¿Necesitas un Agente con un Rol a Medida?</h3>
-        <p class="text-slate-300 text-sm">
-          Podemos entrenar un agente felino con la base de conocimiento específica de tu empresa, documentos PDF, manuales de procedimiento y APIs privadas.
-        </p>
-        <a href="/dedicado" class="btn-secondary px-8 py-3.5 rounded-xl font-title font-bold text-sm inline-flex items-center gap-2">
-          <span>Solicitar Agente Personalizado</span>
-          <span>→</span>
-        </a>
+      <!-- Bottom 2-column section: Solución Dedicada & Cómo Funciona el Equipo -->
+      <div class="mt-16 grid lg:grid-cols-2 gap-8">
+        <!-- Column 1: Solución Dedicada (Tailor-Made) -->
+        <section class="bg-surface-subtle border border-surface-border rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
+                <!-- TablerIcon: building-store -->
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 21l18 0" />
+                  <path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" />
+                  <path d="M5 21l0 -10.15" />
+                  <path d="M19 21l0 -10.15" />
+                  <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-content-main">Solución Dedicada (Tailor-Made)</h2>
+                <p class="text-xs text-content-muted">Infraestructura aislada y conectores a medida</p>
+              </div>
+            </div>
+
+            <p class="text-sm text-content-muted leading-relaxed mb-5">
+              Cuando tu operación requiere conectarse a un ERP propio, aplicar reglas de aprobación internas o desplegarse en una nube privada, diseñamos un asistente exclusivo para tu organización.
+            </p>
+
+            <ul class="divide-y divide-surface-border border-t border-b border-surface-border text-sm">
+              <li class="py-3 flex items-start gap-3">
+                <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span class="text-content-main">Conexión directa a PostgreSQL, SQL Server, SAP Business One u Odoo.</span>
+              </li>
+              <li class="py-3 flex items-start gap-3">
+                <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span class="text-content-main">Permisos por rol de usuario y validación de número telefónico autorizado.</span>
+              </li>
+              <li class="py-3 flex items-start gap-3">
+                <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5l10 -10" />
+                </svg>
+                <span class="text-content-main">Despliegue en VPC propia con auditoría completa de consultas.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="pt-6">
+            <a
+              href="/dedicado"
+              class="inline-flex items-center gap-2 text-sm font-title font-bold text-brand-forest hover:text-brand-forestDark transition-colors"
+            >
+              <span>Ver arquitectura de Solución Dedicada</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Column 2: Cómo Funciona el Equipo -->
+        <section class="bg-surface-subtle border border-surface-border rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
+                <!-- TablerIcon: users -->
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                  <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-content-main">Cómo Funciona el Equipo</h2>
+                <p class="text-xs text-content-muted">Colaboración entre tus operadores y los asistentes</p>
+              </div>
+            </div>
+
+            <p class="text-sm text-content-muted leading-relaxed mb-5">
+              Los especialistas de MeowLab no reemplazan el criterio de tu negocio: preparan información, validan datos y solicitan confirmación antes de ejecutar operaciones sensibles.
+            </p>
+
+            <div class="divide-y divide-surface-border border-t border-b border-surface-border text-sm">
+              <div class="py-3 flex items-start justify-between gap-4">
+                <div>
+                  <div class="font-semibold text-content-main">1. Recepción en lenguaje natural</div>
+                  <p class="text-xs text-content-muted mt-0.5">Tu equipo envía audios, textos o documentos desde su propio celular.</p>
+                </div>
+                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">WhatsApp</span>
+              </div>
+              <div class="py-3 flex items-start justify-between gap-4">
+                <div>
+                  <div class="font-semibold text-content-main">2. Validación y estructura</div>
+                  <p class="text-xs text-content-muted mt-0.5">El asistente verifica RUC, montos o filtros y presenta un resumen claro.</p>
+                </div>
+                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">Control</span>
+              </div>
+              <div class="py-3 flex items-start justify-between gap-4">
+                <div>
+                  <div class="font-semibold text-content-main">3. Confirmación y entrega</div>
+                  <p class="text-xs text-content-muted mt-0.5">Con tu aprobación explícita, genera el documento o actualiza tu sistema.</p>
+                </div>
+                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">Ejecución</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6">
+            <a
+              href="/servicios"
+              class="inline-flex items-center gap-2 text-sm font-title font-bold text-brand-forest hover:text-brand-forestDark transition-colors"
+            >
+              <span>Comparar modalidades de servicio</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -229,11 +363,11 @@ const allAgents = [
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const cat = btn.getAttribute('data-cat');
-        
+
         buttons.forEach(b => {
-          b.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface border border-white/10 text-slate-300 hover:text-white transition-all';
+          b.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors';
         });
-        btn.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-neon text-obsidian shadow-neon transition-all';
+        btn.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-brand-forest text-white border border-brand-forest transition-colors';
 
         cards.forEach(card => {
           const cardCat = card.getAttribute('data-category');

@@ -4,33 +4,31 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
 ---
 
 <Layout
-  title="Contacto & Acceso | meowlab"
-  description="Habla con nosotros o prueba los asistentes de MeowLab en WhatsApp para tu negocio."
+  title="Contacto y Acceso en WhatsApp | MeowLab"
+  description="Prepara tu consulta y conversa directamente con el equipo de MeowLab por WhatsApp para configurar tu asistente."
 >
   <div class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-        
-        <!-- Left Column: Form & Info -->
+        <!-- Left Column: Pre-fill WhatsApp Form & Info -->
         <div class="lg:col-span-7 space-y-8">
           <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-mint/50 text-brand-forest text-xs font-medium mb-3">
-              <span>Estamos para ayudarte</span>
-            </div>
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight leading-[1.15]">
-              Empieza a avanzar con MeowLab
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight leading-[1.15] text-balance">
+              Empieza a operar con <span class="text-brand-forest">MeowLab</span>
             </h1>
-            <p class="text-content-secondary text-base sm:text-lg mt-3 leading-relaxed">
-              Cuéntanos qué tareas te quitan más tiempo y te mostraremos cómo resolverlas directo desde tu WhatsApp.
+            <p class="text-content-muted text-base sm:text-lg mt-3 leading-relaxed">
+              Completa estos datos para armar el resumen de tu requerimiento y abrir directamente la conversación con nuestro equipo en WhatsApp.
             </p>
           </div>
 
-          <!-- Contact Form -->
-          <form id="contact-form" class="bg-white p-6 sm:p-8 rounded-3xl border border-surface-border space-y-5 shadow-soft">
+          <!-- Contact Form (opens WhatsApp directly, never simulates fake lead persistence) -->
+          <form id="contact-form" class="bg-white p-6 sm:p-8 rounded-2xl border border-surface-border space-y-5">
             <div class="grid sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label class="text-xs font-medium text-content-secondary">Tu Nombre *</label>
+                <label for="contact-nombre" class="block text-xs font-medium text-content-main">Tu Nombre *</label>
                 <input
+                  id="contact-nombre"
+                  name="nombre"
                   type="text"
                   required
                   placeholder="Ej. Andrés Morales"
@@ -38,8 +36,10 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
                 />
               </div>
               <div class="space-y-1.5">
-                <label class="text-xs font-medium text-content-secondary">Empresa o Negocio *</label>
+                <label for="contact-empresa" class="block text-xs font-medium text-content-main">Empresa o RUC *</label>
                 <input
+                  id="contact-empresa"
+                  name="empresa"
                   type="text"
                   required
                   placeholder="Ej. Distribuidora San José"
@@ -50,8 +50,10 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
 
             <div class="grid sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label class="text-xs font-medium text-content-secondary">WhatsApp o Teléfono *</label>
+                <label for="contact-whatsapp" class="block text-xs font-medium text-content-main">Tu WhatsApp de contacto *</label>
                 <input
+                  id="contact-whatsapp"
+                  name="whatsapp"
                   type="tel"
                   required
                   placeholder="Ej. +51 987 654 321"
@@ -59,83 +61,94 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
                 />
               </div>
               <div class="space-y-1.5">
-                <label class="text-xs font-medium text-content-secondary">Correo Electrónico *</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="andres@tuempresa.com"
-                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
-                />
+                <label for="contact-agente" class="block text-xs font-medium text-content-main">Especialista o servicio de interés *</label>
+                <select
+                  id="contact-agente"
+                  name="agente"
+                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                >
+                  <option value="Facturación electrónica (BillCat)">Facturación electrónica (BillCat)</option>
+                  <option value="Licitaciones y SEACE (TenderCat)">Licitaciones y SEACE (TenderCat)</option>
+                  <option value="Seguimiento de cobranzas (PawsCollect)">Seguimiento de cobranzas (PawsCollect)</option>
+                  <option value="Calificación comercial (HunterCat)">Calificación comercial (HunterCat)</option>
+                  <option value="Solución Dedicada con conexión ERP / DB">Solución Dedicada con conexión ERP / DB</option>
+                </select>
               </div>
             </div>
 
             <div class="space-y-1.5">
-              <label class="text-xs font-medium text-content-secondary">¿Qué tarea necesitas resolver primero? *</label>
-              <select class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main focus:outline-none focus:border-brand-forest focus:bg-white transition-colors">
-                <option value="licitaciones">Búsqueda de licitaciones y compras del Estado</option>
-                <option value="facturas">Emisión rápida de facturas y boletas</option>
-                <option value="tramites">Seguimiento de trámites y documentos</option>
-                <option value="erp">Consultas de precios, stock o ventas</option>
-                <option value="custom">Asistente personalizado a tu medida</option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="text-xs font-medium text-content-secondary">Detalles adicionales (opcional)</label>
+              <label for="contact-detalles" class="block text-xs font-medium text-content-main">Contexto adicional (opcional)</label>
               <textarea
+                id="contact-detalles"
+                name="detalles"
                 rows="3"
-                placeholder="Cuéntanos qué vendes o qué te gustaría resolver en tu día a día..."
+                placeholder="Cuéntanos qué flujo deseas resolver primero desde WhatsApp..."
                 class="w-full bg-surface-subtle border border-surface-border rounded-xl p-4 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
               ></textarea>
             </div>
 
-            <button type="submit" class="btn-primary w-full py-4 rounded-xl text-base font-medium">
-              Solicitar información
-            </button>
+            <div class="space-y-2.5 pt-1">
+              <button
+                type="submit"
+                class="w-full py-3.5 px-6 rounded-xl text-sm sm:text-base font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>Continuar en WhatsApp con estos datos</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </button>
+              <p class="text-xs text-content-muted text-center">
+                Al continuar, se abrirá WhatsApp con este resumen prellenado para iniciar el chat directamente. No almacenamos tus datos en segundo plano desde este navegador.
+              </p>
+            </div>
           </form>
-
-          <div id="form-success" class="hidden p-6 rounded-2xl bg-brand-mint-light border border-brand-mint text-center text-brand-forest font-medium">
-            ¡Listo! Recibimos tu mensaje. Te escribiremos por WhatsApp para ayudarte a configurar tu asistente.
-          </div>
         </div>
 
         <!-- Right Column: Direct Contact & Guarantees -->
         <div class="lg:col-span-5 space-y-6">
-          <div class="bg-surface-subtle border border-surface-border p-8 rounded-3xl text-center space-y-6 shadow-soft">
-            <div class="flex justify-center">
-              <CatIllustration variant="laptop" size={90} />
+          <div class="bg-surface-subtle border border-surface-border p-6 sm:p-8 rounded-2xl space-y-6">
+            <div class="flex items-center gap-4">
+              <div class="shrink-0">
+                <CatIllustration variant="laptop" size={72} />
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-content-main">Atención directa por WhatsApp</h2>
+                <p class="text-xs text-content-muted mt-1 leading-relaxed">
+                  Si prefieres escribirnos sin completar el resumen previo, abre el chat directo con nuestro equipo.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h3 class="text-xl font-bold text-content-main">Acompañamiento y Soporte</h3>
-              <p class="text-xs text-content-secondary mt-1">Te ayudamos a dejar todo listo para que empieces a usar tu asistente en minutos.</p>
-            </div>
-
-            <div class="border-t border-surface-border pt-4 space-y-3 text-left text-xs text-content-secondary">
-              <div class="flex items-center gap-2.5">
-                <span class="w-2 h-2 rounded-full bg-brand-forest"></span>
-                <span>Configuración rápida en menos de 24 horas</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <span class="w-2 h-2 rounded-full bg-brand-forest"></span>
-                <span>Funciona en cualquier celular con WhatsApp</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <span class="w-2 h-2 rounded-full bg-brand-forest"></span>
-                <span>Tus datos y conversaciones siempre protegidos</span>
-              </div>
-            </div>
+            <ul class="border-t border-b border-surface-border divide-y divide-surface-border text-xs text-content-main">
+              <li class="py-3 flex items-center gap-2.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
+                <span>Vinculación por número de celular autorizado y membresía de empresa</span>
+              </li>
+              <li class="py-3 flex items-center gap-2.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
+                <span>Funciona directamente en WhatsApp sin instalar aplicaciones adicionales</span>
+              </li>
+              <li class="py-3 flex items-center gap-2.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
+                <span>Evaluación técnica para integraciones con PostgreSQL, SQL Server o ERP</span>
+              </li>
+            </ul>
 
             <a
-              href="https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20conocer%20mas%20sobre%20los%20asistentes."
+              href="https://wa.me/51923790280?text=Hola%20MeowLab,%20quiero%20conocer%20m%C3%A1s%20sobre%20los%20asistentes%20en%20WhatsApp."
               target="_blank"
-              class="btn-secondary w-full py-3.5 rounded-xl font-medium text-sm"
+              rel="noopener noreferrer"
+              class="w-full py-3.5 px-5 rounded-xl font-title font-bold text-sm border border-surface-border bg-white text-content-main hover:bg-surface-mint/40 inline-flex items-center justify-center gap-2 transition-colors"
             >
-              Consultar por WhatsApp ↗
+              <span>Abrir chat directo en WhatsApp</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg>
             </a>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -143,15 +156,34 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
 
 <script>
   function setupContactForm() {
-    const form = document.getElementById('contact-form');
-    const successMsg = document.getElementById('form-success');
-    if (form && successMsg) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        form.classList.add('hidden');
-        successMsg.classList.remove('hidden');
-      });
-    }
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const nombre = String(formData.get('nombre') || '').trim();
+      const empresa = String(formData.get('empresa') || '').trim();
+      const whatsapp = String(formData.get('whatsapp') || '').trim();
+      const agente = String(formData.get('agente') || '').trim();
+      const detalles = String(formData.get('detalles') || '').trim();
+
+      const lines = [
+        'Hola MeowLab, quiero consultar por un asistente en WhatsApp:',
+        `• Nombre: ${nombre}`,
+        `• Empresa/RUC: ${empresa}`,
+        `• Mi WhatsApp: ${whatsapp}`,
+        `• Interés: ${agente}`
+      ];
+
+      if (detalles) {
+        lines.push(`• Detalles: ${detalles}`);
+      }
+
+      const whatsappUrl = `https://wa.me/51923790280?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    });
   }
 
   setupContactForm();

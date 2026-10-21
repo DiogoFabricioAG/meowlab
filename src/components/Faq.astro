@@ -3,28 +3,32 @@ import TablerIcon from './ui/TablerIcon.astro';
 
 const faqs = [
   {
+    question: '¿Puedo empezar con un solo agente?',
+    answer: 'Sí, totalmente. MeowLab es 100% modular y flexible. Puedes comenzar activando únicamente el agente que tu negocio necesita con urgencia hoy —por ejemplo, solo el Agente de Facturas para emitir comprobantes SUNAT al instante, o solo el Agente de Ventas para atender a tus prospectos 24/7—. A medida que tu operación crezca, puedes sumar nuevos agentes a tu equipo en cualquier momento sin costo de reinstalación ni complicaciones.',
+  },
+  {
     question: '¿Necesito instalar alguna aplicación extra o tener una computadora?',
     answer: 'No. Todo funciona dentro del WhatsApp que ya tienes instalado en tu teléfono o en tu computadora con WhatsApp Web. No necesitas descargar ningún programa, instalar aplicaciones pesadas ni aprender menús complicados. Si sabes mandar un mensaje de texto o un audio, ya sabes usar MeowLab.',
   },
   {
     question: '¿Cómo funciona la emisión de facturas ante SUNAT? ¿Tiene valor legal?',
-    answer: 'Es 100% legal y oficial. MeowLab se conecta de forma segura con el sistema de facturación electrónica autorizado. Cuando le pides una factura o boleta, valida el RUC del cliente, calcula los impuestos (IGV) y genera de inmediato el PDF oficial y el archivo XML firmado por SUNAT, listos para descargar o reenviar.',
+    answer: 'Es 100% legal y oficial. MeowLab se conecta de forma segura con el sistema de facturación electrónica autorizado. Cuando tu Agente de Facturas recibe los datos del cliente, valida el RUC, calcula los impuestos (IGV) y genera de inmediato el PDF oficial y el archivo XML firmado por SUNAT, listos para descargar o reenviar.',
   },
   {
-    question: '¿Cómo busca el asistente las compras públicas y licitaciones del SEACE?',
-    answer: 'El asistente monitorea continuamente las convocatorias públicas del SEACE y entidades del Estado peruano. Filtra únicamente las oportunidades que coincidan con tu rubro, tu constancia del RNP y tu zona geográfica, y te envía cada mañana un resumen con los presupuestos y las bases listas para postular.',
+    question: '¿Cómo buscan los agentes las compras públicas y licitaciones del SEACE?',
+    answer: 'El Agente de Licitaciones monitorea continuamente las convocatorias públicas del SEACE y entidades del Estado peruano. Filtra únicamente las oportunidades que coincidan con tu rubro, tu constancia del RNP y tu zona geográfica, y te envía un resumen con los presupuestos y las bases listas para postular.',
   },
   {
     question: '¿Es segura la información de mi empresa, inventarios y clientes?',
-    answer: 'Completamente segura. La información de tu negocio está aislada de forma estricta por empresa y protegida con cifrado de extremo a extremo. Tus datos de ventas, inventario y cotizaciones son privados y nunca se comparten con terceros ni con otras empresas.',
+    answer: 'Completamente segura. La información de tu negocio está aislada de forma estricta por empresa y protegida con cifrado de extremo a extremo. Tus datos de ventas, clientes y cotizaciones son privados y nunca se comparten con terceros ni con otras empresas.',
   },
   {
     question: '¿Qué pasa si mi negocio usa Excel, Google Sheets o un sistema propio?',
-    answer: 'Podemos conectar a tu asistente directamente con tus hojas de Google Sheets, archivos Excel o bases de datos existentes. No tienes que cambiar tu forma de trabajar: tu equipo sigue llenando sus hojas de siempre y el asistente consulta o actualiza los datos al instante desde WhatsApp.',
+    answer: 'Podemos conectar a tus agentes directamente con tus hojas de Google Sheets, archivos Excel o bases de datos existentes. No tienes que cambiar tu forma de trabajar: tu equipo sigue llenando sus hojas de siempre y tus agentes consultan o actualizan los datos al instante desde WhatsApp.',
   },
   {
     question: '¿Puedo probarlo antes de contratar? ¿Cómo empiezo?',
-    answer: 'Sí, puedes probar el asistente gratis y ver cómo responde en vivo directamente en tu WhatsApp. No requiere tarjeta de crédito ni contratos forzosos. Si te convence y deseas adaptarlo a tu catálogo o procesos específicos, lo dejamos configurado en menos de 24 horas.',
+    answer: 'Sí, puedes probar a tus agentes y ver cómo responden en vivo directamente en tu WhatsApp. No requiere tarjeta de crédito ni contratos forzosos. Si te convence y deseas adaptarlo a tu catálogo o procesos específicos, lo dejamos configurado en menos de 24 horas.',
   },
 ];
 ---
@@ -34,30 +38,25 @@ const faqs = [
     
     <!-- Section Header -->
     <div class="text-center space-y-4 mb-14 md:mb-16">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
-        <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
-        <span>Resolvemos tus dudas</span>
-      </div>
-
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight">
-        Preguntas frecuentes antes de empezar.
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight text-balance">
+        Preguntas frecuentes antes de empezar
       </h2>
 
-      <p class="text-base sm:text-lg text-content-secondary max-w-2xl mx-auto leading-relaxed font-normal">
-        Todo lo que necesitas saber sobre cómo tus nuevos asistentes felinos trabajan en tu WhatsApp de forma segura y sencilla.
+      <p class="text-base sm:text-lg text-content-secondary max-w-2xl mx-auto leading-relaxed font-normal text-pretty">
+        Todo lo que necesitas saber sobre cómo tus nuevos agentes trabajan en tu WhatsApp de forma segura, modular y sencilla.
       </p>
     </div>
 
     <!-- Accordion List -->
-    <div class="space-y-4">
+    <div class="space-y-3">
       {faqs.map((faq, index) => (
         <details 
-          class="group bg-white rounded-2xl border border-surface-border transition-all duration-200 overflow-hidden open:border-brand-mint open:shadow-soft"
+          class="group bg-white rounded-xl border border-surface-border transition-colors duration-200 overflow-hidden open:border-brand-forest/30"
           open={index === 0}
         >
           <summary class="flex items-center justify-between gap-4 p-5 sm:p-6 cursor-pointer font-bold text-base sm:text-lg text-content-main hover:text-brand-forest transition-colors list-none select-none">
             <span class="leading-snug">{faq.question}</span>
-            <div class="w-8 h-8 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-center shrink-0 text-content-secondary group-open:bg-brand-mint-light group-open:border-brand-mint group-open:text-brand-forest transition-all">
+            <div class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border flex items-center justify-center shrink-0 text-content-secondary group-open:bg-brand-mint-light group-open:border-brand-mint group-open:text-brand-forest transition-colors">
               <svg 
                 class="w-4 h-4 transition-transform duration-200 group-open:rotate-180" 
                 fill="none" 
@@ -70,27 +69,28 @@ const faqs = [
             </div>
           </summary>
 
-          <div class="px-5 pb-5 sm:px-6 sm:pb-6 pt-1 text-sm sm:text-base text-content-secondary leading-relaxed border-t border-surface-border/50">
-            <p>{faq.answer}</p>
+          <div class="px-5 pb-5 sm:px-6 sm:pb-6 pt-3 text-sm sm:text-base text-content-secondary leading-relaxed border-t border-surface-border">
+            <p class="text-pretty">{faq.answer}</p>
           </div>
         </details>
       ))}
     </div>
 
     <!-- Bottom Contact Support Note -->
-    <div class="mt-12 text-center p-6 rounded-2xl bg-white border border-surface-border shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="mt-12 text-center p-6 rounded-xl bg-white border border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="text-left space-y-1">
-        <p class="text-sm font-bold text-content-main">¿Tienes una pregunta sobre un caso específico de tu negocio?</p>
-        <p class="text-xs text-content-secondary">Estamos conectados en WhatsApp para responderte en menos de 5 minutos.</p>
+        <p class="text-sm font-bold text-content-main">¿Quieres ver cómo funcionaría con el catálogo o RUC de tu empresa?</p>
+        <p class="text-xs text-content-secondary">Te ayudamos a elegir y configurar el agente ideal para tu negocio en minutos.</p>
       </div>
 
       <a
-        href="https://wa.me/51987654321?text=Hola%20MeowLab,%20tengo%20una%20consulta%20sobre%20los%20asistentes."
+        href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
         target="_blank"
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-forest text-white text-xs font-semibold hover:bg-brand-forest-dark transition-all shadow-xs shrink-0"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-forest text-white text-xs font-semibold hover:bg-brand-forest-dark transition-colors shrink-0"
       >
-        <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} />
-        <span>Consultar por WhatsApp</span>
+        <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
+        <span>Configurar mi primer agente</span>
       </a>
     </div>
 

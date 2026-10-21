@@ -8,30 +8,24 @@ interface Props {
 const { className = '', size = 'md', theme = 'dark' } = Astro.props;
 
 const sizes = {
-  sm: { iconBox: 'w-7 h-7 p-1 rounded-lg', imgSize: 'w-5 h-5', fontSize: 'text-base' },
-  md: { iconBox: 'w-9 h-9 p-1.5 rounded-xl', imgSize: 'w-6 h-6', fontSize: 'text-xl' },
-  lg: { iconBox: 'w-11 h-11 p-2 rounded-2xl', imgSize: 'w-7 h-7', fontSize: 'text-2xl' },
+  sm: { imgSize: 'w-8 h-8', fontSize: 'text-base' },
+  md: { imgSize: 'w-10 h-10', fontSize: 'text-xl' },
+  lg: { imgSize: 'w-12 h-12', fontSize: 'text-2xl' },
 };
 
 const s = sizes[size] || sizes.md;
 const isLight = theme === 'light';
 ---
 
-<div class={`inline-flex items-center gap-2.5 select-none ${className}`}>
-  <!-- Official MeowLab Cat Icon from meowlab-cat.png -->
-  <div class={`flex items-center justify-center transition-transform group-hover:scale-105 ${s.iconBox} ${
-    isLight 
-      ? 'bg-white/15 border border-white/20' 
-      : 'bg-brand-forest shadow-sm'
-  }`}>
-    <img 
-      src="/meowlab-cat.png" 
-      alt="meowlab cat" 
-      class={`${s.imgSize} object-contain`} 
-      loading="eager"
-      decoding="async"
-    />
-  </div>
+<div class={`inline-flex items-center gap-2 select-none ${className}`}>
+  <!-- Official MeowLab Black Cat Logo (No green box) -->
+  <img 
+    src="/assets/meowlab-black.png" 
+    alt="MeowLab" 
+    class={`${s.imgSize} object-contain mix-blend-multiply transition-transform group-hover:scale-105 shrink-0`} 
+    loading="eager"
+    decoding="async"
+  />
 
   <!-- Wordmark: meowlab -->
   <span class={`font-title tracking-tight font-semibold flex items-center ${s.fontSize} ${isLight ? 'text-white' : 'text-content-main'}`}>

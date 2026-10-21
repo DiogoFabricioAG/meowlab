@@ -14,8 +14,8 @@ const assistantLinks = [
 ];
 
 const platformLinks = [
-  { name: '¿Cómo funciona?', href: '/#como-funciona' },
-  { name: 'Simulador en WhatsApp', href: '/#empezar' },
+  { name: 'Equipo de agentes', href: '/#equipo' },
+  { name: 'Casos de uso', href: '/#agentes' },
   { name: 'Asistente personalizado', href: '/contacto' },
   { name: 'Conexión a Excel y Sheets', href: '/#agentes' },
   { name: 'Seguridad y Privacidad', href: '/contacto' },
@@ -23,7 +23,7 @@ const platformLinks = [
 
 const companyLinks = [
   { name: 'Iniciar sesión', href: '/contacto' },
-  { name: 'Hablar con un asesor', href: 'https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20conocer%20m%C3%A1s.' },
+  { name: 'Configurar mi primer agente', href: 'https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente' },
   { name: 'Preguntas frecuentes', href: '/contacto' },
   { name: 'Contacto directo', href: '/contacto' },
 ];
@@ -42,28 +42,28 @@ const companyLinks = [
         </a>
 
         <p class="text-sm text-content-secondary leading-relaxed max-w-sm">
-          Tu asistente inteligente en WhatsApp para hacer avanzar tu negocio. Monitorea compras del Estado, emite facturas ante SUNAT y consulta tu inventario sin salir de tu chat de siempre.
+          Tus agentes inteligentes en WhatsApp para hacer avanzar tu negocio. Diseñado para pymes y operaciones reales: ventas, comprobantes SUNAT y compras públicas sin enredos técnicos.
         </p>
 
-        <!-- Live Status Pill -->
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
+        <!-- Live Status Indicator (Static Dot) -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-surface-border text-xs font-semibold text-content-main">
+          <span class="w-2 h-2 rounded-full bg-[#25D366]"></span>
           <span>Sistemas operativos en WhatsApp</span>
         </div>
 
       </div>
 
-      <!-- Column 2: Asistentes (Span 3) -->
+      <!-- Column 2: Agentes (Span 3) -->
       <div class="lg:col-span-3 space-y-4">
         <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
-          Asistentes para tu negocio
+          Agentes para tu negocio
         </h3>
         <ul class="space-y-2.5 text-sm">
           {assistantLinks.map((link) => (
             <li>
               <a
                 href={link.href}
-                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+                class="hover:text-brand-forest transition-colors inline-block"
               >
                 {link.name}
               </a>
@@ -82,7 +82,7 @@ const companyLinks = [
             <li>
               <a
                 href={link.href}
-                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+                class="hover:text-brand-forest transition-colors inline-block"
               >
                 {link.name}
               </a>
@@ -101,7 +101,7 @@ const companyLinks = [
             <li>
               <a
                 href={link.href}
-                class="hover:text-brand-forest transition-colors hover:translate-x-0.5 inline-block"
+                class="hover:text-brand-forest transition-colors inline-block"
               >
                 {link.name}
               </a>

@@ -8,47 +8,50 @@ import WhatsAppChatRuntime from './WhatsAppChatRuntime.astro';
     
     <WhatsAppChatRuntime>
       <!-- Main Headline -->
-      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[48px] font-bold text-content-main tracking-tight leading-[1.15]">
-        Tus tareas avanzan con solo un mensaje de <span class="inline-flex items-center gap-1.5 whitespace-nowrap"><TablerIcon name="brand-whatsapp" size={40} strokeWidth={2.2} className="w-[0.9em] h-[0.9em] text-[#25D366] shrink-0" /><span>WhatsApp.</span></span>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl font-bold text-content-main tracking-tight leading-[1.1] sm:leading-[1.1] md:leading-[1.08] text-balance">
+        Tus tareas avanzan con solo un mensaje de <span class="whitespace-nowrap"><TablerIcon name="brand-whatsapp" size={48} strokeWidth={2.2} className="inline-block w-[0.88em] h-[0.88em] text-[#25D366] shrink-0 align-[-0.08em] mr-1.5" />WhatsApp</span>
       </h1>
 
       <!-- Secondary Subtitle -->
-      <p class="text-base sm:text-lg text-content-secondary leading-relaxed font-normal">
-        Pídele que busque compras del Estado, emita tus facturas o consulte información de tu negocio. Todo desde tu chat de siempre, sin aprender programas difíciles.
+      <p class="text-base sm:text-lg text-content-secondary leading-relaxed font-normal text-pretty">
+        Diseñado para pymes, negocios operativos y equipos que trabajan por WhatsApp. Pídeles a tus agentes que cierren ventas, emitan facturas ante SUNAT y monitoreen compras del Estado desde tu chat de siempre, sin aprender programas difíciles.
       </p>
 
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
         <a
-          href="#empezar"
-          class="btn-primary px-6 py-3.5 rounded-2xl text-base font-medium shadow-sm flex items-center justify-center gap-2"
+          href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-primary px-6 py-3.5 rounded-xl text-base font-medium flex items-center justify-center gap-2"
         >
-          <TablerIcon name="brand-whatsapp" size={19} strokeWidth={2} />
-          <span>Probar gratis en WhatsApp</span>
+          <TablerIcon name="brand-whatsapp" size={20} strokeWidth={2.2} className="text-[#25D366]" />
+          <span>Configurar mi primer agente</span>
         </a>
         <a
-          href="#como-funciona"
-          class="btn-secondary px-6 py-3.5 rounded-2xl text-base font-medium text-center"
+          href="#agentes"
+          class="btn-secondary px-6 py-3.5 rounded-xl text-base font-medium text-center"
         >
-          <span>Ver cómo funciona</span>
+          <span>Conocer agentes y casos</span>
         </a>
       </div>
 
-      <!-- Micro Trust Points -->
-      <div class="pt-3 border-t border-surface-border/80 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-content-muted">
-        <div class="flex items-center gap-1.5">
-          <span class="text-brand-forest font-bold">✓</span>
-          <span>Sin contratos forzosos</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="text-brand-forest font-bold">✓</span>
-          <span>Respuestas en segundos</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="text-brand-forest font-bold">✓</span>
-          <span>100% en tu WhatsApp</span>
-        </div>
-      </div>
+      <!-- Scannable Trust Checklist (Unboxed) -->
+      <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs sm:text-sm text-content-secondary">
+        <li class="inline-flex items-center gap-1.5">
+          <TablerIcon name="check" size={16} strokeWidth={2.2} className="text-brand-forest shrink-0" />
+          <span>Facturación SUNAT</span>
+        </li>
+        <li class="inline-flex items-center gap-1.5">
+          <TablerIcon name="check" size={16} strokeWidth={2.2} className="text-brand-forest shrink-0" />
+          <span>Control de caja</span>
+        </li>
+        <li class="inline-flex items-center gap-1.5">
+          <TablerIcon name="check" size={16} strokeWidth={2.2} className="text-brand-forest shrink-0" />
+          <span>Citas y agenda</span>
+        </li>
+      </ul>
+
     </WhatsAppChatRuntime>
 
   </div>

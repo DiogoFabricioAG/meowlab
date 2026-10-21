@@ -10,6 +10,7 @@ const agents = [
     title: 'Buscador de Licitaciones y SEACE',
     description: 'Rastrea convocatorias públicas y privadas todos los días. Te envía un reporte matutino con los requerimientos, montos y fechas límite de postulación.',
     tablerIcon: 'file-search' as const,
+    image: '/assets/gato-licitaciones-light.svg',
     status: 'Alerta 8:00 a. m.',
     features: [
       'Monitoreo automático de SEACE y Gob.pe',
@@ -30,6 +31,7 @@ const agents = [
     title: 'Emisión de Facturas y Boletas',
     description: 'Genera comprobantes electrónicos validados ante SUNAT con solo dictar los datos por mensaje o audio. Descarga y comparte el PDF y XML al instante.',
     tablerIcon: 'receipt-tax' as const,
+    image: '/assets/gato-facturas-light.svg',
     status: 'Validada ante SUNAT',
     features: [
       'Validación oficial directa ante SUNAT',
@@ -130,6 +132,7 @@ const agents = [
     title: 'Atención a Clientes y Pedidos 24/7',
     description: 'Atiende consultas de compradores a cualquier hora: resuelve preguntas de tu catálogo, precios, cobertura de envíos y toma pedidos para tu equipo.',
     tablerIcon: 'messages' as const,
+    image: '/assets/gato-ventas-light.svg',
     status: 'Atención 24/7 continua',
     features: [
       'Respuestas amables e inmediatas día y noche',
@@ -165,6 +168,33 @@ const agents = [
   },
 ];
 
+const flagshipMascots = [
+  {
+    tag: 'Agente de facturas',
+    number: '01 / 03',
+    title: 'Facturas',
+    desc: 'De un mensaje a un comprobante listo.',
+    workingImg: '/assets/gato-facturas-light.svg',
+    filterTarget: 'finanzas',
+  },
+  {
+    tag: 'Agente de licitaciones',
+    number: '02 / 03',
+    title: 'Licitaciones',
+    desc: 'Busca oportunidades que sí encajan contigo.',
+    workingImg: '/assets/gato-licitaciones-light.svg',
+    filterTarget: 'ventas',
+  },
+  {
+    tag: 'Agente de ventas',
+    number: '03 / 03',
+    title: 'Ventas',
+    desc: 'Responde, acompaña y mantiene la conversación.',
+    workingImg: '/assets/gato-ventas-light.svg',
+    filterTarget: 'ventas',
+  },
+];
+
 const filterCategories = [
   { id: 'todos', label: 'Todos los casos (8)' },
   { id: 'ventas', label: 'Ventas y Clientes (3)' },
@@ -177,17 +207,71 @@ const filterCategories = [
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
     <!-- Section Heading -->
-    <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+    <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
         <TablerIcon name="brand-whatsapp" size={15} className="text-[#25D366]" strokeWidth={2.2} />
-        <span>Casos de uso reales y comprobados</span>
+        <span>Gatos de MeowLab en acción</span>
       </div>
       <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-content-main tracking-tight">
-        Pequeños agentes que trabajan por ti en segundo plano.
+        Un gato para cada trabajo
       </h2>
-      <p class="text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
-        Descubre todo lo que pueden resolver en tu día a día. Procesos concretos que te ahorran horas de oficina, errores manuales y llamadas innecesarias:
+      <p class="text-base sm:text-lg text-content-secondary leading-relaxed font-normal max-w-2xl mx-auto">
+        Acércate a cada asistente para verlo entrar en acción y descubrir en qué puede ayudarte.
       </p>
+    </div>
+
+    <!-- Interactive Hero Trio: Mascot Stage Hover Cards -->
+    <div class="mb-14">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6" id="mascot-cards-grid">
+        {flagshipMascots.map((m) => (
+          <button
+            type="button"
+            class="mascot-stage-card group"
+            aria-pressed="false"
+            data-filter-target={m.filterTarget}
+            aria-label={`${m.tag}: ${m.title} - ${m.desc}`}
+          >
+            <!-- Top Meta Bar -->
+            <span class="card-top flex items-center justify-between w-full px-7 pt-6 text-[11.5px] font-mono font-semibold uppercase tracking-wider text-brand-forest">
+              <span>{m.tag}</span>
+              <span class="number text-content-muted">{m.number}</span>
+            </span>
+
+            <!-- Mascot Stage -->
+            <span class="mascot-stage">
+              <img class="idle" src="/assets/meowlab-black.png" alt="" loading="eager" />
+              <img class="working" src={m.workingImg} alt="" loading="eager" />
+            </span>
+
+            <!-- Bottom Content Bar -->
+            <span class="card-bottom flex items-end justify-between w-full px-7 pb-7 gap-3">
+              <span class="text-left block">
+                <strong class="title block text-2xl sm:text-3xl font-bold text-content-main tracking-tight leading-tight mb-1.5 group-hover:text-brand-forest transition-colors">
+                  {m.title}
+                </strong>
+                <span class="desc block text-xs sm:text-sm text-content-secondary leading-relaxed max-w-[220px]">
+                  {m.desc}
+                </span>
+              </span>
+              <span class="mascot-arrow" aria-hidden="true">↗</span>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Interaction hint -->
+      <p class="text-center text-xs text-content-muted mt-5 flex items-center justify-center gap-2 select-none">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
+        <span>Pasa el cursor sobre un gato · En móvil, tócalo</span>
+      </p>
+    </div>
+
+    <!-- Transition Divider to 8 Operational Workflows -->
+    <div class="pt-8 pb-8 flex items-center justify-center border-t border-surface-border/80">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-surface-border text-xs font-semibold text-content-main shadow-xs">
+        <span>Conoce los 8 casos de uso especializados por área</span>
+        <span class="text-brand-forest">↓</span>
+      </div>
     </div>
 
     <!-- Category Filter Pills -->
@@ -198,7 +282,7 @@ const filterCategories = [
           data-filter={cat.id}
           class={`filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 ${
             index === 0
-              ? 'bg-brand-forest text-white shadow-xs'
+              ? 'bg-brand-forest text-white shadow-xs hover:text-white hover:bg-brand-forest-hover'
               : 'bg-white text-content-secondary border border-surface-border hover:border-brand-mint hover:text-brand-forest'
           }`}
         >
@@ -220,8 +304,12 @@ const filterCategories = [
             <!-- Header with Category, Icon & Status -->
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-brand-mint-light border border-brand-mint/60 flex items-center justify-center text-brand-forest group-hover:bg-brand-mint/60 group-hover:scale-105 transition-all duration-200 flex-shrink-0">
-                  <TablerIcon name={agent.tablerIcon} size={22} strokeWidth={1.75} />
+                <div class="w-11 h-11 rounded-2xl bg-brand-mint-light border border-brand-mint/60 flex items-center justify-center text-brand-forest group-hover:bg-brand-mint/60 group-hover:scale-105 transition-all duration-200 flex-shrink-0 p-1 overflow-hidden">
+                  {agent.image ? (
+                    <img src={agent.image} alt={agent.title} class="w-full h-full object-contain mix-blend-multiply" />
+                  ) : (
+                    <TablerIcon name={agent.tablerIcon} size={22} strokeWidth={1.75} />
+                  )}
                 </div>
                 <div>
                   <span class="text-[11px] font-semibold text-brand-forest uppercase tracking-wider block font-mono">
@@ -294,7 +382,7 @@ const filterCategories = [
       </div>
 
       <a
-        href="https://wa.me/51987654321?text=Hola%20MeowLab,%20quiero%20un%20asistente%20personalizado%20para%20mi%20empresa."
+        href="https://wa.me/51923790280?text=Hola%20MeowLab,%20quiero%20un%20asistente%20personalizado%20para%20mi%20empresa."
         target="_blank"
         class="btn-primary flex-shrink-0 px-6 py-3.5 rounded-xl text-sm font-medium shadow-sm flex items-center gap-2"
       >
@@ -312,17 +400,20 @@ const filterCategories = [
     const filterBtns = document.querySelectorAll('.filter-btn');
     const cards = document.querySelectorAll('.agent-card');
 
+    const ACTIVE_CLASSES = ['bg-brand-forest', 'text-white', 'shadow-xs', 'hover:text-white', 'hover:bg-brand-forest-hover'];
+    const INACTIVE_CLASSES = ['bg-white', 'text-content-secondary', 'border', 'border-surface-border', 'hover:border-brand-mint', 'hover:text-brand-forest'];
+
     filterBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const category = btn.getAttribute('data-filter');
 
         // Update active button state
         filterBtns.forEach((b) => {
-          b.classList.remove('bg-brand-forest', 'text-white', 'shadow-xs');
-          b.classList.add('bg-white', 'text-content-secondary', 'border', 'border-surface-border');
+          b.classList.remove(...ACTIVE_CLASSES);
+          b.classList.add(...INACTIVE_CLASSES);
         });
-        btn.classList.remove('bg-white', 'text-content-secondary', 'border', 'border-surface-border');
-        btn.classList.add('bg-brand-forest', 'text-white', 'shadow-xs');
+        btn.classList.remove(...INACTIVE_CLASSES);
+        btn.classList.add(...ACTIVE_CLASSES);
 
         // Filter cards
         cards.forEach((card) => {
@@ -339,4 +430,134 @@ const filterCategories = [
 
   setupCategoryFilters();
   document.addEventListener('astro:page-load', setupCategoryFilters);
+
+  // Touch & Click interaction for mobile/tablet
+  function setupMascotCards() {
+    const mascotCards = document.querySelectorAll('.mascot-stage-card');
+    mascotCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const active = card.classList.toggle('is-active');
+        card.setAttribute('aria-pressed', String(active));
+      });
+    });
+  }
+
+  setupMascotCards();
+  document.addEventListener('astro:page-load', setupMascotCards);
 </script>
+
+<style>
+  .mascot-stage-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 440px;
+    padding: 0;
+    text-align: left;
+    border: 1px solid #E8ECE9;
+    border-radius: 28px;
+    color: inherit;
+    background: #ffffff;
+    cursor: pointer;
+    isolation: isolate;
+    transition: transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    appearance: none;
+    font: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    user-select: none;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  }
+  .mascot-stage-card:hover,
+  .mascot-stage-card:focus-visible,
+  .mascot-stage-card.is-active {
+    transform: translateY(-6px);
+    border-color: #BEE3D3;
+    background: #ffffff;
+    box-shadow: 0 16px 36px -8px rgba(12, 73, 60, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  }
+  .mascot-stage-card:focus-visible {
+    outline: 2px solid #25D366;
+    outline-offset: 4px;
+  }
+  .mascot-stage-card::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(216, 240, 229, 0.5), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  .mascot-stage-card:hover::after,
+  .mascot-stage-card:focus-visible::after,
+  .mascot-stage-card.is-active::after {
+    opacity: 1;
+  }
+  .mascot-stage {
+    position: relative;
+    flex: 1;
+    min-height: 275px;
+    display: grid;
+    place-items: center;
+    margin: 4px 16px 0;
+    z-index: 2;
+  }
+  .mascot-stage img {
+    position: absolute;
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    width: min(92%, 300px);
+    height: 285px;
+    user-select: none;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    transition: opacity 0.35s ease, transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .mascot-stage .idle {
+    width: min(84%, 270px);
+    height: 265px;
+    opacity: 1;
+    transform: translateY(8px) scale(0.86);
+  }
+  .mascot-stage .working {
+    opacity: 0;
+    transform: translateY(35px) rotate(-7deg) scale(0.78);
+  }
+  .mascot-stage-card:hover .idle,
+  .mascot-stage-card:focus-visible .idle,
+  .mascot-stage-card.is-active .idle {
+    opacity: 0;
+    transform: translateY(-32px) rotate(8deg) scale(0.7);
+  }
+  .mascot-stage-card:hover .working,
+  .mascot-stage-card:focus-visible .working,
+  .mascot-stage-card.is-active .working {
+    opacity: 1;
+    transform: translateY(-2px) rotate(0) scale(1);
+  }
+  .mascot-arrow {
+    display: grid;
+    place-items: center;
+    border: 1px solid #E2E8F0;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    font-size: 1.1rem;
+    background: #F8FAF9;
+    color: #0C493C;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s, color 0.3s, border-color 0.3s;
+  }
+  .mascot-stage-card:hover .mascot-arrow,
+  .mascot-stage-card:focus-visible .mascot-arrow,
+  .mascot-stage-card.is-active .mascot-arrow {
+    transform: rotate(-45deg);
+    background: #0C493C;
+    color: #ffffff;
+    border-color: #0C493C;
+  }
+</style>
