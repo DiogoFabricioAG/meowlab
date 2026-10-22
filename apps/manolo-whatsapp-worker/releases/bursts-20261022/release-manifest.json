@@ -1,0 +1,23 @@
+{
+  "baseVersion": "02e3ea4b-da57-47ba-b73d-4ecb4fe8f849",
+  "baseSourceSha256": "60529391edd28a05bf056a39e970b6e0333feea2baddb1eb9604012bc5227efa",
+  "sourceSha256": "a08ca08699b83f7261a0be082f7476ec7f98adfd4b142d64d31fe3a47f9db40a",
+  "modules": {
+    "burst-policy": "e71919bd7fcdf0119223f4897f1313ed5bf49858fe30790f8afdbf519f34c1c5",
+    "whatsapp-burst": "4acc875049bf57ab483e63168c3d0c5124523977f83a83fedc2020afe9af0277",
+    "burst-admin": "5c6a3a8f4b9882a5454573df54f23084ff0c629e0e5505f04b781795ca4d3fa6"
+  },
+  "scope": [
+    "ingress admission",
+    "conversation batch runtime",
+    "bounded prompt",
+    "HMAC admin recovery",
+    "DO binding and flag"
+  ],
+  "preserved": [
+    "RADAR modules",
+    "all other deployed business handlers",
+    "provider/model configuration",
+    "VPS configuration"
+  ]
+}
