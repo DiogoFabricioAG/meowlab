@@ -1,6 +1,6 @@
 # 0002. Agrupar ráfagas de WhatsApp por conversación
 
-- Estado: aceptado; recuperación implementada y activación de producción autorizada.
+- Estado: aceptado; recuperación implementada y producción activada el 2026-10-22.
 - Fecha: 2026-10-22.
 - Responsables: fundador de MeowLab y mantenimiento de Manolo.
 
@@ -104,6 +104,12 @@ clases, storage o migraciones para hacer rollback. El despliegue de código loca
 no debe arrastrar cambios de otros agentes ni revertir la configuración RADAR.
 
 ## Evidencia de validación
+
+La release aislada `releases/bursts-20261022` se publicó desde GitHub y está
+activa en Cloudflare como `bf74500a-59ea-4820-be93-aa3c89adb780`, con la bandera
+en `true`. El borrador del árbol raíz mantiene su bandera por defecto en falso
+y otros cambios locales ajenos sin publicar. Acta y réplica VPS en
+[operación 2026-10-22](../operations/bursts-activation-2026-10-22.md).
 
 `test/whatsapp-burst.test.ts`: política de ventana/límites, barreras, aislamiento,
 deduplicación durable, firma y ACK de admisión, alarma real local, preservación

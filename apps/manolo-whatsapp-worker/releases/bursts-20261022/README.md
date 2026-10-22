@@ -6,6 +6,11 @@ los cambios locales no publicados de otros agentes no entran en producción.
 `release-manifest.json` identifica base, huellas y fronteras modificadas.
 RADAR y los demás handlers del paquete activo se conservan.
 
+Publicado en Cloudflare: `bf74500a-59ea-4820-be93-aa3c89adb780`, con agrupación
+activada. Réplica GitHub en `/opt/manolo-platform/releases/bursts-git-20261022`.
+No se reconstruyeron servicios del VPS. Evidencia y límites de validación en
+`docs/operations/bursts-activation-2026-10-22.md` del repositorio.
+
 ## Validar y desplegar
 
 Desde este directorio:
