@@ -22,50 +22,50 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
           </div>
 
           <!-- Contact Form (opens WhatsApp directly, never simulates fake lead persistence) -->
-          <form id="contact-form" class="bg-white p-6 sm:p-8 rounded-2xl border border-surface-border space-y-5">
+          <form id="contact-form" class="bg-surface-subtle p-6 sm:p-8 rounded-2xl space-y-5">
             <div class="grid sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label for="contact-nombre" class="block text-xs font-medium text-content-main">Tu Nombre *</label>
+                <label for="contact-nombre" class="block text-sm font-medium text-content-main">Tu nombre *</label>
                 <input
                   id="contact-nombre"
                   name="nombre"
                   type="text"
                   required
                   placeholder="Ej. Andrés Morales"
-                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                  class="w-full bg-white border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest transition-colors"
                 />
               </div>
               <div class="space-y-1.5">
-                <label for="contact-empresa" class="block text-xs font-medium text-content-main">Empresa o RUC *</label>
+                <label for="contact-empresa" class="block text-sm font-medium text-content-main">Empresa o RUC *</label>
                 <input
                   id="contact-empresa"
                   name="empresa"
                   type="text"
                   required
                   placeholder="Ej. Distribuidora San José"
-                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                  class="w-full bg-white border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest transition-colors"
                 />
               </div>
             </div>
 
             <div class="grid sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label for="contact-whatsapp" class="block text-xs font-medium text-content-main">Tu WhatsApp de contacto *</label>
+                <label for="contact-whatsapp" class="block text-sm font-medium text-content-main">Tu WhatsApp de contacto *</label>
                 <input
                   id="contact-whatsapp"
                   name="whatsapp"
                   type="tel"
                   required
                   placeholder="Ej. +51 987 654 321"
-                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                  class="w-full bg-white border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest transition-colors"
                 />
               </div>
               <div class="space-y-1.5">
-                <label for="contact-agente" class="block text-xs font-medium text-content-main">Especialista o servicio de interés *</label>
+                <label for="contact-agente" class="block text-sm font-medium text-content-main">Especialista o servicio de interés *</label>
                 <select
                   id="contact-agente"
                   name="agente"
-                  class="w-full bg-surface-subtle border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                  class="w-full bg-white border border-surface-border rounded-xl px-4 py-3 text-sm text-content-main focus:outline-none focus:border-brand-forest transition-colors"
                 >
                   <option value="Facturación electrónica (BillCat)">Facturación electrónica (BillCat)</option>
                   <option value="Licitaciones y SEACE (TenderCat)">Licitaciones y SEACE (TenderCat)</option>
@@ -77,13 +77,13 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
             </div>
 
             <div class="space-y-1.5">
-              <label for="contact-detalles" class="block text-xs font-medium text-content-main">Contexto adicional (opcional)</label>
+              <label for="contact-detalles" class="block text-sm font-medium text-content-main">Contexto adicional (opcional)</label>
               <textarea
                 id="contact-detalles"
                 name="detalles"
                 rows="3"
                 placeholder="Cuéntanos qué flujo deseas resolver primero desde WhatsApp..."
-                class="w-full bg-surface-subtle border border-surface-border rounded-xl p-4 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest focus:bg-white transition-colors"
+                class="w-full bg-white border border-surface-border rounded-xl p-4 text-sm text-content-main placeholder:text-content-muted focus:outline-none focus:border-brand-forest transition-colors"
               ></textarea>
             </div>
 
@@ -98,7 +98,7 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
                   <path d="m12 5 7 7-7 7" />
                 </svg>
               </button>
-              <p class="text-xs text-content-muted text-center">
+              <p class="text-sm text-content-muted text-center">
                 Al continuar, se abrirá WhatsApp con este resumen prellenado para iniciar el chat directamente. No almacenamos tus datos en segundo plano desde este navegador.
               </p>
             </div>
@@ -107,29 +107,29 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
 
         <!-- Right Column: Direct Contact & Guarantees -->
         <div class="lg:col-span-5 space-y-6">
-          <div class="bg-surface-subtle border border-surface-border p-6 sm:p-8 rounded-2xl space-y-6">
+          <div class="bg-surface-subtle p-6 sm:p-8 rounded-2xl space-y-6">
             <div class="flex items-center gap-4">
               <div class="shrink-0">
                 <CatIllustration variant="laptop" size={72} />
               </div>
               <div>
                 <h2 class="text-lg font-bold text-content-main">Atención directa por WhatsApp</h2>
-                <p class="text-xs text-content-muted mt-1 leading-relaxed">
+                <p class="text-sm text-content-muted mt-1 leading-relaxed">
                   Si prefieres escribirnos sin completar el resumen previo, abre el chat directo con nuestro equipo.
                 </p>
               </div>
             </div>
 
-            <ul class="border-t border-b border-surface-border divide-y divide-surface-border text-xs text-content-main">
-              <li class="py-3 flex items-center gap-2.5">
+            <ul class="space-y-3 text-sm text-content-main">
+              <li class="flex items-center gap-2.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
                 <span>Vinculación por número de celular autorizado y membresía de empresa</span>
               </li>
-              <li class="py-3 flex items-center gap-2.5">
+              <li class="flex items-center gap-2.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
                 <span>Funciona directamente en WhatsApp sin instalar aplicaciones adicionales</span>
               </li>
-              <li class="py-3 flex items-center gap-2.5">
+              <li class="flex items-center gap-2.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-brand-forest shrink-0"></span>
                 <span>Evaluación técnica para integraciones con PostgreSQL, SQL Server o ERP</span>
               </li>
@@ -139,7 +139,7 @@ import CatIllustration from '../components/ui/CatIllustration.astro';
               href="https://wa.me/51923790280?text=Hola%20MeowLab,%20quiero%20conocer%20m%C3%A1s%20sobre%20los%20asistentes%20en%20WhatsApp."
               target="_blank"
               rel="noopener noreferrer"
-              class="w-full py-3.5 px-5 rounded-xl font-title font-bold text-sm border border-surface-border bg-white text-content-main hover:bg-surface-mint/40 inline-flex items-center justify-center gap-2 transition-colors"
+              class="w-full py-3.5 px-5 rounded-xl font-title font-bold text-sm bg-white text-content-main hover:bg-surface-mint inline-flex items-center justify-center gap-2 transition-colors"
             >
               <span>Abrir chat directo en WhatsApp</span>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

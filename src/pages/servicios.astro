@@ -12,7 +12,7 @@ import CtaBanner from '../components/CtaBanner.astro';
       <!-- Page Header (no eyebrow pill per #rule-hero-eyebrow-chip) -->
       <div class="max-w-3xl space-y-4">
         <h1 class="text-3xl sm:text-5xl font-bold text-content-main tracking-tight leading-[1.12] text-balance">
-          Dos Modelos de Servicio para <span class="text-brand-forest">Operar desde WhatsApp</span>
+          Modelos de servicio <span class="text-brand-forest">en WhatsApp</span>
         </h1>
         <p class="text-content-muted text-base sm:text-lg leading-relaxed">
           Comienza el mismo día con un especialista preconfigurado para facturación, licitaciones o cobranzas, o integra un asistente dedicado a la base de datos de tu empresa.
@@ -22,7 +22,7 @@ import CtaBanner from '../components/CtaBanner.astro';
       <!-- Two Service Tiers -->
       <div class="grid lg:grid-cols-2 gap-8 items-stretch">
         <!-- Tier 1: Agentes de Rol (Listos para Usar) -->
-        <section class="bg-white border border-surface-border rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
+        <section class="bg-surface-subtle rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between gap-4 mb-5">
               <div class="w-11 h-11 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
@@ -39,13 +39,13 @@ import CtaBanner from '../components/CtaBanner.astro';
                   <path d="M14 8v.01" />
                 </svg>
               </div>
-              <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-subtle border border-surface-border text-content-main">
+              <span class="text-sm font-title font-bold px-2.5 py-1 rounded-md bg-white text-content-main">
                 Suscripción Micro-SaaS
               </span>
             </div>
 
             <h2 class="text-2xl font-bold text-content-main">
-              Agentes de Rol (Listos para Usar)
+              Agentes de rol listos
             </h2>
             <p class="text-sm text-content-muted mt-2 leading-relaxed">
               Especialistas preentrenados para tareas concretas de facturación electrónica, seguimiento de cobranzas, búsqueda de licitaciones o calificación comercial.
@@ -73,12 +73,11 @@ import CtaBanner from '../components/CtaBanner.astro';
               </li>
             </ul>
 
-            <!-- Flat divider section instead of nested card (#rule-nested-cards) -->
-            <div class="border-t border-surface-border pt-5 mt-6 space-y-2">
-              <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
+            <div class="pt-5 mt-6 space-y-1.5">
+              <div class="text-sm font-title font-bold text-brand-forest">
                 Ideal para
               </div>
-              <p class="text-xs text-content-muted leading-relaxed">
+              <p class="text-sm text-content-muted leading-relaxed">
                 Negocios y equipos comerciales que buscan resolver facturación, alertas SEACE o recordatorios de pago de inmediato desde el celular.
               </p>
             </div>
@@ -87,7 +86,7 @@ import CtaBanner from '../components/CtaBanner.astro';
           <div class="pt-6 mt-4">
             <a
               href="/agentes"
-              class="w-full py-3.5 px-5 rounded-xl text-sm font-title font-bold border border-surface-border text-content-main hover:bg-surface-subtle inline-flex items-center justify-center gap-2 transition-colors"
+              class="w-full py-3.5 px-5 rounded-xl text-sm font-title font-bold bg-white text-content-main hover:bg-surface-mint inline-flex items-center justify-center gap-2 transition-colors"
             >
               <span>Ver roles disponibles</span>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -99,10 +98,10 @@ import CtaBanner from '../components/CtaBanner.astro';
         </section>
 
         <!-- Tier 2: Solución Dedicada (A Medida) -->
-        <section class="bg-surface-subtle border-2 border-brand-forest rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
+        <section class="bg-surface-mint/50 rounded-2xl p-7 sm:p-9 flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between gap-4 mb-5">
-              <div class="w-11 h-11 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
+              <div class="w-11 h-11 rounded-xl bg-white text-brand-forest flex items-center justify-center shrink-0">
                 <!-- TablerIcon: building -->
                 <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M3 21l18 0" />
@@ -115,13 +114,13 @@ import CtaBanner from '../components/CtaBanner.astro';
                   <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" />
                 </svg>
               </div>
-              <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
-                Infraestructura Privada
+              <span class="text-sm font-title font-bold px-2.5 py-1 rounded-md bg-white text-brand-forest">
+                Infraestructura privada
               </span>
             </div>
 
             <h2 class="text-2xl font-bold text-content-main">
-              Solución Dedicada (A Medida)
+              Solución dedicada a medida
             </h2>
             <p class="text-sm text-content-muted mt-2 leading-relaxed">
               Un asistente exclusivo conectado a tu base de datos PostgreSQL, SQL Server o ERP (SAP, Odoo) con reglas de negocio y permisos por colaborador.
@@ -148,12 +147,11 @@ import CtaBanner from '../components/CtaBanner.astro';
               </li>
             </ul>
 
-            <!-- Flat divider section instead of nested card (#rule-nested-cards) -->
-            <div class="border-t border-surface-border pt-5 mt-6 space-y-2">
-              <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
+            <div class="pt-5 mt-6 space-y-1.5">
+              <div class="text-sm font-title font-bold text-brand-forest">
                 Ideal para
               </div>
-              <p class="text-xs text-content-muted leading-relaxed">
+              <p class="text-sm text-content-muted leading-relaxed">
                 Empresas con ERP propio, catálogos de miles de ítems o políticas estrictas de privacidad y auditoría de datos.
               </p>
             </div>
@@ -164,7 +162,7 @@ import CtaBanner from '../components/CtaBanner.astro';
               href="/dedicado"
               class="w-full py-3.5 px-5 rounded-xl text-sm font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
             >
-              <span>Explorar Solución Dedicada</span>
+              <span>Explorar solución dedicada</span>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
@@ -175,20 +173,20 @@ import CtaBanner from '../components/CtaBanner.astro';
       </div>
 
       <!-- Featured Micro-SaaS Section: BillCat -->
-      <section id="billcat" class="bg-surface-subtle border border-surface-border rounded-2xl p-7 sm:p-10">
+      <section id="billcat" class="bg-surface-subtle rounded-2xl p-7 sm:p-10">
         <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <div class="lg:col-span-7 space-y-5">
-            <div class="text-xs font-title font-bold uppercase tracking-wider text-brand-forest">
-              Especialista en Facturación Electrónica
+            <div class="text-sm font-title font-bold text-brand-forest">
+              Especialista en facturación electrónica
             </div>
             <h2 class="text-2xl sm:text-4xl font-bold text-content-main tracking-tight">
-              BillCat · Facturación asistida desde WhatsApp
+              BillCat · Facturación en WhatsApp
             </h2>
             <p class="text-content-muted text-sm sm:text-base leading-relaxed">
               Envía un audio o mensaje con los datos de la operación. BillCat estructura la venta, verifica el RUC, calcula el IGV y te presenta un resumen claro para confirmar antes de emitir el comprobante.
             </p>
 
-            <div class="border-l-2 border-brand-forest pl-4 py-1 text-xs sm:text-sm text-content-main font-mono">
+            <div class="bg-white rounded-xl p-4 text-sm text-content-main">
               "Prepara factura a RUC 20609876543 por 2 servicios de consultoría a S/ 850 más IGV."
             </div>
 
@@ -227,38 +225,38 @@ import CtaBanner from '../components/CtaBanner.astro';
             </div>
           </div>
 
-          <!-- Right Summary Specification (flat divide-y list, no nested dark boxes) -->
-          <div class="lg:col-span-5 bg-white border border-surface-border rounded-xl p-6">
-            <div class="flex items-center justify-between pb-4 mb-3 border-b border-surface-border">
+          <!-- Right Summary Specification -->
+          <div class="lg:col-span-5 bg-white rounded-xl p-6">
+            <div class="flex items-center justify-between pb-4 mb-2">
               <div>
-                <div class="font-title font-bold text-content-main text-sm">Resumen de Borrador Fiscal</div>
-                <div class="text-xs text-content-muted">Verificación previa en WhatsApp</div>
+                <div class="font-title font-bold text-content-main text-sm">Resumen de borrador fiscal</div>
+                <div class="text-sm text-content-muted">Verificación previa en WhatsApp</div>
               </div>
-              <span class="text-xs font-mono font-semibold text-brand-forest bg-surface-mint px-2.5 py-1 rounded">
+              <span class="text-sm tabular-nums font-semibold text-brand-forest bg-surface-mint px-2.5 py-1 rounded">
                 F001-0892
               </span>
             </div>
 
-            <dl class="divide-y divide-surface-border text-xs">
-              <div class="py-3 flex justify-between gap-4">
+            <dl class="space-y-3 text-sm">
+              <div class="flex justify-between gap-4">
                 <dt class="text-content-muted">Adquiriente</dt>
                 <dd class="font-semibold text-content-main text-right">SERVICIOS DIGITALES SAC</dd>
               </div>
-              <div class="py-3 flex justify-between gap-4">
+              <div class="flex justify-between gap-4">
                 <dt class="text-content-muted">RUC</dt>
-                <dd class="font-mono text-content-main text-right">20609876543</dd>
+                <dd class="tabular-nums text-content-main text-right">20609876543</dd>
               </div>
-              <div class="py-3 flex justify-between gap-4">
+              <div class="flex justify-between gap-4">
                 <dt class="text-content-muted">Subtotal (2x Consultoría)</dt>
-                <dd class="font-mono text-content-main text-right">S/ 1,700.00</dd>
+                <dd class="tabular-nums text-content-main text-right">S/ 1,700.00</dd>
               </div>
-              <div class="py-3 flex justify-between gap-4">
+              <div class="flex justify-between gap-4">
                 <dt class="text-content-muted">IGV (18%)</dt>
-                <dd class="font-mono text-content-main text-right">S/ 306.00</dd>
+                <dd class="tabular-nums text-content-main text-right">S/ 306.00</dd>
               </div>
-              <div class="py-3 flex justify-between gap-4 font-title font-bold text-sm text-brand-forest">
+              <div class="pt-2 flex justify-between gap-4 font-title font-bold text-sm text-brand-forest">
                 <dt>Total a confirmar</dt>
-                <dd class="font-mono">S/ 2,006.00</dd>
+                <dd class="tabular-nums">S/ 2,006.00</dd>
               </div>
             </dl>
           </div>
@@ -267,7 +265,7 @@ import CtaBanner from '../components/CtaBanner.astro';
 
       <!-- Additional Specialists: PawsCollect & HunterCat -->
       <div class="grid md:grid-cols-2 gap-8">
-        <section id="pawscollect" class="bg-white border border-surface-border rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
+        <section id="pawscollect" class="bg-surface-subtle rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
           <div>
             <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center mb-4">
               <!-- TablerIcon: credit-card -->
@@ -278,11 +276,11 @@ import CtaBanner from '../components/CtaBanner.astro';
                 <path d="M11 15l2 0" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-content-main">PawsCollect · Seguimiento de Cobranzas</h3>
+            <h3 class="text-xl font-bold text-content-main">PawsCollect · Cobranzas</h3>
             <p class="text-content-muted text-sm leading-relaxed mt-2">
               Envía recordatorios programados de facturas por vencer, comparte enlaces de pago autorizados y registra confirmaciones para mantener tus cuentas al día.
             </p>
-            <ul class="border-t border-surface-border pt-5 mt-6 space-y-2.5 text-xs text-content-main">
+            <ul class="pt-5 mt-2 space-y-2.5 text-sm text-content-main">
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5l10 -10" />
@@ -318,7 +316,7 @@ import CtaBanner from '../components/CtaBanner.astro';
           </div>
         </section>
 
-        <section id="huntercat" class="bg-white border border-surface-border rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
+        <section id="huntercat" class="bg-surface-subtle rounded-2xl p-7 sm:p-8 flex flex-col justify-between">
           <div>
             <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center mb-4">
               <!-- TablerIcon: target -->
@@ -328,11 +326,11 @@ import CtaBanner from '../components/CtaBanner.astro';
                 <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-content-main">HunterCat · Calificación Comercial</h3>
+            <h3 class="text-xl font-bold text-content-main">HunterCat · Ventas</h3>
             <p class="text-content-muted text-sm leading-relaxed mt-2">
               Atiende consultas comerciales en segundos, recopila los datos clave del requerimiento y agenda reuniones directamente en el calendario de tus ejecutivos.
             </p>
-            <ul class="border-t border-surface-border pt-5 mt-6 space-y-2.5 text-xs text-content-main">
+            <ul class="pt-5 mt-2 space-y-2.5 text-sm text-content-main">
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-brand-forest shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5l10 -10" />

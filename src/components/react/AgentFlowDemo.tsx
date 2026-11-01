@@ -135,7 +135,7 @@ function ClientNodeComponent({ data }: { data: ClientNodeData }) {
   return (
     <div
       style={{ width: 250 }}
-      className={`bg-white rounded-2xl p-3.5 shadow-sm border-2 transition-all duration-300 relative select-none ${
+      className={`bg-white rounded-2xl p-3.5 shadow-sm border-2 transition-colors duration-300 relative select-none ${
         data.isTalking
           ? 'border-[#25D366] ring-4 ring-[#25D366]/20 shadow-md scale-[1.02]'
           : 'border-slate-200 hover:border-emerald-300'
@@ -192,18 +192,20 @@ function ClientNodeComponent({ data }: { data: ClientNodeData }) {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#25D366] text-white flex items-center justify-center text-[9px] font-bold border-2 border-white shadow-2xs">
-                ✓
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#25D366] text-white flex items-center justify-center border-2 border-white shadow-2xs">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </span>
             </>
           )}
         </div>
         <div className="min-w-0 flex-1 leading-tight">
-          <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          <span className="text-[13px] font-bold text-[#3E4C47] block">
             {data.badge}
           </span>
-          <h4 className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.title}</h4>
-          <span className="text-xs text-slate-500 truncate block mt-0.5">
+          <div className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.title}</div>
+          <span className="text-[13px] text-[#3E4C47] truncate block mt-0.5">
             {data.isTalking ? (
               <span className="text-[#0C493C] font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#25D366]" />
@@ -231,7 +233,7 @@ function AgentNodeComponent({ data }: { data: AgentNodeData }) {
           ? `0 0 0 4px ${theme.ring}, 0 10px 15px -3px rgba(0,0,0,0.08)`
           : undefined,
       }}
-      className={`rounded-2xl p-3 bg-white border-2 transition-all duration-300 relative select-none ${
+      className={`rounded-2xl p-3 bg-white border-2 transition-colors duration-300 relative select-none ${
         data.isTalking ? 'scale-[1.03] shadow-md' : 'shadow-xs'
       }`}
     >
@@ -257,7 +259,7 @@ function AgentNodeComponent({ data }: { data: AgentNodeData }) {
           <div className="flex items-center justify-between gap-1">
             <span
               style={{ color: theme.primary }}
-              className="text-[11px] font-mono font-bold uppercase tracking-wider"
+              className="text-[13px] font-bold"
             >
               {data.tag}
             </span>
@@ -266,8 +268,8 @@ function AgentNodeComponent({ data }: { data: AgentNodeData }) {
               className="w-2 h-2 rounded-full flex-shrink-0"
             />
           </div>
-          <h4 className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.name}</h4>
-          <span className="text-xs text-slate-500 font-medium truncate block mt-0.5">
+          <div className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.name}</div>
+          <span className="text-[13px] text-[#3E4C47] font-medium truncate block mt-0.5">
             {data.isTalking ? (
               <span style={{ color: theme.primary }} className="font-semibold flex items-center gap-1">
                 <span
@@ -292,7 +294,7 @@ function OwnerNodeComponent({ data }: { data: OwnerNodeData }) {
   return (
     <div
       style={{ width: 250 }}
-      className={`bg-white rounded-2xl p-3.5 shadow-sm border-2 transition-all duration-300 relative select-none ${
+      className={`bg-white rounded-2xl p-3.5 shadow-sm border-2 transition-colors duration-300 relative select-none ${
         data.isTalking
           ? 'border-[#0C493C] ring-4 ring-[#0C493C]/20 shadow-md scale-[1.02]'
           : 'border-slate-200 hover:border-emerald-300'
@@ -316,11 +318,11 @@ function OwnerNodeComponent({ data }: { data: OwnerNodeData }) {
           <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#25D366] border-2 border-white shadow-2xs" />
         </div>
         <div className="min-w-0 flex-1 leading-tight">
-          <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+          <span className="text-[13px] font-bold text-[#3E4C47] block">
             {data.badge}
           </span>
-          <h4 className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.title}</h4>
-          <span className="text-xs text-slate-500 truncate block mt-0.5">
+          <div className="text-sm font-bold text-slate-900 truncate mt-0.5">{data.title}</div>
+          <span className="text-[13px] text-[#3E4C47] truncate block mt-0.5">
             {data.isTalking ? (
               <span className="text-[#0C493C] font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#25D366]" />
@@ -348,7 +350,7 @@ const SCENARIOS: ScenarioConfig[] = [
     activeAgents: ['ventas', 'facturas'],
     actor: {
       title: 'Cliente final',
-      badge: 'WHATSAPP · CLIENTE',
+      badge: 'WhatsApp · Cliente',
       subtitle: 'Comprador verificado',
       isGovernment: false,
     },
@@ -403,7 +405,7 @@ const SCENARIOS: ScenarioConfig[] = [
     activeAgents: ['ventas'],
     actor: {
       title: 'Cliente final',
-      badge: 'WHATSAPP · PROSPECTO',
+      badge: 'WhatsApp · Prospecto',
       subtitle: 'Nuevo contacto comercial',
       isGovernment: false,
     },
@@ -458,7 +460,7 @@ const SCENARIOS: ScenarioConfig[] = [
     activeAgents: ['facturas'],
     actor: {
       title: 'Cliente final',
-      badge: 'WHATSAPP · CLIENTE',
+      badge: 'WhatsApp · Cliente',
       subtitle: 'Datos de facturación',
       isGovernment: false,
     },
@@ -503,7 +505,7 @@ const SCENARIOS: ScenarioConfig[] = [
     activeAgents: ['licitaciones'],
     actor: {
       title: 'SEACE / Gob.pe',
-      badge: 'COMPRAS DEL ESTADO',
+      badge: 'Compras del Estado',
       subtitle: 'Portal de Contrataciones Públicas',
       isGovernment: true,
     },
@@ -548,19 +550,19 @@ const SCENARIOS: ScenarioConfig[] = [
 const AGENT_METADATA: Record<string, { name: string; tag: string; image: string; defaultMsg: string }> = {
   ventas: {
     name: 'Agente de Ventas',
-    tag: 'COMERCIAL 24/7',
+    tag: 'Comercial 24/7',
     image: '/assets/gato-ventas-light.svg',
     defaultMsg: 'Coordinando pedido con cliente...',
   },
   facturas: {
     name: 'Agente de Facturas',
-    tag: 'SUNAT ELECTRÓNICA',
+    tag: 'SUNAT Electrónica',
     image: '/assets/gato-facturas-light.svg',
     defaultMsg: 'Listo para emitir comprobantes SUNAT...',
   },
   licitaciones: {
     name: 'Agente de Licitaciones',
-    tag: 'SEACE / GOB.PE',
+    tag: 'SEACE / Gob.pe',
     image: '/assets/gato-licitaciones-light.svg',
     defaultMsg: 'Monitoreando compras públicas...',
   },
@@ -634,7 +636,7 @@ function getNodesForScenario(scenario: ScenarioConfig, isMobile: boolean = false
       style: { width: 250 },
       data: {
         title: 'Tu empresa',
-        badge: 'GERENCIA & CAJA',
+        badge: 'Gerencia y Caja',
         subtitle: 'Tu WhatsApp · Supervisión',
         message: 'Conectado · Supervisando en tiempo real',
         time: '10:42 a. m.',
@@ -713,7 +715,7 @@ function getNodesForScenario(scenario: ScenarioConfig, isMobile: boolean = false
     style: { width: 250 },
     data: {
       title: 'Tu empresa',
-      badge: 'GERENCIA & CAJA',
+      badge: 'Gerencia y Caja',
       subtitle: 'Tu WhatsApp · Supervisión',
       message: 'Conectado · Supervisando en tiempo real',
       time: '10:42 a. m.',
@@ -984,7 +986,7 @@ export default function AgentFlowDemo() {
   const boardHeight = isMobile ? (activeScenario.activeAgents.length > 1 ? 550 : 440) : 420;
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-5">
       {/* Scenario Buttons Toolbar - All buttons are free to click anytime */}
       <div className="flex flex-wrap items-center gap-2.5" role="group" aria-label="Elegir caso de colaboración">
         {SCENARIOS.map((scenario) => {
@@ -994,18 +996,18 @@ export default function AgentFlowDemo() {
               key={scenario.id}
               type="button"
               onClick={() => handleSelectScenario(scenario.id)}
-              className={`px-4 py-2.5 rounded-xl border transition-all duration-200 text-left cursor-pointer flex-1 sm:flex-none min-w-[150px] ${
+              className={`px-4 py-2.5 rounded-xl transition-colors duration-200 text-left cursor-pointer flex-1 sm:flex-none min-w-[150px] ${
                 isSelected
-                  ? 'bg-[#0C493C] text-white border-[#0C493C] shadow-sm'
-                  : 'bg-white text-slate-800 border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+                  ? 'bg-[#0C493C] text-white'
+                  : 'bg-[#F2F6F4] text-[#111816] hover:bg-[#E3EDE8]'
               }`}
             >
               <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-bold block">{scenario.title}</span>
+                <span className="text-[13px] sm:text-sm font-bold block">{scenario.title}</span>
               </div>
               <small
-                className={`block text-xs mt-0.5 truncate ${
-                  isSelected ? 'text-emerald-100' : 'text-slate-400'
+                className={`block text-[13px] mt-0.5 leading-snug ${
+                  isSelected ? 'text-[#D8F0E5]' : 'text-[#2D3A35]'
                 }`}
               >
                 {scenario.subtitle}
@@ -1018,7 +1020,7 @@ export default function AgentFlowDemo() {
         <button
           type="button"
           onClick={handleReplay}
-          className="ml-auto px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-emerald-300 text-xs sm:text-sm font-semibold text-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+          className="ml-auto px-4 py-2.5 rounded-xl bg-[#F2F6F4] hover:bg-[#E3EDE8] text-[13px] sm:text-sm font-semibold text-[#111816] transition-colors cursor-pointer flex items-center gap-1.5"
         >
           <span>Repetir</span>
           <span aria-hidden="true">↺</span>
@@ -1027,8 +1029,9 @@ export default function AgentFlowDemo() {
 
       {/* React Flow Board Container with guaranteed explicit height & styling */}
       <div
+        data-ui
         style={{ width: '100%', height: boardHeight }}
-        className="relative rounded-2xl border border-slate-200 bg-[#FAFBF9] overflow-hidden shadow-xs transition-[height] duration-300"
+        className="relative rounded-2xl border border-slate-200 bg-[#FAFBF9] overflow-hidden transition-[height] duration-300"
       >
         <ReactFlow
           key={`${selectedScenarioId}-${isMobile ? 'mobile' : 'desktop'}`}
@@ -1047,18 +1050,10 @@ export default function AgentFlowDemo() {
         >
           <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#CCD6D0" />
         </ReactFlow>
-
-        {/* Floating live status badge in top corner */}
-        <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-4 z-10 pointer-events-none">
-          <span className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs border border-emerald-200 text-xs font-semibold text-[#0C493C] shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#25D366] shrink-0" />
-            <span className="text-[11px] sm:text-xs font-mono uppercase max-w-[200px] sm:max-w-none truncate">{statusText}</span>
-          </span>
-        </div>
       </div>
 
       {/* Real-time Message Timeline Stream - Progressive Arrival Pipeline */}
-      <div className="pt-4 border-t border-slate-200 space-y-3">
+      <div data-ui className="pt-2 space-y-3">
         <style>{`
           @keyframes mlMessageArrival {
             0% {
@@ -1079,16 +1074,21 @@ export default function AgentFlowDemo() {
           }
         `}</style>
 
-        {/* Timeline Header Bar */}
+        {/* Timeline Header Bar with Live Status Indicator */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="w-2 h-2 rounded-full bg-[#25D366]" />
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0C493C]">
-              MENSAJES TRANSFERIDOS EN LA SIMULACIÓN:
+            <span className="text-[13px] font-bold text-[#0C493C]">
+              Mensajes transferidos en la simulación:
             </span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
+            <span className="text-[13px] tabular-nums px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
               {Math.min(timelineChips.length, activeScenario.steps.length)} de {activeScenario.steps.length} en vivo
             </span>
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F2F6F4] text-[13px] font-semibold text-[#0C493C] self-start sm:self-auto">
+            <span className="w-2 h-2 rounded-full bg-[#25D366] shrink-0" />
+            <span className="text-[13px] tabular-nums">{statusText}</span>
           </div>
         </div>
 
@@ -1105,22 +1105,22 @@ export default function AgentFlowDemo() {
             const isLatest = idx === timelineChips.length - 1;
 
             if (!isArrived) {
-              // Awaiting step placeholder
+              // Awaiting step placeholder (flat tonal surface, high contrast, zero dashed borders)
               return (
                 <div
                   key={`pending-${idx}`}
-                  className="rounded-xl p-3.5 border-2 border-dashed border-slate-200/90 bg-slate-50/50 flex flex-col justify-between min-h-[118px] opacity-40 select-none transition-opacity duration-300"
+                  className="rounded-2xl p-4 bg-[#F2F6F4] flex flex-col justify-between min-h-[118px] text-[#46544F] select-none transition-opacity duration-300"
                 >
                   <div className="flex items-center justify-between gap-1.5">
-                    <span className="text-xs font-mono font-bold text-slate-400 uppercase">
+                    <span className="text-[13px] tabular-nums font-bold text-[#3E4C47]">
                       Paso {idx + 1}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium truncate">
+                    <span className="text-[13px] text-[#3E4C47] font-medium truncate">
                       {step.fromLabel} → {step.toLabel}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 italic my-auto">Esperando transferencia...</p>
-                  <div className="flex items-center justify-between text-xs text-slate-400 font-mono pt-1.5 border-t border-dashed border-slate-200">
+                  <p className="text-[13px] text-[#46544F] italic my-auto">Esperando transferencia...</p>
+                  <div className="flex items-center justify-between text-[13px] text-[#3E4C47] pt-1.5">
                     <span className="truncate">{step.edgeLabel.replace(/^\d+\.\s*/, '')}</span>
                     <span>Pendiente</span>
                   </div>
@@ -1134,7 +1134,7 @@ export default function AgentFlowDemo() {
             return (
               <div
                 key={`arrived-${idx}-${selectedScenarioId}`}
-                className={`animate-message-arrival rounded-xl p-3.5 border transition-all duration-300 flex flex-col justify-between min-h-[118px] bg-white ${
+                className={`animate-message-arrival rounded-2xl p-4 border transition-colors duration-300 flex flex-col justify-between min-h-[118px] bg-white ${
                   isLatest ? 'scale-[1.01]' : 'border-slate-200/90 shadow-2xs hover:border-slate-300'
                 }`}
                 style={{
@@ -1146,22 +1146,22 @@ export default function AgentFlowDemo() {
                 <div className="flex items-center justify-between gap-1.5 mb-2 pb-1.5 border-b border-slate-100">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span
-                      className="w-5 h-5 rounded-full text-[11px] flex items-center justify-center font-mono font-bold shrink-0 text-white"
+                      className="w-5 h-5 rounded-full text-[13px] flex items-center justify-center tabular-nums font-bold shrink-0 text-white"
                       style={{
-                        backgroundColor: isLatest ? stepTheme.primary : '#94A3B8',
+                        backgroundColor: isLatest ? stepTheme.primary : '#46544F',
                       }}
                     >
                       {idx + 1}
                     </span>
                     <span
-                      className="text-xs font-bold truncate"
+                      className="text-[13px] font-bold truncate"
                       style={{ color: getLabelColor(step.fromLabel) }}
                     >
                       {step.fromLabel}
                     </span>
-                    <span className="text-slate-400 text-xs shrink-0">→</span>
+                    <span className="text-[#3E4C47] text-[13px] shrink-0">→</span>
                     <span
-                      className="text-xs font-bold truncate"
+                      className="text-[13px] font-bold truncate"
                       style={{ color: getLabelColor(step.toLabel) }}
                     >
                       {step.toLabel}
@@ -1170,24 +1170,24 @@ export default function AgentFlowDemo() {
 
                   {isLatest ? (
                     <span
-                      className="px-1.5 py-0.5 rounded text-[11px] font-bold text-white flex items-center gap-1 shrink-0"
+                      className="px-2 py-0.5 rounded text-[13px] font-bold text-white flex items-center gap-1 shrink-0"
                       style={{ backgroundColor: stepTheme.primary }}
                     >
-                      EN VIVO
+                      En vivo
                     </span>
                   ) : (
                     <span
-                      className="text-xs font-bold shrink-0"
+                      className="text-[13px] font-bold shrink-0"
                       style={{ color: stepTheme.primary }}
                     >
-                      ✓✓
+                      Listo
                     </span>
                   )}
                 </div>
 
                 {/* Message Speech Bubble */}
                 <div
-                  className="p-2.5 rounded-xl text-xs leading-relaxed transition-all duration-300"
+                  className="p-2.5 rounded-xl text-[13px] leading-relaxed transition-colors duration-300"
                   style={{
                     backgroundColor: isLatest ? stepTheme.light : '#F8FAFC',
                     borderColor: isLatest ? stepTheme.border : '#E2E8F0',
@@ -1200,7 +1200,7 @@ export default function AgentFlowDemo() {
                 </div>
 
                 {/* Footer: Action Label & Delivery Time */}
-                <div className="mt-2.5 pt-1.5 flex items-center justify-between text-xs text-slate-400 font-mono border-t border-slate-100/80">
+                <div className="mt-2.5 pt-1.5 flex items-center justify-between text-[13px] text-[#3E4C47] border-t border-slate-100/80">
                   <span
                     className="truncate font-medium"
                     style={{ color: stepTheme.primary }}

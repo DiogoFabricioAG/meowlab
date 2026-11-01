@@ -401,7 +401,7 @@ const assetsData = {
 };
 ---
 
-<section class="py-20 md:py-28 bg-[#FAFBF9] border-y border-surface-border" id="agentes">
+<section class="py-20 md:py-28 bg-[#F2F6F4]" id="agentes">
   <meowlab-detail>
     <div class="md-wrap">
       <div class="md-heading text-center max-w-3xl mx-auto mb-10 md:mb-14 space-y-3">
@@ -425,9 +425,6 @@ const assetsData = {
           >
             <div class="md-card-top">
               <span class="md-card-pill">{agent.tag}</span>
-              <span class="md-expand" aria-hidden="true">
-                <ArrowUpRight class="w-4 h-4" />
-              </span>
             </div>
 
             <h3 class="md-card-title">{agent.name}</h3>
@@ -747,7 +744,7 @@ const assetsData = {
 
 <style is:global>
   meowlab-detail {
-    --bg: #FAFBF9;
+    --bg: #F2F6F4;
     --paper: #ffffff;
     --ink: #111816;
     --muted: #586561;
@@ -783,7 +780,7 @@ const assetsData = {
     margin: 0;
   }
   meowlab-detail .md-intro {
-    font-size: 1.05rem;
+    font-size: 1.125rem;
     line-height: 1.6;
     max-width: 40rem;
     color: var(--muted);
@@ -799,8 +796,8 @@ const assetsData = {
   meowlab-detail .md-card {
     position: relative;
     text-align: left;
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    border: 0;
+    border-radius: 16px;
     min-width: 0;
     height: 465px;
     background: var(--paper);
@@ -811,22 +808,19 @@ const assetsData = {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    transition: border-color 0.25s, box-shadow 0.25s;
+    transition: background-color 0.25s;
   }
   meowlab-detail .md-card[data-kind="facturas"]:hover,
   meowlab-detail .md-card[data-kind="facturas"]:focus-visible {
-    border-color: #9BBFD7;
-    box-shadow: 0 10px 28px rgba(43, 92, 127, 0.08);
+    background-color: #E6EFF5;
   }
   meowlab-detail .md-card[data-kind="licitaciones"]:hover,
   meowlab-detail .md-card[data-kind="licitaciones"]:focus-visible {
-    border-color: #95C7B2;
-    box-shadow: 0 10px 28px rgba(30, 94, 78, 0.08);
+    background-color: #E6F2EC;
   }
   meowlab-detail .md-card[data-kind="ventas"]:hover,
   meowlab-detail .md-card[data-kind="ventas"]:focus-visible {
-    border-color: #D8ABA4;
-    box-shadow: 0 10px 28px rgba(155, 74, 66, 0.08);
+    background-color: #F6E9E7;
   }
 
   meowlab-detail .md-card-top {
@@ -836,11 +830,9 @@ const assetsData = {
     margin-bottom: 8px;
   }
   meowlab-detail .md-card-pill {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 3px 9px;
+    padding: 4px 10px;
     border-radius: 9999px;
   }
   meowlab-detail [data-kind="facturas"] .md-card-pill {
@@ -862,28 +854,6 @@ const assetsData = {
     font-weight: 700;
     color: #111816;
     margin: 4px 0 2px;
-  }
-  meowlab-detail .md-expand {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    display: grid;
-    place-items: center;
-    background: #f1f4f0;
-    color: #55775d;
-    transition: background 0.25s, color 0.25s;
-  }
-  meowlab-detail [data-kind="facturas"]:hover .md-expand {
-    background: #2B5C7F;
-    color: white;
-  }
-  meowlab-detail [data-kind="licitaciones"]:hover .md-expand {
-    background: #1E5E4E;
-    color: white;
-  }
-  meowlab-detail [data-kind="ventas"]:hover .md-expand {
-    background: #9B4A42;
-    color: white;
   }
 
   meowlab-detail .md-summary {
@@ -914,13 +884,13 @@ const assetsData = {
     transition: transform 0.65s;
   }
   meowlab-detail .md-card[data-kind="facturas"] .md-art:before {
-    background: linear-gradient(120deg, #e8eff5, #f3f7fa, #edf2f7);
+    background: #E8F1F6;
   }
   meowlab-detail .md-card[data-kind="licitaciones"] .md-art:before {
-    background: linear-gradient(100deg, #e4ede8, #f3f8f5, #eaf1ec);
+    background: #E3F0EA;
   }
   meowlab-detail .md-card[data-kind="ventas"] .md-art:before {
-    background: linear-gradient(100deg, #f8ebe9, #faf5f4, #faeeeb);
+    background: #F5E9E7;
   }
 
   meowlab-detail .md-cat {
@@ -948,7 +918,6 @@ const assetsData = {
     align-items: center;
     font-size: 0.88rem;
     font-weight: 600;
-    border-top: 1px solid var(--line);
     padding-top: 16px;
     margin-top: 14px;
     color: #111816;
@@ -1039,7 +1008,7 @@ const assetsData = {
     cursor: pointer;
     display: grid;
     place-items: center;
-    transition: background 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
   }
   meowlab-detail .md-close:hover {
     background: #e2e8f0;
@@ -1060,10 +1029,8 @@ const assetsData = {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     padding: 4px 12px;
     border-radius: 9999px;
     margin-bottom: 10px;
@@ -1154,7 +1121,7 @@ const assetsData = {
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1167,7 +1134,6 @@ const assetsData = {
     background: var(--theme-primary);
     border-color: var(--theme-primary);
     color: white;
-    box-shadow: 0 4px 12px var(--theme-glow);
   }
 
   meowlab-detail .md-case-view {
@@ -1194,7 +1160,7 @@ const assetsData = {
 
   /* Left: Mini WhatsApp Chat Simulation */
   meowlab-detail .md-mini-chat {
-    background: #efeae2;
+    background: #eaefe9;
     border: 1px solid #d1d7db;
     border-radius: 14px;
     padding: 16px;
@@ -1202,7 +1168,6 @@ const assetsData = {
     flex-direction: column;
     gap: 12px;
     position: relative;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
   }
   meowlab-detail .md-chat-bubble {
     padding: 10px 14px;
@@ -1210,7 +1175,6 @@ const assetsData = {
     font-size: 0.84rem;
     line-height: 1.45;
     max-width: 88%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
   meowlab-detail .md-chat-bubble.user {
     align-self: flex-end;
@@ -1257,18 +1221,18 @@ const assetsData = {
     display: inline-block;
   }
   meowlab-detail .md-audio-time {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     color: #667781;
-    font-family: monospace;
+    font-variant-numeric: tabular-nums;
     flex-shrink: 0;
   }
   meowlab-detail .md-audio-transcript {
     margin: 8px 0 0;
-    font-size: 0.8rem;
+    font-size: 0.84rem;
     color: #111b21;
     line-height: 1.4;
     font-style: italic;
-    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
     padding-top: 6px;
   }
   meowlab-detail .md-chat-meta {
@@ -1276,7 +1240,7 @@ const assetsData = {
     align-items: center;
     justify-content: flex-end;
     gap: 4px;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     color: #667781;
     margin-top: 4px;
   }
@@ -1284,7 +1248,7 @@ const assetsData = {
     justify-content: flex-start;
   }
   meowlab-detail .md-chat-status {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     color: var(--theme-primary);
     font-weight: 600;
     align-self: flex-start;
@@ -1301,7 +1265,7 @@ const assetsData = {
     border-radius: 10px;
     padding: 12px;
     margin-top: 8px;
-    font-size: 0.8rem;
+    font-size: 0.84rem;
   }
   meowlab-detail .md-chat-card-top {
     display: flex;
@@ -1316,14 +1280,14 @@ const assetsData = {
   }
   meowlab-detail .md-chat-card-sub {
     color: #64748b;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     margin-bottom: 6px;
   }
   meowlab-detail .md-chat-card-total {
     font-weight: 700;
     color: var(--theme-primary);
-    font-size: 0.82rem;
-    border-top: 1px dashed #e2e8f0;
+    font-size: 0.84rem;
+    border-top: 1px solid #e2e8f0;
     padding-top: 6px;
     display: flex;
     justify-content: space-between;
@@ -1332,7 +1296,7 @@ const assetsData = {
     gap: 4px;
   }
   meowlab-detail .md-chat-card-badge {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     color: #15803d;
     display: inline-flex;
     align-items: center;
@@ -1351,10 +1315,8 @@ const assetsData = {
     justify-content: space-between;
   }
   meowlab-detail .md-case-badge {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     padding: 3px 8px;
     border-radius: 6px;
     background: var(--theme-light);
@@ -1396,7 +1358,7 @@ const assetsData = {
     background: var(--theme-light);
     color: var(--theme-primary);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     display: grid;
     place-items: center;
     flex-shrink: 0;
@@ -1435,10 +1397,8 @@ const assetsData = {
     margin: 0 0 6px;
   }
   meowlab-detail .md-io-badge {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     padding: 2px 7px;
     border-radius: 4px;
   }
@@ -1486,7 +1446,7 @@ const assetsData = {
     line-height: 1.3;
   }
   meowlab-detail .md-io-item-desc {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     color: #64748b;
     line-height: 1.4;
   }
@@ -1508,13 +1468,10 @@ const assetsData = {
     color: var(--theme-primary);
     display: grid;
     place-items: center;
-    box-shadow: 0 3px 10px var(--theme-glow);
   }
   meowlab-detail .md-io-divider-label {
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: var(--muted);
     text-align: center;
     max-width: 72px;
@@ -1553,12 +1510,10 @@ const assetsData = {
     text-decoration: none;
     font-size: 0.93rem;
     font-weight: 600;
-    transition: box-shadow 0.2s, background-color 0.2s;
-    box-shadow: 0 4px 16px var(--theme-glow);
+    transition: background-color 0.2s;
   }
   meowlab-detail .md-cta-btn:hover {
     background: var(--theme-dark);
-    box-shadow: 0 6px 20px var(--theme-glow);
   }
   meowlab-detail .md-cta-trust {
     font-size: 0.84rem;
@@ -1668,7 +1623,7 @@ const assetsData = {
     }
     meowlab-detail .md-case-tab {
       padding: 7px 12px;
-      font-size: 0.8rem;
+      font-size: 0.84rem;
       flex-shrink: 0;
     }
     meowlab-detail .md-mini-chat {
@@ -1678,7 +1633,7 @@ const assetsData = {
     meowlab-detail .md-chat-bubble {
       max-width: 96%;
       padding: 8px 11px;
-      font-size: 0.8rem;
+      font-size: 0.84rem;
       word-break: break-word;
       overflow-wrap: break-word;
     }
@@ -1700,7 +1655,7 @@ const assetsData = {
       font-size: 0.98rem;
     }
     meowlab-detail .md-case-summary {
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       margin-bottom: 12px;
     }
     meowlab-detail .md-case-steps {
@@ -1708,13 +1663,13 @@ const assetsData = {
       margin-bottom: 14px;
     }
     meowlab-detail .md-case-steps li {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       gap: 8px;
     }
     meowlab-detail .md-step-num {
       width: 18px;
       height: 18px;
-      font-size: 0.75rem;
+      font-size: 0.82rem;
     }
     meowlab-detail .md-io-wrapper {
       padding: 0;
@@ -1743,7 +1698,7 @@ const assetsData = {
     meowlab-detail .md-cta-trust {
       justify-content: center;
       text-align: center;
-      font-size: 0.76rem;
+      font-size: 0.82rem;
     }
   }
 </style>
@@ -1927,7 +1882,7 @@ const assetsData = {
               { opacity: 0, transform: 'translateY(14px) scale(0.97)' }
             ], {
               duration: 150,
-              easing: 'ease-in',
+              easing: 'ease-out',
               fill: 'forwards'
             }).finished;
           } catch {}

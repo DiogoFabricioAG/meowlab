@@ -32,25 +32,25 @@ const comparisonRows = [
 
 const implementationSteps = [
   {
-    number: '01',
+    number: 'Paso 1',
     title: 'Diagnóstico',
     timeline: 'Días 1–2',
     description: 'Revisamos tus esquemas de base de datos, endpoints de API, permisos por rol y las consultas críticas que tu equipo necesita resolver desde WhatsApp.'
   },
   {
-    number: '02',
+    number: 'Paso 2',
     title: 'Conexión',
     timeline: 'Días 3–5',
     description: 'Configuramos conectores seguros de solo lectura o escritura controlada mediante túnel VPN o lista blanca de IPs hacia tu infraestructura.'
   },
   {
-    number: '03',
+    number: 'Paso 3',
     title: 'Entrenamiento',
     timeline: 'Días 6–8',
     description: 'Definimos validaciones deterministas, diccionarios de negocio y pruebas en ambiente de staging con casos reales de tu operación.'
   },
   {
-    number: '04',
+    number: 'Paso 4',
     title: 'Despliegue',
     timeline: 'Días 9–10',
     description: 'Activamos el asistente en tu línea corporativa de WhatsApp con control de acceso por número telefónico y monitoreo operativo.'
@@ -68,7 +68,7 @@ const implementationSteps = [
       <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-start">
         <div class="lg:col-span-7 space-y-6">
           <h1 class="text-3xl sm:text-5xl font-bold text-content-main tracking-tight leading-[1.12] text-balance">
-            Tu Sistema Privado y ERP <span class="text-brand-forest">Operado desde WhatsApp</span>
+            Tu sistema y ERP <span class="text-brand-forest">desde WhatsApp</span>
           </h1>
           <p class="text-content-muted text-base sm:text-lg leading-relaxed">
             Sin paneles complejos ni demoras operativas. Tus ejecutivos, supervisores y equipo comercial consultan stock, saldos de clientes y estado de despachos en tiempo real desde WhatsApp, bajo permisos estrictos conectados a tu propia infraestructura.
@@ -87,14 +87,14 @@ const implementationSteps = [
             </a>
             <a
               href="/agentes"
-              class="border border-surface-border text-content-main hover:bg-surface-subtle px-6 py-3.5 rounded-xl font-title font-bold text-sm sm:text-base inline-flex items-center transition-colors"
+              class="bg-surface-subtle text-content-main hover:bg-surface-mint/50 px-6 py-3.5 rounded-xl font-title font-bold text-sm sm:text-base inline-flex items-center transition-colors"
             >
               <span>Ver catálogo de especialistas</span>
             </a>
           </div>
 
           <!-- Key Technical Guarantees Row -->
-          <div class="pt-6 border-t border-surface-border grid sm:grid-cols-3 gap-6">
+          <div class="pt-6 grid sm:grid-cols-3 gap-6">
             <div class="space-y-1.5">
               <div class="flex items-center gap-2 text-brand-forest font-title font-bold text-sm">
                 <!-- TablerIcon: database -->
@@ -103,9 +103,9 @@ const implementationSteps = [
                   <path d="M4 6v6a8 3 0 0 0 16 0v-6" />
                   <path d="M4 12v6a8 3 0 0 0 16 0v-6" />
                 </svg>
-                <span>Bases de Datos SQL</span>
+                <span>Bases de datos SQL</span>
               </div>
-              <p class="text-xs text-content-muted leading-relaxed">
+              <p class="text-sm text-content-muted leading-relaxed">
                 Consultas parametrizadas sobre PostgreSQL, MySQL, SQL Server u Oracle con permisos acotados.
               </p>
             </div>
@@ -119,7 +119,7 @@ const implementationSteps = [
                 </svg>
                 <span>Integración ERP / API</span>
               </div>
-              <p class="text-xs text-content-muted leading-relaxed">
+              <p class="text-sm text-content-muted leading-relaxed">
                 Conectores con SAP Business One, Odoo, NetSuite y servicios REST internos de tu empresa.
               </p>
             </div>
@@ -132,9 +132,9 @@ const implementationSteps = [
                   <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
                   <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
                 </svg>
-                <span>Aislamiento y Auditoría</span>
+                <span>Aislamiento y auditoría</span>
               </div>
-              <p class="text-xs text-content-muted leading-relaxed">
+              <p class="text-sm text-content-muted leading-relaxed">
                 Tus datos nunca entrenan modelos públicos; cada consulta valida identidad y queda registrada.
               </p>
             </div>
@@ -142,19 +142,19 @@ const implementationSteps = [
         </div>
 
         <!-- Architecture Diagram Panel -->
-        <aside class="lg:col-span-5 bg-surface-subtle border border-surface-border rounded-2xl p-6 sm:p-8">
-          <div class="flex items-center justify-between pb-4 mb-4 border-b border-surface-border">
+        <aside data-ui class="lg:col-span-5 bg-surface-subtle rounded-2xl p-6 sm:p-8">
+          <div class="flex items-center justify-between pb-4 mb-2">
             <div>
-              <h2 class="text-base font-bold text-content-main">Arquitectura de Despliegue Dedicado</h2>
-              <p class="text-xs text-content-muted">Flujo seguro de extremo a extremo</p>
+              <div class="text-base font-title font-bold text-content-main">Arquitectura dedicada</div>
+              <p class="text-sm text-content-muted">Flujo seguro de extremo a extremo</p>
             </div>
-            <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
+            <span class="text-sm font-semibold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
               VPC / VPN
             </span>
           </div>
 
-          <div class="divide-y divide-surface-border">
-            <div class="py-4 flex items-start gap-3.5">
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl p-4 flex items-start gap-3.5">
               <div class="w-9 h-9 rounded-lg bg-surface-mint text-brand-forest flex items-center justify-center shrink-0 mt-0.5">
                 <!-- TablerIcon: brand-whatsapp -->
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -163,15 +163,15 @@ const implementationSteps = [
                 </svg>
               </div>
               <div>
-                <div class="text-xs font-mono font-semibold text-brand-forest">CAPA 01 · INTERACCIÓN</div>
-                <h3 class="text-sm font-bold text-content-main">WhatsApp Business Cloud API</h3>
-                <p class="text-xs text-content-muted mt-1 leading-relaxed">
+                <div class="text-sm font-semibold text-brand-forest">Capa 1 · Interacción</div>
+                <div class="text-sm font-bold text-content-main">WhatsApp Business Cloud API</div>
+                <p class="text-sm text-content-muted mt-1 leading-relaxed">
                   Recepción de mensajes, notas de voz y documentos verificando el número telefónico del colaborador y su membresía activa.
                 </p>
               </div>
             </div>
 
-            <div class="py-4 flex items-start gap-3.5">
+            <div class="bg-white rounded-xl p-4 flex items-start gap-3.5">
               <div class="w-9 h-9 rounded-lg bg-surface-mint text-brand-forest flex items-center justify-center shrink-0 mt-0.5">
                 <!-- TablerIcon: settings -->
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -180,15 +180,15 @@ const implementationSteps = [
                 </svg>
               </div>
               <div>
-                <div class="text-xs font-mono font-semibold text-brand-forest">CAPA 02 · MOTOR DE REGLAS</div>
-                <h3 class="text-sm font-bold text-content-main">Orquestador y Guardrails MeowLab</h3>
-                <p class="text-xs text-content-muted mt-1 leading-relaxed">
+                <div class="text-sm font-semibold text-brand-forest">Capa 2 · Motor de reglas</div>
+                <div class="text-sm font-bold text-content-main">Orquestador y Guardrails MeowLab</div>
+                <p class="text-sm text-content-muted mt-1 leading-relaxed">
                   Validación de esquemas, control de permisos por rol, confirmación previa para escrituras y registro de auditoría.
                 </p>
               </div>
             </div>
 
-            <div class="py-4 flex items-start gap-3.5">
+            <div class="bg-white rounded-xl p-4 flex items-start gap-3.5">
               <div class="w-9 h-9 rounded-lg bg-surface-mint text-brand-forest flex items-center justify-center shrink-0 mt-0.5">
                 <!-- TablerIcon: database -->
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -198,9 +198,9 @@ const implementationSteps = [
                 </svg>
               </div>
               <div>
-                <div class="text-xs font-mono font-semibold text-brand-forest">CAPA 03 · TUS DATOS</div>
-                <h3 class="text-sm font-bold text-content-main">Base de Datos y ERP Corporativo</h3>
-                <p class="text-xs text-content-muted mt-1 leading-relaxed">
+                <div class="text-sm font-semibold text-brand-forest">Capa 3 · Tus datos</div>
+                <div class="text-sm font-bold text-content-main">Base de Datos y ERP Corporativo</div>
+                <p class="text-sm text-content-muted mt-1 leading-relaxed">
                   Conexión cifrada a PostgreSQL, SQL Server, SAP u Odoo en tu propia nube (AWS, GCP, Azure) o servidor privado.
                 </p>
               </div>
@@ -213,21 +213,21 @@ const implementationSteps = [
       <section class="space-y-6">
         <div class="max-w-2xl">
           <h2 class="text-2xl sm:text-3xl font-bold text-content-main tracking-tight">
-            Agente de Rol vs. Solución Dedicada
+            Agente de rol vs. solución dedicada
           </h2>
           <p class="text-content-muted text-sm sm:text-base mt-2">
             Elige un asistente listo para usar o una integración privada conectada a los sistemas internos de tu empresa.
           </p>
         </div>
 
-        <div class="bg-white border border-surface-border rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto">
+        <div class="bg-surface-subtle rounded-2xl overflow-hidden p-1">
+          <div class="overflow-x-auto bg-white rounded-xl">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-surface-border bg-surface-subtle text-xs font-title uppercase tracking-wider text-content-muted">
+                <tr class="border-b border-surface-border bg-surface-subtle text-sm font-title normal-case text-content-muted">
                   <th class="py-4 px-6 font-bold">Criterio técnico</th>
-                  <th class="py-4 px-6 font-bold">Agente de Rol (SaaS)</th>
-                  <th class="py-4 px-6 font-bold bg-surface-mint/40 text-brand-forest">Solución Dedicada</th>
+                  <th class="py-4 px-6 font-bold">Agente de rol (SaaS)</th>
+                  <th class="py-4 px-6 font-bold bg-surface-mint/40 text-brand-forest">Solución dedicada</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-surface-border text-sm">
@@ -251,23 +251,23 @@ const implementationSteps = [
         </div>
       </section>
 
-      <!-- 4-Step Implementation Process (numbered timeline with top borders, no floating card grid) -->
+      <!-- 4-Step Implementation Process -->
       <section class="space-y-8">
         <div class="max-w-2xl">
           <h2 class="text-2xl sm:text-3xl font-bold text-content-main tracking-tight">
-            Proceso de Implementación en 4 Etapas
+            Implementación en 4 etapas
           </h2>
           <p class="text-content-muted text-sm sm:text-base mt-2">
             Metodología estructurada de 5 a 10 días hábiles para conectar, validar y desplegar tu asistente sin interrumpir tu operación.
           </p>
         </div>
 
-        <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {implementationSteps.map((step) => (
-            <li class="border-t-2 border-brand-forest/20 pt-5 space-y-2">
+            <li class="bg-surface-subtle rounded-2xl p-6 space-y-2">
               <div class="flex items-baseline justify-between gap-2">
-                <span class="font-mono text-sm font-bold text-brand-forest">{step.number}</span>
-                <span class="text-xs font-mono text-content-muted">{step.timeline}</span>
+                <span class="tabular-nums text-sm font-bold text-brand-forest">{step.number}</span>
+                <span class="text-sm tabular-nums text-content-muted">{step.timeline}</span>
               </div>
               <h3 class="text-lg font-bold text-content-main">{step.title}</h3>
               <p class="text-sm text-content-muted leading-relaxed">

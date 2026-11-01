@@ -17,7 +17,7 @@ const navLinks = [
 ];
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-200 border-b border-surface-border" id="main-header">
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-colors duration-200" id="main-header">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="relative flex items-center justify-between h-20">
       
@@ -33,7 +33,7 @@ const navLinks = [
         {navLinks.map((link) => (
           <a
             href={link.href}
-            class="text-sm font-medium text-content-main/80 hover:text-brand-forest transition-colors py-1 whitespace-nowrap"
+            class="text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors py-1 whitespace-nowrap"
           >
             {link.name}
           </a>
@@ -44,7 +44,7 @@ const navLinks = [
       <div class="hidden sm:flex items-center gap-3">
         <a
           href="/contacto"
-          class="hidden lg:inline-flex text-sm font-medium text-content-main/80 hover:text-brand-forest transition-colors px-3 py-2 rounded-xl"
+          class="hidden lg:inline-flex text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors px-3 py-2 rounded-xl"
         >
           Contacto
         </a>
@@ -52,7 +52,7 @@ const navLinks = [
           href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn-primary text-sm font-medium px-4 py-2.5 rounded-xl flex items-center gap-1.5"
+          class="btn-primary text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5"
         >
           <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
           <span>Configurar mi primer agente</span>
@@ -65,15 +65,15 @@ const navLinks = [
           href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn-primary text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-1"
+          class="btn-primary text-sm font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1"
         >
-          <TablerIcon name="brand-whatsapp" size={14} strokeWidth={2} className="text-[#25D366]" />
+          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
           <span>Configurar</span>
         </a>
         <button
           type="button"
           id="mobile-menu-btn"
-          class="p-2 rounded-xl text-content-secondary hover:text-content-main hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-brand-forest"
+          class="p-2 rounded-xl text-[#111816] hover:text-brand-forest hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-brand-forest"
           aria-label="Abrir menú"
           aria-expanded="false"
         >
@@ -87,19 +87,19 @@ const navLinks = [
   </div>
 
   <!-- Mobile Drawer -->
-  <div id="mobile-menu" class="hidden md:hidden border-t border-surface-border bg-white px-4 pt-3 pb-6 space-y-3">
+  <div id="mobile-menu" class="hidden md:hidden bg-[#F2F6F4] px-4 pt-3 pb-6 space-y-2">
     {navLinks.map((link) => (
       <a
         href={link.href}
-        class="mobile-nav-link block px-3 py-2.5 text-base font-medium text-content-secondary hover:text-brand-forest hover:bg-surface-subtle rounded-xl transition-colors text-center"
+        class="mobile-nav-link block px-3 py-2.5 text-base font-medium text-[#111816] hover:text-brand-forest hover:bg-white rounded-xl transition-colors text-center"
       >
         {link.name}
       </a>
     ))}
-    <div class="pt-2 border-t border-surface-border flex flex-col gap-2">
+    <div class="pt-2 flex flex-col gap-2">
       <a
         href="/contacto"
-        class="block px-3 py-2 text-center text-sm font-medium text-content-main/80 hover:text-brand-forest rounded-xl"
+        class="block px-3 py-2 text-center text-sm font-medium text-[#111816] hover:text-brand-forest rounded-xl"
       >
         Contacto
       </a>

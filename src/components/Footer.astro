@@ -29,11 +29,11 @@ const companyLinks = [
 ];
 ---
 
-<footer class="bg-surface-subtle/40 border-t border-surface-border pt-16 pb-12 md:pt-20 md:pb-16 text-content-secondary">
+<footer class="bg-[#EBF1EE] pt-16 pb-12 md:pt-20 md:pb-16 text-[#2D3A35]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
     <!-- Main Multi-Column Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-14 border-b border-surface-border">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12">
       
       <!-- Column 1: Brand, Value Proposition & WhatsApp Status (Span 5) -->
       <div class="lg:col-span-5 space-y-5">
@@ -41,12 +41,12 @@ const companyLinks = [
           <MeowLogo size="md" />
         </a>
 
-        <p class="text-sm text-content-secondary leading-relaxed max-w-sm">
+        <p class="text-sm text-[#2D3A35] leading-relaxed max-w-sm">
           Tus agentes inteligentes en WhatsApp para hacer avanzar tu negocio. Diseñado para pymes y operaciones reales: ventas, comprobantes SUNAT y compras públicas sin enredos técnicos.
         </p>
 
         <!-- Live Status Indicator (Static Dot) -->
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-surface-border text-xs font-semibold text-content-main">
+        <div class="inline-flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl text-sm font-semibold text-[#111816]">
           <span class="w-2 h-2 rounded-full bg-[#25D366]"></span>
           <span>Sistemas operativos en WhatsApp</span>
         </div>
@@ -55,7 +55,7 @@ const companyLinks = [
 
       <!-- Column 2: Agentes (Span 3) -->
       <div class="lg:col-span-3 space-y-4">
-        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+        <h3 class="text-base font-bold text-[#111816] font-title">
           Agentes para tu negocio
         </h3>
         <ul class="space-y-2.5 text-sm">
@@ -74,7 +74,7 @@ const companyLinks = [
 
       <!-- Column 3: Plataforma (Span 2) -->
       <div class="lg:col-span-2 space-y-4">
-        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+        <h3 class="text-base font-bold text-[#111816] font-title">
           Plataforma
         </h3>
         <ul class="space-y-2.5 text-sm">
@@ -93,7 +93,7 @@ const companyLinks = [
 
       <!-- Column 4: Contacto & Acceso (Span 2) -->
       <div class="lg:col-span-2 space-y-4">
-        <h3 class="text-xs font-bold text-content-main uppercase tracking-wider font-mono">
+        <h3 class="text-base font-bold text-[#111816] font-title">
           Contacto
         </h3>
         <ul class="space-y-2.5 text-sm">
@@ -108,52 +108,52 @@ const companyLinks = [
             </li>
           ))}
         </ul>
-        <div class="pt-2 text-xs text-content-muted">
-          <p class="font-medium text-content-main">Lima, Perú</p>
-          <p class="text-[11px] mt-0.5">Operaciones para todo el país</p>
+        <div class="pt-2 text-sm text-[#46544F]">
+          <p class="font-medium text-[#111816]">Lima, Perú</p>
+          <p class="text-sm mt-0.5">Operaciones para todo el país</p>
         </div>
       </div>
 
     </div>
 
     <!-- Trust & Security Ribbon -->
-    <div class="py-8 border-b border-surface-border grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-content-secondary">
+    <div class="py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm text-[#2D3A35]">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
           <TablerIcon name="brand-whatsapp" size={17} className="text-[#25D366]" strokeWidth={2} />
         </div>
         <div>
-          <span class="font-bold text-content-main block">100% en WhatsApp</span>
-          <span class="text-content-muted">Sin instalar apps ni programas nuevos</span>
+          <span class="font-bold text-[#111816] block">100% en WhatsApp</span>
+          <span class="text-[#46544F]">Sin instalar apps ni programas nuevos</span>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
           <TablerIcon name="receipt-tax" size={17} strokeWidth={2} />
         </div>
         <div>
-          <span class="font-bold text-content-main block">Validez oficial SUNAT</span>
-          <span class="text-content-muted">Comprobantes legales con XML y PDF</span>
+          <span class="font-bold text-[#111816] block">Validez oficial SUNAT</span>
+          <span class="text-[#46544F]">Comprobantes legales con XML y PDF</span>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-brand-mint-light flex items-center justify-center text-brand-forest shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
           <TablerIcon name="check" size={17} strokeWidth={2.2} />
         </div>
         <div>
-          <span class="font-bold text-content-main block">Privacidad garantizada</span>
-          <span class="text-content-muted">Tus datos seguros y cifrados de extremo a extremo</span>
+          <span class="font-bold text-[#111816] block">Privacidad garantizada</span>
+          <span class="text-[#46544F]">Tus datos seguros y cifrados de extremo a extremo</span>
         </div>
       </div>
     </div>
 
     <!-- Bottom Copyright & Legal Links -->
-    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-content-muted">
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#46544F]">
       <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
         <p>© {currentYear} MeowLab. Todos los derechos reservados.</p>
-        <span class="hidden sm:inline text-surface-border">•</span>
+        <span class="hidden sm:inline text-[#46544F]">•</span>
         <p>Hecho en Perú para hacer avanzar a tu empresa.</p>
       </div>
 

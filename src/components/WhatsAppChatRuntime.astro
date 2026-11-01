@@ -10,7 +10,7 @@ const agentsData = [
     icon: 'file-search' as const,
     image: '/assets/gato-licitaciones-light.svg',
     badge: '3 oportunidades hoy',
-    reaction: '⚡',
+    reaction: 'Verificado',
     time: '10:42 a. m.',
     userQuery: '¿Hay compras del Estado en Cusco para obras de saneamiento esta semana?',
     agentIntro: '¡Hola Andrés! Encontré 2 compras públicas ideales para tu empresa:',
@@ -31,7 +31,7 @@ const agentsData = [
     icon: 'receipt-tax' as const,
     image: '/assets/gato-facturas-light.svg',
     badge: 'Aprobada al instante',
-    reaction: '✅',
+    reaction: 'Validado',
     time: '10:43 a. m.',
     userQuery: 'Haz una factura para Constructora San José por S/ 8,450 más IGV por servicios de ingeniería',
     agentIntro: '¡Listo! Tu factura ya fue emitida y aprobada por SUNAT:',
@@ -52,7 +52,7 @@ const agentsData = [
     icon: 'database-cog' as const,
     image: '/assets/gato-ventas-light.svg',
     badge: 'Te responde al segundo',
-    reaction: '📦',
+    reaction: 'En stock',
     time: '10:44 a. m.',
     userQuery: '¿Cuánto cemento nos queda en el almacén de Lurín y a qué precio está la bolsa?',
     agentIntro: 'Revisé tu almacén y estos son los datos que tienes en este momento:',
@@ -71,16 +71,70 @@ const agentsData = [
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center" id="whatsapp-runtime-container">
   
-  <!-- LEFT: Authentic WhatsApp Simulation Window (Span 7) -->
-  <div class="order-2 lg:order-1 lg:col-span-7 w-full" id="whatsapp-chat-window">
+  <!-- LEFT: Authentic WhatsApp Simulation Window + Agent Switcher (Span 7) -->
+  <div data-ui class="order-2 lg:order-1 lg:col-span-7 w-full space-y-4" id="whatsapp-chat-window">
+    
+    <!-- Timer & Agent Switcher directly integrated into the WhatsApp Simulator Column -->
+    <div class="space-y-3">
+      <!-- Header with Status and WhatsApp Story Segments -->
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[13px] font-semibold text-brand-forest">
+          Mira cómo te responde cada asistente:
+        </span>
+        <span class="text-[13px] text-content-muted flex items-center gap-1.5 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#25D366]"></span>
+          <span id="runtime-timer-status" class="text-brand-forest font-semibold">Siguiente en 8s</span>
+        </span>
+      </div>
+
+      <!-- WhatsApp Status Story Segments (3 horizontal pill bars) -->
+      <div class="grid grid-cols-3 gap-2 px-1" role="progressbar" aria-label="Progreso de cambio entre asistentes">
+        {agentsData.map((_, i) => (
+          <div class="h-1.5 bg-surface-border/80 rounded-full overflow-hidden relative">
+            <div 
+              class="agent-story-segment h-full bg-brand-forest rounded-full transition-colors duration-75"
+              style={i === 0 ? "width: 0%;" : "width: 0%;"}
+            ></div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Agent Switcher Tabs (3 columns grid) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" role="tablist" aria-label="Cambiar de asistente en la simulación de WhatsApp">
+        {agentsData.map((agent, index) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? 'true' : 'false'}
+            data-agent-id={agent.id}
+            data-index={index}
+            class={`agent-tab-btn w-full text-left rounded-xl p-2.5 transition-colors duration-300 relative group ${
+              index === 0 
+                ? 'bg-[#D8F0E5] text-[#0C493C]' 
+                : 'bg-[#F2F6F4] hover:bg-[#E5F0EB]'
+            }`}
+          >
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border/80 flex items-center justify-center p-0.5 flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                <img src={agent.image} alt={agent.name} class="w-full h-full object-contain mix-blend-multiply" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[13px] font-bold text-content-main truncate flex items-center gap-1">
+                  <span class="truncate">{agent.name.replace('Buscador de ', '').replace('Asistente de ', '')}</span>
+                  <TablerIcon name="check" size={14} strokeWidth={2.5} className="text-[#25D366] shrink-0" />
+                </div>
+                <div class="text-[13px] text-content-secondary truncate">
+                  {agent.badge}
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+
     <!-- Authentic WhatsApp Phone / Web Window (Fixed Height to prevent layout jumping) -->
-    <div class="w-full bg-[#EFEAE2] border border-[#D1D7DB] rounded-2xl shadow-card overflow-hidden flex flex-col relative h-[540px] sm:h-[580px]">
-      
-      <!-- WhatsApp Subtle Doodle Canvas Background -->
-      <div 
-        class="absolute inset-0 pointer-events-none opacity-35 bg-repeat"
-        style="background-image: radial-gradient(#CCD0D5 0.75px, transparent 0.75px), radial-gradient(#CCD0D5 0.75px, #EFEAE2 0.75px); background-size: 20px 20px; background-position: 0 0, 10px 10px;"
-      ></div>
+    <div class="w-full bg-[#EAEFE9] border border-[#D1D7DB] rounded-2xl shadow-card overflow-hidden flex flex-col relative h-[520px] sm:h-[550px]">
 
       <!-- 1. Authentic WhatsApp Chat Header -->
       <div class="relative z-10 bg-[#F0F2F5] border-b border-[#E9EDEF] px-4 py-2.5 flex items-center justify-between shadow-xs flex-shrink-0">
@@ -106,7 +160,7 @@ const agentsData = [
                 <path d="M5.5 9.2l2.3 2.3 4.8-4.8" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <span class="text-xs text-[#25D366] font-medium block mt-0.5" id="wa-header-status">en línea</span>
+            <span class="text-[13px] text-[#0C493C] font-semibold block mt-0.5" id="wa-header-status">en línea</span>
           </div>
         </div>
 
@@ -137,7 +191,7 @@ const agentsData = [
         
         <!-- E2E Security Notice (Authentic WhatsApp Business notice) -->
         <div class="flex justify-center my-1">
-          <div class="bg-[#FFEECD] text-[#54656F] text-xs px-3 py-1 rounded-lg text-center max-w-sm shadow-xs flex items-center gap-1.5 border border-[#F5D8A0]/60">
+          <div class="bg-[#FFEECD] text-[#54656F] text-[13px] px-3 py-1.5 rounded-lg text-center max-w-sm shadow-xs flex items-center gap-1.5 border border-[#F5D8A0]/60">
             <svg class="w-3.5 h-3.5 text-[#54656F] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
             </svg>
@@ -147,14 +201,14 @@ const agentsData = [
 
         <!-- Date Pill -->
         <div class="flex justify-center mb-2">
-          <span class="rounded-full bg-white px-3 py-0.5 text-xs font-medium text-[#667781] shadow-2xs">
+          <span class="rounded-full bg-white px-3 py-0.5 text-[13px] font-medium text-[#667781] shadow-2xs">
             Hoy
           </span>
         </div>
 
         <!-- OUTGOING BUBBLE (User Message - Revealed on Send) -->
-        <div class="flex justify-end transition-all duration-300 opacity-0 translate-y-2 hidden" id="wa-user-bubble-container">
-          <div class="relative bg-[#D9FDD3] text-[#111B21] px-3.5 py-2 rounded-2xl rounded-br-none max-w-[88%] sm:max-w-[80%] shadow-xs text-xs sm:text-[13.5px] leading-relaxed">
+        <div class="flex justify-end transition-opacity duration-300 opacity-0 translate-y-2 hidden" id="wa-user-bubble-container">
+          <div class="relative bg-[#D9FDD3] text-[#111B21] px-3.5 py-2 rounded-2xl rounded-br-none max-w-[88%] sm:max-w-[80%] shadow-xs text-[13px] sm:text-sm leading-relaxed">
             <p id="wa-user-text">
               <span id="wa-user-text-content"></span>
             </p>
@@ -164,7 +218,7 @@ const agentsData = [
               <path d="M5.188 13H0V1.807l6.467 8.625C7.526 11.844 6.958 13 5.188 13z" fill="#D9FDD3"/>
             </svg>
             <!-- Timestamp + Checkmark Status -->
-            <div class="flex items-center justify-end gap-1 text-[11px] leading-[15px] text-[rgba(17,27,33,0.45)] mt-1 -mb-0.5">
+            <div class="flex items-center justify-end gap-1 text-[13px] leading-[15px] text-[rgba(17,27,33,0.55)] mt-1 -mb-0.5">
               <span id="wa-user-time">10:42 a. m.</span>
               <!-- Checkmark status SVG (single check, double grey, or double blue) -->
               <span id="wa-user-checks" class="text-[#8696A0] inline-flex items-center opacity-75" title="Enviado">
@@ -177,7 +231,7 @@ const agentsData = [
         </div>
 
         <!-- TYPING INDICATOR (Shown smoothly during transitions) -->
-        <div id="wa-typing-bubble" class="hidden items-start gap-2 pt-1 transition-all duration-200">
+        <div id="wa-typing-bubble" class="hidden items-start gap-2 pt-1 transition-opacity duration-200">
           <div class="relative bg-white px-3.5 py-2.5 rounded-2xl rounded-bl-none shadow-xs flex items-center gap-1.5">
             <!-- Authentic WDS Tail (bottom-left with shadow) -->
             <svg viewBox="0 0 8 13" width="8" height="13" class="absolute bottom-0 -left-[8px] pointer-events-none">
@@ -193,8 +247,8 @@ const agentsData = [
         </div>
 
         <!-- INCOMING BUBBLE (Agent Message) -->
-        <div class="flex items-start gap-2 transition-all duration-300 opacity-0 translate-y-2 hidden" id="wa-agent-bubble-container">
-          <div class="relative bg-white text-[#111B21] px-3.5 pt-2.5 pb-2 rounded-2xl rounded-bl-none max-w-[95%] sm:max-w-[90%] shadow-xs space-y-2 text-xs sm:text-[13.5px]">
+        <div class="flex items-start gap-2 transition-opacity duration-300 opacity-0 translate-y-2 hidden" id="wa-agent-bubble-container">
+          <div class="relative bg-white text-[#111B21] px-3.5 pt-2.5 pb-2 rounded-2xl rounded-bl-none max-w-[95%] sm:max-w-[90%] shadow-xs space-y-2 text-[13px] sm:text-sm">
             
             <!-- Authentic WDS Tail (bottom-left with shadow) -->
             <svg viewBox="0 0 8 13" width="8" height="13" class="absolute bottom-0 -left-[8px] pointer-events-none">
@@ -204,11 +258,11 @@ const agentsData = [
 
             <!-- Sender Header in WhatsApp Business -->
             <div class="flex items-center justify-between border-b border-[#F0F2F5] pb-1.5">
-              <span class="font-semibold text-brand-forest text-xs flex items-center gap-1.5" id="wa-agent-label">
+              <span class="font-semibold text-brand-forest text-[13px] flex items-center gap-1.5" id="wa-agent-label">
                 <img id="wa-bubble-avatar-img" src={agentsData[0].image} alt="" class="w-4 h-4 object-contain rounded-full inline-block" />
                 <span id="wa-agent-label-name">Buscador de Licitaciones</span>
               </span>
-              <span class="text-xs text-[#8696A0]">Asistente IA</span>
+              <span class="text-[13px] text-[#54656F]">Asistente IA</span>
             </div>
 
             <!-- Agent Intro Text -->
@@ -217,19 +271,19 @@ const agentsData = [
             </p>
 
             <!-- Structured WhatsApp Interactive Result Card -->
-            <div class="bg-[#F7F9FA] border border-[#E9EDEF] rounded-xl p-3 space-y-2 text-xs" id="wa-agent-card">
+            <div class="bg-[#F7F9FA] border border-[#E9EDEF] rounded-xl p-3 space-y-2 text-[13px]" id="wa-agent-card">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-semibold text-brand-forest uppercase tracking-wider bg-brand-mint/60 px-2 py-0.5 rounded-md" id="wa-card-tag">
+                <span class="text-[13px] font-semibold text-brand-forest bg-brand-mint/60 px-2 py-0.5 rounded-md" id="wa-card-tag">
                   Oportunidad sugerida • Saneamiento
                 </span>
               </div>
-              <div class="font-semibold text-[#111B21] text-xs sm:text-sm leading-snug" id="wa-card-title">
+              <div class="font-semibold text-[#111B21] text-[13px] sm:text-sm leading-snug" id="wa-card-title">
                 Instalación de red de agua potable y saneamiento en San Sebastián
               </div>
-              <div class="text-xs text-[#667781]" id="wa-card-entity">
+              <div class="text-[13px] text-[#667781]" id="wa-card-entity">
                 Municipalidad Distrital de San Sebastián • Cusco
               </div>
-              <div class="flex items-center justify-between pt-1.5 border-t border-[#E9EDEF] text-xs">
+              <div class="flex items-center justify-between pt-1.5 border-t border-[#E9EDEF] text-[13px]">
                 <span class="font-bold text-content-main" id="wa-card-budget">Presupuesto: S/ 1,240,500.00</span>
                 <span class="text-brand-forest font-medium" id="wa-card-deadline">Plazo para postular: en 5 días</span>
               </div>
@@ -237,25 +291,25 @@ const agentsData = [
 
             <!-- Reaction & Timestamp Row (anchored right under the message text/card, above buttons) -->
             <div class="flex items-center justify-between pt-0.5 px-0.5">
-              <!-- WhatsApp Reaction Badge (snug with message text) -->
-              <div id="wa-agent-reaction-pill" class="inline-flex items-center rounded-full border border-[#E9EDEF] bg-[#F7F9FA] px-2 py-0.5 text-xs leading-none shadow-2xs transition-transform duration-300 transform scale-0">
-                <span id="wa-agent-reaction-emoji">⚡</span>
-                <span class="ml-1 text-xs font-medium text-[#667781]">1</span>
+              <!-- WhatsApp Status Badge (snug with message text, zero emojis) -->
+              <div id="wa-agent-reaction-pill" class="inline-flex items-center gap-1 rounded-full border border-[#E9EDEF] bg-[#F7F9FA] px-2.5 py-0.5 text-[13px] leading-none shadow-2xs transition-opacity duration-300 opacity-0">
+                <TablerIcon name="check" size={13} strokeWidth={2.5} className="text-[#25D366] shrink-0" />
+                <span id="wa-agent-reaction-emoji" class="text-[13px] font-medium text-[#667781]">Verificado</span>
               </div>
 
               <!-- Timestamp -->
-              <div class="text-right text-[11px] leading-[15px] text-[rgba(17,27,33,0.45)]">
+              <div class="text-right text-[13px] leading-[15px] text-[rgba(17,27,33,0.55)]">
                 <span id="wa-agent-time">10:42 a. m.</span>
               </div>
             </div>
 
             <!-- WhatsApp Cloud API Authentic Interactive Action Buttons (seamlessly docked to card bottom) -->
             <div class="border-t border-[#E9EDEF] -mx-3.5 -mb-2 overflow-hidden rounded-b-2xl rounded-bl-none" id="wa-agent-buttons-container">
-              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-medium text-[#00A884] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF] first:border-t-0">
+              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-semibold text-[#007B60] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF] first:border-t-0">
                 <TablerIcon name="file-invoice" size={15} strokeWidth={2} />
                 <span id="wa-btn-1">Ver resumen en PDF</span>
               </button>
-              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-medium text-[#00A884] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF]">
+              <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-[13px] font-semibold text-[#007B60] hover:bg-[#F0F2F5] active:bg-[#E9EDEF] transition-colors border-t border-[#E9EDEF]">
                 <TablerIcon name="check" size={15} strokeWidth={2} />
                 <span id="wa-btn-2">Ver requisitos clave</span>
               </button>
@@ -284,13 +338,13 @@ const agentsData = [
         </button>
 
         <!-- Input Field Container -->
-        <div class="flex-1 bg-white rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-[#111B21] flex items-center shadow-2xs border border-[#E9EDEF] min-h-[38px] overflow-hidden">
+        <div class="flex-1 bg-white rounded-2xl px-3.5 py-2 text-[13px] sm:text-sm text-[#111B21] flex items-center shadow-2xs border border-[#E9EDEF] min-h-[38px] overflow-hidden">
           <!-- Static Placeholder (shown when idle) -->
-          <span class="text-[#8696A0] truncate select-none" id="wa-input-placeholder">Pídele algo por WhatsApp a tu asistente...</span>
+          <span class="text-[#54656F] truncate select-none" id="wa-input-placeholder">Pídele algo por WhatsApp a tu asistente...</span>
           <!-- Active Animated Typing Prompt (shown during typing) -->
           <div class="hidden items-center w-full min-w-0 overflow-hidden" id="wa-input-active-container">
-            <span class="text-[#111B21] whitespace-nowrap font-normal text-xs sm:text-[13.5px] flex-shrink-0" id="wa-input-typed-content"></span>
-            <span id="wa-input-cursor" class="inline-block w-[1.5px] h-[14px] bg-[#00A884] ml-0.5 align-middle flex-shrink-0 animate-pulse"></span>
+            <span class="text-[#111B21] whitespace-nowrap font-normal text-[13px] sm:text-sm flex-shrink-0" id="wa-input-typed-content"></span>
+            <span id="wa-input-cursor" class="inline-block w-[1.5px] h-[14px] bg-[#00A884] ml-0.5 align-middle flex-shrink-0"></span>
           </div>
         </div>
 
@@ -298,7 +352,7 @@ const agentsData = [
         <button 
           type="button" 
           id="wa-send-btn"
-          class="w-9 h-9 rounded-full bg-[#00A884] text-white flex items-center justify-center hover:bg-[#008f6f] transition-all duration-150 shadow-sm flex-shrink-0" 
+          class="w-9 h-9 rounded-full bg-[#00A884] text-white flex items-center justify-center hover:bg-[#008f6f] transition-colors duration-150 flex-shrink-0" 
           title="Enviar mensaje"
         >
           <svg class="w-4 h-4 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
@@ -310,71 +364,10 @@ const agentsData = [
     </div>
   </div>
 
-  <!-- RIGHT: Main Headline, Value Proposition, CTAs & Timer Switcher (Span 5) -->
+  <!-- RIGHT: Main Headline, Value Proposition, CTAs (Span 5) -->
   <div class="order-1 lg:order-2 lg:col-span-5 space-y-4 text-left flex flex-col justify-center">
     <!-- Slot for Title, Subtitle, CTAs, and Trust points (Sin contratos forzosos) -->
     <slot />
-
-    <!-- Timer & Agent Switcher directly below Sin contratos forzosos -->
-    <div class="pt-4 border-t border-surface-border/80 space-y-3">
-      <!-- Header with Status and WhatsApp Story Segments -->
-      <div class="flex items-center justify-between px-1">
-        <span class="text-xs font-bold text-content-main uppercase tracking-wider">
-          Mira cómo te responde cada asistente:
-        </span>
-        <span class="text-xs text-content-muted flex items-center gap-1.5 font-medium">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#25D366]"></span>
-          <span id="runtime-timer-status" class="text-brand-forest font-semibold">Siguiente en 8s</span>
-        </span>
-      </div>
-
-      <!-- WhatsApp Status Story Segments (3 horizontal pill bars) -->
-      <div class="grid grid-cols-3 gap-2 px-1" role="progressbar" aria-label="Progreso de cambio entre asistentes">
-        {agentsData.map((_, i) => (
-          <div class="h-1.5 bg-surface-border/80 rounded-full overflow-hidden relative">
-            <div 
-              class="agent-story-segment h-full bg-brand-forest rounded-full transition-all duration-75"
-              style={i === 0 ? "width: 0%;" : "width: 0%;"}
-            ></div>
-          </div>
-        ))}
-      </div>
-
-      <!-- Agent Switcher Tabs (3 columns grid) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" role="tablist" aria-label="Cambiar de asistente en la simulación de WhatsApp">
-        {agentsData.map((agent, index) => (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={index === 0 ? 'true' : 'false'}
-            data-agent-id={agent.id}
-            data-index={index}
-            class={`agent-tab-btn w-full text-left bg-white border rounded-xl p-2.5 transition-all duration-300 relative group shadow-xs ${
-              index === 0 
-                ? 'border-transparent ring-2 ring-brand-mint shadow-hover bg-brand-mint-light/30' 
-                : 'border-surface-border hover:border-brand-mint/80'
-            }`}
-          >
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border/80 flex items-center justify-center p-0.5 flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
-                <img src={agent.image} alt={agent.name} class="w-full h-full object-contain mix-blend-multiply" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-xs font-bold text-content-main truncate flex items-center gap-1">
-                  <span class="truncate">{agent.name.replace('Buscador de ', '').replace('Asistente de ', '')}</span>
-                  <span class="text-[#25D366] text-xs">✓</span>
-                </div>
-                <div class="text-xs text-content-secondary truncate">
-                  {agent.badge}
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-    </div>
-
   </div>
 
 </div>
@@ -424,8 +417,8 @@ const agentsData = [
   const runtimeTimerStatus = document.getElementById('runtime-timer-status');
   const chatScroll = document.getElementById('wa-chat-scroll');
 
-  const ACTIVE_CLASSES = ['border-transparent', 'ring-2', 'ring-brand-mint', 'shadow-hover', 'bg-brand-mint-light/30'];
-  const INACTIVE_CLASSES = ['border-surface-border'];
+  const ACTIVE_CLASSES = ['bg-[#D8F0E5]', 'text-[#0C493C]'];
+  const INACTIVE_CLASSES = ['bg-[#F2F6F4]', 'hover:bg-[#E5F0EB]'];
   let isVisible = true;
   let pausedElapsed = 0;
 
@@ -495,8 +488,7 @@ const agentsData = [
       agentBubble.classList.add('opacity-0', 'translate-y-2', 'hidden');
     }
     if (reactionPill) {
-      reactionPill.classList.add('scale-0');
-      reactionPill.classList.remove('scale-100');
+      reactionPill.classList.add('opacity-0');
     }
     if (userBubble) {
       userBubble.classList.add('opacity-0', 'translate-y-2', 'hidden');
@@ -625,9 +617,8 @@ const agentsData = [
                     // Step 6: Reaction badge pops up shortly after reply
                     const tReaction = setTimeout(() => {
                       if (reactionPill && reactionEmoji) {
-                        reactionEmoji.textContent = data.reaction || '⚡';
-                        reactionPill.classList.remove('scale-0');
-                        reactionPill.classList.add('scale-100');
+                        reactionEmoji.textContent = data.reaction || 'Verificado';
+                        reactionPill.classList.remove('opacity-0');
                       }
                     }, 350);
                     sequenceTimeouts.push(tReaction);

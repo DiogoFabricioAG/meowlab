@@ -15,7 +15,7 @@ export default {
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          subtle: '#F7F9F7',
+          subtle: '#F2F6F4',
           muted: '#EEF2EF',
           border: '#E8ECE9',
           'border-subtle': '#F0F3F1',
@@ -23,8 +23,8 @@ export default {
         },
         content: {
           main: '#111816',
-          secondary: '#586561',
-          muted: '#8A9691',
+          secondary: '#2D3A35',
+          muted: '#46544F',
           faint: '#BDC7C2',
         },
       },
@@ -32,7 +32,7 @@ export default {
         sans: ['Actor', 'sans-serif'],
         title: ['Blinker', 'sans-serif'],
         display: ['Blinker', 'sans-serif'],
-        mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        mono: ['Actor', 'sans-serif'],
       },
       borderRadius: {
         'xl': '10px',

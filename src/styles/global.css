@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Actor&family=Blinker:wght@100;200;300;400;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Actor&family=Blinker:wght@100;200;300;400;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,10 +8,20 @@
   --color-brand-forest: #0C493C;
   --color-brand-mint: #D8F0E5;
   --color-bg-base: #FFFFFF;
-  --color-bg-subtle: #F7F9F7;
+  --color-bg-subtle: #F2F6F4;
   --color-text-main: #111816;
-  --color-text-secondary: #586561;
+  --color-text-secondary: #2D3A35;
   --color-border-subtle: #E8ECE9;
+}
+
+::selection {
+  background-color: #D8F0E5;
+  color: #0C493C;
+}
+
+:focus-visible {
+  outline: 2px solid #0C493C;
+  outline-offset: 2px;
 }
 
 html {
@@ -19,6 +29,8 @@ html {
   background-color: #FFFFFF;
   color: #111816;
   font-family: 'Actor', sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -27,6 +39,9 @@ html,
 body,
 .font-sans {
   font-family: 'Actor', sans-serif !important;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #111816;
 }
 
 h1, h2, h3, h4, .font-title, .font-display {
@@ -38,15 +53,15 @@ p {
   text-wrap: pretty;
 }
 
-.font-mono, code, pre, kbd, samp {
-  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 body {
   overflow-x: hidden;
   background-color: #FFFFFF;
   color: #111816;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Custom Scrollbar - Subdued & Elegant */
@@ -56,7 +71,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F9F7;
+  background: #F2F6F4;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -73,8 +88,8 @@ body {
   background-color: #0C493C;
   color: #FFFFFF;
   border-radius: 12px;
-  font-weight: 500;
-  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 600;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -83,16 +98,15 @@ body {
 
 .btn-primary:hover {
   background-color: #08372D;
-  box-shadow: 0 2px 8px rgba(12, 73, 60, 0.12);
 }
 
 .btn-secondary {
-  background-color: #FFFFFF;
+  background-color: #F2F6F4;
   color: #111816;
-  border: 1px solid #E8ECE9;
+  border: 0;
   border-radius: 12px;
-  font-weight: 500;
-  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 600;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -100,20 +114,17 @@ body {
 }
 
 .btn-secondary:hover {
-  background-color: #F7F9F7;
-  border-color: #CBD5E1;
+  background-color: #E3EDE8;
 }
 
 /* Cards & Surface Utilities */
 .card-clean {
-  background-color: #FFFFFF;
-  border: 1px solid #E8ECE9;
+  background-color: #F2F6F4;
+  border: 0;
   border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(17, 24, 22, 0.04);
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-clean:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 4px 12px rgba(12, 73, 60, 0.06);
+  background-color: #E3EDE8;
 }

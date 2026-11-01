@@ -112,7 +112,7 @@ const allAgents = [
       <!-- Page Header (no eyebrow pill per #rule-hero-eyebrow-chip) -->
       <div class="max-w-3xl mb-10 sm:mb-12">
         <h1 class="text-3xl sm:text-5xl font-bold text-content-main tracking-tight text-balance">
-          Catálogo de Especialistas para <span class="text-brand-forest">Operar en WhatsApp</span>
+          Catálogo de especialistas <span class="text-brand-forest">en WhatsApp</span>
         </h1>
         <p class="text-content-muted text-base sm:text-lg mt-4 leading-relaxed">
           Cada asistente cumple una función operativa delimitada, con reglas de negocio claras y trazabilidad en cada respuesta.
@@ -122,33 +122,33 @@ const allAgents = [
         <div class="flex flex-wrap items-center gap-2 mt-8" id="catalog-filters">
           <button
             data-cat="all"
-            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-brand-forest text-white border border-brand-forest transition-colors"
+            class="filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-brand-forest text-white transition-colors"
           >
             Todos los roles
           </button>
           <button
             data-cat="dedicado"
-            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+            class="filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-surface-subtle text-content-muted hover:text-content-main transition-colors"
           >
             Dedicados ERP / DB
           </button>
           <button
             data-cat="finanzas"
-            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+            class="filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-surface-subtle text-content-muted hover:text-content-main transition-colors"
           >
-            Facturación y Cobros
+            Facturación y cobros
           </button>
           <button
             data-cat="ventas"
-            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+            class="filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-surface-subtle text-content-muted hover:text-content-main transition-colors"
           >
-            Licitaciones y Ventas
+            Licitaciones y ventas
           </button>
           <button
             data-cat="soporte"
-            class="filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors"
+            class="filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-surface-subtle text-content-muted hover:text-content-main transition-colors"
           >
-            Soporte y Trámites
+            Soporte y trámites
           </button>
         </div>
       </div>
@@ -159,28 +159,28 @@ const allAgents = [
           <article
             class={`agent-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-colors ${
               agent.featured
-                ? 'bg-surface-subtle border-2 border-brand-forest'
-                : 'bg-white border border-surface-border hover:border-brand-forest/40'
+                ? 'bg-surface-mint/50'
+                : 'bg-surface-subtle hover:bg-surface-mint/30'
             }`}
             data-category={agent.category}
           >
             <div>
               <div class="flex items-start justify-between gap-4 mb-5">
-                <div class="w-12 h-12 rounded-xl bg-surface-mint/60 border border-surface-border flex items-center justify-center p-1.5 overflow-hidden">
+                <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center p-1.5 overflow-hidden">
                   <img src={agent.image} alt={agent.name} class="w-full h-full object-contain" loading="lazy" />
                 </div>
-                <span class="text-xs font-title font-bold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
+                <span class="text-sm font-title font-bold px-2.5 py-1 rounded-md bg-surface-mint text-brand-forest">
                   {agent.badge}
                 </span>
               </div>
 
-              <div class="mb-1 text-xs font-title font-semibold text-brand-forest">
+              <div class="mb-1 text-sm font-title font-semibold text-brand-forest">
                 {agent.type}
               </div>
               <h2 class="text-xl font-bold text-content-main">
                 {agent.name}
               </h2>
-              <p class="text-xs font-medium text-content-muted mb-3">
+              <p class="text-sm font-medium text-content-muted mb-3">
                 {agent.role}
               </p>
 
@@ -188,21 +188,21 @@ const allAgents = [
                 {agent.description}
               </p>
 
-              <!-- Flat specification rows using divide-y instead of a nested card -->
-              <dl class="mt-5 pt-4 border-t border-surface-border divide-y divide-surface-border text-xs">
-                <div class="py-2 flex justify-between gap-4">
+              <!-- Specification rows without hairline borders -->
+              <dl class="mt-5 pt-2 space-y-2.5 text-sm">
+                <div class="flex justify-between gap-4">
                   <dt class="text-content-muted">Respuesta típica</dt>
-                  <dd class="font-mono font-semibold text-content-main text-right">{agent.specs.speed}</dd>
+                  <dd class="tabular-nums font-semibold text-content-main text-right">{agent.specs.speed}</dd>
                 </div>
-                <div class="py-2 flex justify-between gap-4">
+                <div class="flex justify-between gap-4">
                   <dt class="text-content-muted">Entrada</dt>
                   <dd class="text-content-main text-right">{agent.specs.input}</dd>
                 </div>
-                <div class="py-2 flex justify-between gap-4">
+                <div class="flex justify-between gap-4">
                   <dt class="text-content-muted">Resultado</dt>
                   <dd class="text-content-main text-right">{agent.specs.output}</dd>
                 </div>
-                <div class="py-2 flex justify-between gap-4">
+                <div class="flex justify-between gap-4">
                   <dt class="text-content-muted">Integración</dt>
                   <dd class="font-medium text-brand-forest text-right">{agent.specs.integration}</dd>
                 </div>
@@ -212,7 +212,7 @@ const allAgents = [
             <div class="pt-5 mt-2">
               <a
                 href="/contacto"
-                class="w-full py-3 px-4 rounded-xl text-center text-xs font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
+                class="w-full py-3 px-4 rounded-xl text-center text-sm font-title font-bold bg-brand-forest text-white hover:bg-brand-forestDark inline-flex items-center justify-center gap-2 transition-colors"
               >
                 <span>Consultar por {agent.name}</span>
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -228,7 +228,7 @@ const allAgents = [
       <!-- Bottom 2-column section: Solución Dedicada & Cómo Funciona el Equipo -->
       <div class="mt-16 grid lg:grid-cols-2 gap-8">
         <!-- Column 1: Solución Dedicada (Tailor-Made) -->
-        <section class="bg-surface-subtle border border-surface-border rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+        <section class="bg-surface-subtle rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
           <div>
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
@@ -242,8 +242,8 @@ const allAgents = [
                 </svg>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-content-main">Solución Dedicada (Tailor-Made)</h2>
-                <p class="text-xs text-content-muted">Infraestructura aislada y conectores a medida</p>
+                <h2 class="text-xl font-bold text-content-main">Solución dedicada a medida</h2>
+                <p class="text-sm text-content-muted">Infraestructura aislada y conectores a medida</p>
               </div>
             </div>
 
@@ -251,20 +251,20 @@ const allAgents = [
               Cuando tu operación requiere conectarse a un ERP propio, aplicar reglas de aprobación internas o desplegarse en una nube privada, diseñamos un asistente exclusivo para tu organización.
             </p>
 
-            <ul class="divide-y divide-surface-border border-t border-b border-surface-border text-sm">
-              <li class="py-3 flex items-start gap-3">
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-start gap-3">
                 <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5l10 -10" />
                 </svg>
                 <span class="text-content-main">Conexión directa a PostgreSQL, SQL Server, SAP Business One u Odoo.</span>
               </li>
-              <li class="py-3 flex items-start gap-3">
+              <li class="flex items-start gap-3">
                 <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5l10 -10" />
                 </svg>
                 <span class="text-content-main">Permisos por rol de usuario y validación de número telefónico autorizado.</span>
               </li>
-              <li class="py-3 flex items-start gap-3">
+              <li class="flex items-start gap-3">
                 <svg class="w-4 h-4 text-brand-forest mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5l10 -10" />
                 </svg>
@@ -278,7 +278,7 @@ const allAgents = [
               href="/dedicado"
               class="inline-flex items-center gap-2 text-sm font-title font-bold text-brand-forest hover:text-brand-forestDark transition-colors"
             >
-              <span>Ver arquitectura de Solución Dedicada</span>
+              <span>Ver arquitectura de solución dedicada</span>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
@@ -288,7 +288,7 @@ const allAgents = [
         </section>
 
         <!-- Column 2: Cómo Funciona el Equipo -->
-        <section class="bg-surface-subtle border border-surface-border rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+        <section class="bg-surface-subtle rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
           <div>
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 rounded-xl bg-surface-mint text-brand-forest flex items-center justify-center shrink-0">
@@ -301,8 +301,8 @@ const allAgents = [
                 </svg>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-content-main">Cómo Funciona el Equipo</h2>
-                <p class="text-xs text-content-muted">Colaboración entre tus operadores y los asistentes</p>
+                <h2 class="text-xl font-bold text-content-main">Cómo funciona el equipo</h2>
+                <p class="text-sm text-content-muted">Colaboración entre tus operadores y los asistentes</p>
               </div>
             </div>
 
@@ -310,27 +310,27 @@ const allAgents = [
               Los especialistas de MeowLab no reemplazan el criterio de tu negocio: preparan información, validan datos y solicitan confirmación antes de ejecutar operaciones sensibles.
             </p>
 
-            <div class="divide-y divide-surface-border border-t border-b border-surface-border text-sm">
-              <div class="py-3 flex items-start justify-between gap-4">
+            <div class="space-y-3 text-sm">
+              <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-semibold text-content-main">1. Recepción en lenguaje natural</div>
-                  <p class="text-xs text-content-muted mt-0.5">Tu equipo envía audios, textos o documentos desde su propio celular.</p>
+                  <p class="text-sm text-content-muted mt-0.5">Tu equipo envía audios, textos o documentos desde su propio celular.</p>
                 </div>
-                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">WhatsApp</span>
+                <span class="text-sm text-brand-forest font-semibold shrink-0">WhatsApp</span>
               </div>
-              <div class="py-3 flex items-start justify-between gap-4">
+              <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-semibold text-content-main">2. Validación y estructura</div>
-                  <p class="text-xs text-content-muted mt-0.5">El asistente verifica RUC, montos o filtros y presenta un resumen claro.</p>
+                  <p class="text-sm text-content-muted mt-0.5">El asistente verifica RUC, montos o filtros y presenta un resumen claro.</p>
                 </div>
-                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">Control</span>
+                <span class="text-sm text-brand-forest font-semibold shrink-0">Control</span>
               </div>
-              <div class="py-3 flex items-start justify-between gap-4">
+              <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-semibold text-content-main">3. Confirmación y entrega</div>
-                  <p class="text-xs text-content-muted mt-0.5">Con tu aprobación explícita, genera el documento o actualiza tu sistema.</p>
+                  <p class="text-sm text-content-muted mt-0.5">Con tu aprobación explícita, genera el documento o actualiza tu sistema.</p>
                 </div>
-                <span class="text-xs font-mono text-brand-forest font-semibold shrink-0">Ejecución</span>
+                <span class="text-sm text-brand-forest font-semibold shrink-0">Ejecución</span>
               </div>
             </div>
           </div>
@@ -365,9 +365,9 @@ const allAgents = [
         const cat = btn.getAttribute('data-cat');
 
         buttons.forEach(b => {
-          b.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-surface-subtle border border-surface-border text-content-muted hover:text-content-main transition-colors';
+          b.className = 'filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-surface-subtle text-content-muted hover:text-content-main transition-colors';
         });
-        btn.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-title font-bold bg-brand-forest text-white border border-brand-forest transition-colors';
+        btn.className = 'filter-btn px-4 py-2 rounded-xl text-sm font-title font-bold bg-brand-forest text-white transition-colors';
 
         cards.forEach(card => {
           const cardCat = card.getAttribute('data-category');
