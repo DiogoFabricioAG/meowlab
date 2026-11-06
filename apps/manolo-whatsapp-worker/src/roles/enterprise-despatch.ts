@@ -3,6 +3,7 @@ import type { FacturayaInvoiceDraft, FacturayaTenant } from "../facturaya/contra
 import { despatchProblems, parseDespatchPayload, parseDespatchResponse, peruDate, positiveDecimal3,
   type DespatchPayload, type FacturayaDespatch } from "../facturaya/despatch-contracts";
 import { despatchPdfFilename, renderDespatchHtml } from "../facturaya/despatch-template";
+import { createBrowserPdfRenderer } from "../adapters/documents/browser-pdf";
 import { explicitDates, isFullDate } from "../facturaya/payment-terms";
 import type { DistrictName } from "../geography/ubigeo";
 import { mergeInterpretedDespatch } from "./despatch-interpretation";
@@ -286,10 +287,12 @@ async function sendDespatchPdf(context: RoleHandlerContext, state: DespatchState
   company: FacturayaTenant): Promise<"sent" | "unavailable" | "failed"> {
   const guide = state.guide;
   if (!printable(guide) || !state.invoice) return "unavailable";
-  if (!context.renderPdf) { context.log("whatsapp_gre_pdf_skipped", { reason: "missing_renderer" }); return "unavailable"; }
+  // Runtimes that predate renderPdf injection still expose the Browser Run binding in env.
+  const render = context.renderPdf ?? createBrowserPdfRenderer(context.env?.BROWSER, context.log);
+  if (!render) { context.log("whatsapp_gre_pdf_skipped", { reason: "missing_renderer" }); return "unavailable"; }
   // FacturaYa's stored payload is the authority for what was created or sent.
   const input = { company, invoice: state.invoice, fields: guide.payload, guide };
-  const pdf = await context.renderPdf(renderDespatchHtml(input));
+  const pdf = await render(renderDespatchHtml(input));
   if (!pdf) return "failed";
   const number = typeof guide.correlative === "number"
     ? `${guide.series}-${String(guide.correlative).padStart(8, "0")}` : guide.series;

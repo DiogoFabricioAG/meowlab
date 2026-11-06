@@ -420,6 +420,18 @@ describe("enterprise despatch PDF", () => {
     expect((await p.saved()).confirmation).toBeDefined();
     expect(p.despatch.issue).not.toHaveBeenCalled();
   });
+  it("falls back to the Browser Run binding when the runtime does not inject renderPdf", async () => {
+    const p = scenario(); await p.start();
+    const turn = p.context(fullDespatchText);
+    const quickAction = vi.fn(async () => new Response(new Blob(["%PDF-1.7"], { type: "application/pdf" })));
+    turn.env = { BROWSER: { quickAction } } as unknown as Env;
+    turn.sendDocument = vi.fn(async () => ({ status: "sent" as const, metaMessageId: "document" }));
+    await p.handler.handle(turn);
+    expect(quickAction).toHaveBeenCalledWith("pdf", expect.objectContaining({
+      html: expect.stringContaining("GUÍA DE REMISIÓN ELECTRÓNICA"), pdfOptions: expect.objectContaining({ format: "a4" }) }));
+    expect(turn.sendDocument).toHaveBeenCalledWith(expect.objectContaining({ filename: expect.stringMatching(/^Guia-Remision-T001-borrador/) }));
+    expect((await p.saved()).confirmation).toBeDefined();
+  });
   it("keeps the confirmation available when the PDF cannot be generated", async () => {
     const p = scenario(); await p.start();
     const turn = withPdf(p.context(fullDespatchText), null); await p.handler.handle(turn);

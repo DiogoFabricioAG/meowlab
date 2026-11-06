@@ -46,6 +46,15 @@ ignora. Si se perdía ese equipo, se perdía la única copia de lo que corre.
 6. **No destruyas historia ni trabajo ajeno**: nada de `push --force`,
    `reset --hard`, `checkout --` o `clean` sobre cambios que no sean tuyos.
 
+**Excepciones registradas.** Solo el operador puede autorizarlas, una por vez:
+
+- 2026-11-06 — PDF de la guía de remisión publicado por injerto sobre el Worker
+  `5a7c916e` (rama `feat/gre-pdf-formato`, `tools/prepare-gre-pdf-release.mjs`).
+  Fuentes y scripts se commitearon y publicaron antes de desplegar; el bundle base
+  sigue fuera de git. Antes de otra publicación hay que reconciliar `src/` con
+  producción (tareas `git-version-production-code-20261106` y
+  `wrangler-config-drift-20261106` del tablero).
+
 ## Enrutamiento por tipo de tarea
 
 En las filas de Manolo, las rutas abreviadas `src/`, `test/`, `migrations/`,

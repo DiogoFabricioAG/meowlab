@@ -49,10 +49,13 @@ campos confirmados conservados y motivo de error sin contenido sensible.
   `maxTokens: 8e3`; ambos adaptadores OpenAI reconocen `gpt-6-luna` como modelo
   de razonamiento y, con esfuerzo definido, omiten `temperature`. El evento
   `whatsapp_gre_interpretation_failed` está incluido.
-- **No incluido en `5a7c916e`:** el texto nuevo «Falló la lectura automática…» y la
-  condición del adaptador que omite `temperature` aun sin esfuerzo; existen en
-  `src/` pero no en el bundle. Si falla, el usuario sigue viendo el texto antiguo.
-  Tampoco incluye el PDF de guía (rama `feat/gre-pdf-formato`, local).
+- **Incluido también:** el texto nuevo «Falló la lectura automática…» y el guardado
+  del mensaje como evidencia pendiente (corrige una nota anterior que lo daba por
+  ausente: la búsqueda no consideró los acentos escapados del bundle).
+- **No activo en `5a7c916e`:** la condición del adaptador que omite `temperature`
+  aun sin esfuerzo (la copia del injerto no se usa; el runtime conserva los
+  adaptadores base). No afecta a la GRE porque declara esfuerzo `high`.
+  Tampoco incluye el PDF de guía (rama `feat/gre-pdf-formato`).
 - **Prueba real con proveedor:** no realizable en local. `.dev.vars` contiene una
   clave de marcador y OpenAI responde HTTP 401; la clave válida solo está en
   Cloudflare Secrets. Queda la prueba desde un WhatsApp autorizado con
