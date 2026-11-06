@@ -308,7 +308,7 @@ describe("enterprise despatch workflow", () => {
     expect(p.despatch.create).toHaveBeenCalledWith(expect.objectContaining({ ...despatchPayload, idempotency_key: expect.any(String) }));
     expect(turn.sendText).toHaveBeenCalledWith(expect.stringContaining("Destinatario: Cliente Demo"));
     expect(turn.sendText).toHaveBeenCalledWith(expect.stringContaining("SIMULACIÓN LOCAL"));
-    expect(turn.sendText).toHaveBeenCalledWith(expect.stringContaining("No incluye PDF ni QR"));
+    expect(turn.sendText).toHaveBeenCalledWith(expect.stringContaining("formato de trabajo sin QR"));
     expect(turn.sendText).toHaveBeenCalledWith(expect.stringContaining("4 NIU — Chalecos"));
     const state = await p.saved();
     expect(state.confirmation).toMatchObject({ digest: guideDraft.confirmation_digest, guideId: guideDraft.id, revision: state.revision });
@@ -390,5 +390,73 @@ describe("enterprise despatch workflow", () => {
     const cancel = p.context("Cancelar", "enterprise_gre_cancel"); await p.handler.handle(cancel);
     expect(p.despatch.issue).not.toHaveBeenCalled();
     expect(JSON.parse((await p.store.get("manolo", 7, "enterprise-advisor"))!).followUp).toBeDefined();
+  });
+});
+
+describe("enterprise despatch PDF", () => {
+  function withPdf(ctx: RoleHandlerContext, pdf: Blob | null = new Blob(["%PDF-1.7"], { type: "application/pdf" })) {
+    ctx.renderPdf = vi.fn(async () => pdf);
+    ctx.sendDocument = vi.fn(async () => ({ status: "sent" as const, metaMessageId: "document" }));
+    return ctx;
+  }
+  const html = (ctx: RoleHandlerContext) => String(vi.mocked(ctx.renderPdf!).mock.calls[0][0]);
+
+  it("sends the draft in the template format before the confirmation button", async () => {
+    const p = scenario(); await p.start();
+    const turn = withPdf(p.context(fullDespatchText)); await p.handler.handle(turn);
+    expect(html(turn)).toContain("GUÍA DE REMISIÓN ELECTRÓNICA");
+    expect(html(turn)).toContain("N.º T001 - BORRADOR");
+    expect(html(turn)).toContain("Empresa Demo SAC");
+    expect(html(turn)).toContain("Cliente Demo");
+    expect(html(turn)).toContain("F001-123");
+    expect(html(turn)).toContain("Chalecos");
+    expect(html(turn)).toContain("Juan Pérez · DNI 12345678 · Licencia Q12345678");
+    expect(turn.sendDocument).toHaveBeenCalledWith(expect.objectContaining({
+      filename: expect.stringMatching(/^Guia-Remision-T001-borrador-r\d+\.pdf$/), caption: expect.stringContaining("borrador"),
+    }));
+    const documentOrder = vi.mocked(turn.sendDocument).mock.invocationCallOrder[0];
+    const buttonsOrder = vi.mocked(turn.sendButtons!).mock.invocationCallOrder.at(-1)!;
+    expect(documentOrder).toBeLessThan(buttonsOrder);
+    expect((await p.saved()).confirmation).toBeDefined();
+    expect(p.despatch.issue).not.toHaveBeenCalled();
+  });
+  it("keeps the confirmation available when the PDF cannot be generated", async () => {
+    const p = scenario(); await p.start();
+    const turn = withPdf(p.context(fullDespatchText), null); await p.handler.handle(turn);
+    expect(turn.sendDocument).not.toHaveBeenCalled();
+    expect(turn.reply).toHaveBeenCalledWith(expect.stringContaining("No pude generar el PDF"));
+    expect(turn.sendButtons).toHaveBeenCalledWith(expect.any(String), expect.arrayContaining([
+      expect.objectContaining({ title: "Confirmar guía" })]));
+    expect((await p.saved()).confirmation).toBeDefined();
+  });
+  it("sends the issued guide with its number and offers it again without resending", async () => {
+    const p = scenario(); await p.prepare(); const button = (await p.saved()).confirmation.buttonId;
+    p.despatch.issue.mockResolvedValueOnce({ ok: true, data: { ...guideDraft, status: "pending", ticket: "ticket-demo", correlative: 12 } });
+    const issue = withPdf(p.context(button, button)); await p.handler.handle(issue);
+    expect(html(issue)).toContain("N.º T001 - 00000012");
+    expect(html(issue)).toContain("Ticket ticket-demo");
+    expect(issue.sendDocument).toHaveBeenCalledWith(expect.objectContaining({ filename: "Guia-Remision-T001-00000012.pdf" }));
+    expect(issue.sendButtons).toHaveBeenCalledWith(expect.any(String), expect.arrayContaining([
+      expect.objectContaining({ id: "enterprise_gre_pdf", title: "PDF de la guía" })]));
+    const again = withPdf(p.context("PDF de la guía", "enterprise_gre_pdf")); await p.handler.handle(again);
+    expect(again.sendDocument).toHaveBeenCalledWith(expect.objectContaining({ filename: "Guia-Remision-T001-00000012.pdf" }));
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+    expect(p.despatch.get).not.toHaveBeenCalled();
+  });
+  it("does not print a guide whose issue result is uncertain", async () => {
+    const p = scenario(); await p.prepare(); const button = (await p.saved()).confirmation.buttonId;
+    p.despatch.issue.mockResolvedValueOnce({ ok: false, reason: "network_error" });
+    await p.handler.handle(p.context(button, button));
+    const request = withPdf(p.context("pdf")); await p.handler.handle(request);
+    expect(request.renderPdf).not.toHaveBeenCalled();
+    expect(request.reply).toHaveBeenCalledWith(expect.stringContaining("envío por verificar"));
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("explains that the PDF needs a reviewed guide while data is still missing", async () => {
+    const p = scenario(); await p.start("M1");
+    const request = withPdf(p.context("enviar pdf")); await p.handler.handle(request);
+    expect(request.renderPdf).not.toHaveBeenCalled();
+    expect(request.reply).toHaveBeenCalledWith(expect.stringContaining("revises el resumen"));
+    expect(p.despatch.create).not.toHaveBeenCalled();
   });
 });

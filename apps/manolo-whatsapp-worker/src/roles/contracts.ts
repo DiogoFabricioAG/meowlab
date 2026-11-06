@@ -102,6 +102,8 @@ export type RoleHandlerContext = {
     sections: readonly WhatsAppListSection[],
   ) => Promise<SendResult>;
   sendDocument: (document: RoleDocument) => Promise<SendResult>;
+  /** Renders self-contained print HTML to PDF; absent when no renderer is bound. */
+  renderPdf?: (html: string) => Promise<Blob | null>;
   generateAiReply: () => Promise<string | null>;
   generateAiReplyWithHistory: () => Promise<string | null>;
   fallbackReply: string;

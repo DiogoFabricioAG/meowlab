@@ -122,8 +122,9 @@ requieren la integración autenticada. No se intenta subir XML/ZIP como si fuera
 PDF: la [referencia de documentos de Meta](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/document/)
 no acredita estos formatos para el transporte de documentos.
 
-No incluye PDF ni QR y no se anuncia como lista para operar un traslado o
-disponible en producción. Las credenciales GRE y el próximo correlativo de T001
+El PDF descrito abajo es un formato de trabajo sin QR ni hash: no es la
+representación impresa oficial de la GRE y no se anuncia como lista para operar
+un traslado o disponible en producción. Las credenciales GRE y el próximo correlativo de T001
 se configuran y confirman por administración en FacturaYa, nunca por WhatsApp.
 No se solicitan ni transportan `gre_client_id`/`gre_client_secret` en Manolo.
 
@@ -133,6 +134,32 @@ no se habilitó por publicar este flujo. Bindings, webhook, catálogo de roles y
 migraciones Manolo se conservan. La actualización `173dde02` precarga los bienes
 para traslado completo y admite correcciones explícitas para un traslado parcial.
 
+## PDF de la guía (formato de trabajo) — local 2026-11-06, sin desplegar
+
+Manolo genera un PDF A4 que replica
+[`templates/Guia_Remision_Plantilla_M1_L_2026.docx`](templates/Guia_Remision_Plantilla_M1_L_2026.docx):
+remitente y recuadro de número, datos de la operación, partida y llegada
+(dirección · distrito · provincia · departamento desde el catálogo INEI),
+destinatario y factura asociada, 17 filas de bienes (crece si hay más), peso en
+KGM e información del transporte. Para M1/L omite conductor; para `other` añade
+una fila de conductor. Conserva el encabezado «FORMATO DE TRABAJO · NO ES UNA GRE
+EMITIDA POR SUNAT» y el pie de la plantilla en cada página.
+
+- **Cuándo se envía:** con la revisión, antes del botón «Confirmar guía» (número
+  `T001 - BORRADOR`); tras emitir, con serie y correlativo cuando FacturaYa los
+  devuelve; y a pedido con el botón «PDF de la guía» o escribiendo «PDF».
+  «Consultar estado» solo reenvía el PDF si cambió el estado o el correlativo.
+- **Cuándo no:** guía rechazada, envío incierto (`issuing`) o datos incompletos.
+- **Fuente de datos:** el `payload` que devolvió FacturaYa, no el texto del chat.
+- **Fallos:** si Browser Run o la subida a Meta fallan, se avisa al usuario y el
+  botón de confirmación sigue disponible; el PDF nunca bloquea ni dispara la emisión.
+- **Implementación:** `src/facturaya/despatch-template.ts` (HTML autocontenido con
+  CSP `default-src 'none'`, sin recursos de red) y
+  `src/adapters/documents/browser-pdf.ts` (binding `BROWSER`), inyectado como
+  `renderPdf` en `RoleHandlerContext`. No requiere migraciones ni secretos nuevos.
+- **Estado:** probado localmente; no desplegado. La fuente Aptos de la plantilla
+  no existe en Browser Run: se usa la pila Segoe UI/Arial/Liberation Sans.
+
 ## Verificación local
 
 Pruebas de contrato y límites, API simulada, transporte HMAC/replay/permisos,
@@ -141,7 +168,7 @@ reinicio tras pérdida de respuesta y aislamiento de empresa. Todas usan datos y
 transporte simulados. Ejecutar desde `apps/manolo-whatsapp-worker`:
 
 ```sh
-npm test -- --run test/despatch-contracts.test.ts test/despatch-client.test.ts test/enterprise-despatch.test.ts test/ubigeo.test.ts test/facturaya-multitenancy.test.ts
+npm test -- --run test/despatch-contracts.test.ts test/despatch-client.test.ts test/enterprise-despatch.test.ts test/despatch-template.test.ts test/ubigeo.test.ts test/facturaya-multitenancy.test.ts
 npm run typecheck
 npm run build:node
 ```

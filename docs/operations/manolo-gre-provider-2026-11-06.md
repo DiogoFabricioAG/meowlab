@@ -36,3 +36,27 @@ Validación: typecheck y 537 pruebas generales correctas. La prueba nueva verifi
 el cuerpo HTTP con esfuerzo omitido: modelo exacto, JSON y ausencia de temperature.
 La prueba GRE verifica esfuerzo/presupuesto, persistencia del mensaje pendiente,
 campos confirmados conservados y motivo de error sin contenido sensible.
+
+## Seguimiento — 2026-11-06, 15:45 (Claude, tras agotarse la sesión de Codex)
+
+- **Desplegado:** `wrangler deployments status --env production` muestra
+  `5a7c916e-6210-4caf-838f-e2d596e16bc3` al 100% desde 20:34:43Z (15:34 Lima).
+  Las respuestas «No pude interpretar este mensaje» de la captura (15:10–15:13)
+  son anteriores y corresponden a `b82f74d9`.
+- **Contenido verificado del bundle subido** (`backups/gre-provider-20261106/release/worker-upload/index.js`):
+  el manejador activo (`src/gre-semantic.js`, primera copia de
+  `EnterpriseAdvisorRoleHandler`) pide la GRE con `reasoningEffort: "high"` y
+  `maxTokens: 8e3`; ambos adaptadores OpenAI reconocen `gpt-6-luna` como modelo
+  de razonamiento y, con esfuerzo definido, omiten `temperature`. El evento
+  `whatsapp_gre_interpretation_failed` está incluido.
+- **No incluido en `5a7c916e`:** el texto nuevo «Falló la lectura automática…» y la
+  condición del adaptador que omite `temperature` aun sin esfuerzo; existen en
+  `src/` pero no en el bundle. Si falla, el usuario sigue viendo el texto antiguo.
+  Tampoco incluye el PDF de guía (rama `feat/gre-pdf-formato`, local).
+- **Prueba real con proveedor:** no realizable en local. `.dev.vars` contiene una
+  clave de marcador y OpenAI responde HTTP 401; la clave válida solo está en
+  Cloudflare Secrets. Queda la prueba desde un WhatsApp autorizado con
+  `wrangler tail` en vivo para leer `whatsapp_ai_provider_failed` /
+  `whatsapp_gre_interpretation_failed` si reaparece.
+- **Riesgo de proceso:** este despliegue salió de un bundle parcheado en
+  `backups/` y no de un commit. Ver la regla crítica de git en `AGENTS.md`.

@@ -2,6 +2,7 @@ import type { RoleHandlerContext } from "./contracts";
 import type { FacturayaInvoiceDraft, FacturayaTenant } from "../facturaya/contracts";
 import { despatchProblems, parseDespatchPayload, parseDespatchResponse, peruDate, positiveDecimal3,
   type DespatchPayload, type FacturayaDespatch } from "../facturaya/despatch-contracts";
+import { despatchPdfFilename, renderDespatchHtml } from "../facturaya/despatch-template";
 import { explicitDates, isFullDate } from "../facturaya/payment-terms";
 import type { DistrictName } from "../geography/ubigeo";
 import { mergeInterpretedDespatch } from "./despatch-interpretation";
@@ -15,6 +16,8 @@ const REVIEW = "enterprise_gre_review";
 const CANCEL = "enterprise_gre_cancel";
 const CATEGORY = "enterprise_gre_category:";
 const CHANGE_CATEGORY = "enterprise_gre_change_category";
+const PDF = "enterprise_gre_pdf";
+const PDF_REQUEST = /^(?:(?:env[ií]a(?:me)?|enviar|descarga(?:r)?|ver|quiero|manda(?:me)?)\s+(?:el\s+)?)?pdf(?:\s+de\s+(?:la\s+)?gu[ií]a)?[.!]?$/iu;
 type VehicleCategory = NonNullable<DespatchPayload["vehicle_category"]>;
 type Candidate = { id: string; number: string; issueDate: string; customerName: string; customerRuc: string; draftId?: string };
 export type DespatchState = {
@@ -240,7 +243,7 @@ function reviewText(state: DespatchState, company: FacturayaTenant): string {
         `Conductor: ${data.driver?.first_name ?? ""} ${data.driver?.last_name ?? ""} · DNI ${data.driver?.dni ?? "pendiente"} · licencia ${data.driver?.license ?? "pendiente"}`]),
     "Bienes:", ...data.items.map((item) => `• ${item.quantity} ${item.unit} — ${item.description}`),
     `Alcance: ${data.vehicle_category === "M1" || data.vehicle_category === "L" ? "transporte privado con indicador M1/L" : "un vehículo y un conductor"}. No verifica inventario ni cantidades de otras guías.`,
-    "No incluye PDF ni QR; XML/CDR no sustituyen la representación necesaria para operar un traslado. No se garantiza habilitación de producción.",
+    "El PDF de la guía es un formato de trabajo sin QR: no sustituye la representación impresa de la GRE ni habilita por sí solo el traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa. No se garantiza habilitación de producción.",
     "Sólo el botón Confirmar guía autoriza el envío; un ticket pendiente no es aceptación SUNAT."].join("\n");
 }
 
@@ -259,6 +262,10 @@ async function showReview(context: RoleHandlerContext, state: DespatchState, com
       await context.reply("No pude verificar la entrega de la revisión completa. El envío sigue bloqueado."); return;
     }
   }
+  // The PDF is a convenience copy of the reviewed text: a failure never blocks confirmation.
+  if (valid && await sendDespatchPdf(context, state, company) === "failed") {
+    await context.reply("No pude generar el PDF de la guía. La revisión anterior sigue vigente; escribe «PDF» para intentarlo de nuevo.");
+  }
   const buttonId = `${CONFIRM}${crypto.randomUUID()}`;
   if (!context.sendButtons) { await context.reply("El envío requiere el botón de confirmación, no disponible ahora."); return; }
   const sent = await context.sendButtons(valid ? "Revisa todos los datos anteriores antes de confirmar la guía." : "La respuesta de FacturaYa no coincide con esta revisión. El envío está bloqueado.", [
@@ -270,16 +277,48 @@ async function showReview(context: RoleHandlerContext, state: DespatchState, com
     guideId: guide!.id, revision: state.revision } });
 }
 
-async function statusReply(context: RoleHandlerContext, state: DespatchState): Promise<void> {
+// Drafts and guides sent to SUNAT (pending or accepted) can be printed; rejected or uncertain ones cannot.
+function printable(guide?: FacturayaDespatch): guide is FacturayaDespatch {
+  return Boolean(guide && ["draft", "pending", "accepted"].includes(guide.status));
+}
+
+async function sendDespatchPdf(context: RoleHandlerContext, state: DespatchState,
+  company: FacturayaTenant): Promise<"sent" | "unavailable" | "failed"> {
+  const guide = state.guide;
+  if (!printable(guide) || !state.invoice) return "unavailable";
+  if (!context.renderPdf) { context.log("whatsapp_gre_pdf_skipped", { reason: "missing_renderer" }); return "unavailable"; }
+  // FacturaYa's stored payload is the authority for what was created or sent.
+  const input = { company, invoice: state.invoice, fields: guide.payload, guide };
+  const pdf = await context.renderPdf(renderDespatchHtml(input));
+  if (!pdf) return "failed";
+  const number = typeof guide.correlative === "number"
+    ? `${guide.series}-${String(guide.correlative).padStart(8, "0")}` : guide.series;
+  const result = await context.sendDocument({ pdf, filename: despatchPdfFilename(input, state.revision),
+    caption: guide.status === "draft"
+      ? "Guía de remisión en borrador para revisar antes de confirmar. Formato de trabajo; no es una GRE emitida."
+      : `Guía de remisión ${number}. Formato de trabajo sin QR; no sustituye la representación impresa de la GRE.` });
+  if (result?.status !== "sent") {
+    context.log("whatsapp_gre_pdf_failed", { reason: `send_${result?.status ?? "unknown"}` });
+    return "failed";
+  }
+  return "sent";
+}
+
+async function statusReply(context: RoleHandlerContext, state: DespatchState, company: FacturayaTenant,
+  options: { pdf?: boolean } = {}): Promise<void> {
   const guide = state.guide;
   const prefix = guide?.is_demo ? "SIMULACIÓN LOCAL: no enviada a SUNAT. " : "";
   const text = guide?.status === "accepted" ? (guide.is_demo ? "Resultado simulado: accepted." : "SUNAT confirmó la aceptación de la guía.")
     : guide?.status === "pending" ? "Ticket registrado; aceptación pendiente. Puedes consultar estado sin reenviar."
       : guide?.status === "rejected" ? "Guía rechazada. Revisa el CDR."
         : "Resultado incierto o preparación interrumpida. Requiere revisión manual; no se reenviará la guía.";
-  await context.reply(`${prefix}${text}${guide?.ticket ? `\nTicket: ${guide.ticket}` : ""}\nSin PDF/QR: no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa; no se entregan por WhatsApp en este corte.`);
+  await context.reply(`${prefix}${text}${guide?.ticket ? `\nTicket: ${guide.ticket}` : ""}\nEl PDF es un formato de trabajo sin QR; no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa; no se entregan por WhatsApp en este corte.`);
+  if (options.pdf && await sendDespatchPdf(context, state, company) === "failed") {
+    await context.reply("No pude generar el PDF de la guía. Puedes pedirlo con el botón «PDF de la guía».");
+  }
   if (context.sendButtons) await context.sendButtons("Acciones de consulta de la guía:", [
     { id: STATUS, title: "Consultar estado" },
+    ...(printable(guide) ? [{ id: PDF, title: "PDF de la guía" }] : []),
   ]);
 }
 
@@ -308,8 +347,24 @@ export async function handleDespatch(context: RoleHandlerContext, state: Despatc
     }
     const next: DespatchState = { ...issuing, phase: "submitted", guide: result.data };
     await save(next);
-    await statusReply(context, next);
+    await statusReply(context, next, company, { pdf: true });
     if (["accepted", "rejected"].includes(next.guide?.status ?? "")) await onCompleted?.();
+    return;
+  }
+  if (button === PDF || PDF_REQUEST.test(text)) {
+    // In review, only the guide whose summary and confirmation button were delivered is printable.
+    const ready = state.guide && (state.phase === "submitted"
+      || (state.phase === "review" && state.confirmation?.guideId === state.guide.id));
+    if (!ready) {
+      await context.reply(state.phase === "issuing"
+        ? "La guía tiene un envío por verificar. Consulta su estado antes de pedir el PDF."
+        : "El PDF estará disponible cuando completes los datos y revises el resumen de la guía.");
+      return;
+    }
+    const sent = await sendDespatchPdf(context, state, company);
+    if (sent !== "sent") await context.reply(sent === "unavailable"
+      ? "No hay un PDF disponible para esta guía en su estado actual."
+      : "No pude generar el PDF de la guía. Inténtalo nuevamente en unos minutos.");
     return;
   }
   if (state.phase === "issuing" || state.phase === "submitted") {
@@ -324,11 +379,13 @@ export async function handleDespatch(context: RoleHandlerContext, state: Despatc
       }
       const next: DespatchState = { ...state, phase: "submitted", guide, confirmation: undefined };
       await save(next);
-      await statusReply(context, next);
+      // Send a new PDF only when the printed status or number changed.
+      const changed = guide.status !== state.guide.status || guide.correlative !== state.guide.correlative;
+      await statusReply(context, next, company, { pdf: changed });
       if (!["accepted", "rejected"].includes(state.guide?.status ?? "") && ["accepted", "rejected"].includes(guide.status)) await onCompleted?.();
       return;
     }
-    await statusReply(context, state);
+    await statusReply(context, state, company);
     return;
   }
   if (button === CANCEL || /^cancelar$/iu.test(text)) {
@@ -443,7 +500,7 @@ Datos actuales: ${JSON.stringify(state.fields)}. Mensajes de datos previos: ${st
   const next: DespatchState = { ...state, phase: result.data.status === "draft" ? "review" : "submitted", guide: result.data };
   await save(next);
   if (next.phase === "submitted") {
-    await statusReply(context, next);
+    await statusReply(context, next, company, { pdf: true });
     if (["accepted", "rejected"].includes(next.guide?.status ?? "")) await onCompleted?.();
   }
   else await showReview(context, next, company, save);

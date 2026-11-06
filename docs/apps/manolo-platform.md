@@ -71,8 +71,9 @@ La última entrega incorpora [texto e imagen en un turno](../operations/manolo-m
 
 El rol empresarial tiene [GRE remitente privada publicada en Manolo](manolo-despatch.md):
 no crea otro rol ni cambia el catálogo; configuración y habilitación fiscal real
-siguen pendientes en FacturaYa. Incluye revisión/confirmación y consulta, sin PDF/QR ni
-descargas de XML/CDR por WhatsApp.
+siguen pendientes en FacturaYa. Incluye revisión/confirmación y consulta, sin QR ni
+descargas de XML/CDR por WhatsApp. Un PDF en formato de trabajo (plantilla M1/L) está
+implementado en local y pendiente de despliegue.
 
 RADAR es un rol asignable desde la TUI desde el 2026-10-31. Su handler comparte
 registro, resolución y transporte con Manolo. La API del escritorio conserva

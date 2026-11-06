@@ -1,0 +1,1079 @@
+{
+  "updatedAt": "2026-11-06",
+  "columns": [
+    {
+      "id": "todo",
+      "title": "TODO"
+    },
+    {
+      "id": "in_progress",
+      "title": "IN PROGRESS"
+    },
+    {
+      "id": "done",
+      "title": "DONE"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "manolo-gre-pdf-template-20261106",
+      "title": "PDF de la guía de remisión con la plantilla M1/L",
+      "area": "Worker",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf; un fallo no bloquea la confirmación. Rama feat/gre-pdf-formato. Código local: NO desplegado (no está en Worker 5a7c916e).",
+      "evidence": "npx vitest run: 547 pruebas/46 archivos OK (10 nuevas: test/despatch-template.test.ts y bloque PDF de test/enterprise-despatch.test.ts); npm run typecheck OK; npm run build:node OK. Render local con Chrome 157 comparado visualmente con la plantilla (M1 1 página; 22 bienes en 2 páginas sin partir transporte). docs/apps/manolo-despatch.md."
+    },
+    {
+      "id": "git-version-production-code-20261106",
+      "title": "Versionar en git el código ya desplegado",
+      "area": "Ops",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "Revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones D1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). Commit en rama, push y reconciliar src/ con el bundle desplegado. Ver regla crítica en AGENTS.md.",
+      "evidence": ""
+    },
+    {
+      "id": "pg-llm-sql-least-privilege-20261106",
+      "title": "Rol PostgreSQL de mínimo privilegio para el SQL del asesor",
+      "area": "VPS",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "El SQL generado por el modelo (print-advisor) usa el pool y el usuario POSTGRES_USER, superusuario en la imagen oficial; el filtro es lista negra. Crear rol NOSUPERUSER solo SELECT sobre print_system.*, pool propio. Verificar: SELECT rolsuper FROM pg_roles WHERE rolname='manolo_app'.",
+      "evidence": ""
+    },
+    {
+      "id": "facturaya-contact-id-divergence-20261106",
+      "title": "Verificar divergencia de contact_id D1 vs PostgreSQL en FacturaYa",
+      "area": "Plataforma",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "El Worker envía el contact_id de D1 y el bridge autoriza por whatsapp.contacts.id (IDENTITY propio; sync con ON CONFLICT (id) DO NOTHING). Comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id).",
+      "evidence": ""
+    },
+    {
+      "id": "wrangler-config-drift-20261106",
+      "title": "Reconciliar wrangler.jsonc con producción y aislar D1/R2 de desarrollo",
+      "area": "Cloudflare",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "Repo: WHATSAPP_BURST_ENABLED=false y cron */5; producción: true y solo */15. El entorno por defecto usa la D1 y el R2 de producción. Un npm run deploy hoy cambiaría producción sin probar.",
+      "evidence": ""
+    },
+    {
+      "id": "manolo-gre-provider-request-20261106",
+      "title": "Corregir solicitud IA GRE y diagnostico de respuesta",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-06",
+      "notes": "GRE envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. Retomada por Claude tras agotarse Codex: falta solo la prueba real por WhatsApp contra 5a7c916e.",
+      "evidence": "API de logs historicos403; revision de solicitud GRE frente a facturacion. Seguimiento 2026-11-06 (Claude): wrangler deployments status = 5a7c916e al 100% desde 20:34Z; bundle desplegado verificado: GRE con reasoningEffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo PDF. Prueba directa a OpenAI no posible en local: .dev.vars tiene clave de marcador (HTTP 401). Suite local 547/46 OK. docs/operations/manolo-gre-provider-2026-11-06.md."
+    },
+    {
+      "id": "manolo-gre-semantic-ubigeo-20261106",
+      "title": "Interpretacion semantica GRE y ubicaciones por nombre",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Revisar interferencias: hoy/peso120 no guardados, rotulos duplicados, resolver ubigeo por distrito con catalogo oficial y aclarar homonimos.",
+      "evidence": "536 pruebas/45 archivos;439 aisladas/25;typecheck/dry-run OK. Workerb82f74d9 al100%,runtime identicoc867771a,bindings/DO/cron/bridge conservados. Catalogo INEI2026:1893 distritos. Copia SSH SHA2bd4be44. docs/operations/manolo-gre-locations-2026-11-06.md. Sin emision fiscal ni reescritura de sesiones; inferencia simulada en tests."
+    },
+    {
+      "id": "manolo-model-semantic-payment-20261106",
+      "title": "Interpretacion de facturacion a cargo de Luna",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Contrato semantico del modelo con evidencia y preguntas de aclaracion persistidas. No reinterpretar fechas/importes por regex en el contrato nuevo; conservar validaciones de negocio y boton fiscal.",
+      "evidence": "526 pruebas/44 archivos y429 aisladas/24 maxWorkers2;typecheck/dry-run OK. Worker8fa4bcb6 runtime identico702b756f;configuracion/DO/cron/bridge conservados. Copia SSH hashe4eb7b1b. ADR0005 y docs/operations/manolo-semantic-state-2026-11-06.md. Prueba real con clave local401, no afirma calidad real del proveedor. Sin emision ni reescritura de sesiones."
+    },
+    {
+      "id": "manolo-semantic-provider-evaluation",
+      "title": "Evaluar contrato semantico con credencial valida y mensajes reales",
+      "area": "IA",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "La clave local devolvio401 en inferencia sintetica; validar version/citas/fechas/importes y aclaraciones con proveedor real. No cambiar secretos productivos sin verificar su consumidor. Incluir GRE: fechas relativas, peso120kg, lugares/homonimos y respuestas a preguntas guardadas.",
+      "evidence": "backups/semantic-state-20261106/model-check.json; pruebas de contrato simuladas429 OK."
+    },
+    {
+      "id": "manolo-amount-loop-diagnosis-20261106",
+      "title": "Diagnosticar reconocimiento de importe sin persistencia",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Respuesta a consulta sobre generacion de mensajes y mejora estructural. Diagnostico sin cambios de runtime.",
+      "evidence": "docs/operations/manolo-amount-loop-diagnosis-2026-11-06.md; reproduccion hasExplicitAmount:12630=true,12,630=false; historial confirma repeticion."
+    },
+    {
+      "id": "manolo-money-normalization-and-persisted-replies",
+      "title": "Normalizar importes y vincular respuestas al resultado guardado",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Normalizacion monetaria contextual; evidencia y resultado por campo; confirmar solo datos persistidos; rechazo especifico y continuidad entre turnos. Prueba integrada importe agrupado/reclamacion/resumen.",
+      "evidence": "518 pruebas/44 archivos;421 paquete final/24 maxWorkers2;158 logica Node;typecheck/dry-run OK. Publicado Workerc4ffeab5 al100%, runtime identico0e979371, configuracion/DO/cron/bridge conservados. Copia SSH hash7d2c9270. docs/operations/manolo-money-state-2026-11-06.md. Sin emision, reescritura de sesiones ni commit.",
+      "owner": "Codex"
+    },
+    {
+      "id": "manolo-gre-memory-selection-20261106",
+      "title": "Conservar GRE y mejorar seleccion de factura y datos",
+      "area": "Worker/VPS",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Corregir fase heredada, filtrar notas de credito, botones de paginas y precargar bienes desde factura; preguntas formateadas.",
+      "evidence": "499 pruebas/44 archivos, detalle multiempresa27, paquete final403/24; typecheck/build Node/dry-run OK. Worker173dde02 runtime identico dde18237; bridge29c6582f configuracion preservada, extension4dad7b3e. BackupPG restaurado37tablas, smoke staging/activo HMAC/permisos/replay/RADAR sin emision. SSH archivo final7c2732b6; docs/operations/manolo-gre-fixes-2026-11-06.md."
+    },
+    {
+      "id": "gre-partial-credit-invoice-eligibility",
+      "title": "Definir elegibilidad GRE con notas de credito parciales",
+      "area": "FacturaYa",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "Hoy cualquier NC aceptada excluye la factura de GRE. Definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias.",
+      "evidence": "docs/operations/manolo-gre-fixes-2026-11-06.md"
+    },
+    {
+      "id": "manolo-credit-date-retention-20261106",
+      "title": "Corregir perdida de vencimiento entre turnos",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Conservar fechas entre turnos; diagnosticar checkpoint reportado.",
+      "evidence": "493 pruebas/44 archivos y396 aisladas/24; typecheck y dry-run OK. Publicado Worker756ae5a6 al100%; runtime identico hash3fb1888e, bindings/DO/cron/bridge saludables. Borrador pendiente recuperado por CAS desde mensaje original:2026-12-06, emision/cliente/productos conservados, sin llamadas fiscales. Copia SSH hash96033a82; docs/operations/manolo-date-retention-2026-11-06.md."
+    },
+    {
+      "id": "manolo-entry-routing-deploy-20261106",
+      "title": "Publicar enrutamiento inicial y respuestas breves",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Entrega aislada sobre version activa, preservar configuracion y bridge.",
+      "evidence": "Worker79ffc31d al100%; 391 pruebas aisladas/24 archivos, dry-run4.157 y runtime activo identico e08ba4cb. Bindings/cron/DO/secretos preservados, health200 y bridge saludable sin reinicio. Copia SSH hash9fa08a40; docs/operations/manolo-entry-routing-2026-11-06.md. Sin emision, migracion ni commit."
+    },
+    {
+      "id": "manolo-entry-only-decisions-20261106",
+      "title": "Reservar Decisions al inicio y simplificar respuestas",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Todas las gestiones activas usan Luna con contexto; Decisions solo enruta la entrada. Mensajes sencillos y breves, sin omitir resumen fiscal.",
+      "evidence": "488 pruebas/44 archivos: npm test -- --run; npm run typecheck OK. Imagen factura/boleta, datos en billing/credit_note/despatch, resumen semantico con Luna, saludos sin menu y operaciones inciertas cubiertos. Docs actualizados. Cambio local sin despliegue; Cloudflare401 en ultima consulta. Publicado posteriormente en Worker79ffc31d; ver tarea de despliegue."
+    },
+    {
+      "id": "manolo-portfolio-system-design-20261106",
+      "title": "Diagrama de arquitectura Manolo para portfolio",
+      "area": "Documentación",
+      "owner": "Codex",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Vista pública del flujo fiscal actual, sin datos privados; fuentes de verdad D1/PG y confirmación explícita.",
+      "evidence": "docs/architecture/manolo-portfolio.md; Archify showcase9/9 sin errores/avisos; navegador4viewports aprobado y capturas claro/oscuro revisadas."
+    },
+    {
+      "id": "manolo-single-credit-payment-20261106",
+      "title": "Resolver pago único a crédito conservando emisión y vencimiento",
+      "area": "Worker",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Publicado Worker 8c75c490; conserva fecha completa y calcula cuota ?nica desde total can?nico, sin confundir emisi?n/vencimiento. Recuperado borrador pendiente con emisi?n 05/11/2026 y vencimiento 06/12/2026; exige nueva revisi?n y bot?n.",
+      "evidence": "385 pruebas aisladas/24 archivos, typecheck/dry-run OK. Runtime descargado id?ntico, hash 14ab9b91; configuraci?n/DO/bridge y salud preservados. Copia SSH hash03ffd87c. docs/operations/manolo-single-payment-2026-11-06.md. Sin emisi?n, migraci?n ni commit."
+    },
+    {
+      "id": "facturaya-pricing-without-extra-draft",
+      "title": "Acordar c?lculo can?nico sin borrador adicional con FacturaYa",
+      "area": "FacturaYa",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "Definir contrato de valoraci?n sin persistencia o actualizaci?n/limpieza segura de borradores. No inventar rutas fuera del contrato p?blico.",
+      "evidence": "El pago ?nico sin importe usa borrador interno al contado para resolver total antes del borrador a cr?dito; puede quedar un borrador adicional."
+    },
+    {
+      "id": "manolo-billing-fallback-greeting-evidence",
+      "title": "Revisar evidencia de productos en fallback de saludo mezclado con datos",
+      "area": "Worker",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-06",
+      "notes": "Ampliación de robustez del respaldo textual: reproducir saludo+RUC/pago sin imagen cuando el extractor retorna datos, y evitar que frases sin concepto comercial se conviertan en productos por longitud. Mantener captura de descripciones incompletas legítimas.",
+      "evidence": "normalizeIntentForTurn conserva smallTalk por prefijo; fallbackProductsText admite dos palabras significativas. El caso reportado RUC/crédito seguido de foto ya está cubierto y publicado en manolo-multimodal-bursts-20261106."
+    },
+    {
+      "id": "manolo-multimodal-bursts-20261106",
+      "title": "Agrupar mensajes consecutivos y aprovechar datos de imágenes en facturación",
+      "area": "Worker",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Publicado Workerb5f73411: fotos/textos comparten3s de silencio y normalización por original; hasta3fotos, botones/audio/docs mantienenFIFO. Crear con datos conserva cliente/pago/productos sin emitir. Fallo visual conserva texto; namespace/bridge/configuración preservados.",
+      "evidence": "375 pruebas aisladas/24archivos y suite amplia471, typecheck/dry-run4.157 OK. Recorrido real Worker/adaptadorVPS contra endpoints sintéticos, texto/imagen ambos órdenes, dedup, originales, fallo visual y aislamiento cubiertos. Tres sustituciones inversibles sobre85802e7f. Copia SSH hashc244229d. ADR0004 y docs/operations/manolo-multimodal-2026-11-06.md. Sin migración/commit/emisión real."
+    },
+    {
+      "id": "manolo-credit-summary-readonly-20261106",
+      "title": "Conservar motivo al solicitar resumen de anulación",
+      "area": "Worker",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Revisión separada de extracción: conserva motivo/código/fecha, invalida botón anterior y no reemite notas ya procesadas. Publicado Worker85802e7f; bridge y estado emitido conservados, sin restauración de borrador sobre nota aceptada.",
+      "evidence": "342 pruebas aisladas/21archivos, 114 focales/3 y typecheck/dry-run OK. Frase exacta, decisión errónea, review semántica, motivo06/fecha preservados, payload al confirmar y resumen posterior sin reemisión cubiertos. Copia SSH hash a8a66c1c. docs/operations/manolo-credit-summary-2026-11-06.md. Sin migración, commit ni emisión fiscal por el agente."
+    },
+    {
+      "id": "manolo-credit-confirm-forbidden-20261106",
+      "title": "Diagnosticar rechazo al confirmar anulación",
+      "area": "Worker",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Causa confirmada: faltaba create_credit_note con empresa/integración/sesión activas. Usuario autorizó permiso acotado y publicación. Menú según permisos, preflight y rechazo explícito sin incertidumbre. Permiso habilitado y checkpoint recuperado por CAS/digest; requiere nuevo resumen/clic, sin reenviar anulación.",
+      "evidence": "Worker0bedb1c8 al100% sobrea768ba36; 334 pruebas aisladas/21archivos y137 focales/4, typecheck/dry-run OK. Código activo idéntico al probado, salud200, bridge84ee1c65/config/ráfagas/cron conservados. PG forbidden sin auditoría ni llamada al proveedor; digest del checkpoint coincide con petición rechazada. Acta docs/operations/manolo-credit-permission-2026-11-06.md. Sin migración, commit ni emisión real."
+    },
+    {
+      "id": "manolo-intent-first-release-20261106",
+      "title": "Publicar navegación por intención y seguimiento de Manolo",
+      "area": "Ops",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Publicado Worker a768ba36 al100% sobre4ceeaa93; paquete aislado copiado por ssh meowlab. Bridge fiscal84ee1c65 preservado saludable, sin reinicio. RADAR/bindings/secretos/ráfagas/cron conservados. Sin migraciones, commit ni emisión real.",
+      "evidence": "330 pruebas aisladas/21 archivos, typecheck y dry-run4.157 OK. Código activo coincide byte por byte con dry-run; health200 y contrato/configuración verificados. Smoke por Caddy HMAC/permisos/replay5 operaciones sintéticas rechazadas, cero proveedores. SHA paquete7206115e cotejado local/VPS. docs/operations/manolo-intent-2026-11-06.md."
+    },
+    {
+      "id": "manolo-intent-first-navigation",
+      "title": "Clasificar intención antes del estado y cerrar acciones con seguimiento",
+      "area": "Worker",
+      "owner": "Codex-dialogue",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Decisions API primero; saludos con Generar Factura/Generar Boleta/Otras opciones, acceso directo a pedidos claros, menú secundario real y seguimiento Sí/No tras finalizar/PDF. Conservar checkpoints, permisos, incertidumbre y confirmaciones. Sin despliegue o emisión real.",
+      "evidence": "Decisions guía/reference oficiales revisadas; choice objetos y probabilidades array compatibles. npm.cmd run typecheck OK; 147 pruebas focales/6 archivos OK; suite completa 451/453, sólo dos RADAR por reloj real ya registrados. Saludos tras emisión, datos directos/multiempresa, PDF antes de Sí/No, botones antiguos/otro contacto, GRE terminal/cancelada y NC con confirmación entregada, edición y respuesta incierta cubiertos. README/status actualizados. Sin despliegue, commit ni emisión real."
+    },
+    {
+      "id": "manolo-fiscal-release-20261105",
+      "title": "Desplegar crédito y GRE con categoría en Manolo",
+      "area": "Ops",
+      "owner": "Codex-credit",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-05",
+      "notes": "Publicación autorizada tras señal backend listo. Worker 4ceeaa93 al100% y bridge fiscal-20261105/84ee1c65 activos. Respaldos/restauración/staging/rollback, sin emitir ni tocar FacturaYa o credenciales/correlativos. GRE real sigue deshabilitada.",
+      "evidence": "282 pruebas aisladas/17 archivos, typecheck, 19 ráfagas y dry-run4.157 OK. PG restaurado37tablas; D1SQLite26integrityok; configuración/bindings/cron/ráfagas preservados; código publicado coincide con dry-run. Smoke Caddy salud/HMAC/permisos/replay5ops sintéticas sin proveedores. docs/operations/manolo-credit-gre-2026-11-05.md"
+    },
+    {
+      "id": "manolo-gre-invoice-items-prefill",
+      "title": "Acordar precarga de bienes desde factura y traslado total o parcial",
+      "area": "Worker",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-05",
+      "notes": "Siguiente cambio coordinado con FacturaYa: partidas reales de factura elegida, confirmar traslado total/parcial y preguntar unidades no conservadas sin asumir NIU. No implementado en el ajuste de categoría; congelar contrato primero.",
+      "evidence": "Coordinación con mantenedor FacturaYa; alcance diferido expresamente tras vehicle_category."
+    },
+    {
+      "id": "manolo-gre-category-first",
+      "title": "Preguntar categoría del vehículo antes de datos GRE",
+      "area": "Worker",
+      "owner": "Codex-credit",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-05",
+      "notes": "Categoría explícita M1/L/other antes de demás datos. M1/L omite y limpia vehículo/conductor; other exige ambos. Sin inferir categoría, prefill de bienes, emisión o despliegue.",
+      "evidence": "Contrato vehicle_category validado por FacturaYa; M1/L sin vehicle/driver por bridge firmado, other obligatorio, no sé, Laptop M1, Manual categoría M1 e inicial L. Regresión amplia 410/412 (dos RADAR por horario); revalidación final 171 pruebas/7 archivos, typecheck y build:node. docs/apps/manolo-despatch.md. Sin emisión ni despliegue."
+    },
+    {
+      "id": "manolo-gre-whatsapp-files",
+      "title": "Definir entrega privada compatible de archivos GRE en WhatsApp",
+      "area": "Worker",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-05",
+      "notes": "XML/CDR descargables por cliente API autenticado, sin entrega WhatsApp en este corte. No hay portal web GRE ni PDF/QR en FacturaYa. No publicar enlaces con tokens ni tratar XML/ZIP como PDF. Requiere un contrato de entrega privada y formato soportado antes de ofrecer botones.",
+      "evidence": "docs/apps/manolo-despatch.md; test/despatch-client.test.ts verifica archivos privados y rechazo de origen externo."
+    },
+    {
+      "id": "manolo-gre-activation",
+      "title": "Habilitar GRE real tras configuración fiscal y validaciones pendientes",
+      "area": "Ops",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-05",
+      "notes": "Backend, bridge y Worker ya publicados. GRE real sigue deshabilitada: pendientes credenciales y correlativo T001 por administrador y validaciones/representación de traslado. No ejecutar emisiones reales como smoke test ni anunciar traslado operativo sin PDF/QR y validaciones restantes.",
+      "evidence": "docs/operations/manolo-credit-gre-2026-11-05.md; configuración fiscal real no modificada por esta entrega."
+    },
+    {
+      "id": "manolo-private-despatch",
+      "title": "Integrar preparación y confirmación GRE privada en Manolo",
+      "area": "Worker",
+      "owner": "Codex-credit",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-05",
+      "notes": "GRE remitente venta privada preparada: factura elegida, datos explícitos, revisión completa y digest, consulta sin reenvío, ULID lowercase. XML/CDR sólo API autenticada; entrega WhatsApp y activación en tareas separadas. Sin PDF/QR ni emisión real, despliegue o cambios de credenciales.",
+      "evidence": "157 pruebas focales pasan (crédito+GRE). Regresión 397/399: sólo dos fallos RADAR por reloj real fuera de horario, tarea radar-tests-real-clock. Typecheck/build:node correctos. docs/apps/manolo-despatch.md; tres tests GRE nuevos, fixture y transporte/permisos/replay en multiempresa."
+    },
+    {
+      "id": "radar-tests-real-clock",
+      "title": "Fijar reloj de pruebas RADAR que esperan alertas aceptadas",
+      "area": "Tests",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-05",
+      "notes": "Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado.",
+      "evidence": "test/radar.test.ts: full Worker route; test/radar-routing.test.ts: composes AI alert writing. src/radar/http.ts nextAlertTime; src/radar/pacing.ts."
+    },
+    {
+      "id": "manolo-credit-payment-terms",
+      "title": "Preparar condiciones de crédito en facturas de Manolo",
+      "area": "Worker",
+      "owner": "Codex-credit",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-05",
+      "notes": "Sólo Manolo: checkpoint, preguntas, revisión, botón, bridge y API legacy. Coordinado con FacturaYa. Sin emisión real ni despliegue.",
+      "evidence": "118 pruebas de crédito/rol/adaptador/bridge dentro de regresión completa: 358/360 pasan; sólo dos fallos RADAR por reloj real fuera de horario, anotados en radar-tests-real-clock. Typecheck y build:node correctos. README documenta contrato y activación pendiente. Sin despliegue."
+    },
+    {
+      "id": "radar-presence-activation",
+      "title": "Activar presencia RADAR tras autorización final",
+      "area": "Ops",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-05",
+      "notes": "Revalidar base 158b52bc, respaldo privado D1 y restauración, sólo migración 0019, publicar paquete aislado y cron5 preservando recordatorio. Requiere ejecutar cliente actualizado; no simular heartbeat de cliente antiguo.",
+      "evidence": "docs/operations/radar-presence-2026-11-05.md"
+    },
+    {
+      "id": "radar-presence",
+      "title": "Preparar avisos de conexión y desconexión del equipo RADAR",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-05",
+      "notes": "Código preparado, no activado. Heartbeat de un minuto, lease/cron de cinco minutos, cierre ordenado, agregación y coalescencia; ventana/rol/consentimiento/pausa. Pendiente autorización final para migración/publicación y escritorio actualizado.",
+      "evidence": "Desktop: 231 pruebas del árbol preparado, typecheck/build y 41 WhatsApp con Bun embebido 1.3.13. Worker: 316 pruebas/37 archivos, tipos/typecheck, 106 aisladas y dry-run. docs/operations/radar-presence-2026-11-05.md"
+    },
+    {
+      "id": "radar-entity-detail",
+      "title": "Añadir entidad y detalle ampliado a avisos RADAR",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-04",
+      "notes": "Entidad exacta y Ver detalle ampliado, compatibilidad summary/info antiguos. Corrección del formato aprobado, sin mensajes manuales adicionales ni cambios al escritorio.",
+      "evidence": "300 pruebas/36 archivos, typecheck, 90 aisladas y dry-run. Worker 158b52bc-e20a-4a8f-ae31-92e64f3fdbef al 100%; salud/configuración/compatibilidad/cron verificados. docs/apps/radar-conversation.md"
+    },
+    {
+      "id": "radar-editorial-activation",
+      "title": "Publicar corrección editorial RADAR tras autorización",
+      "area": "Ops",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-04",
+      "notes": "Publicación y un envío autorizados. Sin migraciones, instalador, reenvíos, excepción de ventana ni modificación de ritmo.",
+      "evidence": "Worker c47e5613-493e-4b5b-ad62-cc0d3b250ec5 al 100%. Base d1ab0df4 revalidada; bindings/compatibilidad/cron/salud preservados. Envío solicitado nuevo 1259952: primer intento aceptado, webhook delivered. backups/radar-editorial-20261104/manual-send-receipt.json"
+    },
+    {
+      "id": "radar-editorial-alert",
+      "title": "Preparar resúmenes de oportunidades con IA antes de WhatsApp",
+      "area": "Worker",
+      "owner": "Codex",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-04",
+      "notes": "Preparado, no desplegado: objeto/finalidad con citas, fallo IA pendiente en vez de título truncado, cache legado de rechazados sustituida; deduplicación y recordatorios preservados.",
+      "evidence": "295 pruebas/35 archivos, typecheck, 85 pruebas del paquete aislado y dry-run Wrangler 4.157.0. Prueba con GPT-6 Luna real y fragmento público aceptada (3 s), sin WhatsApp. docs/apps/radar-conversation.md"
+    },
+    {
+      "id": "radar-window-reminder-activation",
+      "title": "Activar recordatorio RADAR tras autorización de despliegue",
+      "owner": "Codex",
+      "area": "Ops",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-04",
+      "notes": "Autorización explícita del usuario. Sin mensaje de prueba ni inscripción masiva. La pausa continua de Ajustes necesita escritorio actualizado; proceso abierto e instalador público sin cambios.",
+      "evidence": "Worker d1ab0df4-5a89-4b1b-8032-4ab4f92cd6f8 al 100%; respaldo D1 restaurado; sólo 0018 aplicada; cron, salud, bindings/secretos, compatibilidad y preferencia local verificados. backups/radar-window-reminder-20261104/activation-verification.json"
+    },
+    {
+      "id": "radar-window-reminder",
+      "title": "Implementar y preparar recordatorio de ventana WhatsApp RADAR",
+      "owner": "Codex",
+      "status": "done",
+      "updated": "2026-11-04",
+      "notes": "Código y paquete revisable listos. No desplegado: requiere autorización de publicación, respaldo/migración 0018 y escritorio actualizado. Producción continúa 35d4c8bb.",
+      "area": "Worker",
+      "priority": "medium",
+      "evidence": "286 pruebas/34 archivos; 15 nuevas; typecheck, tipos Env, 76 aisladas y dry-run Wrangler 4.157.0. Desktop: 225 pruebas del árbol preparado, build y 35 con Bun embebido. docs/operations/radar-window-reminder-2026-11-04.md"
+    },
+    {
+      "id": "landing-taste-skill-impeccable-2026-11-01",
+      "title": "Mejorar y desplegar la landing según Taste Skill v2 e Impeccable v4.8",
+      "area": "Landing",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-01",
+      "evidence": "Commits 01a92 y d7f18 publicados en origin/main y desplegados en VPS (meowlab-web:taste-20261101, rollback bimi-final preservado). Taste Skill inspect.mjs: 0 FAIL en 1440px, 768px y 390px. Rutas activas únicamente / y /contacto/ (HTTP 200); /agentes/, /dedicado/ y /servicios/ eliminadas (HTTP 404).",
+      "notes": "Tipografía reducida a 2 familias (Blinker y Actor), contraste >=7.5:1, titulares <=2 líneas, pestañas sobre simulador WhatsApp, sin colisión móvil en React Flow, bloque #0C493C en Supervisión y eliminación de páginas heredadas /agentes, /dedicado y /servicios."
+    },
+    {
+      "id": "radar-resumen-legible",
+      "title": "Estructurar resumen WhatsApp en bloques breves y corregir negritas",
+      "owner": "Codex",
+      "status": "done",
+      "updated": "2026-11-01",
+      "evidence": "Activo 35d4c8bb; 271 pruebas, typecheck, 61 aisladas, dry-run y salud. docs/apps/radar-conversation.md"
+    },
+    {
+      "id": "radar-alertas-espaciadas-fuente",
+      "title": "Espaciar alertas RADAR y adjuntar fuente SEACE al resumen",
+      "owner": "Codex",
+      "status": "done",
+      "updated": "2026-11-01",
+      "notes": "Activo 10a50d2f; una alerta cada 30 minutos entre 08 y 20 Lima, reserva D1 atomica y fuente verificable en Ver resumen.",
+      "evidence": "268 pruebas/32 archivos, typecheck, 58 aisladas, dry-run, salud y bindings verificados. docs/operations/radar-pacing-2026-11-01.md"
+    },
+    {
+      "id": "radar-ui-seleccionadas",
+      "title": "Simplificar escritorio a oportunidades elegidas y preparacion",
+      "owner": "Pendiente",
+      "status": "todo",
+      "evidence": "docs/apps/radar-selection-sync.md",
+      "notes": "Requires coordinating parallel WebView editing. Remove manual discovery surface; contextual bases/quotes/documents; refresh Guardadas while open. Do not claim current UI already changed."
+    },
+    {
+      "id": "radar-seleccion-durable-local",
+      "title": "Descubrimiento local y cola durable de seleccion WhatsApp",
+      "owner": "Codex + Luna",
+      "status": "done",
+      "evidence": "Worker 45b386f5-2a61-43c5-9c00-f44264bf9548 and bridge radar-selection-20261101 active; PG009 after private backup. 263 service tests, 53 isolated, real PostgreSQL integration, 58 desktop tests/typecheck/build and clean staged-tree validation. Authenticated candidate/sync smoke: no user selection or Meta send.",
+      "notes": "Three Luna agents; root integrated and reviewed. Scope: local background discovery, signed API, durable selections and per-install cursors, old-client compatibility. Public installer, live human click and visual simplification remain separate."
+    },
+    {
+      "id": "radar-seguimiento-evidencia",
+      "title": "Corregir IA de seguimiento y enriquecer fuente/productos RADAR",
+      "status": "done",
+      "owner": "Codex",
+      "evidence": "Worker 8f97ac89-92af-445c-be19-fb1c6f37484b published, health/bindings verified; 244 tests, 41 isolated, typecheck and dry-run. Desktop 32 tests, typecheck/build. Official ficha HTTP 200 and accepted replay enriched stored context without resend.",
+      "notes": "Provider configured explicitly for RADAR; distinct factual fallbacks; verified process URL/items/docs and registration vs offers. No migration or new message. Human follow-up after fix pending. docs/apps/radar-conversation.md"
+    },
+    {
+      "id": "radar-botones-seguimiento",
+      "title": "Botones contextuales de seguimiento RADAR por WhatsApp",
+      "status": "done",
+      "owner": "Codex",
+      "evidence": "241 tests/28 files; typecheck; 38 isolated release tests; Wrangler dry-run; Worker 31f4d3ad-6958-43a0-8df7-8c8aa171745d deployed, health OK and bindings unchanged. docs/apps/radar-conversation.md Authorized real button preview accepted, replayed false. Worker 5379829d-61a3-4fb7-a2d0-75146cbd100f; additive D1 0017 after backup; 38 targeted and 38 isolated tests, typecheck and dry-run passed.",
+      "notes": "Explicit button demo sent once to linked contact within open window. Legacy text preview and original delivery preserved. Format is server-defined; no arbitrary retry keys. Human click not asserted."
+    },
+    {
+      "id": "radar-alertas-ia-seguimiento",
+      "title": "Redactar alertas RADAR con IA y conservar contexto para seguimiento por WhatsApp",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-31",
+      "evidence": "237 tests/28 files, typecheck, 34 isolated tests, dry-run. Worker 6034ee6c-ad53-4443-85a2-55f6a3b2179e deployed; D1 0015/0016 applied after backup. Authorized AI preview accepted by Meta; production bindings preserved. docs/apps/radar-conversation.md",
+      "notes": "Automatic dedup preserved. Preview uses installation bearer, exact accepted payload, once per delivery, 24h window rechecked. Original accepted/read retained. Real follow-up awaits user reply; preview read not asserted."
+    },
+    {
+      "id": "radar-corregir-transporte-workers",
+      "title": "Corregir redirect incompatible con Workers y validar alerta real de RADAR",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-31",
+      "evidence": "26 pruebas específicas, typecheck, paquete aislado 19 pruebas y dry-run correctos. Publicación autorizada ddb238b3-6d07-47f5-920c-c4a5be3c04c0. Un único reintento autorizado con CAS/hash/OCID: HTTP 200 accepted, ID Meta presente, callback read. Registro local accepted para deduplicar. docs/operations/radar-transport-2026-10-31.md.",
+      "notes": "Request nativo reproduce redirect:error no soportado antes de red. Corregido manual sin seguir redirecciones. Se conserva ventana real, vinculación, roles y horario; sólo se reconcilió el intento concreto demostrado como anterior a red. No habilita reenvíos genéricos inciertos."
+    },
+    {
+      "id": "skill-incorporacion-agentes-meowlab",
+      "title": "Crear skill portable para incorporar agentes de otros servicios",
+      "area": "Docs",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-31",
+      "evidence": "quick_validate.py correcto en C:/Users/Diogo/.codex/skills/meowlab-agent-onboarding y skills/meowlab-agent-onboarding. Seis archivos idénticos por SHA-256; enlaces relativos existentes. SKILL, metadata, tres referencias y plantilla de handoff. Tablero regenerado y --check correcto.",
+      "notes": "Skill instalada para otros proyectos del usuario y copia portable en repo. Contratos reales, lectura acotada, modalidades rol/capacidad e integración sin repo mediante handoff; alta no automática, registro local y catálogo/despliegue separados. Sin modificaciones de runtime, producción o tarea RADAR de otro agente."
+    },
+    {
+      "id": "radar-rol-licitaciones",
+      "title": "Integrar RADAR en el registro y catálogo de roles de Manolo",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-31",
+      "evidence": "220 pruebas/27 archivos con npm test -- --run --maxWorkers=1; typecheck; paquete aislado 17 pruebas y dry-run Wrangler 4.156.0. Worker b406aab4-86cc-4dfd-a8cd-4d0a5edb9fe6 publicado. PG 008 aplicada tras rollback de prueba; radar activo/asignable. Huellas de contactos y bindings preservadas; salud 200 y rutas protegidas 401.",
+      "notes": "Solicitud del fundador: rol de licitaciones asignable desde TUI; conservar autorizaciones del escritorio y resolver el recorrido RADAR ACTIVAR sin invocar FacturaYa. No cambiar el rol de contactos ajenos."
+    },
+    {
+      "id": "corregir-ssh-tui-vps-migrado",
+      "title": "Usar alias SSH meowlab en la TUI de usuarios y empresas",
+      "area": "TUI",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-29",
+      "evidence": "npm.cmd run test:tui: 18 pruebas correctas; npm.cmd run users:tui:check: connection=ok. ssh meowlab conectado y contenedores verificados. node tools/board/build-board.mjs --check; diff --check de archivos afectados.",
+      "notes": "Configuración SSH compartida: default meowlab, sin forzar llave antigua; overrides de host/key conservados. Gateway contactos y administración de empresas corregidos. Sin cambios a usuarios, roles o servicios; sin commit/despliegue."
+    },
+    {
+      "id": "agrupar-rafagas-whatsapp",
+      "title": "Agrupar ráfagas por conversación con ventana durable de tres segundos",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-22",
+      "evidence": "206 pruebas en 24 archivos; npm.cmd run typecheck; npm.cmd run build:node; wrangler types y types --check; deploy --env production --dry-run. Pruebas de ventana, límites, barreras, ACK firmado, deduplicación, alarma DO, concurrencia, originales y bloqueo fiscal. Caso sintético de cinco fragmentos de boleta: una interpretación y una consulta DNI. ADR-0002; tablero regenerado/verificado.",
+      "notes": "Implementación local con Durable Object por tenant/número/contacto: debounce 3 s, máximo 10 s/20 mensajes/8000 caracteres. Texto consolidado; botones/media FIFO individuales. Conserva D1 y sombra VPS. Desactivado por defecto; sin despliegue. Recuperación administrativa de incertidumbre y activación en tareas separadas."
+    },
+    {
+      "id": "recuperacion-admin-rafagas-inciertas",
+      "title": "Añadir recuperación administrativa segura de turnos inciertos antes de activar ráfagas",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-22",
+      "evidence": "4 pruebas admin HMAC: firma/TTL/manipulación, aislamiento, revisión obligatoria, huella, CAS, auditoría/replay y rechazo de fase issuing. Suite local 210 pruebas; release autocontenida 36 pruebas. CLI infra/vps/burst-admin.mjs; endpoint /internal/conversations/burst-admin.",
+      "notes": "Recuperación implementada: no reejecuta turnos ni emite, requiere comprobar FacturaYa y referencia de revisión, invalida botones y preserva productos. Rechaza cola activa o emisión pendiente de reconciliar."
+    },
+    {
+      "id": "activar-rafagas-whatsapp",
+      "title": "Desplegar y activar agrupación de ráfagas de WhatsApp preservando RADAR",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-22",
+      "evidence": "GitHub main da37ff053164401339e3b475762126e034d71991; clon limpio por ssh meowlab a /opt/manolo-platform/releases/bursts-git-20261022 y hash a08ca08699b83f7261a0be082f7476ec7f98adfd4b142d64d31fe3a47f9db40a coincidente. Cloudflare bf74500a-59ea-4820-be93-aa3c89adb780 con bandera true y namespace DO. 210 pruebas locales, 36 release, dry-run. Health tres servicios 200, webhook/admin/RADAR sin autorización 401; CLI HMAC desde VPS y contacto inexistente 404 esperado.",
+      "notes": "Activación y publicación autorizadas; fuente activa/RADAR preservados. Recuperación HMAC lista. Sin cambios D1/PG, secretos, roles o DNS; sin reinicio de servicios VPS ni comprobantes reales. Acta docs/operations/bursts-activation-2026-10-22.md. Recorrido WhatsApp real y proveedor DNI pendientes."
+    },
+    {
+      "id": "validar-rafaga-whatsapp-real",
+      "title": "Verificar agrupación desde WhatsApp autorizado sin emitir comprobantes",
+      "area": "Ops",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-10-22",
+      "notes": "Ráfagas ya activadas en bf74500a. Pedir al usuario enviar fragmentos en menos de tres segundos entre ellos; comprobar respuesta consolidada, botones y datos. No fabricar firmas Meta en producción ni pulsar Crear como prueba. No se validó proveedor DNI."
+    },
+    {
+      "id": "reconciliar-fuente-manolo-con-release-activa",
+      "title": "Reconciliar cambios pendientes del árbol raíz con la release Manolo activa",
+      "area": "Worker",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-10-22",
+      "notes": "GitHub conserva una release autocontenida probada para no arrastrar cambios ajenos. El árbol raíz local mantiene cambios anteriores sin commit (incluida Decisions API no publicada). Revisarlos por dominio y llevar la fuente canónica a paridad con producción sin perder trabajo ni desplegar por accidente esos cambios."
+    },
+    {
+      "id": "landing-auditoria-anti-slop",
+      "title": "Auditar y corregir la landing según el catálogo impeccable.style/slop",
+      "area": "Landing",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-10-21",
+      "evidence": "pnpm build OK (5 páginas). dist sin clases obsidian/neon/glass-panel. Sin pills sobre títulos, puntos pulsantes estáticos, Sparkles ni tarjetas anidadas en el modal; radios 10/14/18px y sombras cortas. Contacto abre WhatsApp prellenado sin simular persistencia.",
+      "notes": "Sin commit, push ni despliegue. Falta revisión visual en navegador (desktop/móvil) y validar contraste con herramienta."
+    },
+    {
+      "id": "radar-validar-vinculo-y-entrega-real",
+      "title": "Validar vinculacion real y entrega WhatsApp de RADAR con un celular autorizado",
+      "area": "Ops",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-10-18",
+      "notes": "Servicio ya activo. El usuario debe enviar el codigo desde su WhatsApp para abrir la ventana y autorizar alertas; verificar recepcion, baja y atencion habitual de Manolo. No fabricar un webhook, un destinatario o evidencia de mercado. No se enviaron mensajes reales en la activacion."
+    },
+    {
+      "id": "radar-activar-servicio-y-validar-envio-real",
+      "title": "Publicar y activar RADAR en el Worker existente preservando Manolo",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Autorizacion explicita del fundador recibida. Publicacion aislada de otros cambios locales; sin modificar callback, DNS, VPS o roles. Sin mensajes reales; prueba de vinculo/entrega y nuevo instalador en tareas separadas.",
+      "evidence": "Version 02e3ea4b-da57-47ba-b73d-4ecb4fe8f849 publicada; D1 0014 aplicada/habilitada, 0013 sin aplicar. Respaldo restaurado e integridad OK. Paquete preparado sobre c8ac096f y 14 pruebas RADAR aprobadas. HTTPS: health 200, webhook sin firma 401, registro 201, estado sin vinculo, envio bloqueado 403, baja y token revocado 401. Huellas de roles/numeros y bindings iguales. Acta: docs/operations/radar-activation-2026-10-18.md."
+    },
+    {
+      "id": "integrar-radar-whatsapp-compartido",
+      "title": "Implementar y validar el recorrido RADAR con WhatsApp compartido",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Contrato central, D1 0014 desactivada por defecto, entrada Meta existente, cliente Bun y herramientas del chat; sin despliegue o migraciones remotas. Implementacion local terminada; activacion operativa en tarea separada.",
+      "evidence": "Implementado y validado localmente: Worker 187 pruebas en 23 archivos, incluidas 14 RADAR con D1 real local; typecheck, build Node y Wrangler dry-run. Escritorio 100 pruebas Bun en 21 archivos, typecheck y build. Contrato en docs/apps/radar-whatsapp-api.md. Sin despliegue, migracion remota ni envio real."
+    },
+    {
+      "id": "registrar-proyecto-radar",
+      "title": "Registrar RADAR como proyecto de MeowLab y consumidor del canal WhatsApp compartido",
+      "area": "Docs",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "evidence": "docs/project/projects.json, docs/apps/radar.md y ADR-0001. Catálogo JSON y enlaces locales comprobados; tablero regenerado con node tools/board/build-board.mjs y validado con --check; git diff --check en archivos de esta entrega.",
+      "notes": "Registro de proyecto, ficha de arquitectura y pendientes. No crea un rol conversacional, cambia el webhook ni activa envíos."
+    },
+    {
+      "id": "radar-vinculacion-instalacion-whatsapp",
+      "title": "Implementar vinculación de instalaciones RADAR con el WhatsApp compartido",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Definir contrato autenticado, código temporal de un solo uso, consentimiento, baja y credencial revocable por instalación. Procesar vinculación sin cambiar active_role_key ni enviarla al flujo fiscal. Referencia: docs/apps/radar.md. Implementacion local terminada; activacion operativa en tarea separada.",
+      "evidence": "Implementado y validado localmente: Worker 187 pruebas en 23 archivos, incluidas 14 RADAR con D1 real local; typecheck, build Node y Wrangler dry-run. Escritorio 100 pruebas Bun en 21 archivos, typecheck y build. Contrato en docs/apps/radar-whatsapp-api.md. Sin despliegue, migracion remota ni envio real."
+    },
+    {
+      "id": "radar-ventana-whatsapp-compartida",
+      "title": "Registrar ventanas de atención de 24 horas desde el ingreso existente para RADAR",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Persistir timestamp original de mensajes Meta verificados por par emisor/usuario; sin regresión por replay, sin renovación por estados/envíos ni consultas de rol. Conservar deduplicación e historial de Manolo y Facturas. No registrar callback paralelo. Implementacion local terminada; activacion operativa en tarea separada.",
+      "evidence": "Implementado y validado localmente: Worker 187 pruebas en 23 archivos, incluidas 14 RADAR con D1 real local; typecheck, build Node y Wrangler dry-run. Escritorio 100 pruebas Bun en 21 archivos, typecheck y build. Contrato en docs/apps/radar-whatsapp-api.md. Sin despliegue, migracion remota ni envio real."
+    },
+    {
+      "id": "radar-api-notificaciones-compartidas",
+      "title": "Implementar API de alertas RADAR con transporte WhatsApp centralizado",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Autorización por proyecto/instalación y destinatario vinculado, límites, idempotencia, ventana de 24h antes de enviar y correlación de aceptación/entrega/resultado incierto. Secretos Meta sólo en servidor; sin plantillas como respaldo automático. Depende de vinculación y ventanas. Implementacion local terminada; activacion operativa en tarea separada.",
+      "evidence": "Implementado y validado localmente: Worker 187 pruebas en 23 archivos, incluidas 14 RADAR con D1 real local; typecheck, build Node y Wrangler dry-run. Escritorio 100 pruebas Bun en 21 archivos, typecheck y build. Contrato en docs/apps/radar-whatsapp-api.md. Sin despliegue, migracion remota ni envio real."
+    },
+    {
+      "id": "radar-cliente-servicio-compartido",
+      "title": "Conectar el programador local de RADAR al servicio de notificaciones MeowLab",
+      "area": "Plataforma",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-10-18",
+      "notes": "Trabajo en D:/Proyectos2026/licitaciones tras fijar el contrato central. Conservar búsquedas, memoria y SQLite locales; reemplazar transporte Meta directo por API MeowLab, integrar ciclo de vida y probar aislamiento y envío con ventana. No distribuir token ni App Secret Meta. Implementacion local terminada; activacion operativa en tarea separada.",
+      "evidence": "Implementado y validado localmente: Worker 187 pruebas en 23 archivos, incluidas 14 RADAR con D1 real local; typecheck, build Node y Wrangler dry-run. Escritorio 100 pruebas Bun en 21 archivos, typecheck y build. Contrato en docs/apps/radar-whatsapp-api.md. Sin despliegue, migracion remota ni envio real."
+    },
+    {
+      "id": "clasificacion-decisions-api-botones-manolo",
+      "title": "Distinguir mensajes elaborados y mostrar botones iniciales con OpenAI Decisions API",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-14",
+      "evidence": "POST /v1/decisions (con gpt-6-luna) implementado en OpenAiCompatibleAdapter y helper isElaborateUserRequest con fallback heurístico. EnterpriseAdvisorRoleHandler clasifica la naturaleza del mensaje: saludos e inicios ambiguos muestran botones interactivos ('Factura' / 'Boleta') en lugar de respuestas abiertas; consultas elaboradas (ej. ver facturas de la semana) se procesan directamente con el modelo sin botones obligatorios. 173 pruebas en 22 archivos pasaron con éxito; tsc --noEmit limpio; dry-run de Wrangler validado.",
+      "notes": "Decisions API proporciona clasificación ultrarrápida (150-200ms) sin generar texto abierto, devolviendo control predecible al flujo conversacional de WhatsApp."
+    },
+    {
+      "id": "migracion-vps-web",
+      "title": "Migrar contenedor web (meowlab-web) al nuevo VPS sin dominio",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-12",
+      "evidence": "Docker y Docker Compose instalados en meowlab (169.58.135.234 / 100.108.10.76); imagen meowlab-web:latest transferida y cargada; contenedor activo en puerto 80:80; curl local, Tailscale y público responden HTTP 200 con landing Astro. Origen 2.24.64.161 y DNS intactos.",
+      "notes": "Desplegado en el nuevo VPS directo a puerto 80 para verificación antes de corte de dominio. Código fuente en /opt/meowlab sincronizado."
+    },
+    {
+      "id": "migracion-vps-facturaya",
+      "title": "Migrar FacturaYa AI, base PostgreSQL 17 y certificados al nuevo VPS",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-12",
+      "evidence": "pg_dump origin (62KB custom format, sha256:11f8ea65...) restaurado en postgres:17-alpine de meowlab; 19 tablas verificadas con conteos de filas y secuencias idénticos (companies:2, invoices:18, drafts:41, items:39, customers:4, etc.); volumen app_storage (373MB, sha256:18ee5809...) con certificados de empresas y sunat-ruc restaurado; imágenes construidas desde D:\\Proyectos2026\\facturaya-ai; 3 nuevas migraciones ejecutadas con éxito (total 14); healthcheck /api/health HTTP 200 y UI HTTP 200 en http://169.58.135.234:8080 y http://100.108.10.76:8080. Origen y DNS intactos.",
+      "notes": "Código transferido desde D:\\Proyectos2026\\facturaya-ai, secretos y app_storage preservados con permisos 0600 y 33:33. Base replicada con paridad exacta previa a ejecutar migraciones locales."
+    },
+    {
+      "id": "migracion-vps-manolo-platform",
+      "title": "Migrar Manolo Platform (Node bridge, PostgreSQL 16) y configuración de WhatsApp al nuevo VPS",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-12",
+      "evidence": "Base postgres:16-alpine (manolo_platform, dump 211KB sha256:e4c5c422...) restaurada en meowlab; 30 tablas en esquemas whatsapp y print_system con conteos idénticos (messages:885, idempotency_keys:325, bridge_requests:212, facturaya_audit_logs:104, tenants:4, whatsapp_numbers:1, bot_configs:2, tenant_integrations:2); secretos preservados con permisos 0600 y uid 1000; bridge manolo-platform-bridge:latest saludable en puerto 3000; 4 smoke tests ejecutados con éxito (run-smoke-test-bridge.sh, run-smoke-test-contact-role.sh, run-smoke-test-facturaya-multitenancy.sh, smoke-test-dni-contract.mjs); redes manolo_internal, manolo_egress y manolo_ingress operativas. Origen y DNS intactos.",
+      "notes": "Paridad completa de configuración de WhatsApp (números, roles, tenants, bot_configs e integraciones cifradas FacturaYa)."
+    },
+    {
+      "id": "corte-dns-migracion-vps",
+      "title": "Ventana de corte: cambio de DNS al nuevo VPS (169.58.135.234) y activación de Caddy TLS",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-13",
+      "evidence": "DNS actualizado en Hostinger (A records meowlab.tech y facturas.meowlab.tech a 169.58.135.234, AAAA eliminado); certificados TLS Let's Encrypt emitidos y activos en Caddy; https://meowlab.tech HTTP 200; https://facturas.meowlab.tech/api/health HTTP 200; https://facturas.meowlab.tech/internal/manolo/health HTTP 200; 4 smoke tests sobre URL pública HTTPS pasaron al 100% (bridge HMAC, contact role, facturaya multitenancy y DNI contract); Cloudflare Worker /health HTTP 200.",
+      "notes": "Corte de tráfico completado con cero pérdida de datos. Los servicios de MeowLab, FacturaYa y WhatsApp operan al 100% sobre el nuevo VPS."
+    },
+    {
+      "id": "diagnostico-consulta-dni-manolo",
+      "title": "Verificar por qué Manolo rechaza consultar nombre por DNI",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-11",
+      "evidence": "enterprise-advisor-role.ts:1236 solo consulta clientes para invoice; client.ts:85 valida 11 dígitos y llama lookup RUC. FacturaYa local routes/api.php:43 expone lookup-dni; DniLookupService y ApiPeruDniProvider implementan consulta. Respuesta citada no localizada en código; conversation permite reply del modelo.",
+      "notes": "Diagnóstico de fuentes locales, sin consulta de identidad real ni verificación del endpoint DNI desplegado o sus credenciales. Sin cambios funcionales ni despliegue."
+    },
+    {
+      "id": "conectar-consulta-dni-manolo",
+      "title": "Conectar consulta DNI de FacturaYa al rol empresarial de Manolo",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-11",
+      "evidence": "npm.cmd test -- --run: 21 archivos, 163 pruebas; npm.cmd run typecheck; npm.cmd run build:node; git diff --check del Worker; node tools/board/build-board.mjs --check. README Worker y status con contrato y orden de despliegue.",
+      "notes": "Implementación local: lookupCustomerByDni, bridge HMAC lookup_customer_dni, resolución en boletas y solicitud explícita incluso ante negativa IA. Conserva productos, descarta nombre antiguo al cambiar documento e invalida confirmación. Permiso create_invoice y auditoría customer_lookup porque la API puede guardar cliente; sin reintento CAS después de intentar consulta. Sin despliegue ni consulta de identidad real."
+    },
+    {
+      "id": "desplegar-consulta-dni-manolo",
+      "title": "Desplegar consulta DNI en bridge y Worker y validar proveedor",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-11",
+      "evidence": "163 pruebas; typecheck; build Node; types Wrangler; dry-run; Docker build y compose config --quiet. Bridge imagen sha256:93b3d7d27ddc0148e0e77f63980b4227f2cf83aa6ffb9341c69cd48de7f72dd3 saludable; Worker c8ac096f-87a1-4c53-a875-719feeabd76d. Smoke HMAC Caddy multiempresa y DNI: autorización, firma inválida, input inválido y replay correctos. Health 200 en tres servicios y webhook sin firma 401. Tablero regenerado y verificado.",
+      "notes": "Bridge primero y Worker después, por autorización explícita. Release aislada y rollback bridge rollback-dni-20261011; rollback Worker ac69c47b-9e58-47e3-b126-caccec043b00. Sin migraciones, cambios de secretos ni emisión real. Endpoint DNI desplegado, pero token efectivo del proveedor vacío: búsquedas externas pendientes. No se consultó identidad real ni se probó el recorrido WhatsApp completo."
+    },
+    {
+      "id": "configurar-proveedor-dni-facturaya",
+      "title": "Configurar proveedor DNI de FacturaYa y validar búsqueda externa",
+      "area": "Ops",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-10-11",
+      "notes": "Verificación de configuración efectiva en contenedor FacturaYa: token DNI vacío, URL presente; ruta autenticada ya desplegada. Requiere credencial compatible DNI_LOOKUP_API_TOKEN en FacturaYa y autorización para configurarla, sin exponerla. Clientes guardados no requieren proveedor; búsqueda externa y prueba WhatsApp pendientes. No reutilizar token RUC de otro proveedor por inferencia."
+    },
+    {
+      "id": "desplegar-reconciliacion-checkpoint",
+      "title": "Desplegar recuperación de conflictos del checkpoint",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-11",
+      "evidence": "149 pruebas en 21 archivos; npm.cmd run typecheck; wrangler types --check; deploy --env production --dry-run y deploy correctos. Versión ac69c47b-9e58-47e3-b126-caccec043b00. Health Worker, FacturaYa y bridge HTTP 200; webhook sin firma HTTP 401. node tools/board/build-board.mjs --check.",
+      "notes": "Acceso completo recuperado y OAuth Cloudflare verificado. Solo Worker, por autorización explícita; sin migraciones, cambios del VPS, secretos ni emisión real. Rollback 8acec590-8277-48f4-a18e-29790fee45b5. Prueba WhatsApp real y acceso efectivo al modelo siguen pendientes; no se repararon manualmente datos antiguos."
+    },
+    {
+      "id": "diagnostico-checkpoint-turnos-cercanos",
+      "title": "Reconstruir fallo de checkpoint tras productos y cambio de DNI",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "SELECT D1 de solo lectura: mensajes 855–864, checkpoint enterprise-advisor revisión 3 actualizado 04:40:04 UTC. Dos entradas de texto 04:39:54.664 y 04:39:55.222 UTC; error checkpoint 04:40:00 y progreso DNI 04:40:07. Productos vacíos, nombre vacío, documento presente. Inspección checkpointContext, CAS, saveState previo a handleBilling y carga de historial previa a persistInbound.",
+      "notes": "En este intento no hubo imagen. Evidencia consistente con turnos concurrentes: CAS rechaza uno sin reencolarlo; el mensaje comercial permanece en historial pero no en checkpoint. El motivo genérico no permite separar conflicto de fallo D1 con certeza sin traza por turno. Diagnóstico solamente, sin correcciones ni despliegue."
+    },
+    {
+      "id": "serializar-turnos-checkpoint-facturaya",
+      "title": "Reconciliar turnos concurrentes y recuperar cambios rechazados por CAS",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "npm test -- --run: 21 archivos, 149 pruebas; npm run typecheck; npm run build:node; diff --check; node tools/board/build-board.mjs --check. Nuevas pruebas: dos handlers concurrentes conservan productos y DNI en ambos órdenes; turno lento reclasifica sobre DNI ya guardado; importación posterior a conflicto no se repite; D1 distingue conflicto, indisponibilidad y rechazo real de SQL; creación concurrente sigue ejecutándose una sola vez.",
+      "notes": "Se implementó la alternativa de rebase CAS (hasta seis intentos), no una cola FIFO. Se recarga y reclasifica el mensaje original mientras no haya efectos externos. Tras intentar un envío o una mutación no se reejecuta el turno y se solicita verificar el resumen. Logs seguros distinguen conflict/storage_error, con ID aleatorio de turno. Sin despliegue ni cambios manuales a conversaciones de producción."
+    },
+    {
+      "id": "desplegar-vision-luna",
+      "title": "Desplegar análisis visual con Luna sin Qwen",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "142 pruebas en 21 archivos; typecheck; wrangler types --check; deploy --dry-run; npm run deploy. Versión 8acec590-8277-48f4-a18e-29790fee45b5. Health Worker, FacturaYa y bridge HTTP 200; webhook sin firma HTTP 401; node tools/board/build-board.mjs --check.",
+      "notes": "Autorizado explícitamente por el usuario. Solo Worker, sin migraciones ni emisión real. Rollback 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe. GPT-6 Luna configurado para visión sin Qwen; precisión visual y acceso al modelo con imágenes reales pendientes de comprobar."
+    },
+    {
+      "id": "vision-luna-sin-qwen",
+      "title": "Sustituir Qwen por Luna para las imágenes de WhatsApp",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "npm test -- --run: 21 archivos, 142 pruebas; npm run typecheck; wrangler types y types --check; deploy --env production --dry-run. Prueba webhook verifica endpoint OpenAI, modelo gpt-6-luna, imagen original/caption, detalle high y contexto conservado. Pruebas de error de Luna sin fallback y tamaño máximo. rg sin referencias activas a Qwen/GROQ_VISION_MODEL en src, test y wrangler.jsonc; diff --check; node tools/board/build-board.mjs --check.",
+      "notes": "Cambiar extracción visual a OpenAI GPT-6 Luna con imagen original y caption, retirar configuración activa de Qwen, conservar contratos de roles y confirmación fiscal. Pruebas y tipos regenerados; sin nuevo despliegue autorizado."
+    },
+    {
+      "id": "desplegar-checkpoint-facturaya-2026-10-10",
+      "title": "Desplegar checkpoint, intenciones y creación por botón en el Worker",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "npm test -- --run: 21 archivos, 140 pruebas; typecheck; wrangler types --check; deploy --dry-run; npm run deploy. Versión 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe publicada 2026-10-10 22:08 Lima. Health Worker, FacturaYa y bridge HTTP 200; webhook sin firma HTTP 401. D1 contact_role_states existente, consulta de solo lectura. node tools/board/build-board.mjs --check.",
+      "notes": "Despliegue de producción autorizado por el usuario. Solo Worker, sin migraciones ni emisión real. Rollback previo f74eefa9-ff69-4355-85a3-914e696bce2e. OPENAI_API_KEY existe, pero acceso efectivo a GPT-6 Luna y recorrido WhatsApp real siguen pendientes. No se rotaron secretos."
+    },
+    {
+      "id": "facturaya-checkpoint-intenciones-confirmacion",
+      "title": "Checkpoint duradero, GPT-6 Luna e intenciones con creación solo por botón confirmado",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "Worker: npm test -- --run (21 archivos, 140 pruebas); npm run typecheck; npm run build:node; npx --no-install wrangler types --check; npx --no-install wrangler deploy --env production --dry-run. Pruebas de checkpoint, CAS D1, intención, resumen completo entregado y emisión solo por botón vigente. node tools/board/build-board.mjs --check. Sin despliegue.",
+      "notes": "Alcance: rol empresarial, persistencia D1 de checkpoints, adaptador OpenAI y configuración, pruebas y documentación. Conservar datos entre cambios y errores; no importar conversación como productos; vincular el botón a la revisión mostrada. Sin despliegue autorizado en esta tarea."
+    },
+    {
+      "id": "facturaya-validar-gpt6-produccion",
+      "title": "Verificar GPT-6 Luna con credencial válida antes del despliegue empresarial",
+      "area": "Ops",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-10-10",
+      "notes": "La prueba sintética con la credencial local devolvió HTTP 401 invalid_api_key. No demuestra un problema con el secreto de producción ni valida el modelo en vivo. El Worker se desplegó por autorización explícita con gpt-6-luna y OPENAI_API_KEY existente, sin leer o rotar su valor. Pendiente comprobar acceso y clasificación en el recorrido WhatsApp real; los healthchecks no verifican el modelo."
+    },
+    {
+      "id": "retirar-secretos-finance-residuales",
+      "title": "Retirar secretos financieros residuales del Worker con rollback controlado",
+      "area": "Ops",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-10-10",
+      "notes": "La lista de nombres de secretos de producción conserva FINANCE_PLAYER_API_TOKEN y NEON_DATABASE_URL. El código y las variables ya no usan Finance. No se eliminaron secretos en el despliegue del checkpoint; revisar consumidores y necesidad del rollback previo antes de retirarlos."
+    },
+    {
+      "id": "facturaya-disponibilidad-2026-10-10",
+      "title": "Comprobar disponibilidad de FacturaYa y conexión con Manolo",
+      "area": "Ops",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-10-10",
+      "evidence": "SSH conectado; /api/health y /internal/manolo/health HTTP 200. Contenedores activos. Logs bridge y web: POST /api/invoice-drafts/import HTTP 422 el 2026-10-10 a las 20:28, 20:30 y 20:31 Lima. SELECT de solo lectura en invoice_drafts: tres borradores failed con error_message 'El documento no contenía líneas de producto válidas.'. node tools/board/build-board.mjs --check",
+      "notes": "La restricción SSH quedó resuelta al habilitar acceso completo. Reconstrucción mediante SELECT de solo lectura y análisis de fuentes sin exponer contenido privado: 20:28 Lima envió como productos únicamente el nombre del cliente (igualdad verificada por hash); 20:30 envió solo una instrucción de cambio de DNI; 20:31 envió un saludo/consulta de funcionamiento. Una importación del mismo minuto con descripción comercial, cantidad y precio tuvo éxito. Los tres fallos no guardaron raw_extraction ni items: no es recuperable qué regla concreta del resultado de IA falló. El adaptador desplegado solo lee message de primer nivel, mientras la API devuelve data.error. No se modificó ni desplegó ningún servicio."
+    },
+    {
+      "id": "facturaya-cambios-extraccion-422",
+      "title": "Corregir fallo de extracción al cambiar datos y propagar error seguro de FacturaYa",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-10-10",
+      "notes": "Causa reconstruida: nombre de cliente (20:28), cambio de DNI (20:30) y saludo/consulta (20:31) llegaron a products_text sin los productos previos. La clasificación y conservación de contexto se corrigieron, probaron y desplegaron en el Worker 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe; falta validación del recorrido WhatsApp real. Pendiente en esta tarea: la API no conserva raw_extraction al fallar su validación; falta registro seguro de reglas fallidas y propagación segura de data.error, que safeMessage del bridge ignora."
+    },
+    {
+      "id": "recorte-financiero",
+      "title": "Eliminar código financiero retirado (rol finance, adaptador Neon, NEON_DATABASE_URL)",
+      "area": "Worker",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-09-13",
+      "evidence": "npm test: 113 pruebas; npm run typecheck; wrangler types --check"
+    },
+    {
+      "id": "status-2026-09-13",
+      "title": "Actualizar docs/project/status.md al 2026-09-13",
+      "area": "Docs",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-09-13",
+      "evidence": "docs/project/status.md con fecha de corte nueva"
+    },
+    {
+      "id": "nota-arquitectura-13-09",
+      "title": "Nota de arquitectura actual y corrección de la contradicción financiera",
+      "area": "Docs",
+      "priority": "low",
+      "status": "done",
+      "updated": "2026-09-13",
+      "evidence": "docs/architecture/manolo-2026-09-13.md"
+    },
+    {
+      "id": "tablero-trabajo",
+      "title": "Crear tablero visible TODO/IN PROGRESS/DONE y regla de actualización en AGENTS.md",
+      "area": "Docs",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-09-13",
+      "evidence": "node tools/board/build-board.mjs --check"
+    },
+    {
+      "id": "estrategia-multicliente",
+      "title": "Diseñar estrategia multi-cliente: LangGraph por fases y números por rol",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-09-13",
+      "notes": "Comparación hecha; falta ADR y prototipo de migración."
+    },
+    {
+      "id": "diagrama-tarjeta-finanzas",
+      "title": "Regenerar diagrama: la tarjeta dice que Finanzas conserva Neon",
+      "area": "Docs",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Editar manolo-2026-09-13.architecture.json y regenerar HTML."
+    },
+    {
+      "id": "adr-langgraph-por-fases",
+      "title": "ADR: adopción de LangChain/LangGraph por fases",
+      "area": "Docs",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "LangChain como capa de modelos/tools; LangGraph solo en facturación, quotes y store."
+    },
+    {
+      "id": "adr-numeros-y-atribucion",
+      "title": "ADR: modelo de números por cliente y atribución de leads",
+      "area": "Docs",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Uno o más números por cliente; códigos de referido solo si se comparte número."
+    },
+    {
+      "id": "migracion-0014-role-key-numero",
+      "title": "Migración 0014 (D1) + 008 (PG): rol/agente por número",
+      "area": "Worker",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "whatsapp_numbers.role_key o agent_id; findTenant debe leer el rol del número."
+    },
+    {
+      "id": "modelo-agentes-data-driven",
+      "title": "Modelo de agentes data-driven por tenant (tabla agents + tools)",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Reemplaza roles hardcodeados de src/roles/registry.ts por configuración."
+    },
+    {
+      "id": "provisioning-clientes",
+      "title": "Alta de clientes por API y Embedded Signup de WABA",
+      "area": "Plataforma",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Hoy el alta es manual por TUI/SSH."
+    },
+    {
+      "id": "templates-salientes",
+      "title": "Mensajes salientes con templates y ventana de 24h",
+      "area": "Worker",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "sendTemplate no existe; solo sendText/sendImage/sendDocument."
+    },
+    {
+      "id": "flujo-leads-y-handoff",
+      "title": "Tabla de leads, aviso interno y handoff a humano",
+      "area": "Plataforma",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "conversations.status ya contempla handed_off."
+    },
+    {
+      "id": "runtime-postgres-fases-2-3",
+      "title": "Completar runtime PostgreSQL (fases 2 y 3 de la migración)",
+      "area": "VPS",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Sesiones, memoria e idempotencia como ruta principal."
+    },
+    {
+      "id": "cola-tareas-pesadas",
+      "title": "Cola para tareas pesadas entre Worker y VPS",
+      "area": "Cloudflare",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Previsto en la arquitectura objetivo."
+    },
+    {
+      "id": "cuotas-y-metering",
+      "title": "Cuotas, rate-limit y costo por tenant",
+      "area": "Plataforma",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13"
+    },
+    {
+      "id": "ci-por-rutas",
+      "title": "CI por rutas para landing y Worker",
+      "area": "Ops",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "No existe .github/workflows."
+    },
+    {
+      "id": "lint-y-pruebas-landing",
+      "title": "Lint y pruebas de interfaz para la landing",
+      "area": "Landing",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13"
+    },
+    {
+      "id": "commit-landing-y-scratch",
+      "title": "Commitear la landing y limpiar los archivos temporales de la raíz",
+      "area": "Landing",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "extract_preview.cjs, render_original.cjs, scratch-verify-detail.cjs, PNG sueltos."
+    },
+    {
+      "id": "revisar-tienda",
+      "title": "Revisar la integración de tienda antes de reincorporarla",
+      "area": "Plataforma",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-09-13"
+    },
+    {
+      "id": "npm-audit",
+      "title": "Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)",
+      "area": "Worker",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-09-13",
+      "notes": "Reportado por npm audit el 2026-09-13."
+    }
+  ]
+}

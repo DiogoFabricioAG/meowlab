@@ -23,6 +23,7 @@ import { SignedStoreDesignClient } from "./adapters/store-designer/client";
 import { SignedStoreCommerceClient } from "./adapters/store-designer/commerce-client";
 import { VpsFacturayaClient } from "./adapters/facturaya/vps-client";
 import { R2DocumentStore } from "./adapters/documents/r2-store";
+import { createBrowserPdfRenderer } from "./adapters/documents/browser-pdf";
 import { createWhatsAppClient } from "./adapters/whatsapp/factory";
 import { D1ConversationRepository } from "./adapters/conversations/d1-repository";
 import { SignedVpsBridgeClient } from "./adapters/bridge/signed-vps-client";
@@ -938,6 +939,7 @@ export async function processConversationTurn(
           );
           return sendResult;
         },
+        renderPdf: createBrowserPdfRenderer(env.BROWSER, logSafeEvent),
         generateAiReply: () =>
           generateAiReply(activeMessage.text, effectiveTenant, ai),
         generateAiReplyWithHistory: () =>

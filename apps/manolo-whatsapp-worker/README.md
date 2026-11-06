@@ -177,8 +177,9 @@ nuevas. La publicación conserva las ráfagas y el cron vigentes.
 La [integración GRE privada](../../docs/apps/manolo-despatch.md) está publicada en
 Manolo desde la [release fiscal del 2026-11-05](../../docs/operations/manolo-credit-gre-2026-11-05.md): categoría M1/L/otra preguntada primero según tarjeta, factura aceptada
 elegida, datos de traslado explícitos, revisión,
-botón con digest y consulta de ticket sin reenvío. Emisión GRE real aún deshabilitada en FacturaYa; sin PDF/QR ni
-entrega de XML/CDR por WhatsApp; archivos sólo mediante integración autenticada.
+botón con digest y consulta de ticket sin reenvío. Emisión GRE real aún deshabilitada en FacturaYa; sin QR ni
+entrega de XML/CDR por WhatsApp; archivos sólo mediante integración autenticada. En local (sin desplegar)
+envía un PDF en formato de trabajo con la plantilla M1/L vía Browser Run; no es la representación impresa oficial.
 M1/L omite placa y conductor del payload; otra categoría exige ambos. Cambiar
 categoría limpia sus datos anteriores e invalida el botón; no se infiere por
 auto/camioneta ni por nombres de productos. Precarga de bienes pendiente.
