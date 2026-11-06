@@ -54,6 +54,10 @@ ignora. Si se perdía ese equipo, se perdía la única copia de lo que corre.
   sigue fuera de git. Antes de otra publicación hay que reconciliar `src/` con
   producción (tareas `git-version-production-code-20261106` y
   `wrangler-config-drift-20261106` del tablero).
+- 2026-11-06 — Corrección de direcciones e imágenes en la GRE publicada por
+  injerto sobre `c2070081` (`tools/prepare-gre-address-release.mjs`), autorizada
+  por el operador tras la prueba real. Misma condición: fuentes y scripts
+  commiteados y publicados antes de desplegar.
 
 ## Enrutamiento por tipo de tarea
 
