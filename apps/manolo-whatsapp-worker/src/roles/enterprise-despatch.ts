@@ -18,6 +18,9 @@ const CANCEL = "enterprise_gre_cancel";
 const CATEGORY = "enterprise_gre_category:";
 const CHANGE_CATEGORY = "enterprise_gre_change_category";
 const PDF = "enterprise_gre_pdf";
+// FacturaYa outcomes that end the guide: accepted/rejected by SUNAT, or definitively not sent.
+export const FINAL_GUIDE_STATUSES: readonly string[] = ["accepted", "rejected", "send_failed", "preparation_failed"];
+const isFinal = (status?: string | null) => FINAL_GUIDE_STATUSES.includes(status ?? "");
 const PDF_REQUEST = /^(?:(?:env[ií]a(?:me)?|enviar|descarga(?:r)?|ver|quiero|manda(?:me)?)\s+(?:el\s+)?)?pdf(?:\s+de\s+(?:la\s+)?gu[ií]a)?[.!]?$/iu;
 type VehicleCategory = NonNullable<DespatchPayload["vehicle_category"]>;
 type Candidate = { id: string; number: string; issueDate: string; customerName: string; customerRuc: string; draftId?: string };
@@ -314,8 +317,12 @@ async function statusReply(context: RoleHandlerContext, state: DespatchState, co
   const text = guide?.status === "accepted" ? (guide.is_demo ? "Resultado simulado: accepted." : "SUNAT confirmó la aceptación de la guía.")
     : guide?.status === "pending" ? "Ticket registrado; aceptación pendiente. Puedes consultar estado sin reenviar."
       : guide?.status === "rejected" ? "Guía rechazada. Revisa el CDR."
-        : "Resultado incierto o preparación interrumpida. Requiere revisión manual; no se reenviará la guía.";
-  await context.reply(`${prefix}${text}${guide?.ticket ? `\nTicket: ${guide.ticket}` : ""}\nEl PDF es un formato de trabajo sin QR; no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa; no se entregan por WhatsApp en este corte.`);
+        // FacturaYa's message carries SUNAT's code and reason; show it instead of a generic text.
+        : guide?.status === "send_failed" || guide?.status === "preparation_failed"
+          ? `La guía no se envió a SUNAT. ${guide.message ?? "Revisa la configuración en FacturaYa."} Puedes preparar una nueva guía cuando esté corregido.`
+          : `No se pudo confirmar el resultado de la guía${guide?.series && guide.correlative ? ` ${guide.series}-${guide.correlative}` : ""}. ${guide?.message ?? ""} No se reenviará; revisa su estado en SUNAT o FacturaYa antes de preparar otra.`.replace(/\s+/g, " ").trim();
+  await context.reply(`${prefix}${text}${guide?.ticket ? `\nTicket: ${guide.ticket}` : ""}${printable(guide)
+    ? "\nEl PDF es un formato de trabajo sin QR; no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa; no se entregan por WhatsApp en este corte." : ""}`);
   if (options.pdf && await sendDespatchPdf(context, state, company) === "failed") {
     await context.reply("No pude generar el PDF de la guía. Puedes pedirlo con el botón «PDF de la guía».");
   }
@@ -351,7 +358,7 @@ export async function handleDespatch(context: RoleHandlerContext, state: Despatc
     const next: DespatchState = { ...issuing, phase: "submitted", guide: result.data };
     await save(next);
     await statusReply(context, next, company, { pdf: true });
-    if (["accepted", "rejected"].includes(next.guide?.status ?? "")) await onCompleted?.();
+    if (isFinal(next.guide?.status)) await onCompleted?.();
     return;
   }
   if (button === PDF || PDF_REQUEST.test(text)) {
@@ -385,7 +392,7 @@ export async function handleDespatch(context: RoleHandlerContext, state: Despatc
       // Send a new PDF only when the printed status or number changed.
       const changed = guide.status !== state.guide.status || guide.correlative !== state.guide.correlative;
       await statusReply(context, next, company, { pdf: changed });
-      if (!["accepted", "rejected"].includes(state.guide?.status ?? "") && ["accepted", "rejected"].includes(guide.status)) await onCompleted?.();
+      if (!isFinal(state.guide?.status) && isFinal(guide.status)) await onCompleted?.();
       return;
     }
     await statusReply(context, state, company);
@@ -512,7 +519,7 @@ Datos actuales: ${JSON.stringify(state.fields)}. Mensajes de datos previos: ${st
   await save(next);
   if (next.phase === "submitted") {
     await statusReply(context, next, company, { pdf: true });
-    if (["accepted", "rejected"].includes(next.guide?.status ?? "")) await onCompleted?.();
+    if (isFinal(next.guide?.status)) await onCompleted?.();
   }
   else await showReview(context, next, company, save);
 }

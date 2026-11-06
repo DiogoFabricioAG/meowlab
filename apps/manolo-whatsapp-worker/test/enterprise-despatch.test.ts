@@ -385,6 +385,33 @@ describe("enterprise despatch workflow", () => {
     ]);
     expect(p.despatch.issue).toHaveBeenCalledOnce();
   });
+  it("explains a guide SUNAT did not receive and lets the user prepare a new one", async () => {
+    const p = scenario(); await p.prepare(); const button = (await p.saved()).confirmation.buttonId;
+    const reason = "SUNAT no recibió la guía (2335: El ubigeo de llegada no es válido). No quedó registrada: corrige el dato y prepara una nueva guía.";
+    p.despatch.issue.mockResolvedValueOnce({ ok: true, data: { ...guideDraft, status: "send_failed", correlative: 1, message: reason } });
+    const issue = p.context(button, button); await p.handler.handle(issue);
+    const reply = String(vi.mocked(issue.reply).mock.calls[0][0]);
+    expect(reply).toContain("La guía no se envió a SUNAT");
+    expect(reply).toContain("2335: El ubigeo de llegada no es válido");
+    expect(reply).not.toContain("Resultado incierto");
+    expect(JSON.parse((await p.store.get("manolo", 7, "enterprise-advisor"))!).followUp).toBeDefined();
+    await p.handler.handle(p.context("Guía de remisión", "enterprise_despatch"));
+    expect((await p.saved()).phase).toBe("collecting");
+    expect((await p.saved()).guide).toBeUndefined();
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("shows FacturaYa's reason for an uncertain result and keeps blocking another guide", async () => {
+    const p = scenario(); await p.prepare(); const button = (await p.saved()).confirmation.buttonId;
+    p.despatch.issue.mockResolvedValueOnce({ ok: true, data: { ...guideDraft, status: "unknown", correlative: 1,
+      message: "No pudimos confirmar el envío (HTTP_500: Error interno). No vuelvas a emitir esta guía; requiere revisión." } });
+    const issue = p.context(button, button); await p.handler.handle(issue);
+    const reply = String(vi.mocked(issue.reply).mock.calls[0][0]);
+    expect(reply).toContain("No se pudo confirmar el resultado de la guía T001-1");
+    expect(reply).toContain("HTTP_500: Error interno");
+    expect(JSON.parse((await p.store.get("manolo", 7, "enterprise-advisor"))!).followUp).toBeUndefined();
+    const other = p.context("Guía de remisión", "enterprise_despatch"); await p.handler.handle(other);
+    expect(other.reply).toHaveBeenCalledWith(expect.stringContaining("operación pendiente de verificar"));
+  });
   it("offers follow-up after cancelling a guide draft without issuing", async () => {
     const p = scenario(); await p.prepare();
     const cancel = p.context("Cancelar", "enterprise_gre_cancel"); await p.handler.handle(cancel);

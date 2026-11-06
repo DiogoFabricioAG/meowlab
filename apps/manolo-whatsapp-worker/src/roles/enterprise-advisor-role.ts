@@ -10,7 +10,7 @@ import { RoleStateStorageError } from "./state";
 import { classifyEnterpriseIntent, fallbackEnterpriseIntent, isEnterpriseReviewOnly, type EnterpriseIntent } from "../ai/enterprise-intent";
 import { amountInCents, decimalAmount, explicitDates, hasExplicitAmount, isFullDate, normalizeUserAmount, parseInstallments, paymentProblems,
   type PaymentSelection } from "../facturaya/payment-terms";
-import { DESPATCH_BUTTON, handleDespatch, isDespatchEntry, newDespatchState, parseDespatchState,
+import { DESPATCH_BUTTON, FINAL_GUIDE_STATUSES, handleDespatch, isDespatchEntry, newDespatchState, parseDespatchState,
   type DespatchState } from "./enterprise-despatch";
 
 export const ENTERPRISE_ADVISOR_ROLE_KEY = "enterprise-advisor";
@@ -959,7 +959,7 @@ async function offerNextAction(context: RoleHandlerContext, state: EnterpriseSta
 
 function unresolvedOperation(state: EnterpriseState | null): boolean {
   return state?.phase === "issuing" || state?.despatch?.phase === "issuing"
-    || Boolean(state?.despatch?.phase === "submitted" && !["accepted", "rejected"].includes(state.despatch.guide?.status ?? ""));
+    || Boolean(state?.despatch?.phase === "submitted" && !FINAL_GUIDE_STATUSES.includes(state.despatch.guide?.status ?? ""));
 }
 
 async function showBillingDocumentMenu(
