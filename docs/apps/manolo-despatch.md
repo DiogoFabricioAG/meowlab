@@ -41,8 +41,13 @@ y autorización se resuelven con el mecanismo existente en cada turno.
    con DNI, nombres, apellidos y licencia. Para `M1`/`L`, omitir ambos objetos
    del POST y declarar el indicador M1/L en el resumen. El usuario revisa los
    bienes y cantidades precargados y puede indicar un traslado parcial.
-   No se inventan datos ausentes. “Almacén del proveedor” requiere dirección y
-   distrito exactos; no se sustituye por un domicilio fiscal.
+   No se inventan datos ausentes. Desde `c1f9bc9e` la dirección es el texto que
+   indique el usuario (p. ej. «ALMACEN DEL PROVEEDOR - ARMA - CASTROVIRREYNA -
+   HUANCAVELICA»): SUNAT no exige calle ni número y no se insiste; el distrito
+   se resuelve en el catálogo y nunca se usa el domicilio fiscal por defecto.
+   Una imagen adjunta (otra guía, factura) solo responde campos pendientes o
+   nombrados por el usuario; no sustituye productos ni partida.
+   [Entrega](../operations/manolo-gre-address-2026-11-06.md).
 4. Guardar un checkpoint antes de crear el borrador. La clave de negocio
    `idempotency_key` permanece estable si una respuesta de creación se pierde;
    pedir el resumen recupera esa misma revisión. Cambiar datos crea otra revisión

@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 39 · Total: 107</span>
+      <span class="summary">Abiertas: 38 · Total: 108</span>
     </div>
   </div>
 </header>
@@ -635,20 +635,9 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">2</span>
+          <span class="count">1</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="Worker" data-text="corregir solicitud ia gre y diagnostico de respuesta worker gre envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. retomada por claude tras agotarse codex: falta solo la prueba real por whatsapp contra 5a7c916e. api de logs historicos403; revision de solicitud gre frente a facturacion. seguimiento 2026-11-06 (claude): wrangler deployments status = 5a7c916e al 100% desde 20:34z; bundle desplegado verificado: gre con reasoningeffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo pdf. prueba directa a openai no posible en local: .dev.vars tiene clave de marcador (http 401). suite local 547/46 ok. docs/operations/manolo-gre-provider-2026-11-06.md.">
-          <div class="card-top">
-            <span class="badge area-worker">Worker</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Corregir solicitud IA GRE y diagnostico de respuesta</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> API de logs historicos403; revision de solicitud GRE frente a facturacion. Seguimiento 2026-11-06 (Claude): wrangler deployments status = 5a7c916e al 100% desde 20:34Z; bundle desplegado verificado: GRE con reasoningEffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo PDF. Prueba directa a OpenAI no posible en local: .dev.vars tiene clave de marcador (HTTP 401). Suite local 547/46 OK. docs/operations/manolo-gre-provider-2026-11-06.md.</p>
-          <p class="card-notes">GRE envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. Retomada por Claude tras agotarse Codex: falta solo la prueba real por WhatsApp contra 5a7c916e.</p>
-          <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Codex</p>
-          <code class="card-id">manolo-gre-provider-request-20261106</code>
-        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -665,9 +654,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">68</span>
+          <span class="count">70</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Worker" data-text="gre: aceptar direcciones de referencia y usar imágenes solo como referencia worker prueba real: manolo exigía calle/número para «almacen del proveedor - arma - castrovirreyna - huancavelica» y tomó productos y partida de la foto de otra gre; el pdf no llegó a generarse. publicado por injerto (segunda excepción en agents.md). falta repetir la prueba por whatsapp hasta el pdf. 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); worker c1f9bc9e al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">GRE: aceptar direcciones de referencia y usar imágenes solo como referencia</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); Worker c1f9bc9e al 100%, verify after OK (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.</p>
+          <p class="card-notes">Prueba real: Manolo exigía calle/número para «ALMACEN DEL PROVEEDOR - ARMA - CASTROVIRREYNA - HUANCAVELICA» y tomó productos y partida de la foto de otra GRE; el PDF no llegó a generarse. Publicado por injerto (segunda excepción en AGENTS.md). Falta repetir la prueba por WhatsApp hasta el PDF.</p>
+          <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Claude</p>
+          <code class="card-id">manolo-gre-address-image-20261106</code>
+        </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="pdf de la guía de remisión con la plantilla m1/l worker formato de trabajo a4 replicando docs/apps/templates/guia_remision_plantilla_m1_l_2026.docx. se envía en la revisión (antes de confirmar), tras emitir con correlativo y a pedido (botón «pdf de la guía» o «pdf»). no se imprime rechazada ni incierta. browser run vía renderpdf (o binding browser de env en el runtime injertado); un fallo no bloquea la confirmación. publicado por injerto en worker c2070081 (excepción registrada en agents.md); falta la prueba por whatsapp. npx vitest run: 547 pruebas/46 archivos ok (10 nuevas: test/despatch-template.test.ts y bloque pdf de test/enterprise-despatch.test.ts); npm run typecheck ok; npm run build:node ok. render local con chrome 157 comparado visualmente con la plantilla (m1 1 página; 22 bienes en 2 páginas sin partir transporte). release: 451 pruebas/26 archivos sobre el runtime injertado, dry-run con 21 bindings idénticos, commit 673bb3d publicado, worker c2070081 al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-pdf-2026-11-06.md.">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
@@ -678,6 +678,17 @@
           <p class="card-notes">Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf (o binding BROWSER de env en el runtime injertado); un fallo no bloquea la confirmación. Publicado por injerto en Worker c2070081 (excepción registrada en AGENTS.md); falta la prueba por WhatsApp.</p>
           <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Claude</p>
           <code class="card-id">manolo-gre-pdf-template-20261106</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Worker" data-text="corregir solicitud ia gre y diagnostico de respuesta worker gre envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. retomada por claude tras agotarse codex: falta solo la prueba real por whatsapp contra 5a7c916e. validada en uso real 16:09-16:13 sobre 5a7c916e/c2070081: luna respondió cada turno gre sin whatsapp_gre_interpretation_failed ni fallos del proveedor. api de logs historicos403; revision de solicitud gre frente a facturacion. seguimiento 2026-11-06 (claude): wrangler deployments status = 5a7c916e al 100% desde 20:34z; bundle desplegado verificado: gre con reasoningeffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo pdf. prueba directa a openai no posible en local: .dev.vars tiene clave de marcador (http 401). suite local 547/46 ok. docs/operations/manolo-gre-provider-2026-11-06.md.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Corregir solicitud IA GRE y diagnostico de respuesta</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> API de logs historicos403; revision de solicitud GRE frente a facturacion. Seguimiento 2026-11-06 (Claude): wrangler deployments status = 5a7c916e al 100% desde 20:34Z; bundle desplegado verificado: GRE con reasoningEffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo PDF. Prueba directa a OpenAI no posible en local: .dev.vars tiene clave de marcador (HTTP 401). Suite local 547/46 OK. docs/operations/manolo-gre-provider-2026-11-06.md.</p>
+          <p class="card-notes">GRE envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. Retomada por Claude tras agotarse Codex: falta solo la prueba real por WhatsApp contra 5a7c916e. Validada en uso real 16:09-16:13 sobre 5a7c916e/c2070081: Luna respondió cada turno GRE sin whatsapp_gre_interpretation_failed ni fallos del proveedor.</p>
+          <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Codex</p>
+          <code class="card-id">manolo-gre-provider-request-20261106</code>
         </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="interpretacion semantica gre y ubicaciones por nombre worker revisar interferencias: hoy/peso120 no guardados, rotulos duplicados, resolver ubigeo por distrito con catalogo oficial y aclarar homonimos. 536 pruebas/45 archivos;439 aisladas/25;typecheck/dry-run ok. workerb82f74d9 al100%,runtime identicoc867771a,bindings/do/cron/bridge conservados. catalogo inei2026:1893 distritos. copia ssh sha2bd4be44. docs/operations/manolo-gre-locations-2026-11-06.md. sin emision fiscal ni reescritura de sesiones; inferencia simulada en tests.">
           <div class="card-top">

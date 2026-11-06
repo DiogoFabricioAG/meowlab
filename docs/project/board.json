@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "manolo-gre-address-image-20261106",
+      "title": "GRE: aceptar direcciones de referencia y usar imágenes solo como referencia",
+      "area": "Worker",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-06",
+      "notes": "Prueba real: Manolo exigía calle/número para «ALMACEN DEL PROVEEDOR - ARMA - CASTROVIRREYNA - HUANCAVELICA» y tomó productos y partida de la foto de otra GRE; el PDF no llegó a generarse. Publicado por injerto (segunda excepción en AGENTS.md). Falta repetir la prueba por WhatsApp hasta el PDF.",
+      "evidence": "552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); Worker c1f9bc9e al 100%, verify after OK (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md."
+    },
+    {
       "id": "manolo-gre-pdf-template-20261106",
       "title": "PDF de la guía de remisión con la plantilla M1/L",
       "area": "Worker",
@@ -76,9 +87,9 @@
       "area": "Worker",
       "owner": "Codex",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-06",
-      "notes": "GRE envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. Retomada por Claude tras agotarse Codex: falta solo la prueba real por WhatsApp contra 5a7c916e.",
+      "notes": "GRE envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. Retomada por Claude tras agotarse Codex: falta solo la prueba real por WhatsApp contra 5a7c916e. Validada en uso real 16:09-16:13 sobre 5a7c916e/c2070081: Luna respondió cada turno GRE sin whatsapp_gre_interpretation_failed ni fallos del proveedor.",
       "evidence": "API de logs historicos403; revision de solicitud GRE frente a facturacion. Seguimiento 2026-11-06 (Claude): wrangler deployments status = 5a7c916e al 100% desde 20:34Z; bundle desplegado verificado: GRE con reasoningEffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo PDF. Prueba directa a OpenAI no posible en local: .dev.vars tiene clave de marcador (HTTP 401). Suite local 547/46 OK. docs/operations/manolo-gre-provider-2026-11-06.md."
     },
     {

@@ -14,8 +14,9 @@ landing.
 
 ## Worker
 
-Última entrega: [PDF de la guía de remisión, 2026-11-06](manolo-gre-pdf-2026-11-06.md).
-Worker `c2070081` activo (sobre `5a7c916e`, [solicitud IA de GRE](manolo-gre-provider-2026-11-06.md));
+Última entrega: [GRE, direcciones de referencia e imágenes, 2026-11-06](manolo-gre-address-2026-11-06.md).
+Worker `c1f9bc9e` activo (sobre `c2070081` [PDF de la guía](manolo-gre-pdf-2026-11-06.md) y
+`5a7c916e` [solicitud IA de GRE](manolo-gre-provider-2026-11-06.md));
 namespace DO conservado y bridge `gre-fixes-20261106` saludable.
 
 ### Agrupación de ráfagas (local, sin activar)
