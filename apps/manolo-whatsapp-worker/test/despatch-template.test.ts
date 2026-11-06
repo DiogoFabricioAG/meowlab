@@ -28,6 +28,13 @@ describe("despatch PDF template", () => {
     expect(html).not.toContain("Conductor");
   });
 
+  it("does not repeat district, province and department already named in a reference address", () => {
+    const warehouse = "ALMACEN DEL PROVEEDOR - ARMA - CASTROVIRREYNA - HUANCAVELICA";
+    const html = renderDespatchHtml({ ...base, fields: { ...base.fields, destination: { ubigeo: "090402", address: warehouse } } });
+    expect(html).toContain(`<td>${warehouse}</td>`);
+    expect(html).toContain("Calle Uno 123 · Miraflores · Lima · Lima");
+  });
+
   it("declares plate and driver for the other category", () => {
     const html = renderDespatchHtml(base);
     expect(html).toContain("ABC123");

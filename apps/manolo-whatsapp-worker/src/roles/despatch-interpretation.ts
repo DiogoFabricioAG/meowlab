@@ -5,6 +5,36 @@ import { districtByCode, findDistricts, type DistrictName } from "../geography/u
 
 const record = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
+const VISUAL_BLOCK = /\[INFORMACIÓN VISUAL — DATOS OBSERVADOS\]([\s\S]*?)\[FIN DE INFORMACIÓN VISUAL\]/gu;
+
+/** Separates the user's own words (text and image caption) from what was observed in an attached image. */
+export function splitVisualContext(text: string): { userText: string; observations: string; visual: boolean } {
+  const observations: string[] = [];
+  const userText = text.replace(VISUAL_BLOCK, (_, block: string) => {
+    const observed = block.match(/Observaciones de la imagen:\s*([\s\S]*?)(?:\n\s*\nUsa los campos legibles[\s\S]*)?$/u)?.[1]?.trim();
+    if (observed) observations.push(observed);
+    return block.match(/Texto adjunto del usuario:\s*([\s\S]*?)(?:\n\s*\nObservaciones de la imagen:|$)/u)?.[1]?.trim() ?? "";
+  }).trim();
+  return { userText, observations: observations.join("\n\n"), visual: observations.length > 0 };
+}
+
+type FieldGroup = "issue_date" | "transfer_date" | "weight_kg" | "origin" | "destination" | "items" | "vehicle" | "driver";
+// Words in the user's own text that show they want to use an attached document for that field.
+const FIELD_CUES: Record<FieldGroup, RegExp> = {
+  issue_date: /fecha|emisi[oó]n|hoy|ma[nñ]ana/iu,
+  transfer_date: /fecha|traslado|hoy|ma[nñ]ana/iu,
+  weight_kg: /peso|kilo|\bkg\b/iu,
+  origin: /partida|origen|salida|recojo/iu,
+  destination: /llegada|destino|entrega/iu,
+  items: /producto|\bbien(?:es)?\b|[ií]tems?|cantidad|mercader[ií]a/iu,
+  vehicle: /placa|veh[ií]culo/iu,
+  driver: /conductor|chofer|\bdni\b|licencia/iu,
+};
+function fieldGroup(path: string): FieldGroup | null {
+  const key = path.replace(/^locations\./, "").split(".")[0];
+  return key in FIELD_CUES ? key as FieldGroup : null;
+}
+
 export function mergeInterpretedDespatch(state: DespatchState, result: Record<string, unknown>, message: string): DespatchState {
   const next = structuredClone(state);
   next.revision++; next.phase = "collecting"; next.guide = undefined; next.confirmation = undefined; next.createKey = undefined;
@@ -35,7 +65,7 @@ export function mergeInterpretedDespatch(state: DespatchState, result: Record<st
     const supplied = record(patch[endpoint]) ? patch[endpoint] : {};
     const field = next.fields[endpoint];
     set(field, "address", `${endpoint}.address`, supplied.address, v => v.length > 0 && v.length <= 500,
-      endpoint === "origin" ? "¿Cuál es la dirección exacta del punto de partida?" : "¿Cuál es la dirección exacta de entrega?");
+      endpoint === "origin" ? "¿Qué dirección o referencia uso para el punto de partida?" : "¿Qué dirección o referencia uso para el punto de llegada?");
     const location = record(result.locations) && record(result.locations[endpoint]) ? result.locations[endpoint] : undefined;
     if (location && supported(`locations.${endpoint}`)) {
       const names: DistrictName = { ...next.locations[endpoint] };
@@ -85,8 +115,40 @@ export function mergeInterpretedDespatch(state: DespatchState, result: Record<st
     if (!record(value) || typeof value.field !== "string" || typeof value.question !== "string" || !value.question.trim()) continue;
     if (next.fields.vehicle_category !== "other" && (value.field.startsWith("driver.") || value.field.startsWith("vehicle."))) continue;
     if (resolvedLocations.has(value.field)) continue;
+    // SUNAT does not require street or number: any accepted address text is final unless the user changes it.
+    const addressEndpoint = value.field === "origin.address" ? "origin" : value.field === "destination.address" ? "destination" : null;
+    if (addressEndpoint && next.fields[addressEndpoint].address.trim() && !next.errors[value.field]) continue;
     if (["issue_date", "transfer_date", "weight_kg", "origin.address", "origin.location", "destination.address", "destination.location", "items", "vehicle.plate",
       "driver.dni", "driver.first_name", "driver.last_name", "driver.license"].includes(value.field)) ask(value.field, value.question.trim().slice(0, 500));
   }
   return next;
+}
+
+/**
+ * For a turn with an attached image (e.g. another guide or invoice), keep only changes for fields that were
+ * pending or that the user's own words name. The image is reference material, never a new guide.
+ */
+export function restrictToRequestedFields(state: DespatchState, result: Record<string, unknown>, userText: string): Record<string, unknown> {
+  const pending = new Set([...Object.keys(state.questions ?? {}), ...Object.keys(state.errors)]
+    .map(fieldGroup).filter((group): group is FieldGroup => group !== null));
+  // Fields Manolo is still asking for also count as pending, even without a stored question.
+  const fields = state.fields;
+  for (const endpoint of ["origin", "destination"] as const) {
+    if (!fields[endpoint].address.trim() || !/^\d{6}$/.test(fields[endpoint].ubigeo)) pending.add(endpoint);
+  }
+  if (!isFullDate(fields.issue_date)) pending.add("issue_date");
+  if (!isFullDate(fields.transfer_date)) pending.add("transfer_date");
+  if (!positiveDecimal3(fields.weight_kg)) pending.add("weight_kg");
+  if (!fields.items.length) pending.add("items");
+  if (fields.vehicle_category === "other") {
+    if (!fields.vehicle?.plate) pending.add("vehicle");
+    if (!fields.driver?.dni || !fields.driver.first_name || !fields.driver.last_name || !fields.driver.license) pending.add("driver");
+  }
+  const allowed = (group: FieldGroup | null) => group !== null && (pending.has(group) || FIELD_CUES[group].test(userText));
+  const patch = record(result.patch) ? Object.fromEntries(Object.entries(result.patch).filter(([key]) => allowed(fieldGroup(key)))) : {};
+  const locations = record(result.locations)
+    ? Object.fromEntries(Object.entries(result.locations).filter(([key]) => allowed(fieldGroup(key)))) : {};
+  const clarifications = Array.isArray(result.clarifications)
+    ? result.clarifications.filter((value) => record(value) && typeof value.field === "string" && allowed(fieldGroup(value.field))) : [];
+  return { ...result, patch, locations, clarifications };
 }

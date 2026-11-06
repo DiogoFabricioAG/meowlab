@@ -45,10 +45,15 @@ function statusNote(guide: DespatchDocumentInput["guide"]): string {
   return `${status} · ${environment}`;
 }
 
+const words = (value: string) => ` ${value.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("es").replace(/[^a-z0-9]+/g, " ").trim()} `;
+
 function location(endpoint: DespatchPayload["origin"]): string {
   const district = districtByCode(endpoint.ubigeo);
-  return [endpoint.address.trim(), district?.district, district?.province, district?.department]
-    .filter((part): part is string => Boolean(part)).join(" · ");
+  const address = endpoint.address.trim();
+  const names = [district?.district, district?.province, district?.department].filter((part): part is string => Boolean(part));
+  // A reference such as "ALMACEN DEL PROVEEDOR - ARMA - CASTROVIRREYNA - HUANCAVELICA" already names the whole place.
+  const complete = names.length === 3 && names.every((name) => words(address).includes(words(name)));
+  return [address, ...(complete ? [] : names)].filter(Boolean).join(" · ");
 }
 
 const field = (label: string, value: string, span = 1) =>
