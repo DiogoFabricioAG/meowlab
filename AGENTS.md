@@ -19,6 +19,33 @@ Antes de modificar archivos:
 5. Usa la tabla de enrutamiento de este documento y lee únicamente los
    documentos adicionales que correspondan al trabajo.
 
+## Regla crítica: todo lo desplegado vive en git
+
+Esta regla tiene prioridad sobre cualquier procedimiento de entrega,
+script de `tools/` o costumbre previa. Motivo: la revisión del 2026-11-06
+encontró en producción código que nunca se commiteó (RADAR, ráfagas,
+migraciones D1 `0014`–`0019`) y releases armados desde `backups/`, que git
+ignora. Si se perdía ese equipo, se perdía la única copia de lo que corre.
+
+1. **Nada se despliega sin commit publicado.** Worker, bridge, migraciones D1 o
+   PostgreSQL y landing salen únicamente de un commit que ya existe en
+   `origin`. El acta del despliegue registra ese hash.
+2. **Prohibido desplegar desde fuentes fuera de git**: working tree con cambios
+   sin commit, `backups/`, `releases/` o un bundle parcheado. `backups/` es
+   evidencia local, nunca fuente de verdad.
+3. **Antes de desplegar**: los archivos del release están commiteados, se hizo
+   `git push` y se despliega desde ese commit. Si no puedes cumplirlo, no
+   despliegues y repórtalo como bloqueo.
+4. **Migraciones**: toda migración aplicada en cualquier entorno se commitea
+   en la misma entrega en que se aplicó.
+5. **Al cerrar una tarea con cambios**, haz commit de tus archivos en una rama
+   de trabajo (nunca directo en `main`). `push`, merge y despliegue siguen
+   requiriendo autorización de la tarea. Si no puedes commitear, lista en tu
+   reporte los archivos que quedan sin versionar como riesgo pendiente; nunca
+   los presentes como trabajo terminado.
+6. **No destruyas historia ni trabajo ajeno**: nada de `push --force`,
+   `reset --hard`, `checkout --` o `clean` sobre cambios que no sean tuyos.
+
 ## Enrutamiento por tipo de tarea
 
 En las filas de Manolo, las rutas abreviadas `src/`, `test/`, `migrations/`,
@@ -96,7 +123,8 @@ nueva nota fechada o corrige el documento de estado.
 6. Si cambió una frontera, fuente de verdad, variable, ruta o procedimiento,
    actualiza la documentación en la misma entrega.
 7. Reporta archivos modificados, pruebas ejecutadas y riesgos pendientes. No
-   despliegues ni hagas commit salvo que la tarea lo autorice.
+   despliegues ni hagas push o merge salvo que la tarea lo autorice, y aplica
+   siempre la [regla crítica de git](#regla-crítica-todo-lo-desplegado-vive-en-git).
 
 ## Tablero de trabajo
 
@@ -129,5 +157,7 @@ Un cambio está terminado cuando:
 - pasa las comprobaciones aplicables;
 - deja documentación y contratos coherentes con el código;
 - deja su tarea del tablero en `done` con evidencia y el HTML regenerado;
+- queda commiteado en una rama de trabajo, o reportado explícitamente como
+  pendiente de versionar con la lista de archivos;
 - distingue claramente entre código probado, código desplegado y trabajo aún
   pendiente.
