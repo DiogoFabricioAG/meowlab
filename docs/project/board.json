@@ -23,8 +23,8 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-06",
-      "notes": "Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf; un fallo no bloquea la confirmación. Rama feat/gre-pdf-formato. Código local: NO desplegado (no está en Worker 5a7c916e).",
-      "evidence": "npx vitest run: 547 pruebas/46 archivos OK (10 nuevas: test/despatch-template.test.ts y bloque PDF de test/enterprise-despatch.test.ts); npm run typecheck OK; npm run build:node OK. Render local con Chrome 157 comparado visualmente con la plantilla (M1 1 página; 22 bienes en 2 páginas sin partir transporte). docs/apps/manolo-despatch.md."
+      "notes": "Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf (o binding BROWSER de env en el runtime injertado); un fallo no bloquea la confirmación. Publicado por injerto en Worker c2070081 (excepción registrada en AGENTS.md); falta la prueba por WhatsApp.",
+      "evidence": "npx vitest run: 547 pruebas/46 archivos OK (10 nuevas: test/despatch-template.test.ts y bloque PDF de test/enterprise-despatch.test.ts); npm run typecheck OK; npm run build:node OK. Render local con Chrome 157 comparado visualmente con la plantilla (M1 1 página; 22 bienes en 2 páginas sin partir transporte). Release: 451 pruebas/26 archivos sobre el runtime injertado, dry-run con 21 bindings idénticos, commit 673bb3d publicado, Worker c2070081 al 100%, verify after OK (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-pdf-2026-11-06.md."
     },
     {
       "id": "git-version-production-code-20261106",

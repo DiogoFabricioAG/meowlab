@@ -14,8 +14,9 @@ landing.
 
 ## Worker
 
-Última entrega: [GRE semántica y ubicaciones, 2026-11-06](manolo-gre-locations-2026-11-06.md).
-Worker `b82f74d9` activo; namespace DO conservado y bridge `gre-fixes-20261106` saludable.
+Última entrega: [PDF de la guía de remisión, 2026-11-06](manolo-gre-pdf-2026-11-06.md).
+Worker `c2070081` activo (sobre `5a7c916e`, [solicitud IA de GRE](manolo-gre-provider-2026-11-06.md));
+namespace DO conservado y bridge `gre-fixes-20261106` saludable.
 
 ### Agrupación de ráfagas (local, sin activar)
 

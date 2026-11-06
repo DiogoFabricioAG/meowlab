@@ -134,7 +134,7 @@ no se habilitó por publicar este flujo. Bindings, webhook, catálogo de roles y
 migraciones Manolo se conservan. La actualización `173dde02` precarga los bienes
 para traslado completo y admite correcciones explícitas para un traslado parcial.
 
-## PDF de la guía (formato de trabajo) — local 2026-11-06, sin desplegar
+## PDF de la guía (formato de trabajo) — publicado 2026-11-06, Worker `c2070081`
 
 Manolo genera un PDF A4 que replica
 [`templates/Guia_Remision_Plantilla_M1_L_2026.docx`](templates/Guia_Remision_Plantilla_M1_L_2026.docx):
@@ -157,7 +157,10 @@ EMITIDA POR SUNAT» y el pie de la plantilla en cada página.
   CSP `default-src 'none'`, sin recursos de red) y
   `src/adapters/documents/browser-pdf.ts` (binding `BROWSER`), inyectado como
   `renderPdf` en `RoleHandlerContext`. No requiere migraciones ni secretos nuevos.
-- **Estado:** probado localmente; no desplegado. La fuente Aptos de la plantilla
+- **Estado:** publicado por injerto sobre `5a7c916e`
+  ([acta y rollback](../operations/manolo-gre-pdf-2026-11-06.md)); falta la prueba
+  desde un WhatsApp autorizado. El runtime actual no inyecta `renderPdf` y el rol
+  usa el binding `BROWSER` de `env`. La fuente Aptos de la plantilla
   no existe en Browser Run: se usa la pila Segoe UI/Arial/Liberation Sans.
 
 ## Verificación local
