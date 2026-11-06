@@ -1,21 +1,19 @@
 import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
+import { createSshConnectionConfig, sshConnectionArgs } from "./ssh-config.mjs";
 
 const MAX_INPUT_BYTES = 16 * 1024;
 const MAX_OUTPUT_BYTES = 256 * 1024;
-const SAFE_HOST = /^[a-zA-Z0-9@._:-]+$/;
 const SAFE_CONTAINER = /^[a-zA-Z0-9_.-]+$/;
 
 export class SshBridgeAdminGateway {
   constructor(environment = process.env) {
-    this.host = environment.MANOLO_VPS_HOST?.trim() || "root@2.24.64.161";
-    this.keyPath = environment.MANOLO_VPS_SSH_KEY?.trim()
-      || path.join(os.homedir(), ".ssh", "facturaya_hostinger_ed25519");
+    const connection = createSshConnectionConfig(environment);
+    this.host = connection.host;
+    this.keyPath = connection.keyPath;
     this.container = environment.MANOLO_BRIDGE_CONTAINER?.trim()
       || "manolo-platform-bridge-1";
-    if (!SAFE_HOST.test(this.host)) throw new Error("MANOLO_VPS_HOST no es válido.");
+    sshConnectionArgs(this);
     if (!SAFE_CONTAINER.test(this.container)) throw new Error("MANOLO_BRIDGE_CONTAINER no es válido.");
   }
 
@@ -24,15 +22,9 @@ export class SshBridgeAdminGateway {
     if (Buffer.byteLength(input, "utf8") > MAX_INPUT_BYTES) {
       throw new Error("El comando administrativo excede el límite permitido.");
     }
-    await access(this.keyPath);
+    if (this.keyPath) await access(this.keyPath);
     const args = [
-      "-i",
-      this.keyPath,
-      "-o",
-      "BatchMode=yes",
-      "-o",
-      "ConnectTimeout=10",
-      this.host,
+      ...sshConnectionArgs(this),
       `docker exec -i ${this.container} node dist/node/facturaya-admin.mjs`,
     ];
     const output = await new Promise((resolve, reject) => {

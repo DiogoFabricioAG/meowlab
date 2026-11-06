@@ -1,4 +1,7 @@
 import type { IncomingDocument } from "../../documents/contracts";
+import { decimalAmount, paymentProblems } from "../../facturaya/payment-terms";
+import { parseCreateDespatch, parseDespatchResponse,
+  type FacturayaDespatchOperations } from "../../facturaya/despatch-contracts";
 import type {
   CreditNoteInput,
   FacturayaOperations,
@@ -113,8 +116,30 @@ export class FacturayaApiClient implements FacturayaOperations {
     };
   }
 
+  async lookupCustomerByDni(dni: string): Promise<FacturayaResult<FacturayaCustomer>> {
+    if (!this.isConfigured()) return { ok: false, reason: "not_configured" };
+    if (!/^\d{8}$/.test(dni)) {
+      return { ok: false, reason: "not_found", message: "El DNI debe tener 8 dígitos." };
+    }
+    const result = await this.request(`/api/customers/lookup-dni/${dni}`, { method: "GET" });
+    if (!result.ok) return result;
+    const customer = asData<{ ruc?: unknown; name?: unknown; document_type?: unknown }>(result.payload);
+    if (!customer || customer.ruc !== dni || customer.document_type !== "1"
+      || typeof customer.name !== "string" || !customer.name.trim()) {
+      return { ok: false, reason: "api_error", message: "FacturaYa no devolvió un cliente válido para ese DNI." };
+    }
+    const meta = isRecord(result.payload) && isRecord(result.payload.meta) ? result.payload.meta : {};
+    return { ok: true, data: { ruc: dni, name: customer.name.trim().slice(0, 255),
+      source: typeof meta.source === "string" ? meta.source : null,
+      provider: typeof meta.provider === "string" ? meta.provider : null } };
+  }
+
   async importInvoiceDraft(input: ImportInvoiceDraftInput): Promise<FacturayaResult<FacturayaInvoiceDraft>> {
     if (!this.isConfigured()) return { ok: false, reason: "not_configured" };
+    if (paymentProblems({ ...input, paymentMethod: input.paymentMethod ?? "contado",
+      installments: input.installments ? [...input.installments] : [] }, input.documentType, input.issueDate).length) {
+      return { ok: false, reason: "api_error", message: "Las condiciones de pago del borrador no son válidas." };
+    }
 
     const form = new FormData();
     form.append("document_type", input.documentType);
@@ -123,6 +148,14 @@ export class FacturayaApiClient implements FacturayaOperations {
     if (input.customerName?.trim()) form.append("customer_name", input.customerName.trim());
     form.append("issue_date", input.issueDate);
     form.append("tax_mode", input.taxMode);
+    form.append("payment_method", input.paymentMethod ?? "contado");
+    if (input.paymentMethod === "credito" && input.outstandingAmount != null) {
+      form.append("outstanding_amount", decimalAmount(input.outstandingAmount)!);
+      input.installments?.forEach((item, index) => {
+        form.append(`installments[${index}][due_date]`, item.due_date);
+        form.append(`installments[${index}][amount]`, decimalAmount(item.amount)!);
+      });
+    }
     if (input.productsText?.trim()) form.append("products_text", input.productsText.trim());
     if (input.document) {
       form.append(
@@ -143,9 +176,36 @@ export class FacturayaApiClient implements FacturayaOperations {
       : { ok: false, reason: "api_error", message: "FacturaYa no devolvió un borrador válido." };
   }
 
-  async listInvoiceDrafts(): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>> {
+  readonly despatch: FacturayaDespatchOperations = {
+    create: async (input) => {
+      const parsed = parseCreateDespatch(input);
+      if (!parsed) return { ok: false, reason: "api_error", message: "Datos incompletos o inválidos para la guía." };
+      return this.despatchRequest("/api/despatches", "POST", parsed);
+    },
+    get: (id) => this.despatchRequest(`/api/despatches/${encodeURIComponent(id)}`, "GET", undefined, id),
+    issue: (id, digest) => this.despatchRequest(`/api/despatches/${encodeURIComponent(id)}/issue`, "POST",
+      { confirmed: true, confirmation_digest: digest }, id),
+    refresh: (id) => this.despatchRequest(`/api/despatches/${encodeURIComponent(id)}/status`, "POST", undefined, id),
+  };
+
+  private async despatchRequest(path: string, method: string, body?: object, expectedId?: string) {
+    const result = await this.request(path, { method, ...(body ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {}) });
+    if (!result.ok) return result;
+    const data = parseDespatchResponse(asData<unknown>(result.payload));
+    return data && (!expectedId || data.id === expectedId) ? { ok: true as const, data } : { ok: false as const, reason: "api_error" as const,
+      message: "FacturaYa devolvió una guía no verificable." };
+  }
+
+  async listInvoiceDrafts(page?: number, draftId?: string): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>> {
     if (!this.isConfigured()) return { ok: false, reason: "not_configured" };
-    const result = await this.request("/api/invoice-drafts?per_page=100", { method: "GET" });
+    if (draftId) {
+      if (!/^[0-9A-HJKMNP-TV-Z]{26}$/i.test(draftId)) return { ok: false, reason: "api_error" };
+      const detail = await this.request(`/api/invoice-drafts/${encodeURIComponent(draftId)}`, { method: "GET" });
+      if (!detail.ok) return detail;
+      const draft = asData<FacturayaInvoiceDraft>(detail.payload);
+      return draft?.id === draftId ? { ok: true, data: [draft] } : { ok: false, reason: "api_error" };
+    }
+    const result = await this.request(`/api/invoice-drafts?per_page=100${page ? `&page=${page}` : ""}`, { method: "GET" });
     if (!result.ok) return result;
     const data = asData<unknown>(result.payload);
     if (!Array.isArray(data)) return { ok: false, reason: "api_error", message: "FacturaYa no devolvió sus comprobantes." };

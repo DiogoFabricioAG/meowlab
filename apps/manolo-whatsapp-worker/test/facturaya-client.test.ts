@@ -7,6 +7,79 @@ afterEach(() => {
 
 describe("FacturayaApiClient", () => {
   const draftId = "01K37H3CAX3JJRKRV6HK7Z6R4P";
+  it("reads a selected draft with items and credit notes from the authorized detail endpoint", async () => {
+    const data = { id: draftId, items: [{ description: "Chalecos", quantity: "25" }], invoice: { credit_notes: [{ status: "accepted" }] } };
+    const request = vi.fn(async () => Response.json({ data })); vi.stubGlobal("fetch", request);
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    await expect(client.listInvoiceDrafts(undefined, draftId)).resolves.toEqual({ ok: true, data: [data] });
+    expect(request).toHaveBeenCalledWith(`https://facturaya.example/api/invoice-drafts/${draftId}`, expect.objectContaining({ method: "GET" }));
+    await expect(client.listInvoiceDrafts(undefined, "../other")).resolves.toMatchObject({ ok: false });
+    expect(request).toHaveBeenCalledOnce();
+  });
+  it("serializes credit terms with bracket notation and preserves response terms", async () => {
+    const terms = { payment_method: "credito", outstanding_amount: "100.00", currency: "USD",
+      installments: [{ due_date: "2027-12-05", amount: "60.00" }, { due_date: "2027-12-10", amount: "40.00" }] };
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) => Response.json({ data: {
+      id: draftId, status: "review_required", ...terms } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    await expect(client.importInvoiceDraft({ documentType: "01", customerDocumentType: "6",
+      customerRuc: "20123456789", customerName: "Cliente Demo", issueDate: "2026-11-05", taxMode: "included",
+      paymentMethod: "credito", outstandingAmount: "100.00", installments: terms.installments,
+      productsText: "1 servicio USD 118" })).resolves.toMatchObject({ ok: true, data: terms });
+    const form = fetchMock.mock.calls[0][1]?.body as FormData;
+    expect(form.get("payment_method")).toBe("credito");
+    expect(form.get("outstanding_amount")).toBe("100.00");
+    expect(form.get("installments[0][due_date]")).toBe("2027-12-05");
+    expect(form.get("installments[0][amount]")).toBe("60.00");
+    expect(form.get("installments[1][amount]")).toBe("40.00");
+  });
+
+  it("sends cash explicitly and omits balance and installments from multipart", async () => {
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) => Response.json({ data: { id: draftId } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    await client.importInvoiceDraft({ documentType: "01", customerDocumentType: "6", customerRuc: "20123456789",
+      customerName: "Cliente Demo", issueDate: "2026-11-05", taxMode: "included", paymentMethod: "contado",
+      outstandingAmount: null, installments: [] });
+    const form = fetchMock.mock.calls[0][1]?.body as FormData;
+    expect(form.get("payment_method")).toBe("contado");
+    expect(form.has("outstanding_amount")).toBe(false);
+    expect([...form.keys()].some((key) => key.startsWith("installments"))).toBe(false);
+  });
+
+  it("uses authenticated DNI lookup and discards verification metadata", async () => {
+    const fetchMock = vi.fn(async () => Response.json({
+      data: { ruc: "12345678", document_type: "1", name: "CLIENTE PRUEBA" },
+      meta: { source: "api_peru_dni", provider: "api_peru_dni", cod_verifica: "secret-detail" },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    const result = await client.lookupCustomerByDni("12345678");
+    expect(result).toEqual({ ok: true, data: { ruc: "12345678", name: "CLIENTE PRUEBA",
+      source: "api_peru_dni", provider: "api_peru_dni" } });
+    expect(fetchMock).toHaveBeenCalledWith("https://facturaya.example/api/customers/lookup-dni/12345678",
+      expect.objectContaining({ method: "GET", headers: expect.objectContaining({ Authorization: "Bearer company-token" }) }));
+    await client.lookupCustomerByDni("123456789");
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { ruc: "87654321", document_type: "1", name: "OTRO CLIENTE" },
+    { ruc: "12345678", document_type: "6", name: "EMPRESA" },
+    { ruc: "12345678", document_type: "1", name: " " },
+  ])("rejects malformed or mismatched DNI results: %j", async (data) => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ data })));
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    await expect(client.lookupCustomerByDni("12345678")).resolves.toMatchObject({ ok: false, reason: "api_error" });
+  });
+
+  it.each([[404, "not_found"], [503, "api_error"], [401, "unauthorized"]] as const)(
+    "reports DNI lookup HTTP %s safely", async (status, reason) => {
+      vi.stubGlobal("fetch", vi.fn(async () => Response.json({ message: "unavailable" }, { status })));
+      const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+      await expect(client.lookupCustomerByDni("12345678")).resolves.toMatchObject({ ok: false, reason });
+    });
 
   it("looks up the company legal name using the authenticated FacturaYa API", async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({

@@ -17,6 +17,8 @@ import { FACTURAYA_BRIDGE_PATH } from "../facturaya/bridge-contracts";
 import { CredentialCipher } from "./security/credential-cipher";
 import { PgFacturayaTenantRepository } from "./facturaya/tenant-repository";
 import { FacturayaOperationService } from "./facturaya/operation-service";
+import { PgRadarSelectionService } from "./radar/selection-service";
+import { RADAR_SYNC_BRIDGE_PATH } from "../radar/sync-contracts";
 
 const MAX_REQUEST_BYTES = 20 * 1024 * 1024;
 const DEFAULT_PORT = 3_000;
@@ -130,6 +132,7 @@ async function main(): Promise<void> {
     contactRoleResolver,
     platformSyncService,
     facturayaService,
+    radarSelectionService: new PgRadarSelectionService(connection.pool),
     log: logSafeEvent,
     healthCheck: async () => {
       try {
@@ -173,6 +176,7 @@ async function main(): Promise<void> {
         PLATFORM_INBOUND_SYNC_PATH,
         PLATFORM_OUTBOUND_SYNC_PATH,
         FACTURAYA_BRIDGE_PATH,
+        RADAR_SYNC_BRIDGE_PATH,
       ],
     });
   });

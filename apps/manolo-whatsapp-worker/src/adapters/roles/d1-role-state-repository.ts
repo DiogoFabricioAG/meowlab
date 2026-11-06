@@ -1,7 +1,53 @@
 import type { RoleStateRepository } from "../../roles/state";
+import { RoleStateStorageError } from "../../roles/state";
 
 export class D1RoleStateRepository implements RoleStateRepository {
   constructor(private readonly database: D1Database | null | undefined) {}
+
+  async getForUpdate(tenantId: string, contactId: number, roleKey: string): Promise<string | null> {
+    if (!this.database) throw new RoleStateStorageError("read");
+    try {
+      const row = await this.database.prepare(
+        `SELECT state_json FROM contact_role_states
+         WHERE tenant_id = ?1 AND contact_id = ?2 AND role_key = ?3 LIMIT 1`,
+      ).bind(tenantId, contactId, roleKey).first<{ state_json: string }>();
+      return row?.state_json ?? null;
+    } catch {
+      throw new RoleStateStorageError("read");
+    }
+  }
+
+  async compareAndSet(
+    tenantId: string,
+    contactId: number,
+    roleKey: string,
+    expectedStateJson: string | null,
+    stateJson: string | null,
+  ): Promise<boolean> {
+    if (!this.database) throw new RoleStateStorageError("compare_and_set");
+    try {
+      if (expectedStateJson === null) {
+        if (stateJson === null) return true;
+        const result = await this.database.prepare(
+          `INSERT OR IGNORE INTO contact_role_states (tenant_id, contact_id, role_key, state_json)
+           VALUES (?1, ?2, ?3, ?4)`,
+        ).bind(tenantId, contactId, roleKey, stateJson).run();
+        return result.meta.changes === 1;
+      }
+      const statement = stateJson === null
+        ? this.database.prepare(
+            `DELETE FROM contact_role_states
+             WHERE tenant_id = ?1 AND contact_id = ?2 AND role_key = ?3 AND state_json = ?4`,
+          ).bind(tenantId, contactId, roleKey, expectedStateJson)
+        : this.database.prepare(
+            `UPDATE contact_role_states SET state_json = ?5, updated_at = CURRENT_TIMESTAMP
+             WHERE tenant_id = ?1 AND contact_id = ?2 AND role_key = ?3 AND state_json = ?4`,
+          ).bind(tenantId, contactId, roleKey, expectedStateJson, stateJson);
+      return (await statement.run()).meta.changes === 1;
+    } catch {
+      throw new RoleStateStorageError("compare_and_set");
+    }
+  }
 
   async get(
     tenantId: string,

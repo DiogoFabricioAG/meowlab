@@ -14,6 +14,21 @@ landing.
 
 ## Worker
 
+Última entrega: [GRE semántica y ubicaciones, 2026-11-06](manolo-gre-locations-2026-11-06.md).
+Worker `b82f74d9` activo; namespace DO conservado y bridge `gre-fixes-20261106` saludable.
+
+### Agrupación de ráfagas (local, sin activar)
+
+La entrega 2026-10-22 incorpora `WHATSAPP_BURSTS` y migración Durable Object
+`whatsapp-bursts-v1`; `WHATSAPP_BURST_ENABLED` permanece `false` en ambos
+entornos. No aplica ninguna migración D1 ni requiere despliegue del bridge.
+Antes de activarla, resolver recuperación administrativa de turnos inciertos,
+preparar una entrega aislada que preserve RADAR y validar ráfagas sin emisión.
+Nunca cambiar al camino inmediato con lotes admitidos aún pendientes: drenar
+y reconciliar primero; no borrar el storage DO ni su migración en un rollback.
+Procedimiento y límites completos en
+[ADR-0002](../decisions/0002-agrupar-rafagas-whatsapp.md).
+
 Desde `apps/manolo-whatsapp-worker`:
 
 ```powershell
@@ -32,6 +47,22 @@ El callback de Meta debe permanecer en el Worker. Desplegar el bridge no cambia
 la URL configurada en Meta.
 
 ## VPS
+
+Revisión de anulación sin modificar motivo:
+[2026-11-06, Worker85802e7f y copia SSH](manolo-credit-summary-2026-11-06.md).
+La nota ya procesada conserva su estado y no se reemite al pedir su resumen.
+
+Actualización por rechazo de anulación:
+[2026-11-06, permiso y recuperación puntual](manolo-credit-permission-2026-11-06.md).
+Worker `0bedb1c8` activo; sin cambio de imagen ni reinicio del bridge.
+
+Última publicación de navegación de Manolo:
+[2026-11-06, Worker y copia por SSH](manolo-intent-2026-11-06.md).
+Worker `a768ba36` activo; el bridge fiscal se conserva saludable sin reinicio.
+
+Última entrega de crédito/GRE de Manolo:
+[2026-11-05, paquete aislado y rollback](manolo-credit-gre-2026-11-05.md).
+Preserva RADAR, bindings, cron y secretos; no habilita GRE real en FacturaYa.
 
 El procedimiento canónico está en
 [`infra/vps/README.md`](../../apps/manolo-whatsapp-worker/infra/vps/README.md).

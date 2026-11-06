@@ -8,6 +8,7 @@ por no conocer el comando.
 | Cambio | Comprobaciones mínimas |
 | --- | --- |
 | Solo documentación | enlaces locales, `git diff --check` |
+| Tablero de trabajo | `node tools/board/build-board.mjs --check` |
 | Landing Astro | `pnpm build` y revisión visual |
 | Componente interactivo de landing | build, escritorio, móvil y navegación con teclado |
 | Worker o rol | `npm test -- --run`, `npm run typecheck` |

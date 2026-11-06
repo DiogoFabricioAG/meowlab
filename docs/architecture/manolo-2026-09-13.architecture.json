@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Manolo · arquitectura actual",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1360,
+      730
+    ]
+  },
+  "components": [
+    {
+      "id": "personas",
+      "type": "external",
+      "label": "Usuarios",
+      "sublabel": "WhatsApp",
+      "pos": [
+        28,
+        345
+      ],
+      "size": [
+        120,
+        70
+      ]
+    },
+    {
+      "id": "meta-api",
+      "type": "external",
+      "label": "Meta Cloud API",
+      "sublabel": "Mensajes y respuestas",
+      "pos": [
+        228,
+        345
+      ],
+      "size": [
+        144,
+        70
+      ]
+    },
+    {
+      "id": "manolo-worker",
+      "type": "backend",
+      "label": "Manolo Worker",
+      "sublabel": "Webhook · roles · sesión",
+      "pos": [
+        468,
+        345
+      ],
+      "size": [
+        160,
+        70
+      ]
+    },
+    {
+      "id": "vps-bridge",
+      "type": "security",
+      "label": "Caddy + bridge",
+      "sublabel": "Node · autorización",
+      "pos": [
+        748,
+        345
+      ],
+      "size": [
+        148,
+        70
+      ]
+    },
+    {
+      "id": "facturaya",
+      "type": "backend",
+      "label": "FacturaYa",
+      "sublabel": "Borrador · PDF · XML",
+      "pos": [
+        984,
+        345
+      ],
+      "size": [
+        144,
+        70
+      ]
+    },
+    {
+      "id": "sunat",
+      "type": "external",
+      "label": "SUNAT",
+      "sublabel": "Validación y CDR",
+      "pos": [
+        1208,
+        345
+      ],
+      "size": [
+        120,
+        70
+      ]
+    },
+    {
+      "id": "d1-runtime",
+      "type": "database",
+      "label": "Cloudflare D1",
+      "sublabel": "Historial · estado · dedup.",
+      "pos": [
+        468,
+        110
+      ],
+      "size": [
+        160,
+        70
+      ]
+    },
+    {
+      "id": "cloud-media",
+      "type": "cloud",
+      "label": "R2 + Browser Run",
+      "sublabel": "Adjuntos / PDF cotización",
+      "pos": [
+        468,
+        575
+      ],
+      "size": [
+        160,
+        70
+      ]
+    },
+    {
+      "id": "ai-services",
+      "type": "external",
+      "label": "Proveedores IA",
+      "sublabel": "Groq / API compatible",
+      "pos": [
+        228,
+        110
+      ],
+      "size": [
+        144,
+        70
+      ]
+    },
+    {
+      "id": "vps-postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "Roles · empresas · permisos",
+      "pos": [
+        748,
+        110
+      ],
+      "size": [
+        164,
+        70
+      ]
+    },
+    {
+      "id": "users-tui",
+      "type": "frontend",
+      "label": "TUI administrativa",
+      "sublabel": "Equipo del administrador",
+      "pos": [
+        1192,
+        110
+      ],
+      "size": [
+        160,
+        70
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Cloudflare · runtime principal",
+      "wraps": [
+        "manolo-worker",
+        "d1-runtime",
+        "cloud-media"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "VPS · servicios privados tras Caddy",
+      "wraps": [
+        "vps-bridge",
+        "vps-postgres",
+        "facturaya"
+      ],
+      "pad": 26
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-message",
+      "from": "personas",
+      "to": "meta-api",
+      "label": "mensaje",
+      "variant": "emphasis"
+    },
+    {
+      "id": "webhook",
+      "from": "meta-api",
+      "to": "manolo-worker",
+      "label": "webhook firmado",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bridge-call",
+      "from": "manolo-worker",
+      "to": "vps-bridge",
+      "label": "HTTPS + HMAC",
+      "variant": "emphasis"
+    },
+    {
+      "id": "invoice-operation",
+      "from": "vps-bridge",
+      "to": "facturaya",
+      "label": "token empresa",
+      "variant": "emphasis"
+    },
+    {
+      "id": "fiscal-issue",
+      "from": "facturaya",
+      "to": "sunat",
+      "label": "emisión",
+      "variant": "emphasis"
+    },
+    {
+      "id": "runtime-state",
+      "from": "manolo-worker",
+      "to": "d1-runtime",
+      "label": "lee / guarda",
+      "labelDy": -110
+    },
+    {
+      "id": "media-files",
+      "from": "manolo-worker",
+      "to": "cloud-media",
+      "label": "archivos",
+      "labelDy": 80
+    },
+    {
+      "id": "ai-inference",
+      "from": "manolo-worker",
+      "to": "ai-services",
+      "label": "inferencia",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "platform-authority",
+      "from": "vps-bridge",
+      "to": "vps-postgres",
+      "label": "SQL + espejo",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "admin-access",
+      "from": "users-tui",
+      "to": "vps-postgres",
+      "label": "SSH",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Ruta destacada: facturación",
+      "items": [
+        "El usuario confirma la emisión desde WhatsApp.",
+        "La respuesta vuelve por bridge → Worker → Meta."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Los demás roles",
+      "items": [
+        "Chat, cotizaciones, Print Advisor y tienda.",
+        "Finanzas conserva una integración Neon en el código."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Alcance: código al 13/09/2026",
+      "items": [
+        "PostgreSQL recibe mensajes en sombra; D1 sigue activo.",
+        "Versión desplegada y salud en vivo: no verificadas aquí."
+      ]
+    }
+  ]
+}

@@ -1,9 +1,21 @@
+import { presenceReceipts, withRadarPresence } from "./radar/presence";
+import { consumeRadarReminderReplies, withRadarWindowReminders } from "./radar/window-reminder";
 import { CAT_ROLE_KEY, CAT_SYSTEM_PROMPT } from "./roles/cat-role";
+import { RADAR_API_PATH } from "./radar/contracts";
+import { radarHttp } from "./radar/http";
+import { radarVerifiedWebhook } from "./radar/webhook";
+import { D1RadarContactService } from "./adapters/radar/d1-contact-service";
+import { AiRadarAlertWriter } from "./adapters/radar/ai-alert-writer";
+import { burstKey, BURST_MAX_CHARS, BURST_MAX_IMAGES, BURST_MAX_MESSAGES, isBurstContent } from "./conversations/burst-policy";
+import { BURST_ADMIN_PATH, burstAdminHttp } from "./conversations/burst-admin";
+export { WhatsAppBurst } from "./conversations/whatsapp-burst";
+import { applyRadarAiConfig } from "./adapters/radar/configure-ai";
+import { RadarSyncBridgeClient } from "./adapters/radar/sync-bridge-client";
+import { RadarSelectionGateway } from "./adapters/radar/selection-client";
 import {
   createAiProvider,
   createAudioTranscriber,
 } from "./adapters/ai/factory";
-import { createFinanceRepository } from "./adapters/finance/factory";
 import { PrintSystemD1Repository } from "./adapters/print-system/d1-repository";
 import { D1QuoteNumberAllocator } from "./adapters/quotes/d1-number-allocator";
 import { D1RoleStateRepository } from "./adapters/roles/d1-role-state-repository";
@@ -51,7 +63,7 @@ const FALLBACK_REPLY =
 const MAX_INCOMING_MESSAGE_LENGTH = 4_000;
 const MAX_REPLY_LENGTH = 3_500;
 const MAX_DOCUMENT_BYTES = 12 * 1024 * 1024;
-const DEFAULT_GROQ_VISION_MODEL = "qwen/qwen3.6-27b";
+const DEFAULT_VISION_MODEL = "gpt-6-luna";
 
 type JsonObject = Record<string, unknown>;
 
@@ -454,7 +466,7 @@ async function generateAiReply(
         })),
         {
           role: "user",
-          content: messageText.slice(0, MAX_INCOMING_MESSAGE_LENGTH),
+          content: messageText.slice(0, BURST_MAX_CHARS),
         },
       ],
       temperature: tenant.temperature,
@@ -509,6 +521,19 @@ async function processIncomingMessages(
   env: Env,
 ): Promise<void> {
   const messages = extractIncomingMessages(payload, env);
+  await Promise.all(messages.map(message => processConversationTurn([message], env)));
+}
+
+export async function processConversationTurn(
+  messages: IncomingMessage[], env: Env, expectedTenantId?: string, blockCreation = false,
+): Promise<void> {
+  const first = messages[0];
+  if (!first) return;
+  if (messages.length > BURST_MAX_MESSAGES || messages.some(part => part.phoneNumberId !== first.phoneNumberId || part.to !== first.to)
+    || (messages.length > 1 && messages.some(part => !isBurstContent(part)))
+    || messages.filter(part => part.inputType === "image").length > BURST_MAX_IMAGES) {
+    throw new Error("burst_invalid_conversation_or_content");
+  }
   const whatsappClient = createWhatsAppClient(
     env.META_ACCESS_TOKEN,
     env.META_GRAPH_API_VERSION,
@@ -517,14 +542,17 @@ async function processIncomingMessages(
   const audioTranscriber = createAudioTranscriber("groq", {
     groqApiKey: env.GROQ_API_KEY,
   });
-  const visionProvider = createAiProvider("groq", {
-    groqApiKey: env.GROQ_API_KEY,
+  const visionProvider = createAiProvider("openai", {
+    openAiApiKey: env.OPENAI_API_KEY,
+    openAiBaseUrl: env.ENTERPRISE_AI_BASE_URL?.trim() || "https://api.openai.com/v1",
   });
   const visionModel =
-    env.GROQ_VISION_MODEL?.trim() || DEFAULT_GROQ_VISION_MODEL;
+    env.ENTERPRISE_AI_MODEL?.trim() || DEFAULT_VISION_MODEL;
   const conversations = new D1ConversationRepository(env.DB, logSafeEvent);
-  await Promise.all(
-    messages.map(async (message) => {
+  const originals = messages;
+  await (async () => {
+      let message = originals[0];
+      if (!message) return;
       const tenant = await resolveTenantContext(
         message.phoneNumberId,
         env,
@@ -536,16 +564,23 @@ async function processIncomingMessages(
         });
         return;
       }
+      if (expectedTenantId && tenant.tenantId !== expectedTenantId) throw new Error("burst_tenant_changed");
 
       const conversationHistory = await conversations.loadHistory(
         tenant,
         message.to,
       );
-      const persisted = await conversations.persistInbound(message, tenant);
-      if (persisted.duplicate) {
+      const accepted = [];
+      for (const original of originals) {
+        const saved = await conversations.persistInbound(original, tenant);
+        if (expectedTenantId && (!saved.contactId || !saved.conversationId)) throw new Error("burst_persistence_failed");
+        if (!saved.duplicate) accepted.push({ message: original, persisted: saved });
+      }
+      if (!accepted.length) {
         logSafeEvent("whatsapp_message_deduplicated");
         return;
       }
+      const persisted = accepted[0].persisted;
 
       if (message.id) {
         await whatsappClient.sendTypingIndicator(
@@ -554,72 +589,74 @@ async function processIncomingMessages(
         );
       }
 
-      let activeMessage = message;
-      if (message.inputType === "audio") {
-        const transcript = await transcribeWhatsAppAudio(
-          message.audioMediaId ?? null,
-          message.audioMimeType ?? null,
-          message.phoneNumberId,
-          whatsappClient,
-          audioTranscriber,
-          env.GROQ_TRANSCRIPTION_MODEL,
-          logSafeEvent,
-        );
-        if (!transcript) {
-          const replyText =
-            "No pude entender la nota de voz. Intenta enviarla nuevamente o escribe el mensaje.";
-          const sendResult = await whatsappClient.sendText(
-            message.to,
-            replyText,
-            tenant.phoneNumberId,
+      const normalizedMessages: IncomingMessage[] = [];
+      let hasVisualContext = false;
+      let imageFailure = false;
+      for (const entry of accepted) {
+        const original = entry.message;
+        let normalized = original;
+        if (original.inputType === "audio") {
+          const transcript = await transcribeWhatsAppAudio(
+            original.audioMediaId ?? null,
+            original.audioMimeType ?? null,
+            original.phoneNumberId,
+            whatsappClient,
+            audioTranscriber,
+            env.GROQ_TRANSCRIPTION_MODEL,
+            logSafeEvent,
           );
-          await conversations.persistOutbound(
-            tenant,
-            persisted.conversationId,
-            replyText,
-            sendResult,
-          );
-          return;
-        }
+          if (!transcript) {
+            const replyText =
+              "No pude entender la nota de voz. Intenta enviarla nuevamente o escribe el mensaje.";
+            const sendResult = await whatsappClient.sendText(
+              message.to,
+              replyText,
+              tenant.phoneNumberId,
+            );
+            await conversations.persistOutbound(
+              tenant,
+              persisted.conversationId,
+              replyText,
+              sendResult,
+            );
+            return;
+          }
 
-        activeMessage = { ...message, text: transcript };
-        await conversations.updateInboundContent(message, tenant, transcript);
-      } else if (message.inputType === "image") {
-        const visualContext = await analyzeWhatsAppImage(
-          message.imageMediaId ?? null,
-          message.imageMimeType ?? null,
-          message.imageCaption ?? message.text,
-          message.phoneNumberId,
-          whatsappClient,
-          visionProvider,
-          visionModel,
-          logSafeEvent,
-        );
-        if (!visualContext && !message.text.trim()) {
-          const replyText =
-            "No pude analizar la imagen. Intenta enviarla nuevamente con una breve explicación.";
-          const sendResult = await whatsappClient.sendText(
-            message.to,
-            replyText,
-            tenant.phoneNumberId,
+          normalized = { ...original, text: transcript };
+          await conversations.updateInboundContent(original, tenant, transcript);
+        } else if (original.inputType === "image") {
+          const visualContext = await analyzeWhatsAppImage(
+            original.imageMediaId ?? null,
+            original.imageMimeType ?? null,
+            original.imageCaption ?? original.text,
+            original.phoneNumberId,
+            whatsappClient,
+            visionProvider,
+            visionModel,
+            logSafeEvent,
           );
-          await conversations.persistOutbound(
+          if (!visualContext) imageFailure = true;
+          else hasVisualContext = true;
+          const normalizedImageText = visualContext || original.text;
+          normalized = { ...original, text: normalizedImageText };
+          await conversations.updateInboundContent(
+            original,
             tenant,
-            persisted.conversationId,
-            replyText,
-            sendResult,
+            normalizedImageText,
           );
-          return;
         }
-
-        const normalizedImageText = visualContext || message.text;
-        activeMessage = { ...message, text: normalizedImageText };
-        await conversations.updateInboundContent(
-          message,
-          tenant,
-          normalizedImageText,
-        );
+        normalizedMessages.push(normalized);
       }
+      const combinedText = normalizedMessages.map(part => part.text).filter(Boolean).join("\n");
+      if (imageFailure && !combinedText.trim()) {
+        const replyText = "No pude analizar la imagen. Intenta enviarla nuevamente con una breve explicación.";
+        const sent = await whatsappClient.sendText(message.to, replyText, tenant.phoneNumberId);
+        await conversations.persistOutbound(tenant, persisted.conversationId, replyText, sent);
+        return;
+      }
+      const activeMessage: IncomingMessage = { ...accepted[0].message,
+        text: combinedText + (imageFailure ? "\n[No se pudo leer una imagen adjunta; conserva los datos textuales y solicita sólo la información visual faltante.]" : ""),
+        hasVisualContext };
 
       const incomingDocument = await downloadIncomingDocument(
         message,
@@ -697,19 +734,21 @@ async function processIncomingMessages(
               : configuredTenant.aiReasoningEffort,
       };
       if (platformShadowEnabled && bridgeClient) {
-        const syncResponse = await bridgeClient.mirrorInbound(
-          createPlatformInboundSyncRequest(
-            bridgeRequestId,
-            activeMessage,
-            effectiveTenant,
-            persisted,
-            activeMessage.text,
-          ),
-        );
-        if (!syncResponse) {
-          logSafeEvent("vps_platform_shadow_failed", {
-            direction: "inbound",
-          });
+        for (let index = 0; index < accepted.length; index++) {
+          const entry = accepted[index];
+          const normalized = normalizedMessages[index];
+          const syncResponse = await bridgeClient.mirrorInbound(
+            createPlatformInboundSyncRequest(
+              entry.message.id || bridgeRequestId,
+              normalized,
+              effectiveTenant,
+              entry.persisted,
+              normalized.text,
+            ),
+          );
+          if (!syncResponse) {
+            logSafeEvent("vps_platform_shadow_failed", { direction: "inbound" });
+          }
         }
       }
       const persistOutbound = async (
@@ -746,13 +785,14 @@ async function processIncomingMessages(
           }
         }
       };
-      const replyWithText = async (replyText: string): Promise<void> => {
+      const replyWithText = async (replyText: string): Promise<SendResult> => {
         const sendResult = await whatsappClient.sendText(
           activeMessage.to,
           replyText,
           effectiveTenant.phoneNumberId,
         );
         await persistOutbound(replyText, sendResult);
+        return sendResult;
       };
 
       if (
@@ -777,15 +817,12 @@ async function processIncomingMessages(
         });
       }
 
+      applyRadarAiConfig(effectiveTenant, env);
       const ai = createAiProvider(effectiveTenant.aiProvider, {
         groqApiKey: env.GROQ_API_KEY,
         openAiApiKey: env.OPENAI_API_KEY,
         openAiBaseUrl: env.ENTERPRISE_AI_BASE_URL,
       });
-      const finance = createFinanceRepository(
-        env.NEON_DATABASE_URL,
-        logSafeEvent,
-      );
       const businessData = new PrintSystemD1Repository(
         env.PRINT_DB,
         logSafeEvent,
@@ -815,23 +852,31 @@ async function processIncomingMessages(
       const documentStore = new R2DocumentStore(env.ENTERPRISE_DOCUMENTS);
 
       const roleHandler = roleRegistry.resolve(effectiveTenant.roleKey);
+      if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
+        || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
+        || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {
+        await replyWithText("Un turno anterior quedó pendiente de verificar. La creación está bloqueada por seguridad; solicita al administrador revisar el estado en FacturaYa antes de continuar.");
+        return;
+      }
       await roleHandler.handle({
         message: activeMessage,
         tenant: effectiveTenant,
         persisted,
         env,
         ai,
-        finance,
         businessData,
         quoteNumberAllocator,
         roleState,
+        radar: new D1RadarContactService(env.DB, effectiveTenant.tenantId, activeMessage.phoneNumberId, activeMessage.to,
+          () => Date.now(), new RadarSelectionGateway(new RadarSyncBridgeClient(env, logSafeEvent))),
         storeDesigner,
         storeCommerce,
         facturaya,
         document: incomingDocument,
         documentStore,
         history: conversationHistory,
-        reply: replyWithText,
+        reply: async (replyText) => { await replyWithText(replyText); },
+        sendText: replyWithText,
         sendImage: async (imageUrl, caption) => {
           const sendResult = await whatsappClient.sendImage(
             activeMessage.to,
@@ -851,14 +896,19 @@ async function processIncomingMessages(
           );
           await persistOutbound(body, sendResult, "interactive");
           if (sendResult.status !== "sent") {
-            const fallbackText = `${body}\n\nNo pude mostrar los botones. Responde confirmar o cancelar.`;
+            // A failed/ambiguous RADAR button request must not trigger a second
+            // message or generic invoice confirmation instructions.
+            if (effectiveTenant.roleKey === "radar") return sendResult;
+            const fallbackText = effectiveTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
+              ? `${body}\n\nNo pude mostrar los botones. Solicita nuevamente el resumen para mostrar el botón de creación.`
+              : `${body}\n\nNo pude mostrar los botones. Responde confirmar o cancelar.`;
             const fallbackResult = await whatsappClient.sendText(
               activeMessage.to,
               fallbackText,
               effectiveTenant.phoneNumberId,
             );
             await persistOutbound(fallbackText, fallbackResult);
-            return fallbackResult;
+            return effectiveTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY ? sendResult : fallbackResult;
           }
           return sendResult;
         },
@@ -900,8 +950,7 @@ async function processIncomingMessages(
         fallbackReply: FALLBACK_REPLY,
         log: logSafeEvent,
       });
-    }),
-  );
+  })();
 }
 
 async function verificationResponse(
@@ -993,8 +1042,21 @@ async function webhookResponse(
   }
 
   const metadata = summarizeWebhook(payload, env.ENVIRONMENT);
+  // Durable RADAR bookkeeping precedes acknowledgement. A storage failure returns
+  // 500 through the existing handler so Meta can retry; fiscal roles are unchanged.
+  const routedPayload = await consumeRadarReminderReplies(
+    await presenceReceipts(await radarVerifiedWebhook(payload, env, undefined, task => ctx.waitUntil(task)), env),
+    env, undefined, task => ctx.waitUntil(task));
   ctx.waitUntil(Promise.resolve().then(() => logWebhookMetadata(metadata)));
-  ctx.waitUntil(processIncomingMessages(payload, env));
+  if (String(env.WHATSAPP_BURST_ENABLED) === "true") {
+    const conversations = new D1ConversationRepository(env.DB, logSafeEvent);
+    for (const message of extractIncomingMessages(routedPayload, env)) {
+      const tenant = await resolveTenantContext(message.phoneNumberId, env, conversations);
+      if (!tenant) throw new Error("burst_tenant_unavailable");
+      const queued = await env.WHATSAPP_BURSTS.getByName(burstKey(tenant.tenantId, message)).enqueue(tenant.tenantId, message);
+      if (!queued.accepted) throw new Error("burst_enqueue_rejected");
+    }
+  } else ctx.waitUntil(processIncomingMessages(routedPayload, env));
 
   return jsonResponse({ received: true });
 }
@@ -1108,9 +1170,21 @@ async function storePaymentNotificationResponse(
   return jsonResponse({ received: true, notified: true });
 }
 
-export default {
+export default withRadarPresence(withRadarWindowReminders({
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === BURST_ADMIN_PATH) {
+      try { return await burstAdminHttp(request, env); }
+      catch { return jsonResponse({ error: "review_unavailable" }, 503); }
+    }
+
+    if (url.pathname === RADAR_API_PATH || url.pathname.startsWith(`${RADAR_API_PATH}/`)) {
+      return radarHttp(request, env, () => Date.now(), new AiRadarAlertWriter(
+        createAiProvider(env.ENTERPRISE_AI_PROVIDER || "openai", {
+          openAiApiKey: env.OPENAI_API_KEY, openAiBaseUrl: env.ENTERPRISE_AI_BASE_URL, groqApiKey: env.GROQ_API_KEY,
+        }), env.ENTERPRISE_AI_MODEL || "gpt-6-luna"));
+    }
 
     if (url.pathname === HEALTH_PATH) {
       if (request.method !== "GET") {
@@ -1147,4 +1221,4 @@ export default {
 
     return new Response(null, { status: 404 });
   },
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<Env>));

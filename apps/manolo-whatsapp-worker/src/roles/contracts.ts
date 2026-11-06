@@ -2,10 +2,6 @@ import type { AiProvider } from "../ai/contracts";
 import type { BusinessDataRepository } from "../business/contracts";
 import type { QuoteNumberAllocator } from "../quotes/numbering";
 import type {
-  FinanceProposal,
-  FinanceRepository,
-} from "../finance/contracts";
-import type {
   WhatsAppReplyButton,
   WhatsAppListSection,
   WhatsAppSendResult,
@@ -15,6 +11,7 @@ import type { StoreCommerceClient } from "../store-commerce/contracts";
 import type { IncomingDocument, DocumentStore } from "../documents/contracts";
 import type { FacturayaClient } from "../facturaya/contracts";
 import type { RoleStateRepository } from "./state";
+import type { RadarContactService } from "./radar-contracts";
 
 export type IncomingMessage = {
   id: string | null;
@@ -27,6 +24,8 @@ export type IncomingMessage = {
   imageMediaId?: string | null;
   imageMimeType?: string | null;
   imageCaption?: string;
+  // Set by media normalization after successful analysis, never from image text.
+  hasVisualContext?: boolean;
   documentMediaId?: string | null;
   documentMimeType?: string | null;
   documentFilename?: string | null;
@@ -66,19 +65,6 @@ export type RoleDocument = {
   caption: string;
 };
 
-export type { FinanceProposal };
-
-export type PendingActionRow = {
-  id: string;
-  payload_json: string;
-};
-
-export type FinanceExtractionResult = {
-  status: "detected" | "needs_clarification" | "error";
-  message: string;
-  proposal?: FinanceProposal;
-};
-
 export type RoleLog = (
   event: string,
   details?: Record<string, unknown>,
@@ -90,10 +76,10 @@ export type RoleHandlerContext = {
   persisted: PersistedInboundMessage;
   env: Env;
   ai: AiProvider | null;
-  finance: FinanceRepository | null;
   businessData: BusinessDataRepository | null;
   quoteNumberAllocator: QuoteNumberAllocator | null;
   roleState?: RoleStateRepository | null;
+  radar?: RadarContactService | null;
   storeDesigner?: StoreDesignClient | null;
   storeCommerce?: StoreCommerceClient | null;
   document?: IncomingDocument | null;
@@ -101,6 +87,7 @@ export type RoleHandlerContext = {
   facturaya?: FacturayaClient | null;
   history: readonly ConversationHistoryMessage[];
   reply: (replyText: string) => Promise<void>;
+  sendText?: (replyText: string) => Promise<SendResult>;
   sendImage?: (
     imageUrl: string,
     caption: string,

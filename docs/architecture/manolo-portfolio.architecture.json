@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Manolo · IA conversacional para facturación",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1390,
+      630
+    ]
+  },
+  "components": [
+    {
+      "id": "person",
+      "type": "external",
+      "label": "Usuario",
+      "sublabel": "Texto · fotos · documentos",
+      "pos": [
+        30,
+        120
+      ],
+      "size": [
+        178,
+        80
+      ]
+    },
+    {
+      "id": "meta",
+      "type": "external",
+      "label": "WhatsApp Cloud API",
+      "sublabel": "Meta · entrada y respuesta",
+      "pos": [
+        311,
+        120
+      ],
+      "size": [
+        185,
+        80
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "cloud",
+      "label": "Cloudflare Worker",
+      "sublabel": "Webhook único · firma Meta",
+      "pos": [
+        599,
+        120
+      ],
+      "size": [
+        185,
+        80
+      ]
+    },
+    {
+      "id": "burst",
+      "type": "messagebus",
+      "label": "Durable Object",
+      "sublabel": "Agrupa texto + fotos · 3 s",
+      "pos": [
+        903,
+        120
+      ],
+      "size": [
+        185,
+        80
+      ]
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "Orquestador Manolo",
+      "sublabel": "Intención · roles · confirmación",
+      "pos": [
+        903,
+        300
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "bridge",
+      "type": "security",
+      "label": "Bridge Node + Caddy",
+      "sublabel": "Autoriza empresa y operación",
+      "pos": [
+        599,
+        300
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "fiscal",
+      "type": "external",
+      "label": "FacturaYa API",
+      "sublabel": "Borradores · emisión · PDF/CDR",
+      "pos": [
+        311,
+        300
+      ],
+      "size": [
+        185,
+        80
+      ]
+    },
+    {
+      "id": "sunat",
+      "type": "external",
+      "label": "SUNAT",
+      "sublabel": "Validación fiscal vía FacturaYa",
+      "pos": [
+        30,
+        300
+      ],
+      "size": [
+        178,
+        80
+      ]
+    },
+    {
+      "id": "ai",
+      "type": "external",
+      "label": "IA · Luna / Decisions API",
+      "sublabel": "Contexto visual e intención",
+      "pos": [
+        1169,
+        300
+      ],
+      "size": [
+        192,
+        80
+      ]
+    },
+    {
+      "id": "d1",
+      "type": "database",
+      "label": "Cloudflare D1",
+      "sublabel": "Historial · checkpoint · dedup",
+      "pos": [
+        903,
+        500
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "PostgreSQL privado",
+      "sublabel": "Roles · permisos · multiempresa",
+      "pos": [
+        599,
+        500
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "r2",
+      "type": "database",
+      "label": "Cloudflare R2",
+      "sublabel": "Archivos temporales",
+      "pos": [
+        599,
+        0
+      ],
+      "size": [
+        185,
+        70
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "person",
+      "to": "meta",
+      "label": "Mensajes",
+      "variant": "emphasis"
+    },
+    {
+      "from": "meta",
+      "to": "gateway",
+      "label": "HTTPS webhook",
+      "variant": "emphasis"
+    },
+    {
+      "from": "gateway",
+      "to": "burst",
+      "label": "Encola por contacto",
+      "variant": "emphasis"
+    },
+    {
+      "from": "burst",
+      "to": "runtime",
+      "label": "Un turno consolidado",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "from": "runtime",
+      "to": "bridge",
+      "label": "HMAC + timestamp + ID",
+      "variant": "security",
+      "labelAt": [
+        851,
+        395
+      ]
+    },
+    {
+      "from": "bridge",
+      "to": "fiscal",
+      "label": "API autorizada",
+      "variant": "emphasis"
+    },
+    {
+      "from": "fiscal",
+      "to": "sunat",
+      "label": "Comprobante electrónico",
+      "variant": "emphasis",
+      "labelAt": [
+        260,
+        395
+      ]
+    },
+    {
+      "from": "runtime",
+      "to": "ai",
+      "label": "Inferencia"
+    },
+    {
+      "from": "runtime",
+      "to": "d1",
+      "label": "Lee / guarda estado",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        1003,
+        440
+      ]
+    },
+    {
+      "from": "bridge",
+      "to": "pg",
+      "label": "SQL privado",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        699,
+        440
+      ]
+    },
+    {
+      "from": "gateway",
+      "to": "r2",
+      "label": "Media temporal",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Experiencia conversacional",
+      "items": [
+        "Una respuesta contextual por ráfaga de texto e imágenes.",
+        "Respuesta, PDF y botones vuelven por Meta Graph API."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Estado híbrido actual",
+      "items": [
+        "D1 mantiene el runtime; PostgreSQL autoriza y recibe mensajes en sombra.",
+        "Cloudflare ejecuta el Worker; el bridge corre en un VPS con Docker."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Control de emisión",
+      "items": [
+        "Sólo el botón vigente, tras revisar el resumen, autoriza emitir.",
+        "Aislamiento por empresa, idempotencia y bloqueo de resultados inciertos."
+      ]
+    }
+  ]
+}

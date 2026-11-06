@@ -28,9 +28,10 @@ function isGraphReplyCall(call: readonly unknown[]): boolean {
 
 async function dispatch(
   request: Request<unknown, IncomingRequestCfProperties>,
+  overrides: Partial<Env> = {},
 ): Promise<Response> {
   const ctx = createExecutionContext();
-  const response = await worker.fetch(request, env, ctx);
+  const response = await worker.fetch(request, { ...env, ...overrides }, ctx);
   await waitOnExecutionContext(ctx);
   return response;
 }
@@ -204,7 +205,7 @@ function stubExternalApis({
   const externalFetch = vi.fn(
     async (input: string | URL, init?: RequestInit): Promise<Response> => {
       const endpoint = String(input);
-      if (endpoint.includes("api.groq.com")) {
+      if (endpoint.includes("api.groq.com") || endpoint.includes("api.openai.com")) {
         if (endpoint.includes("/audio/transcriptions")) {
           return new Response(JSON.stringify({ text: audioTranscript }), {
             status: groqStatus,
@@ -294,7 +295,7 @@ function stubExternalApis({
   return externalFetch;
 }
 
-async function signedPost(body: string): Promise<Response> {
+async function signedPost(body: string, overrides: Partial<Env> = {}): Promise<Response> {
   const signature = await signBody(body);
   return dispatch(
     makeRequest(webhookUrl, {
@@ -305,6 +306,7 @@ async function signedPost(body: string): Promise<Response> {
       },
       body,
     }),
+    overrides,
   );
 }
 
@@ -521,6 +523,7 @@ describe("POST /webhooks/whatsapp", () => {
         phoneNumberId: "888888888888888",
         caption: "¿Qué producto aparece aquí?",
       }),
+      { ENTERPRISE_AI_MODEL: "gpt-6-luna", OPENAI_API_KEY: "test-vision-key" },
     );
 
     expect(response.status).toBe(200);
@@ -536,7 +539,13 @@ describe("POST /webhooks/whatsapp", () => {
     });
     const visionInit = visionCall?.[1] as unknown as RequestInit;
     const visionBody = JSON.parse(String(visionInit.body));
-    expect(visionBody.model).toBe("qwen/qwen3.6-27b");
+    expect(String(visionCall?.[0])).toBe("https://api.openai.com/v1/chat/completions");
+    expect(visionBody.model).toBe("gpt-6-luna");
+    expect(visionBody.reasoning_effort).toBe("low");
+    expect(visionBody.max_completion_tokens).toBe(4_000);
+    expect(visionBody).not.toHaveProperty("temperature");
+    expect(visionBody.messages[1].content[0].text).toContain("¿Qué producto aparece aquí?");
+    expect(visionBody.messages[1].content[1].image_url.detail).toBe("high");
     expect(visionBody.messages[1].content[1].image_url.url).toBe(
       "data:image/png;base64,AQID",
     );

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AiProvider } from "../src/ai/contracts";
 import type { IncomingDocument, DocumentStore } from "../src/documents/contracts";
 import type {
@@ -8,6 +8,7 @@ import type {
 import { EnterpriseAdvisorRoleHandler } from "../src/roles/enterprise-advisor-role";
 import type { RoleHandlerContext } from "../src/roles/contracts";
 import type { RoleStateRepository } from "../src/roles/state";
+import { RoleStateStorageError } from "../src/roles/state";
 
 class MemoryState implements RoleStateRepository {
   private readonly values = new Map<string, string>();
@@ -27,6 +28,14 @@ class MemoryState implements RoleStateRepository {
 
   async clear(tenantId: string, contactId: number, roleKey: string): Promise<boolean> {
     return this.values.delete(this.key(tenantId, contactId, roleKey));
+  }
+
+  async compareAndSet(tenantId: string, contactId: number, roleKey: string, expected: string | null, value: string | null): Promise<boolean> {
+    const key = this.key(tenantId, contactId, roleKey);
+    if ((this.values.get(key) ?? null) !== expected) return false;
+    if (value === null) this.values.delete(key);
+    else this.values.set(key, value);
+    return true;
   }
 }
 
@@ -66,6 +75,8 @@ class FakeFacturaya implements FacturayaClient {
   readonly clearTenant = vi.fn<FacturayaClient["clearTenant"]>()
     .mockResolvedValue(true);
   readonly lookupCustomer = vi.fn<FacturayaClient["lookupCustomer"]>()
+    .mockResolvedValue({ ok: false, reason: "not_found" });
+  readonly lookupCustomerByDni = vi.fn<FacturayaClient["lookupCustomerByDni"]>()
     .mockResolvedValue({ ok: false, reason: "not_found" });
   readonly importInvoiceDraft = vi.fn<FacturayaClient["importInvoiceDraft"]>();
   readonly listInvoiceDrafts = vi.fn<FacturayaClient["listInvoiceDrafts"]>();
@@ -108,6 +119,7 @@ function makeContext(
   message: Partial<RoleHandlerContext["message"]>,
   document: IncomingDocument | null = null,
 ): RoleHandlerContext {
+  const reply = vi.fn(async (_text: string) => undefined);
   return {
     message: {
       id: "wamid.enterprise-test",
@@ -132,7 +144,6 @@ function makeContext(
     persisted: { duplicate: false, conversationId: "conversation", contactId: 1 },
     env: {} as Env,
     ai,
-    finance: null,
     businessData: null,
     quoteNumberAllocator: null,
     roleState: state,
@@ -140,7 +151,11 @@ function makeContext(
     document,
     documentStore: documents,
     history: [],
-    reply: vi.fn(async () => undefined),
+    reply,
+    sendText: async (text) => {
+      await reply(text);
+      return { status: "sent", metaMessageId: "wamid.text" };
+    },
     sendButtons: vi.fn(async () => ({ status: "sent" as const, metaMessageId: "wamid.reply" })),
     sendList: vi.fn(async () => ({ status: "sent" as const, metaMessageId: "wamid.reply" })),
     sendDocument: vi.fn(async () => ({ status: "sent" as const, metaMessageId: "wamid.document" })),
@@ -149,6 +164,35 @@ function makeContext(
     fallbackReply: "fallback",
     log: vi.fn(),
   };
+}
+
+function creationButton(kind: "factura" | "boleta") {
+  return expect.objectContaining({ id: expect.stringMatching(/^enterprise_issue_invoice:/), title: `Crear ${kind}` });
+}
+
+const MAIN_MENU_BUTTONS = [
+  { id: "enterprise_invoice", title: "Generar Factura" },
+  { id: "enterprise_receipt", title: "Generar Boleta" },
+  { id: "enterprise_other_options", title: "Otras opciones" },
+];
+
+async function savedCheckpoint(state: MemoryState) {
+  return JSON.parse((await state.get("enterprise-test", 1, "enterprise-advisor"))!);
+}
+
+async function preparedReceipt() {
+  const state = new MemoryState();
+  const documents = new MemoryDocuments();
+  const facturaya = new FakeFacturaya();
+  facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: anonymousReceiptDraft });
+  const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt",
+    customer_name: "Cliente Prueba", products_changed: true,
+    products_text: "1 accesorio a S/ 50", products_ready: true, missing_product_data: [] }));
+  const handler = new EnterpriseAdvisorRoleHandler();
+  await startReceipt(handler, state, documents, facturaya, ai);
+  const context = makeContext(state, documents, facturaya, ai, { text: "1 accesorio a S/ 50" });
+  await handler.handle(context);
+  return { state, documents, facturaya, ai, handler, context };
 }
 
 function fakeAi(content: string): AiProvider {
@@ -164,6 +208,7 @@ async function startBilling(
   documents: MemoryDocuments,
   facturaya: FakeFacturaya,
   ai: AiProvider,
+  selectCash = true,
 ): Promise<void> {
   await handler.handle(makeContext(state, documents, facturaya, ai, { text: "hola" }));
   await handler.handle(makeContext(state, documents, facturaya, ai, {
@@ -174,6 +219,10 @@ async function startBilling(
     interactionId: "enterprise_invoice",
     text: "enterprise_invoice",
   }));
+  // Existing scenarios assume cash; select it explicitly as a user turn.
+  if (selectCash) await handler.handle({ ...makeContext(state, documents, facturaya, ai,
+    { text: "Al contado" }), ai: fakeAi(JSON.stringify({ interpretation_version: 1, user_intent: "billing_update",
+      payment_method: "contado", source_evidence: { payment_method: "Al contado" }, products_changed: false })) });
 }
 
 async function startReceipt(
@@ -195,39 +244,606 @@ async function startReceipt(
 }
 
 describe("enterprise-advisor role", () => {
-  it("starts a 20-minute session with finance and billing buttons", async () => {
+  async function creditScenario(overrides: Record<string, unknown> = {}, source?: string) {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    const creditDraft: FacturayaInvoiceDraft = { ...draft, payment_method: "credito", outstanding_amount: "100.00",
+      installments: [{ due_date: "2027-12-05", amount: "60.00" }, { due_date: "2027-12-10", amount: "40.00" }] };
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: creditDraft });
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "invoice", customer_document: "20123456789",
+      customer_name: "Cliente Demo", issue_date: "2026-11-05", products_changed: true,
+      products_text: "1 servicio a S/ 118", products_ready: true, payment_method: "credito",
+      outstanding_amount: "100.00", installments: creditDraft.installments, ...overrides }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+    await startBilling(handler, state, documents, facturaya, ai, false);
+    const context = makeContext(state, documents, facturaya, ai, { text: source
+      ?? "Factura RUC 20123456789 a nombre de Cliente Demo, 1 servicio S/ 118. Al crédito, saldo 100.00; cuota 60.00 vence 05 diciembre 2027; cuota 40.00 vence 10/12/2027." });
+    await handler.handle(context);
+    return { state, documents, facturaya, handler, context, creditDraft };
+  }
+
+  it("asks whether a new invoice is cash or credit without assuming cash", async () => {
+    const p = await creditScenario({ payment_method: null, outstanding_amount: null, installments: null },
+      "Factura RUC 20123456789 a nombre de Cliente Demo, 1 servicio S/ 118");
+    expect(p.facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+    expect(p.context.reply).toHaveBeenCalledWith(expect.stringContaining("contado o crédito"));
+    expect((await savedCheckpoint(p.state)).billing.paymentMethod).toBeNull();
+  });
+
+  it("shows balance, currency and every installment before enabling creation", async () => {
+    const p = await creditScenario();
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledWith(expect.objectContaining({ paymentMethod: "credito",
+      outstandingAmount: "100.00", installments: p.creditDraft.installments }));
+    expect(p.context.sendButtons).toHaveBeenCalledWith(expect.stringContaining("Condición de pago: Crédito"),
+      expect.arrayContaining([creationButton("factura")]));
+    const body = vi.mocked(p.context.sendButtons!).mock.calls[0][0];
+    expect(body).toContain("Saldo pendiente: S/ 100.00");
+    expect(body).toContain("60.00 — vence 2027-12-05");
+    expect(body).toContain("40.00 — vence 2027-12-10");
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("captures products and credit together without requiring the word producto", async () => {
+    const p = await creditScenario({ products_text: "1 computador a S/ 118" },
+      "Factura RUC 20123456789 a nombre de Cliente Demo, 1 computador S/ 118. Al crédito saldo 100.00; cuota 60.00 vence 2027-12-05; cuota 40.00 vence 2027-12-10");
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledWith(expect.objectContaining({
+      paymentMethod: "credito", productsText: "1 computador a S/ 118" }));
+  });
+
+  it("rejects an extractor-invented year and amount and keeps the products", async () => {
+    const p = await creditScenario({},
+      "Factura RUC 20123456789 a nombre de Cliente Demo, 1 servicio S/ 118. Al crédito, saldo 100.00; vence 05 diciembre.");
+    expect(p.facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+    expect(p.context.reply).toHaveBeenCalledWith(expect.stringContaining("fecha completa"));
+    const checkpoint = await savedCheckpoint(p.state);
+    expect(checkpoint.billing.productsText).toBe("1 servicio a S/ 118");
+    expect(checkpoint.confirmation).toBeUndefined();
+  });
+
+  it("asks for the pending balance and installment amounts instead of inventing them", async () => {
+    const p = await creditScenario({ outstanding_amount: null, installments: [{ due_date: "2027-12-05", amount: null }] },
+      "Factura RUC 20123456789 a nombre de Cliente Demo, 1 servicio S/ 118. Al crédito, vence 2027-12-05.");
+    expect(p.facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+    expect(p.context.reply).toHaveBeenCalledWith(expect.stringContaining("importe explícito"));
+  });
+
+  it("invalidates the old button on an incomplete payment change, preserving products", async () => {
+    const p = await creditScenario();
+    const previous = await savedCheckpoint(p.state);
+    const change = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "billing_update",
+      products_changed: false, installments: [{ due_date: "2028-12-05", amount: "100.00" }] })),
+    { text: "Cambia el vencimiento de la cuota de 100.00 al 05 diciembre" });
+    await p.handler.handle(change);
+    const current = await savedCheckpoint(p.state);
+    expect(current.confirmation).toBeUndefined();
+    expect(current.revision).toBeGreaterThan(previous.revision);
+    expect(current.billing.productsText).toBe(previous.billing.productsText);
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, fakeAi("{}"),
+      { text: previous.confirmation.buttonId, interactionId: previous.confirmation.buttonId }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it.each(["balance_above_total", "api_changed_to_cash"])("blocks the confirmation for %s", async (reason) => {
+    const p = await creditScenario();
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: reason === "balance_above_total"
+      ? { ...p.creditDraft, totals: { total: 90 }, items: [{ description: "Servicio", quantity: 1, line_total: 90 }] }
+      : { ...p.creditDraft, payment_method: "contado", outstanding_amount: null, installments: [] } });
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "billing_update",
+      customer_name: "Otro Cliente", products_changed: false })), { text: "Cambia el nombre del cliente a Otro Cliente" });
+    await p.handler.handle(context);
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+    expect(context.sendButtons).toHaveBeenCalledWith(expect.any(String),
+      expect.not.arrayContaining([creationButton("factura")]));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("clears credit terms on an explicit change to cash and shows a new confirmation", async () => {
+    const p = await creditScenario();
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: { ...draft, payment_method: "contado",
+      outstanding_amount: null, installments: [] } });
+    const previous = await savedCheckpoint(p.state);
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "billing_update",
+      payment_method: "contado", products_changed: false })), { text: "Cámbialo a contado" });
+    await p.handler.handle(context);
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({ paymentMethod: "contado",
+      outstandingAmount: null, installments: [], productsText: previous.billing.productsText }));
+    const current = await savedCheckpoint(p.state);
+    expect(current.confirmation.buttonId).not.toBe(previous.confirmation.buttonId);
+  });
+
+  it("invalidates confirmation for a partial date even if the extractor supplies no payment fields", async () => {
+    const p = await creditScenario();
+    const change = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "unknown" })),
+      { text: "Cambia el vencimiento al 05 diciembre" });
+    await p.handler.handle(change);
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+    expect(change.reply).toHaveBeenCalledWith(expect.stringContaining("día, mes y año"));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+  });
+
+  it("keeps balance across turns and resumes incomplete installments after a handler restart", async () => {
+    const p = await creditScenario({ installments: [{ due_date: "2027-12-05", amount: null }] },
+      "Factura RUC 20123456789 a nombre de Cliente Demo, 1 servicio S/ 118. Al crédito saldo 100.00, vence 05 diciembre 2027.");
+    expect(p.facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+    const followup = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "billing_update",
+      products_changed: false, installments: [{ due_date: "2027-12-05", amount: "100.00" }] })),
+      { text: "La cuota pendiente es de 100.00" });
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: { ...p.creditDraft,
+      installments: [{ due_date: "2027-12-05", amount: "100.00" }] } });
+    await new EnterpriseAdvisorRoleHandler().handle(followup);
+    expect((await savedCheckpoint(p.state)).billing).toMatchObject({ paymentMethod: "credito",
+      outstandingAmount: "100.00", installments: [{ due_date: "2027-12-05", amount: "100.00" }] });
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledWith(expect.objectContaining({ outstandingAmount: "100.00",
+      productsText: "1 servicio a S/ 118", installments: [{ due_date: "2027-12-05", amount: "100.00" }] }));
+    expect((await savedCheckpoint(p.state)).confirmation).toBeDefined();
+  });
+
+  it("rejects credit for a receipt without importing or enabling creation", async () => {
+    const p = await preparedReceipt();
+    const change = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({ user_intent: "billing_update",
+      payment_method: "credito", products_changed: false })), { text: "Cambia a crédito" });
+    await p.handler.handle(change);
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+    expect(change.reply).toHaveBeenCalledWith(expect.stringContaining("sólo está disponible para facturas"));
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it("interprets a consolidated receipt burst once, resolves DNI once and keeps all commercial fields", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomerByDni.mockResolvedValue({ ok: true,
+      data: { ruc: "12345678", name: "CLIENTE SINTÉTICO" } });
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: {
+      ...receiptDraft, customer: { document_type: "1", ruc: "12345678", name: "CLIENTE SINTÉTICO" },
+      items: [{ description: "Chalecos con bordados", quantity: 25, line_total: 900 }],
+      totals: { subtotal: 762.71, igv: 137.29, total: 900 }, issue_date: "2026-10-20",
+    } });
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt",
+      customer_document: "12345678", customer_name: null, products_changed: true,
+      products_text: "25 chalecos con bordados, precio total 900 soles", products_ready: true,
+      missing_product_data: [], issue_date: "2026-10-20" }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+    await startReceipt(handler, state, documents, facturaya, ai);
+    vi.mocked(ai.complete).mockClear();
+    const context = makeContext(state, documents, facturaya, ai, { text: [
+      "Chalecos con bordados", "25 unidades", "DNI 12345678", "Precio total 900 soles", "Fecha dos días atrás",
+    ].join("\n") });
+    await handler.handle(context);
+    expect(ai.complete).toHaveBeenCalledOnce();
+    expect(facturaya.lookupCustomerByDni).toHaveBeenCalledExactlyOnceWith("12345678");
+    expect(facturaya.importInvoiceDraft).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      customerName: "CLIENTE SINTÉTICO", productsText: "25 chalecos con bordados, precio total 900 soles",
+      issueDate: "2026-10-20", customerRuc: "12345678",
+    }));
+    expect(facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("routes an explicit DNI query despite an AI refusal and preserves products", async () => {
+    const p = await preparedReceipt();
+    const before = await savedCheckpoint(p.state);
+    p.facturaya.lookupCustomerByDni.mockResolvedValue({ ok: true,
+      data: { ruc: "12345678", name: "NOMBRE VERIFICADO" } });
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: {
+      ...anonymousReceiptDraft, customer: { document_type: "1", ruc: "12345678", name: "NOMBRE VERIFICADO" },
+    } });
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({
+      user_intent: "conversation", action: "receipt", reply: "No puedo buscar nombres por DNI",
+    })), { text: "Busca el nombre del cliente con DNI 12345678" });
+    await p.handler.handle(context);
+    expect(p.facturaya.lookupCustomerByDni).toHaveBeenCalledExactlyOnceWith("12345678");
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({
+      customerName: "NOMBRE VERIFICADO", customerRuc: "12345678", productsText: before.billing.productsText,
+    }));
+    const after = await savedCheckpoint(p.state);
+    expect(after.billing.customerName).toBe("NOMBRE VERIFICADO");
+    expect(after.confirmation.buttonId).not.toBe(before.confirmation.buttonId);
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+    expect(context.reply).not.toHaveBeenCalledWith("No puedo buscar nombres por DNI");
+  });
+
+  it("automatically resolves a receipt DNI without a name", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomerByDni.mockResolvedValue({ ok: true,
+      data: { ruc: "12345678", name: "CLIENTE RESUELTO" } });
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt", customer_document: "12345678" }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+    await startReceipt(handler, state, documents, facturaya, ai);
+    await handler.handle(makeContext(state, documents, facturaya, ai, { text: "DNI 12345678" }));
+    expect(facturaya.lookupCustomerByDni).toHaveBeenCalledExactlyOnceWith("12345678");
+    expect((await savedCheckpoint(state)).billing.customerName).toBe("CLIENTE RESUELTO");
+    expect(facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+  });
+
+  it("does not repeat DNI lookup when the checkpoint conflicts after the tool", async () => {
+    const p = await preparedReceipt();
+    p.facturaya.lookupCustomerByDni.mockImplementation(async () => {
+      vi.spyOn(p.state, "compareAndSet").mockResolvedValue(false);
+      return { ok: true, data: { ruc: "12345678", name: "CLIENTE VERIFICADO" } };
+    });
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({
+      user_intent: "conversation", action: "receipt",
+    })), { text: "Consulta el nombre del DNI 12345678" });
+    await p.handler.handle(context);
+    expect(p.facturaya.lookupCustomerByDni).toHaveBeenCalledOnce();
+    expect(context.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_failed",
+      expect.objectContaining({ reason: "conflict", effectsStarted: true }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it.each(["not_found", "network_error"] as const)("retains products but clears stale name on DNI change: %s", async (reason) => {
+    const p = await preparedReceipt();
+    const before = await savedCheckpoint(p.state);
+    p.facturaya.lookupCustomerByDni.mockResolvedValue({ ok: false, reason });
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({
+      user_intent: "billing_update", action: "receipt", customer_document: "12345678",
+    })), { text: "Cambia el DNI a 12345678" });
+    await p.handler.handle(context);
+    const after = await savedCheckpoint(p.state);
+    expect(after.billing.productsText).toBe(before.billing.productsText);
+    expect(after.billing.customerName).toBe("");
+    expect(after.confirmation).toBeUndefined();
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("Conservé los demás datos"));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("keeps the checkpoint after a handler restart and a day of inactivity", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const p = await preparedReceipt();
+    const previous = await savedCheckpoint(p.state);
+    vi.setSystemTime(Date.now() + 24 * 60 * 60 * 1000);
+    const context = makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({
+      user_intent: "review", action: "unknown",
+    })), { text: "Muéstrame el resumen" });
+    await new EnterpriseAdvisorRoleHandler().handle(context);
+    const current = await savedCheckpoint(p.state);
+    expect(current.billing).toEqual(previous.billing);
+    expect(current.phase).toBe("review");
+    expect(context.sendButtons).toHaveBeenCalledWith(expect.stringContaining("Total: S/ 50.00"), expect.any(Array));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+  });
+
+  it("expires a checkpoint after seven inactive days", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const p = await preparedReceipt();
+    vi.setSystemTime(Date.now() + 8 * 24 * 60 * 60 * 1000);
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { text: "hola" }));
+    expect((await savedCheckpoint(p.state)).billing).toBeUndefined();
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+  });
+
+  it.each(["Hola estás funcionando?", "Gracias por la ayuda"])("does not import conversation as products: %s", async (text) => {
+    const p = await preparedReceipt();
+    const previous = await savedCheckpoint(p.state);
+    // Even a malformed classifier response must not overwrite products with a greeting.
+    const ai = fakeAi(JSON.stringify({ action: "receipt", products_changed: true, products_ready: true, products_text: text }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, ai, { text }));
+    expect((await savedCheckpoint(p.state)).billing).toEqual(previous.billing);
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+  });
+
+  it("applies only a customer name even when the model places it in products_text", async () => {
+    const p = await preparedReceipt();
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt",
+      customer_name: "Cliente Actualizado", products_text: "Cliente Actualizado", products_changed: true }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, ai, { text: "Cliente Actualizado" }));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({
+      customerName: "Cliente Actualizado", productsText: "1 accesorio a S/ 50",
+    }));
+  });
+
+  it("preserves products when a DNI correction is mislabeled as products", async () => {
+    const p = await preparedReceipt();
+    p.facturaya.lookupCustomerByDni.mockResolvedValue({ ok: true,
+      data: { ruc: "87654321", name: "CLIENTE VERIFICADO" } });
+    const text = "Quiero cambiar el DNI y que sea 87654321";
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt",
+      customer_document: "87654321", products_text: text, products_changed: true, products_ready: true }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, ai, { text }));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({
+      customerRuc: "87654321", productsText: "1 accesorio a S/ 50",
+    }));
+  });
+
+  it("keeps a consolidated price correction and invalidates the previous creation button", async () => {
+    const p = await preparedReceipt();
+    const oldButton = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    const ai = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt",
+      products_changed: true, products_text: "1 accesorio a S/ 80", products_ready: true }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, ai, { text: "Cambia el total a 80 soles" }));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({ productsText: "1 accesorio a S/ 80" }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: oldButton }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("keeps accepted corrections in the checkpoint after an import fails", async () => {
+    const p = await preparedReceipt();
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: false, reason: "api_error" });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, fakeAi(JSON.stringify({
+      user_intent: "billing_update", action: "receipt", customer_name: "Cliente Nuevo", products_changed: false,
+    })), { text: "A nombre de Cliente Nuevo" }));
+    const checkpoint = await savedCheckpoint(p.state);
+    expect(checkpoint.billing.customerName).toBe("Cliente Nuevo");
+    expect(checkpoint.billing.productsText).toBe("1 accesorio a S/ 50");
+    expect(checkpoint.confirmation).toBeUndefined();
+    expect(checkpoint.phase).toBe("collecting");
+    p.facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: anonymousReceiptDraft });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" })), { text: "Muéstrame el resumen" }));
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenLastCalledWith(expect.objectContaining({
+      customerName: "Cliente Nuevo", productsText: "1 accesorio a S/ 50",
+    }));
+    expect((await savedCheckpoint(p.state)).confirmation).toBeDefined();
+  });
+
+  it("reads legacy session data without accepting its unversioned issue button", async () => {
+    const p = await preparedReceipt();
+    const current = await savedCheckpoint(p.state);
+    const { revision, phase, draft: previousDraft, confirmation, ...legacy } = current;
+    await p.state.set("enterprise-test", 1, "enterprise-advisor", JSON.stringify({ ...legacy, version: 1 }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: "enterprise_issue_invoice" }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+    expect((await savedCheckpoint(p.state)).billing.productsText).toBe("1 accesorio a S/ 50");
+    expect((await savedCheckpoint(p.state)).version).toBe(2);
+    p.facturaya.listInvoiceDrafts.mockResolvedValue({ ok: true, data: [anonymousReceiptDraft] });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" })), { text: "Muéstrame el resumen" }));
+    expect((await savedCheckpoint(p.state)).confirmation.buttonId).toMatch(/^enterprise_issue_invoice:/);
+  });
+
+  it.each(["emitir", "confirmar", "Crear boleta"])("does not issue through text: %s", async (text) => {
+    const p = await preparedReceipt();
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { text }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+  });
+
+  it("requires the latest delivered button and processes it only once", async () => {
+    const p = await preparedReceipt();
+    const oldButton = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    const reviewAi = fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, reviewAi, { text: "Resumen" }));
+    const currentButton = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: oldButton }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+    p.facturaya.issueInvoice.mockResolvedValue({ ok: true, data: { id: "invoice-test", number: "B001-1", status: "accepted", document_type: "03" } });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: currentButton }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: currentButton, id: "another-click" }));
+    expect(p.facturaya.issueInvoice).toHaveBeenCalledOnce();
+    expect((await savedCheckpoint(p.state)).phase).toBe("issued");
+  });
+
+  it("rejects legacy and forged creation buttons", async () => {
+    const p = await preparedReceipt();
+    for (const interactionId of ["enterprise_issue_invoice", "enterprise_issue_invoice:forged"]) {
+      await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId }));
+    }
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("allows only one concurrent creation attempt for the same checkpoint", async () => {
+    const p = await preparedReceipt();
+    const interactionId = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    p.facturaya.issueInvoice.mockResolvedValue({ ok: true, data: { id: "invoice-test", number: "B001-1", status: "accepted" } });
+    await Promise.all([
+      p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId, id: "click-a" })),
+      p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId, id: "click-b" })),
+    ]);
+    expect(p.facturaya.issueInvoice).toHaveBeenCalledOnce();
+  });
+
+  it.each([false, true])("rebases concurrent product and DNI changes across handler instances (reverse=%s)", async (reverse) => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: false, reason: "api_error" });
+    const ai: AiProvider = { key: "openai", complete: vi.fn(async (request) => {
+      const text = String(request.messages.at(-1)?.content);
+      return JSON.stringify(text.includes("polos")
+        ? { user_intent: "billing_update", action: "receipt", products_changed: true,
+            products_text: "40 polos con bordados precio total S/ 1080", products_ready: true }
+        : { user_intent: "billing_update", action: "receipt", customer_document: "12345678", products_changed: false });
+    }) };
+    await startReceipt(new EnterpriseAdvisorRoleHandler(), state, documents, facturaya, ai);
+    const products = makeContext(state, documents, facturaya, ai, { id: "products", text: "40 polos con bordados precio total 1080 soles" });
+    const customer = makeContext(state, documents, facturaya, ai, { id: "dni", text: "Quiero cambiar el DNI a 12345678" });
+    const inputs = reverse ? [customer, products] : [products, customer];
+    await Promise.all(inputs.map((context) => new EnterpriseAdvisorRoleHandler().handle(context)));
+    const checkpoint = await savedCheckpoint(state);
+    expect(checkpoint.billing.productsText).toContain("40 polos");
+    expect(checkpoint.billing.customerRuc).toBe("12345678");
+    expect(checkpoint.billing.productsReady).toBe(true);
+    expect(facturaya.issueInvoice).not.toHaveBeenCalled();
+    expect(inputs.some((context) => vi.mocked(context.log).mock.calls.some(([event]) => event === "whatsapp_facturaya_checkpoint_retry"))).toBe(true);
+  });
+
+  it("does not retry storage failures as conflicts or expose their raw error", async () => {
+    const p = await preparedReceipt();
+    vi.spyOn(p.state, "compareAndSet").mockRejectedValue(new RoleStateStorageError("compare_and_set"));
+    const context = makeContext(p.state, p.documents, p.facturaya, p.ai, { text: "cambiar nombre" });
+    await p.handler.handle(context);
+    expect(context.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_failed", expect.objectContaining({ reason: "storage_error", attempt: 1, operation: "compare_and_set" }));
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("almacenamiento"));
+    expect(context.log).not.toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_retry", expect.anything());
+  });
+
+  it.each(["read", "compare_and_set"] as const)("handles storage failure %s from an independently bundled adapter", async (operation) => {
+    const p = await preparedReceipt();
+    const foreignError = Object.assign(new Error("Role state storage unavailable"), { operation });
+    vi.spyOn(p.state, operation === "read" ? "get" : "compareAndSet").mockRejectedValue(foreignError);
+    const context = makeContext(p.state, p.documents, p.facturaya, p.ai, { text: "cambiar nombre" });
+    await p.handler.handle(context);
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("almacenamiento"));
+    expect(context.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_failed", expect.objectContaining({ reason: "storage_error", attempt: 1, operation }));
+    expect(context.log).not.toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_retry", expect.anything());
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("reclassifies a slow product turn against the DNI checkpoint committed during classification", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: false, reason: "api_error" });
+    let release!: () => void;
+    let started!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    const classifying = new Promise<void>((resolve) => { started = resolve; });
+    let first = true;
+    const ai: AiProvider = { key: "openai", complete: vi.fn(async () => {
+      if (first) { first = false; started(); await pending; }
+      return JSON.stringify({ user_intent: "billing_update", action: "receipt", products_changed: true,
+        products_text: "40 polos precio total S/ 1080", products_ready: true });
+    }) };
+    await startReceipt(new EnterpriseAdvisorRoleHandler(), state, documents, facturaya, ai);
+    const productContext = makeContext(state, documents, facturaya, ai, { id: "slow-products", text: "40 polos precio total 1080 soles" });
+    const productTurn = new EnterpriseAdvisorRoleHandler().handle(productContext);
+    await classifying;
+    const dniAi = fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt", products_changed: false, customer_document: "12345678" }));
+    await new EnterpriseAdvisorRoleHandler().handle(makeContext(state, documents, facturaya, dniAi, { id: "fast-dni", text: "DNI 12345678" }));
+    release();
+    await productTurn;
+    expect(vi.mocked(ai.complete).mock.calls.length).toBeGreaterThan(1);
+    expect((await savedCheckpoint(state)).billing).toMatchObject({ customerRuc: "12345678", productsText: "40 polos precio total S/ 1080" });
+    expect(productContext.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_retry", expect.objectContaining({ reason: "conflict" }));
+    expect(facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("never repeats an import after a post-provider checkpoint conflict", async () => {
+    const p = await preparedReceipt();
+    p.facturaya.importInvoiceDraft.mockImplementationOnce(async () => {
+      const current = await savedCheckpoint(p.state);
+      await p.state.set("enterprise-test", 1, "enterprise-advisor", JSON.stringify({ ...current, revision: current.revision + 1 }));
+      return { ok: true, data: anonymousReceiptDraft };
+    });
+    const before = p.facturaya.importInvoiceDraft.mock.calls.length;
+    const context = makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "billing_update", action: "receipt", customer_name: "Cliente Nuevo", products_changed: false })),
+      { text: "Cambia el nombre del cliente a Cliente Nuevo" });
+    await p.handler.handle(context);
+    expect(p.facturaya.importInvoiceDraft.mock.calls.length).toBe(before + 1);
+    expect(context.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_failed", expect.objectContaining({ reason: "conflict", effectsStarted: true }));
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("No repetí la operación"));
+    expect((await savedCheckpoint(p.state)).billing.customerName).toBe("Cliente Nuevo");
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("keeps the checkpoint when the same company must be selected again", async () => {
+    const p = await preparedReceipt();
+    const before = await savedCheckpoint(p.state);
+    p.facturaya.selectTenant.mockResolvedValue(await p.facturaya.resolveTenantAccess());
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, {
+      interactionId: "enterprise_company:company-demo", text: "enterprise_company:company-demo",
+    }));
+    expect((await savedCheckpoint(p.state)).billing).toEqual(before.billing);
+    expect(p.facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
+  });
+
+  it("clears the previous review when selecting another company", async () => {
+    const p = await preparedReceipt();
+    const access = await p.facturaya.resolveTenantAccess();
+    if (access.status !== "authorized") throw new Error("fixture");
+    p.facturaya.selectTenant.mockResolvedValue({ ...access, tenant: { ...access.tenant, id: "company-other" } });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, {
+      interactionId: "enterprise_company:company-other", text: "enterprise_company:company-other",
+    }));
+    const checkpoint = await savedCheckpoint(p.state);
+    expect(checkpoint.billing).toBeUndefined();
+    expect(checkpoint.confirmation).toBeUndefined();
+    expect(checkpoint.draft).toBeUndefined();
+  });
+
+  it("does not process a duplicate Meta event", async () => {
+    const p = await preparedReceipt();
+    const context = makeContext(p.state, p.documents, p.facturaya, p.ai, {
+      interactionId: (await savedCheckpoint(p.state)).confirmation.buttonId,
+    });
+    context.persisted.duplicate = true;
+    await p.handler.handle(context);
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("does not enable creation when the confirmation was not delivered", async () => {
+    const p = await preparedReceipt();
+    const oldButton = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    const context = makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" })), { text: "Resumen" });
+    context.sendButtons = vi.fn(async () => ({ status: "failed" as const, metaMessageId: null }));
+    await p.handler.handle(context);
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: oldButton }));
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on a checkpoint write conflict before issuing", async () => {
+    const p = await preparedReceipt();
+    const buttonId = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    vi.spyOn(p.state, "compareAndSet").mockResolvedValue(false);
+    const context = makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId: buttonId });
+    await p.handler.handle(context);
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+    expect(context.log).toHaveBeenCalledWith("whatsapp_facturaya_checkpoint_failed", expect.any(Object));
+  });
+
+  it("does not retry an uncertain emission after a network failure", async () => {
+    const p = await preparedReceipt();
+    const interactionId = (await savedCheckpoint(p.state)).confirmation.buttonId;
+    p.facturaya.issueInvoice.mockResolvedValue({ ok: false, reason: "network_error" });
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId }));
+    await p.handler.handle(makeContext(p.state, p.documents, p.facturaya, p.ai, { interactionId }));
+    expect(p.facturaya.issueInvoice).toHaveBeenCalledOnce();
+    expect((await savedCheckpoint(p.state)).phase).toBe("issuing");
+  });
+
+  it("shows all items and totals before offering creation for a long summary", async () => {
+    const p = await preparedReceipt();
+    const longDraft = { ...anonymousReceiptDraft, items: Array.from({ length: 30 }, (_, index) => ({
+      description: `Producto ${index + 1}`, quantity: 1, unit_price: 5, line_total: 5,
+    })), totals: { subtotal: 127.12, igv: 22.88, total: 150 } };
+    const checkpoint = await savedCheckpoint(p.state);
+    await p.state.set("enterprise-test", 1, "enterprise-advisor", JSON.stringify({ ...checkpoint, draft: longDraft }));
+    const context = makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" })), { text: "Resumen" });
+    await p.handler.handle(context);
+    const fullReview = vi.mocked(context.reply).mock.calls.map(([text]) => text).join("");
+    expect(fullReview).toContain("Producto 30");
+    expect(fullReview).toContain("Subtotal: S/ 127.12");
+    expect(fullReview).toContain("IGV: S/ 22.88");
+    expect(fullReview).toContain("Total: S/ 150.00");
+    expect(context.sendButtons).toHaveBeenCalledWith(expect.any(String), expect.arrayContaining([creationButton("boleta")]));
+    expect(vi.mocked(context.reply).mock.invocationCallOrder.at(-1)).toBeLessThan(vi.mocked(context.sendButtons!).mock.invocationCallOrder[0]);
+  });
+
+  it("blocks creation if any part of the long review cannot be sent", async () => {
+    const p = await preparedReceipt();
+    const checkpoint = await savedCheckpoint(p.state);
+    const longDraft = { ...anonymousReceiptDraft, items: Array.from({ length: 30 }, (_, index) => ({
+      description: `Producto ${index + 1}`, quantity: 1, unit_price: 1, line_total: 1,
+    })) };
+    await p.state.set("enterprise-test", 1, "enterprise-advisor", JSON.stringify({ ...checkpoint, draft: longDraft }));
+    const context = makeContext(p.state, p.documents, p.facturaya,
+      fakeAi(JSON.stringify({ user_intent: "review", action: "unknown" })), { text: "Resumen" });
+    context.sendText = vi.fn(async () => ({ status: "failed" as const, metaMessageId: null }));
+    await p.handler.handle(context);
+    expect(context.sendButtons).not.toHaveBeenCalled();
+    expect((await savedCheckpoint(p.state)).confirmation).toBeUndefined();
+    expect(p.facturaya.issueInvoice).not.toHaveBeenCalled();
+  });
+
+  it("starts a durable session with the three main actions", async () => {
     const state = new MemoryState();
     const context = makeContext(state, new MemoryDocuments(), new FakeFacturaya(), fakeAi("{}"), { text: "hola" });
 
     await new EnterpriseAdvisorRoleHandler().handle(context);
 
     expect(context.sendButtons).toHaveBeenCalledWith(
-      "¿Qué deseas hacer hoy?",
-      [
-        { id: "enterprise_finance", title: "Finanzas" },
-        { id: "enterprise_billing", title: "Facturación" },
-      ],
+      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
     );
-  });
-
-  it("activates the finance mode without consulting FacturaYa", async () => {
-    const state = new MemoryState();
-    const documents = new MemoryDocuments();
-    const facturaya = new FakeFacturaya();
-    const ai = fakeAi("{}");
-    const handler = new EnterpriseAdvisorRoleHandler();
-    await handler.handle(makeContext(state, documents, facturaya, ai, { text: "hola" }));
-    const context = makeContext(state, documents, facturaya, ai, {
-      interactionId: "enterprise_finance",
-      text: "enterprise_finance",
-    });
-
-    await handler.handle(context);
-
-    expect(context.reply).toHaveBeenCalledWith(
-      "Finanzas activadas. Puedes registrar entradas, salidas o consultar tu balance durante los próximos 20 minutos.",
-    );
-    expect(facturaya.resolveTenantAccess).not.toHaveBeenCalled();
   });
 
   it("offers factura or boleta after choosing billing", async () => {
@@ -245,11 +861,7 @@ describe("enterprise-advisor role", () => {
     await handler.handle(context);
 
     expect(context.sendButtons).toHaveBeenCalledWith(
-      "¿Qué comprobante deseas crear?",
-      [
-        { id: "enterprise_invoice", title: "Factura" },
-        { id: "enterprise_receipt", title: "Boleta" },
-      ],
+      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
     );
   });
 
@@ -284,8 +896,8 @@ describe("enterprise-advisor role", () => {
     const handler = new EnterpriseAdvisorRoleHandler();
     await handler.handle(makeContext(state, documents, facturaya, fakeAi("{}"), { text: "hola" }));
     const context = makeContext(state, documents, facturaya, fakeAi("{}"), {
-      interactionId: "enterprise_billing",
-      text: "enterprise_billing",
+      interactionId: "enterprise_invoice",
+      text: "Generar Factura",
     });
 
     await handler.handle(context);
@@ -337,7 +949,7 @@ describe("enterprise-advisor role", () => {
     }));
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("Borrador de factura creado"),
-      expect.arrayContaining([{ id: "enterprise_issue_invoice", title: "Emitir factura" }]),
+      expect.arrayContaining([creationButton("factura")]),
     );
   });
 
@@ -513,7 +1125,7 @@ describe("enterprise-advisor role", () => {
     }));
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("Borrador de boleta creado"),
-      expect.arrayContaining([{ id: "enterprise_issue_invoice", title: "Emitir boleta" }]),
+      expect.arrayContaining([creationButton("boleta")]),
     );
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("DNI: 12345678"),
@@ -531,7 +1143,7 @@ describe("enterprise-advisor role", () => {
       },
     });
     const issue = makeContext(state, documents, facturaya, ai, {
-      interactionId: "enterprise_issue_invoice",
+      interactionId: (await savedCheckpoint(state)).confirmation.buttonId,
       text: "enterprise_issue_invoice",
     });
     await handler.handle(issue);
@@ -573,7 +1185,7 @@ describe("enterprise-advisor role", () => {
     }));
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("Consumidor final"),
-      expect.arrayContaining([{ id: "enterprise_issue_invoice", title: "Emitir boleta" }]),
+      expect.arrayContaining([creationButton("boleta")]),
     );
   });
 
@@ -618,7 +1230,7 @@ describe("enterprise-advisor role", () => {
     }));
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringMatching(/Cliente: Patricia M[\s\S]*Documento: Sin documento/),
-      expect.arrayContaining([{ id: "enterprise_issue_invoice", title: "Emitir boleta" }]),
+      expect.arrayContaining([creationButton("boleta")]),
     );
   });
 
@@ -654,7 +1266,7 @@ describe("enterprise-advisor role", () => {
 
     expect(context.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("supera el límite"),
-      expect.not.arrayContaining([{ id: "enterprise_issue_invoice", title: "Emitir boleta" }]),
+      expect.not.arrayContaining([creationButton("boleta")]),
     );
   });
 
@@ -726,7 +1338,7 @@ describe("enterprise-advisor role", () => {
     expect(update.sendButtons).toHaveBeenCalledWith(
       expect.stringContaining("Borrador de boleta creado"),
       expect.arrayContaining([
-        { id: "enterprise_issue_invoice", title: "Emitir boleta" },
+        creationButton("boleta"),
         { id: "enterprise_change_invoice", title: "Cambiar datos" },
       ]),
     );
@@ -748,7 +1360,6 @@ describe("enterprise-advisor role", () => {
           reason_code: null,
           reason_description: null,
         }))
-        .mockResolvedValueOnce("Ya registré el RUC. Ahora necesito el nombre del cliente y el detalle de los productos o servicios.")
         .mockResolvedValueOnce(JSON.stringify({
           action: "invoice",
           customer_ruc: null,
@@ -760,7 +1371,6 @@ describe("enterprise-advisor role", () => {
           reason_code: null,
           reason_description: null,
         }))
-        .mockResolvedValueOnce("El RUC sigue guardado. También necesito el nombre del cliente y el concepto del monto.")
         .mockImplementation(async () => null);
     const ai: AiProvider = { key: "openai", complete };
     const handler = new EnterpriseAdvisorRoleHandler();
@@ -771,17 +1381,16 @@ describe("enterprise-advisor role", () => {
 
     expect(facturaya.importInvoiceDraft).not.toHaveBeenCalled();
     expect(first.reply).toHaveBeenCalledWith(
-      "Ya registré el RUC. Ahora necesito el nombre del cliente y el detalle de los productos o servicios.",
+      expect.stringContaining("RUC guardado: 20557288016"),
     );
 
     const second = makeContext(state, documents, facturaya, ai, { text: "Monto 700" });
     await handler.handle(second);
 
     expect(second.reply).toHaveBeenCalledWith(
-      "El RUC sigue guardado. También necesito el nombre del cliente y el concepto del monto.",
+      expect.stringContaining("20557288016"),
     );
-    const guidanceRequest = complete.mock.calls[3]?.[0];
-    expect(guidanceRequest?.messages[0]?.content).toEqual(expect.stringContaining("20557288016"));
+    expect(complete).toHaveBeenCalledTimes(2);
   });
 
   it("resolves and shows the legal name as soon as a RUC arrives", async () => {
@@ -824,7 +1433,7 @@ describe("enterprise-advisor role", () => {
     expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("20557288016"));
   });
 
-  it("preserves explicit invoice details when the AI provider fails", async () => {
+  it("preserves the checkpoint without guessing invoice fields when the AI provider fails", async () => {
     const state = new MemoryState();
     const documents = new MemoryDocuments();
     const facturaya = new FakeFacturaya();
@@ -843,21 +1452,17 @@ describe("enterprise-advisor role", () => {
     const handler = new EnterpriseAdvisorRoleHandler();
 
     await startBilling(handler, state, documents, facturaya, ai);
+    const before = await savedCheckpoint(state);
     const context = makeContext(state, documents, facturaya, ai, {
       text: "Realizar una factura de 700 soles RUC 20557288016 detalle por concepto de bordados computarizado, 350 bordados",
     });
     await handler.handle(context);
 
-    expect(facturaya.lookupCustomer).toHaveBeenCalledWith("20557288016");
-    expect(facturaya.importInvoiceDraft).toHaveBeenCalledWith(expect.objectContaining({
-      customerRuc: "20557288016",
-      customerName: "AGU BELLO E.I.R.L.",
-      productsText: expect.stringMatching(/700[\s\S]*bordados[\s\S]*350/iu),
-    }));
-    expect(context.sendButtons).toHaveBeenCalledWith(
-      expect.stringContaining("Borrador de factura creado"),
-      expect.any(Array),
-    );
+    expect(facturaya.lookupCustomer).not.toHaveBeenCalled();
+    expect(facturaya.importInvoiceDraft).not.toHaveBeenCalled();
+    expect(context.sendButtons).not.toHaveBeenCalled();
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("No pude interpretar este mensaje"));
+    expect((await savedCheckpoint(state)).billing).toEqual(before.billing);
   });
 
   it("resets the enterprise session and removes a pending document", async () => {
@@ -886,11 +1491,7 @@ describe("enterprise-advisor role", () => {
 
     expect(documents.values.size).toBe(0);
     expect(reset.sendButtons).toHaveBeenCalledWith(
-      "Sesión reiniciada. ¿Qué deseas hacer ahora?",
-      [
-        { id: "enterprise_finance", title: "Finanzas" },
-        { id: "enterprise_billing", title: "Facturación" },
-      ],
+      "Sesión reiniciada. Soy Manolo, ¿en qué puedo ayudarte?", MAIN_MENU_BUTTONS,
     );
   });
 
@@ -934,5 +1535,67 @@ describe("enterprise-advisor role", () => {
       document: expect.objectContaining({ filename: "cotizacion.pdf" }),
     }));
     expect(documents.values.size).toBe(0);
+  });
+
+  it("displays buttons when user starts conversation with greeting or ambiguous message", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    const ai = fakeAi(JSON.stringify({ user_intent: "conversation", reply: "¡Hola! ¿En qué puedo ayudarte?" }));
+    ai.decide = vi.fn(async () => ({
+      answers: [{ type: "choice" as const, name: "enterprise_intent", choice: "greeting" }],
+    }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    const context = makeContext(state, documents, facturaya, ai, { text: "hola manolo" });
+    await handler.handle(context);
+
+    expect(context.sendButtons).toHaveBeenCalledWith(
+      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
+    );
+  });
+
+  it("routes a draft query to authenticated data when Decisions chooses drafts", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.listInvoiceDrafts.mockResolvedValue({ ok: true, data: [] });
+    const ai = fakeAi(JSON.stringify({ user_intent: "conversation", reply: "Tus facturas de la última semana son..." }));
+    ai.decide = vi.fn(async () => ({
+      answers: [{ type: "choice" as const, name: "enterprise_intent", choice: "drafts" }],
+    }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    const context = makeContext(state, documents, facturaya, ai, {
+      text: "Me puedes mostrar los borradores",
+    });
+    context.generateAiReplyWithHistory = vi.fn(async () => "Para revisar tus facturas de la última semana puedes ingresar a tu panel de FacturaYa.");
+    await handler.handle(context);
+
+    expect(facturaya.listInvoiceDrafts).toHaveBeenCalledWith(1);
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("No hay borradores pendientes"));
+    expect(context.generateAiReplyWithHistory).not.toHaveBeenCalled();
+  });
+
+  it("answers within the billing session without Decisions or reopening the menu", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    const ai = fakeAi(JSON.stringify({ user_intent: "conversation", reply: "¡Hola! ¿Cómo estás?" }));
+    ai.decide = vi.fn(async () => ({
+      answers: [{ type: "choice" as const, name: "enterprise_intent", choice: "greeting" }],
+    }));
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    await startBilling(handler, state, documents, facturaya, ai);
+
+    const greetingContext = makeContext(state, documents, facturaya, ai, { text: "hola" });
+    vi.mocked(ai.decide!).mockClear();
+    await handler.handle(greetingContext);
+
+    expect(greetingContext.reply).not.toHaveBeenCalledWith("¡Hola! ¿Cómo estás?");
+    expect(greetingContext.reply).toHaveBeenCalledWith(expect.stringContaining("Me falta"));
+    expect(greetingContext.sendButtons).not.toHaveBeenCalled();
+    expect(ai.decide).not.toHaveBeenCalled();
   });
 });

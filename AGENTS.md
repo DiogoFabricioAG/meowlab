@@ -11,9 +11,12 @@ Antes de modificar archivos:
 1. Lee [`docs/README.md`](docs/README.md).
 2. Lee [`docs/project/status.md`](docs/project/status.md) para conocer el estado
    real de la migración y las limitaciones activas.
-3. Ejecuta `git status --short --branch` y conserva todos los cambios que ya
+3. Revisa el tablero de trabajo en
+   [`docs/project/board.json`](docs/project/board.json): ubica tu tarea o
+   agrégala si no existe.
+4. Ejecuta `git status --short --branch` y conserva todos los cambios que ya
    existan. No asumas que un archivo sin commit puede descartarse.
-4. Usa la tabla de enrutamiento de este documento y lee únicamente los
+5. Usa la tabla de enrutamiento de este documento y lee únicamente los
    documentos adicionales que correspondan al trabajo.
 
 ## Enrutamiento por tipo de tarea
@@ -36,7 +39,7 @@ En las filas de Manolo, las rutas abreviadas `src/`, `test/`, `migrations/`,
 | Migración D1 a PostgreSQL o arquitectura futura | [`docs/architecture/current-system.md`](docs/architecture/current-system.md) y el documento fundacional | `docs/vps-migration/`, `docs/architecture-foundation.md`, `src/node/platform/` |
 | TUI de contactos, roles o empresas | [`docs/apps/manolo-platform.md`](docs/apps/manolo-platform.md) | `tools/users-tui-vps.mjs`, `tools/users-tui/` |
 | Pruebas, revisión o CI | [`docs/development/validation.md`](docs/development/validation.md) | `test/`, `vitest.config.ts`, scripts de ambos `package.json` |
-| Coordinación de varios agentes | [`docs/agents/orchestration.md`](docs/agents/orchestration.md) | Límites de archivos definidos en el plan de trabajo |
+| Coordinación de varios agentes | [`docs/project/board.json`](docs/project/board.json) y [`docs/agents/orchestration.md`](docs/agents/orchestration.md) | Tareas del tablero y límites de archivos definidos en el plan de trabajo |
 | Una decisión estructural duradera | [`docs/decisions/README.md`](docs/decisions/README.md) | Nuevo ADR dentro de `docs/decisions/` |
 | Documentación | [`docs/README.md`](docs/README.md) | `docs/`, este archivo y los README locales |
 
@@ -95,6 +98,27 @@ nueva nota fechada o corrige el documento de estado.
 7. Reporta archivos modificados, pruebas ejecutadas y riesgos pendientes. No
    despliegues ni hagas commit salvo que la tarea lo autorice.
 
+## Tablero de trabajo
+
+El estado visible de las tareas vive en
+[`docs/project/board.html`](docs/project/board.html), generado desde
+[`docs/project/board.json`](docs/project/board.json) con columnas `todo`,
+`in_progress` y `done`.
+
+Reglas:
+
+- Cada agente revisa el tablero al empezar. Si su tarea no está, la agrega en
+  `todo` dentro de `board.json`.
+- Al empezar a trabajar, mueve su tarea a `in_progress` (una sola tarea por
+  agente a la vez).
+- Al terminar y validar, la mueve a `done` con la evidencia: comando, prueba o
+  archivo verificable.
+- Si descubre trabajo nuevo durante la tarea, lo agrega a `todo` en la misma
+  entrega; no lo deja únicamente en el chat.
+- `board.json` es la fuente de verdad. No se edita `board.html` a mano: se
+  regenera con `node tools/board/build-board.mjs` y se verifica con
+  `node tools/board/build-board.mjs --check`.
+
 ## Definición de terminado
 
 Un cambio está terminado cuando:
@@ -104,5 +128,6 @@ Un cambio está terminado cuando:
 - no expone secretos ni datos sensibles en errores o logs;
 - pasa las comprobaciones aplicables;
 - deja documentación y contratos coherentes con el código;
+- deja su tarea del tablero en `done` con evidencia y el HTML regenerado;
 - distingue claramente entre código probado, código desplegado y trabajo aún
   pendiente.

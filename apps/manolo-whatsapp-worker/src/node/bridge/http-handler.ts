@@ -23,6 +23,8 @@ import {
   type PlatformSyncService,
 } from "../platform/platform-sync-service";
 import { verifyBridgeSignature } from "./signature-verifier";
+import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
+import type { PgRadarSelectionService } from "../radar/selection-service";
 
 export type BridgeHttpRequest = {
   method: string;
@@ -43,6 +45,7 @@ export type BridgeHttpHandlerDependencies = {
   contactRoleResolver: ContactRoleResolver;
   platformSyncService?: PlatformSyncService;
   facturayaService?: FacturayaOperationService;
+  radarSelectionService?: Pick<PgRadarSelectionService, "execute">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -81,6 +84,7 @@ export function createBridgeHttpHandler(
       && request.path !== PLATFORM_INBOUND_SYNC_PATH
       && request.path !== PLATFORM_OUTBOUND_SYNC_PATH
       && request.path !== FACTURAYA_BRIDGE_PATH
+      && request.path !== RADAR_SYNC_BRIDGE_PATH
     ) {
       return jsonResponse(404, { error: "not_found" });
     }
@@ -156,6 +160,15 @@ export function createBridgeHttpHandler(
       : null;
     if (request.headers["x-manolo-request-id"] !== requestId) {
       return jsonResponse(400, { error: "request_id_mismatch" });
+    }
+
+    if (request.path === RADAR_SYNC_BRIDGE_PATH) {
+      if (!isRadarSyncRequest(payload)) return jsonResponse(400, { error: "invalid_request" });
+      if (!dependencies.radarSelectionService) return jsonResponse(503, { error: "radar_unavailable" });
+      try {
+        const result = await dependencies.radarSelectionService.execute(payload, requestHash);
+        return jsonResponse(200, result);
+      } catch { dependencies.log("vps_radar_sync_failed", { reason: "database_error" }); return jsonResponse(503, { error: "radar_unavailable" }); }
     }
 
     if (request.path === CONTACT_ROLE_RESOLUTION_PATH) {
