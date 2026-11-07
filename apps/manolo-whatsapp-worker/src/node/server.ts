@@ -12,6 +12,7 @@ import { PgBridgeRequestStore } from "./bridge/pg-request-store";
 import { PrintAdvisorBridgeService } from "./bridge/print-advisor-service";
 import { PgContactRoleResolver } from "./control/pg-contact-role-resolver";
 import { PlatformSyncService } from "./platform/platform-sync-service";
+import { advisorConnectionString } from "./postgres/advisor-connection";
 import { createPrintPostgresConnection } from "./postgres/pg-read-only-executor";
 import { FACTURAYA_BRIDGE_PATH } from "../facturaya/bridge-contracts";
 import { CredentialCipher } from "./security/credential-cipher";
@@ -103,8 +104,17 @@ async function main(): Promise<void> {
     throw new Error("VPS_BRIDGE_HMAC_SECRET must contain at least 32 characters");
   }
 
-  const connection = createPrintPostgresConnection(databaseUrl, logSafeEvent);
+  // Model-generated SQL runs with its own read-only role, never with the platform's owner role.
+  const advisorDatabaseUrl = advisorConnectionString(
+    databaseUrl,
+    process.env.PRINT_ADVISOR_DB_USER?.trim() || "manolo_advisor_ro",
+    requiredSecret("PRINT_ADVISOR_DB_PASSWORD", "PRINT_ADVISOR_DB_PASSWORD_FILE"),
+  );
+
+  const connection = createPrintPostgresConnection(databaseUrl, logSafeEvent, "manolo-platform-bridge");
   if (!connection) throw new Error("PostgreSQL connection could not be created");
+  const advisorConnection = createPrintPostgresConnection(advisorDatabaseUrl, logSafeEvent);
+  if (!advisorConnection) throw new Error("Print advisor PostgreSQL connection could not be created");
   const ai = createAiProvider("groq", { groqApiKey });
   if (!ai) throw new Error("Groq provider could not be created");
 
@@ -121,7 +131,7 @@ async function main(): Promise<void> {
   );
   const service = new PrintAdvisorBridgeService(
     ai,
-    connection.repository,
+    advisorConnection.repository,
     requestStore,
     logSafeEvent,
     { aiModel: process.env.PRINT_ADVISOR_MODEL },
@@ -184,7 +194,7 @@ async function main(): Promise<void> {
   const shutdown = async (signal: string) => {
     logSafeEvent("vps_bridge_stopping", { signal });
     server.close();
-    await connection.close();
+    await Promise.all([connection.close(), advisorConnection.close()]);
   };
   process.once("SIGTERM", () => void shutdown("SIGTERM"));
   process.once("SIGINT", () => void shutdown("SIGINT"));

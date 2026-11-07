@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 38 · Total: 108</span>
+      <span class="summary">Abiertas: 39 · Total: 109</span>
     </div>
   </div>
 </header>
@@ -233,17 +233,6 @@
           <p class="card-notes">Revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones D1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). Commit en rama, push y reconciliar src/ con el bundle desplegado. Ver regla crítica en AGENTS.md.</p>
           <p class="card-meta">Actualizado: 2026-11-06</p>
           <code class="card-id">git-version-production-code-20261106</code>
-        </article>
-        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps el sql generado por el modelo (print-advisor) usa el pool y el usuario postgres_user, superusuario en la imagen oficial; el filtro es lista negra. crear rol nosuperuser solo select sobre print_system.*, pool propio. verificar: select rolsuper from pg_roles where rolname=&#39;manolo_app&#39;. 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. el sql del asesor corre con ese usuario (pg-read-only-executor.ts, begin read only) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). riesgo confirmado; sigue pendiente la correccion.">
-          <div class="card-top">
-            <span class="badge area-vps">VPS</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Rol PostgreSQL de mínimo privilegio para el SQL del asesor</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion.</p>
-          <p class="card-notes">El SQL generado por el modelo (print-advisor) usa el pool y el usuario POSTGRES_USER, superusuario en la imagen oficial; el filtro es lista negra. Crear rol NOSUPERUSER solo SELECT sobre print_system.*, pool propio. Verificar: SELECT rolsuper FROM pg_roles WHERE rolname=&#39;manolo_app&#39;.</p>
-          <p class="card-meta">Actualizado: 2026-11-07</p>
-          <code class="card-id">pg-llm-sql-least-privilege-20261106</code>
         </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
@@ -431,6 +420,17 @@
           <p class="card-notes">extract_preview.cjs, render_original.cjs, scratch-verify-detail.cjs, PNG sueltos.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">commit-landing-y-scratch</code>
+        </article>
+        <article class="card" data-priority="high" data-area="VPS" data-text="reconciliar el puente del vps con git antes de reconstruirlo vps el contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. el build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningeffort en el adaptador openai-compatible y decide()). /opt/manolo-platform no es repositorio git. comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit. 2026-11-07: cmp del server.mjs de producción contra npm run build:node del commit ac564: difieren; ver notas.">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Reconciliar el puente del VPS con git antes de reconstruirlo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07: cmp del server.mjs de producción contra npm run build:node del commit ac564: difieren; ver notas.</p>
+          <p class="card-notes">El contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. El build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningEffort en el adaptador OpenAI-compatible y decide()). /opt/manolo-platform no es repositorio git. Comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit.</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
+          <code class="card-id">bridge-production-drift-20261107</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. ">
           <div class="card-top">
@@ -635,9 +635,20 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">1</span>
+          <span class="count">2</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (nosuperuser, sin acceso a whatsapp, solo select en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107). 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. el sql del asesor corre con ese usuario (pg-read-only-executor.ts, begin read only) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). riesgo confirmado; sigue pendiente la correccion.">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Rol PostgreSQL de mínimo privilegio para el SQL del asesor</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion.</p>
+          <p class="card-notes">Corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (NOSUPERUSER, sin acceso a whatsapp, solo SELECT en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. Falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107).</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
+          <code class="card-id">pg-llm-sql-least-privilege-20261106</code>
+        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>

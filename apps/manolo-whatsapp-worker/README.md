@@ -397,10 +397,11 @@ npx wrangler secret put OPENAI_API_KEY --env production
 npx wrangler secret put VPS_BRIDGE_HMAC_SECRET --env production
 ```
 
-El VPS usa dos valores adicionales que no se cargan en Cloudflare:
+El VPS usa tres valores adicionales que no se cargan en Cloudflare:
 
 - `CREDENTIALS_ENCRYPTION_KEY`: 32 bytes aleatorios en base64 o 64 caracteres hexadecimales; solo existe como `infra/vps/secrets/credentials_encryption_key`.
 - `FACTURAYA_BASE_URL`: URL HTTPS no secreta de FacturaYa, configurada en `infra/vps/.env`.
+- `PRINT_ADVISOR_DB_PASSWORD`: clave del rol de solo lectura `manolo_advisor_ro` con el que el puente ejecuta el SQL generado por el asesor; solo existe como `infra/vps/secrets/print_advisor_db_password` y la crea `infra/vps/apply-print-advisor-read-only-role.sh`. Sin ella el puente no arranca.
 
 Para generar la llave maestra en el VPS sin imprimirla:
 

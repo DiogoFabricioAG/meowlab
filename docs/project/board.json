@@ -54,9 +54,9 @@
       "area": "VPS",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-07",
-      "notes": "El SQL generado por el modelo (print-advisor) usa el pool y el usuario POSTGRES_USER, superusuario en la imagen oficial; el filtro es lista negra. Crear rol NOSUPERUSER solo SELECT sobre print_system.*, pool propio. Verificar: SELECT rolsuper FROM pg_roles WHERE rolname='manolo_app'.",
+      "notes": "Corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (NOSUPERUSER, sin acceso a whatsapp, solo SELECT en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. Falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107).",
       "evidence": "2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion."
     },
     {
@@ -1085,6 +1085,17 @@
       "status": "todo",
       "updated": "2026-09-13",
       "notes": "Reportado por npm audit el 2026-09-13."
+    },
+    {
+      "id": "bridge-production-drift-20261107",
+      "title": "Reconciliar el puente del VPS con git antes de reconstruirlo",
+      "area": "VPS",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-07",
+      "notes": "El contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. El build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningEffort en el adaptador OpenAI-compatible y decide()). /opt/manolo-platform no es repositorio git. Comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit.",
+      "evidence": "2026-11-07: cmp del server.mjs de producción contra npm run build:node del commit ac564: difieren; ver notas."
     }
   ]
 }

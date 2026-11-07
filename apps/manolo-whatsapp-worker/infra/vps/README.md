@@ -23,6 +23,8 @@ D1 principal no pierda información.
 5. Crear la base con `docker compose --env-file .env up -d postgres`.
 6. Antes de iniciar el puente, crear `./secrets/groq_api_key`,
    `./secrets/vps_bridge_hmac_secret` y `./secrets/credentials_encryption_key`.
+   La clave de `./secrets/print_advisor_db_password` la crea
+   `apply-print-advisor-read-only-role.sh` (ver la sección del rol del asesor).
    El directorio `secrets` debe usar modo `700`
    y los archivos deben pertenecer al UID/GID `1000:1000` con modo `600`, para
    que solo el usuario no-root `node` pueda leer los montajes. El segundo
@@ -127,3 +129,15 @@ El webhook de Meta no cambia. Si el puente falla, `print-advisor` vuelve al
 repositorio D1 actual. El rollback operativo consiste en poner
 `VPS_BRIDGE_ENABLED=false`, desplegar el Worker y detener solo el servicio
 `bridge`; los demás roles siguen en Cloudflare.
+
+## Rol de solo lectura del asesor de impresión
+
+El SQL que genera el modelo del asesor no usa el usuario de la plataforma (`POSTGRES_USER`, superusuario en la imagen oficial). El puente abre un pool aparte con `manolo_advisor_ro`, que solo puede leer el esquema `print_system`: no es superusuario, no ve `whatsapp`, no ejecuta `pg_read_file`, queda en solo lectura con `statement_timeout` de 8 s y como máximo 4 conexiones. Si falta su clave, el puente no arranca en vez de volver al superusuario.
+
+Antes de desplegar un puente con este cambio, aplicar en el VPS:
+
+```bash
+sh /opt/manolo-platform/infra/vps/apply-print-advisor-read-only-role.sh
+```
+
+El script crea `secrets/print_advisor_db_password` si no existe (hex aleatorio, `1000:1000`, modo `600`), aplica `infra/postgres/migrations/010-print-advisor-read-only-role.sql`, fija la clave sin mostrarla y termina con `print_advisor_read_only_role=ok` solo si los privilegios son exactamente los esperados. Es idempotente.
