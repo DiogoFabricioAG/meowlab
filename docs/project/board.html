@@ -234,26 +234,26 @@
           <p class="card-meta">Actualizado: 2026-11-06</p>
           <code class="card-id">git-version-production-code-20261106</code>
         </article>
-        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps el sql generado por el modelo (print-advisor) usa el pool y el usuario postgres_user, superusuario en la imagen oficial; el filtro es lista negra. crear rol nosuperuser solo select sobre print_system.*, pool propio. verificar: select rolsuper from pg_roles where rolname=&#39;manolo_app&#39;. ">
+        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps el sql generado por el modelo (print-advisor) usa el pool y el usuario postgres_user, superusuario en la imagen oficial; el filtro es lista negra. crear rol nosuperuser solo select sobre print_system.*, pool propio. verificar: select rolsuper from pg_roles where rolname=&#39;manolo_app&#39;. 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. el sql del asesor corre con ese usuario (pg-read-only-executor.ts, begin read only) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). riesgo confirmado; sigue pendiente la correccion.">
           <div class="card-top">
             <span class="badge area-vps">VPS</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Rol PostgreSQL de mínimo privilegio para el SQL del asesor</h3>
-          
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion.</p>
           <p class="card-notes">El SQL generado por el modelo (print-advisor) usa el pool y el usuario POSTGRES_USER, superusuario en la imagen oficial; el filtro es lista negra. Crear rol NOSUPERUSER solo SELECT sobre print_system.*, pool propio. Verificar: SELECT rolsuper FROM pg_roles WHERE rolname=&#39;manolo_app&#39;.</p>
-          <p class="card-meta">Actualizado: 2026-11-06</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
           <code class="card-id">pg-llm-sql-least-privilege-20261106</code>
         </article>
-        <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). ">
+        <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Verificar divergencia de contact_id D1 vs PostgreSQL en FacturaYa</h3>
-          
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07: PostgreSQL tiene 11 contactos, 1 con membresia activa de FacturaYa (1 empresa); id maximo 711. La comparacion con D1 quedo pendiente: la lectura remota de D1 de produccion requiere aprobacion del operador. Script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).</p>
           <p class="card-notes">El Worker envía el contact_id de D1 y el bridge autoriza por whatsapp.contacts.id (IDENTITY propio; sync con ON CONFLICT (id) DO NOTHING). Comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id).</p>
-          <p class="card-meta">Actualizado: 2026-11-06</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
           <code class="card-id">facturaya-contact-id-divergence-20261106</code>
         </article>
         <article class="card" data-priority="high" data-area="IA" data-text="evaluar contrato semantico con credencial valida y mensajes reales ia la clave local devolvio401 en inferencia sintetica; validar version/citas/fechas/importes y aclaraciones con proveedor real. no cambiar secretos productivos sin verificar su consumidor. incluir gre: fechas relativas, peso120kg, lugares/homonimos y respuestas a preguntas guardadas. backups/semantic-state-20261106/model-check.json; pruebas de contrato simuladas429 ok.">

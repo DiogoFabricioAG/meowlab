@@ -55,9 +55,9 @@
       "owner": "",
       "priority": "high",
       "status": "todo",
-      "updated": "2026-11-06",
+      "updated": "2026-11-07",
       "notes": "El SQL generado por el modelo (print-advisor) usa el pool y el usuario POSTGRES_USER, superusuario en la imagen oficial; el filtro es lista negra. Crear rol NOSUPERUSER solo SELECT sobre print_system.*, pool propio. Verificar: SELECT rolsuper FROM pg_roles WHERE rolname='manolo_app'.",
-      "evidence": ""
+      "evidence": "2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion."
     },
     {
       "id": "facturaya-contact-id-divergence-20261106",
@@ -66,9 +66,9 @@
       "owner": "",
       "priority": "high",
       "status": "todo",
-      "updated": "2026-11-06",
+      "updated": "2026-11-07",
       "notes": "El Worker envía el contact_id de D1 y el bridge autoriza por whatsapp.contacts.id (IDENTITY propio; sync con ON CONFLICT (id) DO NOTHING). Comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id).",
-      "evidence": ""
+      "evidence": "2026-11-07: PostgreSQL tiene 11 contactos, 1 con membresia activa de FacturaYa (1 empresa); id maximo 711. La comparacion con D1 quedo pendiente: la lectura remota de D1 de produccion requiere aprobacion del operador. Script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids)."
     },
     {
       "id": "wrangler-config-drift-20261106",
