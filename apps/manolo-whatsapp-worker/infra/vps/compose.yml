@@ -37,6 +37,7 @@ services:
         max-file: "5"
 
   bridge:
+    image: manolo-platform-bridge:latest
     build:
       context: ../..
       dockerfile: infra/vps/bridge.Dockerfile
