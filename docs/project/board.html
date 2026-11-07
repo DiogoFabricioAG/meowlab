@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 39 · Total: 109</span>
+      <span class="summary">Abiertas: 37 · Total: 109</span>
     </div>
   </div>
 </header>
@@ -220,7 +220,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">37</span>
+          <span class="count">36</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="versionar en git el código ya desplegado ops revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones d1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). commit en rama, push y reconciliar src/ con el bundle desplegado. ver regla crítica en agents.md. ">
@@ -420,17 +420,6 @@
           <p class="card-notes">extract_preview.cjs, render_original.cjs, scratch-verify-detail.cjs, PNG sueltos.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">commit-landing-y-scratch</code>
-        </article>
-        <article class="card" data-priority="high" data-area="VPS" data-text="reconciliar el puente del vps con git antes de reconstruirlo vps el contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. el build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningeffort en el adaptador openai-compatible y decide()). /opt/manolo-platform no es repositorio git. comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit. 2026-11-07: cmp del server.mjs de producción contra npm run build:node del commit ac564: difieren; ver notas.">
-          <div class="card-top">
-            <span class="badge area-vps">VPS</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Reconciliar el puente del VPS con git antes de reconstruirlo</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07: cmp del server.mjs de producción contra npm run build:node del commit ac564: difieren; ver notas.</p>
-          <p class="card-notes">El contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. El build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningEffort en el adaptador OpenAI-compatible y decide()). /opt/manolo-platform no es repositorio git. Comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit.</p>
-          <p class="card-meta">Actualizado: 2026-11-07</p>
-          <code class="card-id">bridge-production-drift-20261107</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. ">
           <div class="card-top">
@@ -635,20 +624,9 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">2</span>
+          <span class="count">1</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (nosuperuser, sin acceso a whatsapp, solo select en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107). 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. el sql del asesor corre con ese usuario (pg-read-only-executor.ts, begin read only) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). riesgo confirmado; sigue pendiente la correccion.">
-          <div class="card-top">
-            <span class="badge area-vps">VPS</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Rol PostgreSQL de mínimo privilegio para el SQL del asesor</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07, consulta de solo lectura en manolo-platform-postgres-1: manolo_app es el unico rol propio y tiene rolsuper, rolcreaterole, rolcreatedb y rolbypassrls = true; puede ejecutar pg_read_file y pg_terminate_backend. El SQL del asesor corre con ese usuario (pg-read-only-executor.ts, BEGIN READ ONLY) y alcanza los esquemas whatsapp (30 tablas) y print_system (7). Riesgo confirmado; sigue pendiente la correccion.</p>
-          <p class="card-notes">Corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (NOSUPERUSER, sin acceso a whatsapp, solo SELECT en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. Falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107).</p>
-          <p class="card-meta">Actualizado: 2026-11-07</p>
-          <code class="card-id">pg-llm-sql-least-privilege-20261106</code>
-        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -665,7 +643,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">70</span>
+          <span class="count">72</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Worker" data-text="gre: aceptar direcciones de referencia y usar imágenes solo como referencia worker prueba real: manolo exigía calle/número para «almacen del proveedor - arma - castrovirreyna - huancavelica» y tomó productos y partida de la foto de otra gre; el pdf no llegó a generarse. publicado por injerto (segunda excepción en agents.md). falta repetir la prueba por whatsapp hasta el pdf. 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); worker c1f9bc9e al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.">
@@ -689,6 +667,17 @@
           <p class="card-notes">Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf (o binding BROWSER de env en el runtime injertado); un fallo no bloquea la confirmación. Publicado por injerto en Worker c2070081 (excepción registrada en AGENTS.md); falta la prueba por WhatsApp.</p>
           <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Claude</p>
           <code class="card-id">manolo-gre-pdf-template-20261106</code>
+        </article>
+        <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (nosuperuser, sin acceso a whatsapp, solo select en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107). 2026-11-07 05:59 utc, puente advisor-ro-20261107t055457z desde 2dec84f: apply-print-advisor-read-only-role.sh dio print_advisor_read_only_role=ok; prueba en el contenedor: usuario manolo_advisor_ro, lee print_system, whatsapp 42501, pg_read_file 42501, escritura 25006. acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md. pendiente aparte: manolo_app sigue siendo superusuario para la plataforma.">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Rol PostgreSQL de mínimo privilegio para el SQL del asesor</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-07 05:59 UTC, puente advisor-ro-20261107T055457Z desde 2dec84f: apply-print-advisor-read-only-role.sh dio print_advisor_read_only_role=ok; prueba en el contenedor: usuario manolo_advisor_ro, lee print_system, whatsapp 42501, pg_read_file 42501, escritura 25006. Acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md. Pendiente aparte: manolo_app sigue siendo superusuario para la plataforma.</p>
+          <p class="card-notes">Corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (NOSUPERUSER, sin acceso a whatsapp, solo SELECT en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. Falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107).</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
+          <code class="card-id">pg-llm-sql-least-privilege-20261106</code>
         </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="corregir solicitud ia gre y diagnostico de respuesta worker gre envia temperature0 sin reasoning_effort; revisar rechazo y respuesta ilegible sin perder datos. retomada por claude tras agotarse codex: falta solo la prueba real por whatsapp contra 5a7c916e. validada en uso real 16:09-16:13 sobre 5a7c916e/c2070081: luna respondió cada turno gre sin whatsapp_gre_interpretation_failed ni fallos del proveedor. api de logs historicos403; revision de solicitud gre frente a facturacion. seguimiento 2026-11-06 (claude): wrangler deployments status = 5a7c916e al 100% desde 20:34z; bundle desplegado verificado: gre con reasoningeffort high y 8e3 tokens, regex gpt-[56] (omite temperature), sin codigo pdf. prueba directa a openai no posible en local: .dev.vars tiene clave de marcador (http 401). suite local 547/46 ok. docs/operations/manolo-gre-provider-2026-11-06.md.">
           <div class="card-top">
@@ -1283,6 +1272,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">recorte-financiero</code>
+        </article>
+        <article class="card" data-priority="high" data-area="VPS" data-text="reconciliar el puente del vps con git antes de reconstruirlo vps el contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. el build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningeffort en el adaptador openai-compatible y decide()). /opt/manolo-platform no es repositorio git. comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit. comparación módulo a módulo: equivalente a aaf3c salvo empaquetado del injerto, decide() sin uso y facturaya-admin antiguo. puente reconstruido desde 2dec84f (sha256 de server.mjs igual al build del commit) y fuente del host sincronizada. acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md.">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Reconciliar el puente del VPS con git antes de reconstruirlo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Comparación módulo a módulo: equivalente a aaf3c salvo empaquetado del injerto, decide() sin uso y facturaya-admin antiguo. Puente reconstruido desde 2dec84f (sha256 de server.mjs igual al build del commit) y fuente del host sincronizada. Acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md.</p>
+          <p class="card-notes">El contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. El build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningEffort en el adaptador OpenAI-compatible y decide()). /opt/manolo-platform no es repositorio git. Comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit.</p>
+          <p class="card-meta">Actualizado: 2026-11-07</p>
+          <code class="card-id">bridge-production-drift-20261107</code>
         </article>
         <article class="card" data-priority="medium" data-area="Documentación" data-text="diagrama de arquitectura manolo para portfolio documentación vista pública del flujo fiscal actual, sin datos privados; fuentes de verdad d1/pg y confirmación explícita. docs/architecture/manolo-portfolio.md; archify showcase9/9 sin errores/avisos; navegador4viewports aprobado y capturas claro/oscuro revisadas.">
           <div class="card-top">

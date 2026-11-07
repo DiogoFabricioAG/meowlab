@@ -50,6 +50,10 @@ la URL configurada en Meta.
 
 ## VPS
 
+Último despliegue del bridge:
+[2026-11-07, rol de solo lectura del asesor y reconciliación con git](manolo-bridge-advisor-ro-2026-11-07.md).
+Imagen construida desde el commit `2dec84f`; ya no corre con extensiones injertadas.
+
 Revisión de anulación sin modificar motivo:
 [2026-11-06, Worker85802e7f y copia SSH](manolo-credit-summary-2026-11-06.md).
 La nota ya procesada conserva su estado y no se reemite al pedir su resumen.
@@ -77,6 +81,9 @@ Sus reglas esenciales son:
   de recursos;
 - migraciones versionadas para bases existentes;
 - healthcheck y smoke tests antes de cambiar tráfico.
+- el bridge se construye desde `git -c core.autocrlf=false archive` de un commit
+  publicado (en Windows, sin esa opción los scripts salen con CRLF y fallan);
+  se compara el sha256 de `dist/node/server.mjs` con el build local del commit.
 
 Los scripts de `infra/vps/` son activos operativos. Deben revisarse antes de
 ejecutarlos en producción; que estén versionados no equivale a autorización.
