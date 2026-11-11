@@ -18,6 +18,8 @@ const CANCEL = "enterprise_gre_cancel";
 const CATEGORY = "enterprise_gre_category:";
 const CHANGE_CATEGORY = "enterprise_gre_change_category";
 const PDF = "enterprise_gre_pdf";
+export const DESPATCH_STATUS_BUTTON = STATUS;
+export const DESPATCH_PDF_BUTTON = PDF;
 // FacturaYa outcomes that end the guide: accepted/rejected by SUNAT, or definitively not sent.
 export const FINAL_GUIDE_STATUSES: readonly string[] = ["accepted", "rejected", "send_failed", "preparation_failed"];
 const isFinal = (status?: string | null) => FINAL_GUIDE_STATUSES.includes(status ?? "");

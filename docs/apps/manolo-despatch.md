@@ -62,6 +62,16 @@ y autorización se resuelven con el mecanismo existente en cada turno.
    el ticket. Nunca llama otra vez a emisión. `pending` no equivale a aceptación;
    `unknown`, `processing`, `preparation_failed` y otros estados no confirmados
    requieren revisión manual. Un resultado simulado siempre se anuncia como tal.
+8. Una operación sin confirmar no secuestra la sesión. `/reiniciar`, cancelar o
+   pedirlo en lenguaje natural («ignora esa operación», «déjala para después»)
+   la guarda como operación estacionada, sin reenviarla ni anularla, y libera la
+   sesión; «retomar» la restaura para consultar su estado. Pedir otra gestión
+   fiscal o cambiar de empresa pregunta antes con «Dejarla y seguir», para no
+   duplicar un traslado por descuido. Mientras hay una operación pendiente, el
+   texto libre se lee como un pedido sobre ella: primero reglas (saludo, estado,
+   PDF, ignorar, retomar) y, si no alcanzan, el clasificador Decisions.
+   Lo estacionado vive en la misma sesión D1 (hasta 3 operaciones, TTL de siete
+   días desde la última interacción) y sólo se retoma en la misma empresa.
 
 El checkpoint GRE está anidado en la sesión D1 existente y conserva su TTL de
 siete días y CAS. Cambiar de empresa descarta la selección y confirmación

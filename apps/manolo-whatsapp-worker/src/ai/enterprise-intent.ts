@@ -1,7 +1,7 @@
 import type { AiLogger, AiProvider } from "./contracts";
 
 export const ENTERPRISE_INTENTS = ["invoice", "receipt", "drafts", "credit_note", "despatch", "other_options",
-  "greeting", "continue", "review", "cancel", "finish", "another_action", "conversation", "unknown"] as const;
+  "greeting", "continue", "review", "cancel", "finish", "another_action", "conversation", "unknown", "park", "status"] as const;
 export type EnterpriseIntent = typeof ENTERPRISE_INTENTS[number];
 export type IntentContext = {
   mode: string | null;
@@ -9,7 +9,28 @@ export type IntentContext = {
   hasCurrentData: boolean;
   completed: boolean;
   awaitingFollowUp: boolean;
+  /** A sent fiscal operation whose outcome is still unconfirmed. */
+  pendingOperation?: boolean;
 };
+
+export function plainText(text: string): string {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/[¡!¿?.,;:]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** "Ignora esa operación", "déjala para después", "olvídalo"... */
+export function isParkText(text: string): boolean {
+  return /\b(?:ignora\w*|olvida\w*|descarta\w*|pospon\w*|posterga\w*)\b|\bdeja(?:la|lo|r)?\s+(?:para\s+)?(?:despues|luego|mas\s+tarde|eso|esa|esto|esta|asi)\b|\bpara\s+(?:despues|luego|mas\s+tarde)\b/
+    .test(plainText(text));
+}
+
+export function isStatusText(text: string): boolean {
+  return /\b(?:estado|como\s+va|se\s+(?:emitio|envio|acepto|rechazo)|ya\s+(?:salio|paso|esta\s+lista)|fue\s+aceptad\w*)\b/.test(plainText(text));
+}
+
+export function isResumeText(text: string): boolean {
+  return /^\/?retom\w*(?:\s|$)|^(?:volver|regresar)\s+a\s+la\s+(?:guia|operacion|factura|boleta|nota)\b|^(?:ver|revisar)\s+(?:la\s+)?operacion\s+(?:pendiente|guardada)\b/
+    .test(plainText(text));
+}
 
 function greetingOnly(text: string): boolean {
   return /^(?:[¡!¿?.,\s]*(?:hola|ola|manolo|buenas|buenos d[ií]as|buenas tardes|buenas noches|qu[eé] tal|c[oó]mo est[aá]s|est[aá]s funcionando)[!¡¿?.,\s]*)+$/iu.test(text);
@@ -23,6 +44,8 @@ export function fallbackEnterpriseIntent(text: string, state: IntentContext): En
   const value = text.trim();
   if (!value) return state.hasCurrentData ? "continue" : "unknown";
   if (greetingOnly(value)) return "greeting";
+  if (state.pendingOperation && isParkText(value)) return "park";
+  if (state.pendingOperation && isStatusText(value)) return "status";
   if (isEnterpriseReviewOnly(value)) return "review";
   if (state.awaitingFollowUp && /^(?:s[ií]|claro|dale|otra(?:\s+acci[oó]n)?)[.!\s]*$/iu.test(value)) return "another_action";
   if ((state.awaitingFollowUp || state.completed) && /^(?:no(?:[,\s]+gracias)?|listo(?:[,\s]+gracias)?|eso es todo|terminar|finalizar|hasta luego)[.!\s]*$/iu.test(value)) return "finish";
@@ -48,7 +71,7 @@ export async function classifyEnterpriseIntent(ai: AiProvider | null, model: str
       const result = await ai.decide({ model, input: text.trim(), questions: [{
         type: "choice", name: "enterprise_intent",
         instructions: `Clasifica la intención ACTUAL del usuario, antes de responder según el estado anterior. Contexto: ${JSON.stringify(state)}.
-Un saludo como Hola o Manolo es greeting incluso si hubo un comprobante emitido. Hola Manolo hazme una factura es invoice: el pedido concreto prevalece al saludo. invoice/receipt son pedidos claros para iniciar, no correcciones de datos del comprobante actual (continue). No confundas nota de crédito/anulación con factura nueva ni cancelar un borrador con anular un comprobante emitido. review/confirmar por texto sólo muestra revisión, jamás autoriza emisión. Un DNI, RUC, nombre, precio, cuota, categoría M1/L u otra información solicitada en una tarea activa es continue. Sí/No sólo responde al seguimiento si awaitingFollowUp=true. No inventes una acción para un mensaje ambiguo: unknown. La elección sólo enruta; no ejecuta operaciones.`,
+Un saludo como Hola o Manolo es greeting incluso si hubo un comprobante emitido. Hola Manolo hazme una factura es invoice: el pedido concreto prevalece al saludo. invoice/receipt son pedidos claros para iniciar, no correcciones de datos del comprobante actual (continue). No confundas nota de crédito/anulación con factura nueva ni cancelar un borrador con anular un comprobante emitido. review/confirmar por texto sólo muestra revisión, jamás autoriza emisión. Un DNI, RUC, nombre, precio, cuota, categoría M1/L u otra información solicitada en una tarea activa es continue. Sí/No sólo responde al seguimiento si awaitingFollowUp=true. No inventes una acción para un mensaje ambiguo: unknown. La elección sólo enruta; no ejecuta operaciones. park y status sólo aplican si pendingOperation=true: hay una operación fiscal enviada cuyo resultado falta verificar; park es ignorarla, olvidarla o dejarla para después (no la cancela ni la reenvía) y status es preguntar si ya salió, se aceptó o cómo va.`,
         choices: [
           { value: "invoice", description: "Pedido explícito de generar una factura." },
           { value: "receipt", description: "Pedido explícito de generar una boleta." },
@@ -64,6 +87,8 @@ Un saludo como Hola o Manolo es greeting incluso si hubo un comprobante emitido.
           { value: "another_action", description: "Quiere realizar otra acción después de terminar." },
           { value: "conversation", description: "Conversación o agradecimiento sin nueva operación." },
           { value: "unknown", description: "Intención no clara; orientar con menú." },
+          { value: "park", description: "Dejar para después, ignorar u olvidar la operación pendiente de verificar." },
+          { value: "status", description: "Preguntar por el estado de la operación pendiente de verificar." },
         ],
       }] }, log);
       const answer = result?.answers.find((item) => item.name === "enterprise_intent" && item.type === "choice");

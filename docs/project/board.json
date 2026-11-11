@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06",
+  "updatedAt": "2026-11-11",
   "columns": [
     {
       "id": "todo",
@@ -1096,6 +1096,17 @@
       "updated": "2026-11-07",
       "notes": "El contenedor manolo-platform-bridge-1 corre dist/node/server.mjs del 06/11 04:32 que importa fiscal-extension.mjs (06/11 18:19) y radar-selection-extension.mjs (01/11), generados por tools/prepare-*-release.mjs. El build de git es un solo server.mjs y difiere en lógica (p. ej. reasoningEffort en el adaptador OpenAI-compatible y decide()). /opt/manolo-platform no es repositorio git. Comparar módulo a módulo, decidir cada diferencia y desplegar el puente desde un commit.",
       "evidence": "Comparación módulo a módulo: equivalente a aaf3c salvo empaquetado del injerto, decide() sin uso y facturaya-admin antiguo. Puente reconstruido desde 2dec84f (sha256 de server.mjs igual al build del commit) y fuente del host sincronizada. Acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md."
+    },
+    {
+      "id": "manolo-pending-operation-control-20261111",
+      "title": "Manolo: una operación sin confirmar no debe secuestrar la sesión",
+      "area": "Worker",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-11",
+      "notes": "Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Falta desplegar el Worker: producción corre por injerto (c1f9bc9e) y requiere reconciliación o excepción del operador.",
+      "evidence": "2026-11-11: rama fix/manolo-operacion-pendiente; npx vitest run 586/586 (incluye 6 casos de guía, 1 de factura y reglas de intención nuevos); tsc --noEmit sin errores."
     }
   ]
 }

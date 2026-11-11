@@ -184,7 +184,7 @@
   <div class="page-inner">
     <div class="page-title">
       <h1><span class="dot">●</span> MeowLab · Tablero de trabajo</h1>
-      <span class="meta">Actualizado: 2026-11-06</span>
+      <span class="meta">Actualizado: 2026-11-11</span>
     </div>
     <div class="controls">
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 37 · Total: 109</span>
+      <span class="summary">Abiertas: 38 · Total: 110</span>
     </div>
   </div>
 </header>
@@ -624,7 +624,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">1</span>
+          <span class="count">2</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -637,6 +637,17 @@
           <p class="card-notes">Comparación hecha; falta ADR y prototipo de migración.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">estrategia-multicliente</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Worker" data-text="manolo: una operación sin confirmar no debe secuestrar la sesión worker con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «dejarla y seguir». el texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con decisions. falta desplegar el worker: producción corre por injerto (c1f9bc9e) y requiere reconciliación o excepción del operador. 2026-11-11: rama fix/manolo-operacion-pendiente; npx vitest run 586/586 (incluye 6 casos de guía, 1 de factura y reglas de intención nuevos); tsc --noemit sin errores.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Manolo: una operación sin confirmar no debe secuestrar la sesión</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-11: rama fix/manolo-operacion-pendiente; npx vitest run 586/586 (incluye 6 casos de guía, 1 de factura y reglas de intención nuevos); tsc --noEmit sin errores.</p>
+          <p class="card-notes">Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Falta desplegar el Worker: producción corre por injerto (c1f9bc9e) y requiere reconciliación o excepción del operador.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">manolo-pending-operation-control-20261111</code>
         </article>
         </div>
       </section>

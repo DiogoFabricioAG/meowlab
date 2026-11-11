@@ -489,6 +489,21 @@ describe("enterprise intent-first navigation", () => {
     expect((await p.saved()).phase).toBe("issuing");
     expect(p.client.issueInvoice).toHaveBeenCalledOnce();
   });
+  it("parks an uncertain invoice on /reiniciar and resumes it without issuing again", async () => {
+    const p = fixture(ready()); p.client.issueInvoice.mockResolvedValue({ ok: false, reason: "network_error" });
+    await p.turn("Crear", "enterprise_issue_invoice:ready"); const before = await p.saved();
+    const reset = await p.turn("/reiniciar");
+    expect(reset.reply).toHaveBeenCalledWith(expect.stringContaining("Dejé la factura en emisión"));
+    expect((await p.saved()).phase).toBe("collecting");
+    expect((await p.saved()).parked[0].kind).toBe("billing");
+    const resume = await p.turn("retomar");
+    expect(resume.reply).toHaveBeenCalledWith(expect.stringContaining("Retomé la factura en emisión"));
+    expect((await p.saved()).phase).toBe("issuing");
+    expect((await p.saved()).billing.draftId).toBe(before.billing.draftId);
+    expect((await p.saved()).parked).toBeUndefined();
+    expect(p.client.issueInvoice).toHaveBeenCalledOnce();
+    expect(p.ai.decide).not.toHaveBeenCalled();
+  });
   it("does not accept another contact's follow-up button", async () => {
     const p = fixture(ready()); await p.turn("Crear", "enterprise_issue_invoice:ready");
     const follow = (await p.saved()).followUp;

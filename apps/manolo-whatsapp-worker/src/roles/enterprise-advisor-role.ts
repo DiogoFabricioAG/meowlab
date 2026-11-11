@@ -7,10 +7,11 @@ import type {
 } from "../facturaya/contracts";
 import type { RoleHandler, RoleHandlerContext, TenantContext } from "./contracts";
 import { RoleStateStorageError } from "./state";
-import { classifyEnterpriseIntent, fallbackEnterpriseIntent, isEnterpriseReviewOnly, type EnterpriseIntent } from "../ai/enterprise-intent";
+import { classifyEnterpriseIntent, fallbackEnterpriseIntent, isEnterpriseReviewOnly, isParkText, isResumeText, plainText,
+  type EnterpriseIntent } from "../ai/enterprise-intent";
 import { amountInCents, decimalAmount, explicitDates, hasExplicitAmount, isFullDate, normalizeUserAmount, parseInstallments, paymentProblems,
   type PaymentSelection } from "../facturaya/payment-terms";
-import { DESPATCH_BUTTON, FINAL_GUIDE_STATUSES, handleDespatch, isDespatchEntry, newDespatchState, parseDespatchState,
+import { DESPATCH_BUTTON, DESPATCH_PDF_BUTTON, DESPATCH_STATUS_BUTTON, FINAL_GUIDE_STATUSES, handleDespatch, isDespatchEntry, newDespatchState, parseDespatchState,
   type DespatchState } from "./enterprise-despatch";
 
 export const ENTERPRISE_ADVISOR_ROLE_KEY = "enterprise-advisor";
@@ -32,6 +33,14 @@ const CREDIT_BUTTON_ID = "enterprise_credit_note";
 const CREDIT_CONFIRM_PREFIX = "enterprise_credit_confirm:";
 const NEXT_YES_PREFIX = "enterprise_next_yes:";
 const NEXT_NO_PREFIX = "enterprise_next_no:";
+const PARK_BUTTON_ID = "enterprise_park_pending";
+const PARK_AND_START_PREFIX = "enterprise_park_start:";
+const RESUME_BUTTON_ID = "enterprise_resume_parked";
+const MAX_PARKED = 3;
+const MAX_PARKED_SNAPSHOT = 200_000;
+const PARK_START_BUTTONS: Record<string, string> = {
+  invoice: INVOICE_BUTTON_ID, receipt: RECEIPT_BUTTON_ID, credit_note: CREDIT_BUTTON_ID, despatch: DESPATCH_BUTTON,
+};
 
 type EnterpriseMode = "billing" | "despatch" | "credit_note";
 type StartAction = "invoice" | "receipt" | "despatch" | "credit_note" | "drafts" | "other_options";
@@ -56,6 +65,16 @@ type BillingState = PaymentSelection & {
   paymentSourceText?: string;
   singlePayment?: { dueDate: string | null; totalBased?: boolean };
   paymentUpdate?: { sourceMessageId: string; fields: Record<string, "accepted" | "rejected" | "retained">; reason?: string; question?: string; evidence?: Record<string, string> };
+};
+
+/** An unconfirmed operation the user set aside. It is never resent; it can only be resumed to check it. */
+type ParkedOperation = {
+  kind: "billing" | "despatch" | "credit_note";
+  reference: string;
+  label: string;
+  tenantId: string | null;
+  parkedAt: string;
+  snapshot: string;
 };
 
 type EnterpriseState = {
@@ -85,6 +104,7 @@ type EnterpriseState = {
     target?: FacturayaInvoiceDraft;
     confirmation?: { buttonId: string; invoiceId: string; revision: number };
   };
+  parked?: ParkedOperation[];
 };
 
 type BillingIntent = {
@@ -475,6 +495,19 @@ function normalizeStoredProducts(value: unknown): string {
   return metadataOnly.test(text) ? "" : text;
 }
 
+function parseParked(value: unknown): ParkedOperation[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): ParkedOperation[] => {
+    if (!isRecord(item) || !["billing", "despatch", "credit_note"].includes(String(item.kind))) return [];
+    const reference = cleanText(item.reference, 120);
+    const label = cleanText(item.label, 200);
+    const snapshot = typeof item.snapshot === "string" && item.snapshot.length <= MAX_PARKED_SNAPSHOT ? item.snapshot : "";
+    if (!reference || !label || !snapshot) return [];
+    return [{ kind: item.kind as ParkedOperation["kind"], reference, label, tenantId: cleanText(item.tenantId, 120) || null,
+      parkedAt: cleanText(item.parkedAt, 40), snapshot }];
+  }).slice(0, MAX_PARKED);
+}
+
 function parseState(raw: string | null): EnterpriseState | null {
   if (!raw) return null;
   try {
@@ -560,6 +593,7 @@ function parseState(raw: string | null): EnterpriseState | null {
             revision: Number(value.creditNote.confirmation.revision) } } : {}),
       } } : {}),
       ...(parseDespatchState(value.despatch) ? { despatch: parseDespatchState(value.despatch) } : {}),
+      ...(parseParked(value.parked).length ? { parked: parseParked(value.parked) } : {}),
       ...(billing ? { billing } : {}),
       revision: typeof value.revision === "number" && Number.isInteger(value.revision) && value.revision >= 0 ? value.revision : 0,
       phase: value.phase === "review" || value.phase === "issuing" || value.phase === "issued" ? value.phase : "collecting",
@@ -962,6 +996,106 @@ function unresolvedOperation(state: EnterpriseState | null): boolean {
     || Boolean(state?.despatch?.phase === "submitted" && !FINAL_GUIDE_STATUSES.includes(state.despatch.guide?.status ?? ""));
 }
 
+function pendingDescription(state: EnterpriseState): Pick<ParkedOperation, "kind" | "reference" | "label"> {
+  const company = state.company?.name ? ` de ${state.company.name}` : "";
+  if (state.despatch && (state.despatch.phase === "issuing" || state.despatch.phase === "submitted")) {
+    const guide = state.despatch.guide;
+    return { kind: "despatch", reference: guide?.id ?? "despatch",
+      label: `${guide?.correlative ? `la guía ${guide.series}-${guide.correlative}` : "la guía en envío"}${company}` };
+  }
+  if (state.mode === "credit_note") {
+    const invoiceNumber = state.creditNote?.invoiceNumber;
+    return { kind: "credit_note", reference: state.creditNote?.target?.invoice?.id ?? invoiceNumber ?? "credit_note",
+      label: `la nota de crédito${invoiceNumber ? ` de ${invoiceNumber}` : ""}${company}` };
+  }
+  return { kind: "billing", reference: state.billing?.draftId ?? state.draft?.id ?? "billing",
+    label: `la ${state.billingDocumentKind === "receipt" ? "boleta" : "factura"} en emisión${company}` };
+}
+
+/** Sets the unconfirmed operation aside and frees the session. Nothing is resent, cancelled or deleted in FacturaYa. */
+async function parkOperation(context: RoleHandlerContext, state: EnterpriseState): Promise<{ state: EnterpriseState; label: string }> {
+  const info = pendingDescription(state);
+  const { parked, ...current } = state;
+  const kept = { ...current, ...(current.billing ? { billing: { ...current.billing, documentKey: undefined, documentFilename: undefined } } : {}) };
+  let snapshot = JSON.stringify(kept);
+  if (snapshot.length > MAX_PARKED_SNAPSHOT) snapshot = JSON.stringify({ ...kept, draft: undefined });
+  const entry: ParkedOperation = { ...info, tenantId: state.facturayaTenantId, parkedAt: new Date().toISOString(), snapshot };
+  const next: EnterpriseState = { ...newSession([entry, ...(parked ?? []).filter((item) => item.reference !== info.reference)]),
+    facturayaTenantId: state.facturayaTenantId, ...(state.company ? { company: state.company } : {}) };
+  await saveState(context, next);
+  await deleteStoredDocument(context, state);
+  context.log("whatsapp_enterprise_operation_parked", { kind: info.kind });
+  return { state: next, label: info.label };
+}
+
+async function showPendingOperation(context: RoleHandlerContext, state: EnterpriseState): Promise<void> {
+  const { label, kind } = pendingDescription(state);
+  await context.reply(kind === "despatch"
+    ? `Hay una operación pendiente de verificar: ${label}. Puedo consultar su estado, dejarla para después o ayudarte con otra gestión.`
+    : `Hay una operación pendiente de verificar: ${label}. Revísala en FacturaYa; también puedo dejarla para después o ayudarte con otra gestión.`);
+  await context.sendButtons?.("¿Qué hago con esa operación?", [
+    ...(kind === "despatch" ? [{ id: DESPATCH_STATUS_BUTTON, title: "Consultar estado" }] : []),
+    { id: PARK_BUTTON_ID, title: "Dejar para después" },
+    { id: OTHER_BUTTON_ID, title: "Otras opciones" },
+  ]);
+}
+
+async function offerParkAndStart(context: RoleHandlerContext, state: EnterpriseState,
+  action: "invoice" | "receipt" | "credit_note" | "despatch"): Promise<void> {
+  const { label, kind } = pendingDescription(state);
+  const next = { invoice: "la factura", receipt: "la boleta", credit_note: "la nota de crédito", despatch: "la nueva guía" }[action];
+  await context.reply(`Hay una operación pendiente de verificar: ${label}. No la reenviaré; si quieres, la dejo guardada para después y seguimos con ${next}.`);
+  await context.sendButtons?.("¿Cómo seguimos?", [
+    { id: `${PARK_AND_START_PREFIX}${action}`, title: "Dejarla y seguir" },
+    ...(kind === "despatch" ? [{ id: DESPATCH_STATUS_BUTTON, title: "Consultar estado" }] : []),
+  ]);
+}
+
+function withInteraction(context: RoleHandlerContext, interactionId: string): RoleHandlerContext {
+  return { ...context, message: { ...context.message, interactionId } };
+}
+
+async function resumeParked(context: RoleHandlerContext, state: EnterpriseState | null, pending: boolean): Promise<void> {
+  if (pending && state) { await showPendingOperation(context, state); return; }
+  const [item, ...rest] = state?.parked ?? [];
+  if (!state || !item) {
+    await showModeMenu(context, "No tengo operaciones guardadas para retomar. ¿En qué puedo ayudarte?");
+    return;
+  }
+  if (state.mode && !state.conversationClosed && state.phase !== "issued") {
+    await context.reply("Tienes una gestión en curso. Termínala o escribe /reiniciar, y luego escribe «retomar».");
+    return;
+  }
+  const access = await ensureFacturayaTenant(context);
+  if (!access) return;
+  if (item.tenantId && item.tenantId !== access.tenant.id) {
+    await context.reply(`Esa operación (${item.label}) pertenece a otra empresa. Cambia a esa empresa y vuelve a escribir «retomar».`);
+    return;
+  }
+  let restored: EnterpriseState | null = null;
+  try {
+    restored = parseState(JSON.stringify({ ...JSON.parse(item.snapshot), expiresAt: Date.now() + SESSION_TTL_MS }));
+  } catch {
+    restored = null;
+  }
+  if (!restored) {
+    await saveState(context, touch({ ...state, parked: rest.length ? rest : undefined }));
+    await context.reply(`No pude recuperar ${item.label}; revísala directamente en FacturaYa.`);
+    return;
+  }
+  await saveState(context, touch({ ...restored, parked: rest.length ? rest : undefined }));
+  context.log("whatsapp_enterprise_operation_resumed", { kind: item.kind });
+  await context.reply(`Retomé ${item.label}.`);
+  if (item.kind === "despatch") {
+    await context.sendButtons?.("¿Qué deseas hacer?", [
+      { id: DESPATCH_STATUS_BUTTON, title: "Consultar estado" },
+      { id: PARK_BUTTON_ID, title: "Dejar para después" },
+    ]);
+  } else {
+    await context.reply("Sigue pendiente de verificar en FacturaYa; no la reenviaré.");
+  }
+}
+
 async function showBillingDocumentMenu(
   context: RoleHandlerContext,
   message = "¿Qué comprobante deseas crear?",
@@ -1112,9 +1246,10 @@ function billingActivationMessage(kind: BillingDocumentKind): string {
     : "Factura activada. Envíame el RUC del cliente y luego el texto, PDF o documento con los productos.";
 }
 
-function newSession(): EnterpriseState {
+function newSession(parked?: ParkedOperation[]): EnterpriseState {
   const now = Date.now();
   return {
+    ...(parked?.length ? { parked: parked.slice(0, MAX_PARKED) } : {}),
     version: 2,
     revision: 0,
     phase: "collecting",
@@ -1908,16 +2043,73 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
       state = { ...state, phase: "collecting", followUp: undefined, conversationClosed: false };
       await saveState(context, state);
     }
-    const button = context.message.interactionId;
+    let button = context.message.interactionId;
     const text = context.message.text.trim();
-    const pending = unresolvedOperation(state);
+    let pending = unresolvedOperation(state);
     if (isSessionResetCommand(text)) {
-      if (pending) { await context.reply("Hay una operación pendiente de verificar. Conservé su referencia; revísala antes de reiniciar."); return; }
+      // Resetting is always the user's call: an unconfirmed operation is set aside, never resent or discarded.
+      if (pending && state) {
+        const parked = await parkOperation(context, state);
+        await context.reply(`Dejé ${parked.label} guardada sin reenviarla ni anularla. Escribe «retomar» cuando quieras revisarla.`);
+        await showModeMenu(context, "Sesión reiniciada. Soy Manolo, ¿en qué puedo ayudarte?");
+        return;
+      }
       await clearState(context, state);
-      state = newSession();
+      state = newSession(state?.parked);
       await saveState(context, state);
-      await showModeMenu(context, "Sesión reiniciada. Soy Manolo, ¿en qué puedo ayudarte?");
+      await showModeMenu(context, state.parked?.length
+        ? "Sesión reiniciada. Tienes operaciones guardadas; escribe «retomar» para revisarlas. ¿En qué puedo ayudarte?"
+        : "Sesión reiniciada. Soy Manolo, ¿en qué puedo ayudarte?");
       return;
+    }
+    if (button === PARK_BUTTON_ID || (pending && !button && isParkText(text))) {
+      if (!pending || !state) { await showModeMenu(context, "Esa operación ya no está pendiente. ¿En qué puedo ayudarte?"); return; }
+      const parked = await parkOperation(context, state);
+      await context.reply(`Listo, dejé ${parked.label} guardada para revisarla después; no la reenvié ni la anulé. Escribe «retomar» cuando quieras verla.`);
+      await showModeMenu(context, "¿En qué más te ayudo?");
+      return;
+    }
+    if (button === RESUME_BUTTON_ID || (!button && isResumeText(text))) {
+      await resumeParked(context, state, pending);
+      return;
+    }
+    if (button?.startsWith(PARK_AND_START_PREFIX)) {
+      const target = PARK_START_BUTTONS[button.slice(PARK_AND_START_PREFIX.length)];
+      if (!target) { await showModeMenu(context); return; }
+      if (pending && state) {
+        const parked = await parkOperation(context, state);
+        state = parked.state;
+        pending = false;
+        await context.reply(`Dejé ${parked.label} guardada para después, sin reenviarla. Escribe «retomar» cuando quieras verla.`);
+      }
+      button = target;
+      context = withInteraction(context, target);
+    }
+    if (pending && state && !button && text && !context.document && context.message.inputType !== "image"
+      && !context.message.hasVisualContext) {
+      // Nothing can be entered into an unconfirmed operation, so free text is read as a request about it.
+      const intentContext = { mode: state.mode, documentKind: state.billingDocumentKind, hasCurrentData: false,
+        completed: false, awaitingFollowUp: false, pendingOperation: true };
+      const despatchPending = pendingDescription(state).kind === "despatch";
+      const quick = despatchPending && /\bpdf\b/.test(plainText(text)) ? "pdf" : fallbackEnterpriseIntent(text, intentContext);
+      const request = ["greeting", "park", "status", "cancel", "pdf"].includes(quick) ? quick
+        : await classifyEnterpriseIntent(context.ai, context.tenant.aiModel, text, intentContext, context.log);
+      if (request === "park" || request === "cancel") {
+        const parked = await parkOperation(context, state);
+        await context.reply(`Listo, dejé ${parked.label} guardada para revisarla después; no la reenvié ni la anulé. Escribe «retomar» cuando quieras verla.`);
+        await showModeMenu(context, "¿En qué más te ayudo?");
+        return;
+      }
+      if (request === "invoice" || request === "receipt" || request === "credit_note" || request === "despatch") {
+        await offerParkAndStart(context, state, request);
+        return;
+      }
+      const redirect = request === "status" && despatchPending ? DESPATCH_STATUS_BUTTON
+        : request === "pdf" ? DESPATCH_PDF_BUTTON
+        : request === "drafts" ? DRAFTS_BUTTON_ID : request === "other_options" ? OTHER_BUTTON_ID : null;
+      if (!redirect) { await showPendingOperation(context, state); return; }
+      button = redirect;
+      context = withInteraction(context, redirect);
     }
 
     const buttonActions: Record<string, EnterpriseIntent> = {
@@ -1927,8 +2119,9 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
     };
     const selectedCompany = selectedCompanyId(button);
     const companyChange = isChangeCompanyRequest(button, text);
-    if (pending && (selectedCompany || companyChange)) {
-      await context.reply("Hay una operación pendiente de verificar en la empresa actual. Conservé su referencia; revísala antes de cambiar de empresa.");
+    if (pending && state && (selectedCompany || companyChange)) {
+      await context.reply(`Hay una operación pendiente de verificar en la empresa actual: ${pendingDescription(state).label}. Déjala para después y luego podrás cambiar de empresa.`);
+      await context.sendButtons?.("¿La dejo para después?", [{ id: PARK_BUTTON_ID, title: "Dejar para después" }]);
       return;
     }
     const companyResume = Boolean(selectedCompany && state?.pendingAction);
@@ -1956,6 +2149,8 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
       completed: state?.phase === "issued",
       awaitingFollowUp: Boolean(state?.followUp && state.followUp.revision === state.revision),
     }, context.log);
+    // Parking and status only apply to an unconfirmed operation, handled before routing.
+    if (intent === "park" || intent === "status") intent = state?.mode ? "continue" : "unknown";
 
     const validFollowUp = Boolean(state?.followUp && state.followUp.revision === state.revision);
     if (followButton) {
@@ -1983,9 +2178,14 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
       return;
     }
     if (intent === "cancel") {
-      if (pending) { await context.reply("Hay una operación pendiente de verificar. No la cancelé ni la reenvié; revisa su estado en FacturaYa."); return; }
+      if (pending && state) {
+        const parked = await parkOperation(context, state);
+        await context.reply(`No puedo cancelar ${parked.label} porque ya se envió; la dejé guardada para revisarla después y no la reenvié. Escribe «retomar» cuando quieras verla.`);
+        await showModeMenu(context, "¿En qué más te ayudo?");
+        return;
+      }
       await clearState(context, state);
-      state = newSession();
+      state = newSession(state?.parked);
       await saveState(context, state);
       await context.reply("Borrador cancelado. No emití ni anulé ningún comprobante.");
       await offerNextAction(context, state);
@@ -1993,8 +2193,8 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
     }
     const action = (["invoice", "receipt", "drafts", "credit_note", "despatch", "other_options"] as const)
       .find((candidate) => candidate === intent);
-    if (action && action !== "drafts" && action !== "other_options" && pending) {
-      await context.reply("Hay una operación pendiente de verificar. Conservé sus datos; consulta su estado antes de iniciar otra gestión fiscal.");
+    if (action && action !== "drafts" && action !== "other_options" && pending && state) {
+      await offerParkAndStart(context, state, action);
       return;
     }
     if (!action && !state?.mode && !selectedCompany && !companyChange) {
@@ -2014,13 +2214,13 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
     const company = { name: access.tenant.legalName || access.tenant.name, ruc: access.tenant.ruc, environment: access.tenant.environment };
     if (changedCompany && companyResume) {
       const pendingText = state?.pendingText;
-      state = { ...newSession(), facturayaTenantId: access.tenant.id, company, revision: (state?.revision ?? 0) + 1,
+      state = { ...newSession(state?.parked), facturayaTenantId: access.tenant.id, company, revision: (state?.revision ?? 0) + 1,
         pendingText, pendingAction: action };
       await saveState(context, state);
       await deleteStoredDocument(context, oldState);
     }
     if (changedCompany && !companyResume) {
-      state = { ...newSession(), facturayaTenantId: access.tenant.id, company, revision: (state?.revision ?? 0) + 1 };
+      state = { ...newSession(state?.parked), facturayaTenantId: access.tenant.id, company, revision: (state?.revision ?? 0) + 1 };
       await saveState(context, state);
       await deleteStoredDocument(context, oldState);
       await showModeMenu(context, "La empresa activa cambió a " + company.name + ". Elige la gestión que deseas realizar.");
@@ -2063,7 +2263,7 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
         || changedCompany || oldState?.conversationClosed || button === INVOICE_BUTTON_ID || button === RECEIPT_BUTTON_ID
         || /\b(?:otra|nueva)\s+(?:factura|boleta)\b/iu.test(actionContext.message.text);
       if (fresh) {
-        state = { ...newSession(), mode: "billing", billingDocumentKind: action, facturayaTenantId: access.tenant.id,
+        state = { ...newSession(state?.parked), mode: "billing", billingDocumentKind: action, facturayaTenantId: access.tenant.id,
           company, revision: state.revision + 1 };
         await saveState(context, state);
         await deleteStoredDocument(context, oldState);
@@ -2101,7 +2301,7 @@ export class EnterpriseAdvisorRoleHandler implements RoleHandler {
     }
     if (action === "credit_note" || state.mode === "credit_note") {
       if (action === "credit_note" && (changedCompany || state.mode !== "credit_note" || state.phase === "issued" || button === CREDIT_BUTTON_ID)) {
-        state = { ...newSession(), mode: "credit_note", facturayaTenantId: access.tenant.id, company, revision: state.revision + 1 };
+        state = { ...newSession(state?.parked), mode: "credit_note", facturayaTenantId: access.tenant.id, company, revision: state.revision + 1 };
         await saveState(context, state);
         await deleteStoredDocument(context, oldState);
       }

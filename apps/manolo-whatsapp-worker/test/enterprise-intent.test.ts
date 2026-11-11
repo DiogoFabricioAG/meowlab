@@ -1,8 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
-import { classifyEnterpriseIntent, fallbackEnterpriseIntent, type IntentContext } from "../src/ai/enterprise-intent";
+import { classifyEnterpriseIntent, fallbackEnterpriseIntent, isResumeText, type IntentContext } from "../src/ai/enterprise-intent";
 import type { AiProvider } from "../src/ai/contracts";
 const idle: IntentContext = { mode: null, documentKind: null, hasCurrentData: false, completed: false, awaitingFollowUp: false };
 describe("enterprise intent routing", () => {
+  it.each([
+    ["Ignorar esa operación", "park"], ["olvídalo", "park"], ["déjala para después", "park"], ["mejor para luego", "park"],
+    ["¿Cómo va la guía?", "status"], ["¿ya salió?", "status"], ["cancelar", "cancel"], ["Hola", "greeting"],
+  ])("with a pending operation routes %s to %s", (text, expected) => {
+    expect(fallbackEnterpriseIntent(text, { ...idle, pendingOperation: true })).toBe(expected);
+  });
+  it("never parks or reports status without a pending operation", () => {
+    expect(fallbackEnterpriseIntent("Ignorar esa operación", idle)).not.toBe("park");
+    expect(fallbackEnterpriseIntent("estado", { ...idle, hasCurrentData: true })).toBe("continue");
+  });
+  it.each(["retomar", "/retomar", "Retomar la guía", "volver a la operación pendiente"])("recognizes %s as resume", (text) => {
+    expect(isResumeText(text)).toBe(true);
+  });
+  it.each(["no quiero retomar nada", "factura"])("does not treat %s as resume", (text) => {
+    expect(isResumeText(text)).toBe(false);
+  });
   it.each([
     ["Hola", "greeting"], ["Manolo", "greeting"], ["Hola Manolo", "greeting"],
     ["Manolo hazme una factura", "invoice"], ["Hola, quiero una boleta", "receipt"],

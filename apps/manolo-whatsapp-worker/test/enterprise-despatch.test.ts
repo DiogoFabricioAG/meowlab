@@ -583,3 +583,78 @@ describe("enterprise despatch PDF", () => {
     expect(p.despatch.create).not.toHaveBeenCalled();
   });
 });
+
+describe("unconfirmed guide: the user keeps control of the session", () => {
+  async function uncertain() {
+    const p = scenario(); await p.prepare(); const button = (await p.saved()).confirmation.buttonId;
+    p.despatch.issue.mockResolvedValueOnce({ ok: true, data: { ...guideDraft, status: "unknown", correlative: 1 } });
+    await p.handler.handle(p.context(button, button));
+    const state = async () => JSON.parse((await p.store.get("manolo", 7, "enterprise-advisor"))!);
+    return { ...p, state };
+  }
+  it("parks the guide on /reiniciar and brings it back with «retomar» without resending", async () => {
+    const p = await uncertain();
+    const reset = p.context("/reiniciar"); await p.handler.handle(reset);
+    expect(reset.reply).toHaveBeenCalledWith(expect.stringContaining("Dejé la guía T001-1"));
+    const parked = await p.state();
+    expect(parked.mode).toBeNull();
+    expect(parked.despatch).toBeUndefined();
+    expect(parked.parked).toHaveLength(1);
+    expect(parked.parked[0]).toMatchObject({ kind: "despatch", reference: guideDraft.id, tenantId: "company-demo" });
+    const resume = p.context("retomar"); await p.handler.handle(resume);
+    expect(resume.reply).toHaveBeenCalledWith(expect.stringContaining("Retomé la guía T001-1"));
+    const restored = await p.state();
+    expect(restored.despatch.phase).toBe("submitted");
+    expect(restored.despatch.guide.correlative).toBe(1);
+    expect(restored.parked).toBeUndefined();
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("understands «Ignorar esa operación» and frees the session", async () => {
+    const p = await uncertain();
+    const ignore = p.context("Ignorar esa operación"); await p.handler.handle(ignore);
+    expect(ignore.reply).toHaveBeenCalledWith(expect.stringContaining("dejé la guía T001-1 de Empresa Demo SAC guardada"));
+    expect(ignore.reply).not.toHaveBeenCalledWith(expect.stringContaining("Resultado incierto"));
+    expect(ignore.sendButtons).toHaveBeenCalled();
+    expect((await p.state()).parked[0].reference).toBe(guideDraft.id);
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("asks once before another guide and starts it after «Dejarla y seguir»", async () => {
+    const p = await uncertain();
+    const other = p.context("Guía de remisión", "enterprise_despatch"); await p.handler.handle(other);
+    expect(other.reply).toHaveBeenCalledWith(expect.stringContaining("operación pendiente de verificar"));
+    expect(other.sendButtons).toHaveBeenCalledWith(expect.any(String),
+      expect.arrayContaining([expect.objectContaining({ id: "enterprise_park_start:despatch" })]));
+    expect((await p.state()).despatch.phase).toBe("submitted");
+    const go = p.context("Dejarla y seguir", "enterprise_park_start:despatch"); await p.handler.handle(go);
+    expect(go.reply).toHaveBeenCalledWith(expect.stringContaining("Dejé la guía T001-1"));
+    const next = await p.state();
+    expect(next.mode).toBe("despatch");
+    expect(next.despatch.phase).toBe("collecting");
+    expect(next.parked[0].reference).toBe(guideDraft.id);
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("routes a natural question about the guide to the status check", async () => {
+    const p = await uncertain();
+    await p.handler.handle(p.context("¿Cómo va la guía?"));
+    expect(p.despatch.get).toHaveBeenCalledWith(guideDraft.id);
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+  it("answers an unrelated message with the pending operation and its options, not the status template", async () => {
+    const p = await uncertain();
+    const ask = p.context("¿Cuánto es el IGV?"); await p.handler.handle(ask);
+    expect(ask.reply).toHaveBeenCalledWith(expect.stringContaining("operación pendiente de verificar: la guía T001-1"));
+    expect(ask.reply).not.toHaveBeenCalledWith(expect.stringContaining("Resultado incierto"));
+    expect(ask.sendButtons).toHaveBeenCalledWith(expect.any(String),
+      expect.arrayContaining([expect.objectContaining({ id: "enterprise_park_pending" })]));
+  });
+  it("uses the model to understand a request the rules do not cover", async () => {
+    const p = await uncertain();
+    const ctx = p.context("mejor ayúdame con otra cosa, eso lo veo con mi contador");
+    const decide = vi.fn(async () => ({ answers: [{ type: "choice" as const, name: "enterprise_intent", choice: "park" }] }));
+    ctx.ai = { ...ctx.ai!, decide };
+    await p.handler.handle(ctx);
+    expect(decide).toHaveBeenCalledOnce();
+    expect((await p.state()).parked[0].reference).toBe(guideDraft.id);
+    expect(p.despatch.issue).toHaveBeenCalledOnce();
+  });
+});
