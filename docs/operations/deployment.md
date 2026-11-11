@@ -14,7 +14,10 @@ landing.
 
 ## Worker
 
-Última entrega: [GRE, direcciones de referencia e imágenes, 2026-11-06](manolo-gre-address-2026-11-06.md).
+Última entrega: [reconciliación con git y operación pendiente, 2026-11-11](manolo-worker-reconciliacion-2026-11-11.md).
+Worker `f679d352` desplegado desde el commit `ba2ad51`, sin injertos; rollback a `c1f9bc9e`.
+
+Entrega anterior: [GRE, direcciones de referencia e imágenes, 2026-11-06](manolo-gre-address-2026-11-06.md).
 Worker `c1f9bc9e` activo (sobre `c2070081` [PDF de la guía](manolo-gre-pdf-2026-11-06.md) y
 `5a7c916e` [solicitud IA de GRE](manolo-gre-provider-2026-11-06.md));
 namespace DO conservado y bridge `gre-fixes-20261106` saludable.

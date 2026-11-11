@@ -46,7 +46,9 @@ ignora. Si se perdía ese equipo, se perdía la única copia de lo que corre.
 6. **No destruyas historia ni trabajo ajeno**: nada de `push --force`,
    `reset --hard`, `checkout --` o `clean` sobre cambios que no sean tuyos.
 
-**Excepciones registradas.** Solo el operador puede autorizarlas, una por vez:
+**Excepciones registradas.** Solo el operador puede autorizarlas, una por vez.
+Desde el 2026-11-11 el Worker volvió a desplegarse desde un commit (`f679d352` desde `ba2ad51`); las dos
+excepciones siguientes quedan cerradas y no habilitan nuevos injertos.
 
 - 2026-11-06 — PDF de la guía de remisión publicado por injerto sobre el Worker
   `5a7c916e` (rama `feat/gre-pdf-formato`, `tools/prepare-gre-pdf-release.mjs`).

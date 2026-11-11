@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 38 · Total: 110</span>
+      <span class="summary">Abiertas: 35 · Total: 110</span>
     </div>
   </div>
 </header>
@@ -220,20 +220,9 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">36</span>
+          <span class="count">33</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="Ops" data-text="versionar en git el código ya desplegado ops revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones d1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). commit en rama, push y reconciliar src/ con el bundle desplegado. ver regla crítica en agents.md. ">
-          <div class="card-top">
-            <span class="badge area-ops">Ops</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Versionar en git el código ya desplegado</h3>
-          
-          <p class="card-notes">Revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones D1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). Commit en rama, push y reconciliar src/ con el bundle desplegado. Ver regla crítica en AGENTS.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-06</p>
-          <code class="card-id">git-version-production-code-20261106</code>
-        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -267,15 +256,15 @@
           <p class="card-meta">Actualizado: 2026-11-05</p>
           <code class="card-id">manolo-gre-activation</code>
         </article>
-        <article class="card" data-priority="high" data-area="Ops" data-text="activar presencia radar tras autorización final ops revalidar base 158b52bc, respaldo privado d1 y restauración, sólo migración 0019, publicar paquete aislado y cron5 preservando recordatorio. requiere ejecutar cliente actualizado; no simular heartbeat de cliente antiguo. docs/operations/radar-presence-2026-11-05.md">
+        <article class="card" data-priority="high" data-area="Ops" data-text="activar presencia radar tras autorización final ops revalidar base 158b52bc, respaldo privado d1 y restauración, sólo migración 0019, publicar paquete aislado y cron5 preservando recordatorio. requiere ejecutar cliente actualizado; no simular heartbeat de cliente antiguo. 2026-11-11: el código ya está desplegado pero apagado con radar_presence_enabled=false; activar exige confirmar la migración 0019 en producción, poner la variable en true y agregar el cron */5 a env.production. docs/operations/radar-presence-2026-11-05.md">
           <div class="card-top">
             <span class="badge area-ops">Ops</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Activar presencia RADAR tras autorización final</h3>
           <p class="card-evidence"><strong>Evidencia:</strong> docs/operations/radar-presence-2026-11-05.md</p>
-          <p class="card-notes">Revalidar base 158b52bc, respaldo privado D1 y restauración, sólo migración 0019, publicar paquete aislado y cron5 preservando recordatorio. Requiere ejecutar cliente actualizado; no simular heartbeat de cliente antiguo.</p>
-          <p class="card-meta">Actualizado: 2026-11-05 · Responsable: Codex</p>
+          <p class="card-notes">Revalidar base 158b52bc, respaldo privado D1 y restauración, sólo migración 0019, publicar paquete aislado y cron5 preservando recordatorio. Requiere ejecutar cliente actualizado; no simular heartbeat de cliente antiguo. 2026-11-11: el código ya está desplegado pero apagado con RADAR_PRESENCE_ENABLED=false; activar exige confirmar la migración 0019 en producción, poner la variable en true y agregar el cron */5 a env.production.</p>
+          <p class="card-meta">Actualizado: 2026-11-11 · Responsable: Codex</p>
           <code class="card-id">radar-presence-activation</code>
         </article>
         <article class="card" data-priority="high" data-area="Ops" data-text="verificar agrupación desde whatsapp autorizado sin emitir comprobantes ops ráfagas ya activadas en bf74500a. pedir al usuario enviar fragmentos en menos de tres segundos entre ellos; comprobar respuesta consolidada, botones y datos. no fabricar firmas meta en producción ni pulsar crear como prueba. no se validó proveedor dni. ">
@@ -421,17 +410,6 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">commit-landing-y-scratch</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. ">
-          <div class="card-top">
-            <span class="badge area-cloud">Cloudflare</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Reconciliar wrangler.jsonc con producción y aislar D1/R2 de desarrollo</h3>
-          
-          <p class="card-notes">Repo: WHATSAPP_BURST_ENABLED=false y cron */5; producción: true y solo */15. El entorno por defecto usa la D1 y el R2 de producción. Un npm run deploy hoy cambiaría producción sin probar.</p>
-          <p class="card-meta">Actualizado: 2026-11-06</p>
-          <code class="card-id">wrangler-config-drift-20261106</code>
-        </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
             <span class="badge area-other">FacturaYa</span>
@@ -497,17 +475,6 @@
           <p class="card-notes">Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado.</p>
           <p class="card-meta">Actualizado: 2026-11-05</p>
           <code class="card-id">radar-tests-real-clock</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Worker" data-text="reconciliar cambios pendientes del árbol raíz con la release manolo activa worker github conserva una release autocontenida probada para no arrastrar cambios ajenos. el árbol raíz local mantiene cambios anteriores sin commit (incluida decisions api no publicada). revisarlos por dominio y llevar la fuente canónica a paridad con producción sin perder trabajo ni desplegar por accidente esos cambios. ">
-          <div class="card-top">
-            <span class="badge area-worker">Worker</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Reconciliar cambios pendientes del árbol raíz con la release Manolo activa</h3>
-          
-          <p class="card-notes">GitHub conserva una release autocontenida probada para no arrastrar cambios ajenos. El árbol raíz local mantiene cambios anteriores sin commit (incluida Decisions API no publicada). Revisarlos por dominio y llevar la fuente canónica a paridad con producción sin perder trabajo ni desplegar por accidente esos cambios.</p>
-          <p class="card-meta">Actualizado: 2026-10-22</p>
-          <code class="card-id">reconciliar-fuente-manolo-con-release-activa</code>
         </article>
         <article class="card" data-priority="medium" data-area="Ops" data-text="retirar secretos financieros residuales del worker con rollback controlado ops la lista de nombres de secretos de producción conserva finance_player_api_token y neon_database_url. el código y las variables ya no usan finance. no se eliminaron secretos en el despliegue del checkpoint; revisar consumidores y necesidad del rollback previo antes de retirarlos. ">
           <div class="card-top">
@@ -638,23 +605,23 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">estrategia-multicliente</code>
         </article>
-        <article class="card" data-priority="high" data-area="Worker" data-text="manolo: una operación sin confirmar no debe secuestrar la sesión worker con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «dejarla y seguir». el texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con decisions. falta desplegar el worker: producción corre por injerto (c1f9bc9e) y requiere reconciliación o excepción del operador. 2026-11-11: rama fix/manolo-operacion-pendiente; npx vitest run 586/586 (incluye 6 casos de guía, 1 de factura y reglas de intención nuevos); tsc --noemit sin errores.">
+        <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
-            <span class="badge area-worker">Worker</span>
-            <span class="priority priority-high">Alta</span>
+            <span class="badge area-cloud">Cloudflare</span>
+            <span class="priority priority-medium">Media</span>
           </div>
-          <h3 class="card-title">Manolo: una operación sin confirmar no debe secuestrar la sesión</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-11: rama fix/manolo-operacion-pendiente; npx vitest run 586/586 (incluye 6 casos de guía, 1 de factura y reglas de intención nuevos); tsc --noEmit sin errores.</p>
-          <p class="card-notes">Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Falta desplegar el Worker: producción corre por injerto (c1f9bc9e) y requiere reconciliación o excepción del operador.</p>
+          <h3 class="card-title">Reconciliar wrangler.jsonc con producción y aislar D1/R2 de desarrollo</h3>
+          
+          <p class="card-notes">Repo: WHATSAPP_BURST_ENABLED=false y cron */5; producción: true y solo */15. El entorno por defecto usa la D1 y el R2 de producción. Un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, RADAR_PRESENCE_ENABLED=false). Falta aislar la D1 y el R2 del entorno de desarrollo.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">manolo-pending-operation-control-20261111</code>
+          <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">72</span>
+          <span class="count">75</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Worker" data-text="gre: aceptar direcciones de referencia y usar imágenes solo como referencia worker prueba real: manolo exigía calle/número para «almacen del proveedor - arma - castrovirreyna - huancavelica» y tomó productos y partida de la foto de otra gre; el pdf no llegó a generarse. publicado por injerto (segunda excepción en agents.md). falta repetir la prueba por whatsapp hasta el pdf. 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); worker c1f9bc9e al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.">
@@ -678,6 +645,17 @@
           <p class="card-notes">Formato de trabajo A4 replicando docs/apps/templates/Guia_Remision_Plantilla_M1_L_2026.docx. Se envía en la revisión (antes de Confirmar), tras emitir con correlativo y a pedido (botón «PDF de la guía» o «PDF»). No se imprime rechazada ni incierta. Browser Run vía renderPdf (o binding BROWSER de env en el runtime injertado); un fallo no bloquea la confirmación. Publicado por injerto en Worker c2070081 (excepción registrada en AGENTS.md); falta la prueba por WhatsApp.</p>
           <p class="card-meta">Actualizado: 2026-11-06 · Responsable: Claude</p>
           <code class="card-id">manolo-gre-pdf-template-20261106</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Ops" data-text="versionar en git el código ya desplegado ops revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones d1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). commit en rama, push y reconciliar src/ con el bundle desplegado. ver regla crítica en agents.md. reconciliado por huella de literales, historia git y manifiestos de injertos; worker desplegado desde el commit ba2ad51 (f679d352), sin injertos. acta: docs/operations/manolo-worker-reconciliacion-2026-11-11.md">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Versionar en git el código ya desplegado</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Reconciliado por huella de literales, historia git y manifiestos de injertos; Worker desplegado desde el commit ba2ad51 (f679d352), sin injertos. Acta: docs/operations/manolo-worker-reconciliacion-2026-11-11.md</p>
+          <p class="card-notes">Revisión 2026-11-06: 172 archivos sin seguimiento (src/radar, ráfagas, migraciones D1 0014-0019) ya en producción; releases armados desde backups/ (ignorado). Commit en rama, push y reconciliar src/ con el bundle desplegado. Ver regla crítica en AGENTS.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">git-version-production-code-20261106</code>
         </article>
         <article class="card" data-priority="high" data-area="VPS" data-text="rol postgresql de mínimo privilegio para el sql del asesor vps corregido en la rama fix/asesor-rol-solo-lectura: migración 010 crea manolo_advisor_ro (nosuperuser, sin acceso a whatsapp, solo select en print_system, read-only, 8 s, 4 conexiones); el puente abre un pool aparte con ese rol y no arranca sin su clave; infra/vps/apply-print-advisor-read-only-role.sh crea el secreto y verifica privilegios. falta desplegar: el puente de producción no coincide con git (ver bridge-production-drift-20261107). 2026-11-07 05:59 utc, puente advisor-ro-20261107t055457z desde 2dec84f: apply-print-advisor-read-only-role.sh dio print_advisor_read_only_role=ok; prueba en el contenedor: usuario manolo_advisor_ro, lee print_system, whatsapp 42501, pg_read_file 42501, escritura 25006. acta: docs/operations/manolo-bridge-advisor-ro-2026-11-07.md. pendiente aparte: manolo_app sigue siendo superusuario para la plataforma.">
           <div class="card-top">
@@ -1295,6 +1273,17 @@
           <p class="card-meta">Actualizado: 2026-11-07</p>
           <code class="card-id">bridge-production-drift-20261107</code>
         </article>
+        <article class="card" data-priority="high" data-area="Worker" data-text="manolo: una operación sin confirmar no debe secuestrar la sesión worker con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «dejarla y seguir». el texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con decisions. desplegado el 2026-11-11 (f679d352) tras reconciliar el worker con git. worker f679d352 desde ba2ad51 (incluye 48d82); código activo idéntico al build del commit; 587/587 pruebas. falta la prueba real por whatsapp. acta: docs/operations/manolo-worker-reconciliacion-2026-11-11.md">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Manolo: una operación sin confirmar no debe secuestrar la sesión</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Worker f679d352 desde ba2ad51 (incluye 48d82); código activo idéntico al build del commit; 587/587 pruebas. Falta la prueba real por WhatsApp. Acta: docs/operations/manolo-worker-reconciliacion-2026-11-11.md</p>
+          <p class="card-notes">Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Desplegado el 2026-11-11 (f679d352) tras reconciliar el Worker con git.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">manolo-pending-operation-control-20261111</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Documentación" data-text="diagrama de arquitectura manolo para portfolio documentación vista pública del flujo fiscal actual, sin datos privados; fuentes de verdad d1/pg y confirmación explícita. docs/architecture/manolo-portfolio.md; archify showcase9/9 sin errores/avisos; navegador4viewports aprobado y capturas claro/oscuro revisadas.">
           <div class="card-top">
             <span class="badge area-other">Documentación</span>
@@ -1338,6 +1327,17 @@
           <p class="card-notes">Tipografía reducida a 2 familias (Blinker y Actor), contraste &gt;=7.5:1, titulares &lt;=2 líneas, pestañas sobre simulador WhatsApp, sin colisión móvil en React Flow, bloque #0C493C en Supervisión y eliminación de páginas heredadas /agentes, /dedicado y /servicios.</p>
           <p class="card-meta">Actualizado: 2026-11-01</p>
           <code class="card-id">landing-taste-skill-impeccable-2026-11-01</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Worker" data-text="reconciliar cambios pendientes del árbol raíz con la release manolo activa worker github conserva una release autocontenida probada para no arrastrar cambios ajenos. el árbol raíz local mantiene cambios anteriores sin commit (incluida decisions api no publicada). revisarlos por dominio y llevar la fuente canónica a paridad con producción sin perder trabajo ni desplegar por accidente esos cambios. ver docs/operations/manolo-worker-reconciliacion-2026-11-11.md">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Reconciliar cambios pendientes del árbol raíz con la release Manolo activa</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Ver docs/operations/manolo-worker-reconciliacion-2026-11-11.md</p>
+          <p class="card-notes">GitHub conserva una release autocontenida probada para no arrastrar cambios ajenos. El árbol raíz local mantiene cambios anteriores sin commit (incluida Decisions API no publicada). Revisarlos por dominio y llevar la fuente canónica a paridad con producción sin perder trabajo ni desplegar por accidente esos cambios.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">reconciliar-fuente-manolo-con-release-activa</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="auditar y corregir la landing según el catálogo impeccable.style/slop landing sin commit, push ni despliegue. falta revisión visual en navegador (desktop/móvil) y validar contraste con herramienta. pnpm build ok (5 páginas). dist sin clases obsidian/neon/glass-panel. sin pills sobre títulos, puntos pulsantes estáticos, sparkles ni tarjetas anidadas en el modal; radios 10/14/18px y sombras cortas. contacto abre whatsapp prellenado sin simular persistencia.">
           <div class="card-top">
