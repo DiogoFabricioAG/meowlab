@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0006 — Portal app.meowlab.tech](0006-portal-app-meowlab.md):
+  propuesto; cuentas Better Auth vinculadas al número por WhatsApp entrante y lectura por el bridge.
+
 - [0005 — El modelo interpreta los mensajes de facturación](0005-modelo-interpreta-facturacion.md):
   interpretación semántica con procedencia, preguntas persistidas y validación de negocio separada.
 

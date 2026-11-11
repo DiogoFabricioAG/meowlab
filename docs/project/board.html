@@ -198,6 +198,7 @@
           <option value="Landing">Landing</option>
           <option value="Ops">Ops</option>
           <option value="Plataforma">Plataforma</option>
+          <option value="Portal">Portal</option>
           <option value="TUI">TUI</option>
           <option value="Tests">Tests</option>
           <option value="VPS">VPS</option>
@@ -211,7 +212,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 36 · Total: 112</span>
+      <span class="summary">Abiertas: 40 · Total: 116</span>
     </div>
   </div>
 </header>
@@ -220,7 +221,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">34</span>
+          <span class="count">38</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -410,6 +411,39 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">commit-landing-y-scratch</code>
         </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal app.meowlab.tech: esqueleto, better auth y despliegue portal fase 1 del adr-0006. apps/meowlab-app como worker con recursos estáticos, d1 propia, better auth con correo y google. requiere cliente oauth de google creado por el operador y decidir proveedor de correo. diseño: docs/decisions/0006-portal-app-meowlab.md ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal app.meowlab.tech: esqueleto, Better Auth y despliegue</h3>
+          
+          <p class="card-notes">Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-1-auth-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con meowlab vincular portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: vincular el número de WhatsApp con MEOWLAB VINCULAR</h3>
+          
+          <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-2-vinculacion-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: endpoints de lectura de facturaya y rutas autorizadas del bridge portal fase 3 del adr-0006. facturaya: listado paginado de comprobantes y resumen mensual. bridge: autorización cuenta → contacto → empresas permitidas. diseño: docs/decisions/0006-portal-app-meowlab.md ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: endpoints de lectura de FacturaYa y rutas autorizadas del bridge</h3>
+          
+          <p class="card-notes">Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-3-lectura-facturaya-20261111</code>
+        </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
             <span class="badge area-other">FacturaYa</span>
@@ -563,6 +597,17 @@
           <p class="card-notes">El onboarding de cat guarda requestedRole sólo en contact_role_states (D1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. Llevar la solicitud a PostgreSQL por el bridge y listarla en la TUI o en app.meowlab.tech.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">manolo-onboarding-activation-requests-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: pantallas de comprobantes, descargas, resumen y guías portal fase 4 del adr-0006. sólo lectura; pdf de la guía cuando exista una fuente común con manolo. diseño: docs/decisions/0006-portal-app-meowlab.md ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: pantallas de comprobantes, descargas, resumen y guías</h3>
+          
+          <p class="card-notes">Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-4-pantallas-20261111</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">

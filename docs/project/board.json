@@ -1130,6 +1130,50 @@
       "updated": "2026-11-11",
       "notes": "El onboarding de cat guarda requestedRole sólo en contact_role_states (D1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. Llevar la solicitud a PostgreSQL por el bridge y listarla en la TUI o en app.meowlab.tech.",
       "evidence": ""
+    },
+    {
+      "id": "app-portal-1-auth-20261111",
+      "title": "Portal app.meowlab.tech: esqueleto, Better Auth y despliegue",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-2-vinculacion-20261111",
+      "title": "Portal: vincular el número de WhatsApp con MEOWLAB VINCULAR",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-3-lectura-facturaya-20261111",
+      "title": "Portal: endpoints de lectura de FacturaYa y rutas autorizadas del bridge",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-4-pantallas-20261111",
+      "title": "Portal: pantallas de comprobantes, descargas, resumen y guías",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "evidence": ""
     }
   ]
 }
