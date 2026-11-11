@@ -8,7 +8,7 @@ import worker from "../src/index";
 const phone = "123456", recipient = "51999999999", token = "b".repeat(64), otherToken = "c".repeat(64);
 let time: number;
 const now = () => time;
-const runtime = (): Env => ({ ...env, VPS_BRIDGE_ENABLED: "false", META_ACCESS_TOKEN: "fake-presence-token", META_GRAPH_API_VERSION: "v25.0" });
+const runtime = (): Env => ({ ...env, RADAR_PRESENCE_ENABLED: "true" as Env["RADAR_PRESENCE_ENABLED"], VPS_BRIDGE_ENABLED: "false", META_ACCESS_TOKEN: "fake-presence-token", META_GRAPH_API_VERSION: "v25.0" });
 async function installation(id = "presence-1", bearer = token) {
   await env.DB.prepare(`INSERT INTO radar_installations(id,token_hash,created_at,phone_number_id,recipient,opted_in_at)
     VALUES(?,?,?,?,?,?)`).bind(id, await sha256(bearer), time - 3_600_000, phone, recipient, time - 3_600_000).run();
@@ -177,4 +177,18 @@ it("the real Worker authenticates presence and validates Meta signatures before 
   expect((await env.DB.prepare("SELECT delivery_status FROM radar_presence_notices").first())?.delivery_status).toBeNull();
   expect((await callback(signature)).status).toBe(200);
   expect((await env.DB.prepare("SELECT delivery_status FROM radar_presence_notices").first())?.delivery_status).toBe("delivered");
+});
+
+it("stays off until RADAR_PRESENCE_ENABLED is true: no route, no cron and no receipts", async () => {
+  const off: Env = { ...runtime(), RADAR_PRESENCE_ENABLED: "false" };
+  const original: ExportedHandler<Env> = { fetch: async () => new Response("existing"), scheduled: async () => {} };
+  const handler = withRadarPresence(original), ctx = createExecutionContext();
+  const response = await handler.fetch!(new Request("https://example.test/v1/projects/radar/presence", { method: "POST" }) as Request<unknown, IncomingRequestCfProperties>, off, ctx);
+  expect(await response.text()).toBe("existing");
+  const prepare = vi.spyOn(off.DB, "prepare");
+  await handler.scheduled!({ cron: PRESENCE_CRON, scheduledTime: Date.now(), noRetry() {} }, off, ctx);
+  await presenceReceipts({ entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: "x" }, statuses: [{ id: "m", recipient_id: "r", status: "read" }] } }] }] }, off);
+  await waitOnExecutionContext(ctx);
+  expect(prepare).not.toHaveBeenCalled();
+  prepare.mockRestore();
 });

@@ -6,6 +6,8 @@ import { hasRadarRole } from "./window-reminder";
 export const PRESENCE_PATH = "/v1/projects/radar/presence";
 export const PRESENCE_CRON = "*/5 * * * *";
 export const PRESENCE_LEASE_MS = 5 * 60_000;
+/** Presence stays off until the operator authorizes it; it also gates the webhook receipts that need migration 0019. */
+export const presenceEnabled = (env: Env) => String(env.RADAR_PRESENCE_ENABLED) === "true";
 const INTERVAL = 5 * 60_000, DAY = 86_400_000;
 type Group = { phone_number_id: string; recipient: string; state: "online" | "offline" | "paused"; revision: number; last_notified_state: string | null };
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -128,6 +130,7 @@ const object = (v: unknown): Obj => v && typeof v === "object" && !Array.isArray
 const array = (v: unknown): unknown[] => Array.isArray(v) ? v : [];
 /** Call only after the existing webhook has validated Meta's signature. */
 export async function presenceReceipts<T>(payload: T, env: Env): Promise<T> {
+  if (!presenceEnabled(env)) return payload;
   for (const entry of array(object(payload).entry)) for (const change of array(object(entry).changes)) {
     const c = object(change), value = object(c.value), phone = object(value.metadata).phone_number_id;
     if (c.field !== "messages" || typeof phone !== "string") continue;
@@ -146,7 +149,7 @@ export async function presenceReceipts<T>(payload: T, env: Env): Promise<T> {
 export function withRadarPresence(handler: ExportedHandler<Env>) {
   return { ...handler,
     async fetch(request, env, ctx) {
-      if (new URL(request.url).pathname === PRESENCE_PATH) {
+      if (presenceEnabled(env) && new URL(request.url).pathname === PRESENCE_PATH) {
         try { return await radarPresenceHttp(request, env, undefined, task => ctx.waitUntil(task)); }
         catch { console.warn("[radar-presence] unavailable"); return json({ error: "service_unavailable" }, 503); }
       }
@@ -154,7 +157,7 @@ export function withRadarPresence(handler: ExportedHandler<Env>) {
     },
     async scheduled(controller, env, ctx) {
       if (handler.scheduled) await handler.scheduled(controller, env, ctx);
-      if (controller.cron === PRESENCE_CRON) ctx.waitUntil(runRadarPresence(env));
+      if (presenceEnabled(env) && controller.cron === PRESENCE_CRON) ctx.waitUntil(runRadarPresence(env));
     },
   } satisfies ExportedHandler<Env>;
 }

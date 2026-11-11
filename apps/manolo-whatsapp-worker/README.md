@@ -27,6 +27,8 @@ Cloudflare Worker en TypeScript para recibir webhooks de Meta WhatsApp Cloud API
 
 ## Agrupación de mensajes — activa, actualización 2026-11-06
 
+`RADAR_PRESENCE_ENABLED` (por defecto `false`) mantiene apagada la presencia de RADAR: ruta, cron y recibos del webhook.
+
 `WHATSAPP_BURST_ENABLED` habilita la bandeja `WHATSAPP_BURSTS` por
 tenant/número/contacto. Espera 3 s desde el último texto (máximo 10 s desde el
 primero, 20 mensajes y 8.000 caracteres originales); texto e imágenes contiguas

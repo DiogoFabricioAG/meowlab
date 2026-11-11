@@ -22,8 +22,9 @@ namespace DO conservado y bridge `gre-fixes-20261106` saludable.
 ### Agrupación de ráfagas (local, sin activar)
 
 La entrega 2026-10-22 incorpora `WHATSAPP_BURSTS` y migración Durable Object
-`whatsapp-bursts-v1`; `WHATSAPP_BURST_ENABLED` permanece `false` en ambos
-entornos. No aplica ninguna migración D1 ni requiere despliegue del bridge.
+`whatsapp-bursts-v1`. Corrección 2026-11-11: en producción
+`WHATSAPP_BURST_ENABLED` está en `true` (configuración desplegada verificada) y
+`wrangler.jsonc` ya lo refleja; en desarrollo sigue en `false`. No aplica ninguna migración D1 ni requiere despliegue del bridge.
 Antes de activarla, resolver recuperación administrativa de turnos inciertos,
 preparar una entrega aislada que preserve RADAR y validar ráfagas sin emisión.
 Nunca cambiar al camino inmediato con lotes admitidos aún pendientes: drenar
@@ -44,6 +45,20 @@ npm run deploy
 `npm run deploy` es una acción externa y requiere autorización explícita. Antes
 de ejecutarla, compara bindings y nombres de secretos sin intentar leer sus
 valores.
+
+Desde la reconciliación del 2026-11-11 el Worker se despliega desde un commit
+publicado, sin injertos: se construye desde `git -c core.autocrlf=false archive`
+del commit (no desde el working tree) y se comparan variables, bindings, crons
+y compatibilidad con la configuración descargada de producción antes de subirlo.
+
+### Presencia de RADAR (apagada)
+
+El código de presencia (`src/radar/presence.ts`) está en git, pero
+`RADAR_PRESENCE_ENABLED` es `false` en ambos entornos: no expone la ruta
+`/v1/projects/radar/presence`, no corre el cron y no registra recibos en el
+webhook. Para activarla hace falta autorización del operador, confirmar la
+migración D1 `0019_radar_presence.sql` en producción, poner la variable en
+`true` y agregar `*/5 * * * *` a los crons de `env.production`.
 
 El callback de Meta debe permanecer en el Worker. Desplegar el bridge no cambia
 la URL configurada en Meta.

@@ -50,6 +50,7 @@
   "vars": {
     "ENVIRONMENT": "development",
     "WHATSAPP_BURST_ENABLED": "false",
+    "RADAR_PRESENCE_ENABLED": "false",
     "META_GRAPH_API_VERSION": "",
     "WHATSAPP_PHONE_NUMBER_ID": "",
     "GROQ_MODEL": "llama-3.1-8b-instant",
@@ -116,7 +117,8 @@
       ],
       "vars": {
         "ENVIRONMENT": "production",
-        "WHATSAPP_BURST_ENABLED": "false",
+        "WHATSAPP_BURST_ENABLED": "true",
+        "RADAR_PRESENCE_ENABLED": "false",
         "META_GRAPH_API_VERSION": "v25.0",
         "WHATSAPP_PHONE_NUMBER_ID": "1266091906580349",
         "GROQ_MODEL": "llama-3.1-8b-instant",
@@ -146,8 +148,7 @@
       },
       "triggers": {
         "crons": [
-          "*/15 * * * *",
-          "*/5 * * * *"
+          "*/15 * * * *"
         ]
       }
     }
