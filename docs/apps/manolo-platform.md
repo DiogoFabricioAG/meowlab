@@ -88,7 +88,7 @@ los mensajes del bot nunca la renuevan.
 
 | Rol | Responsabilidad principal | Dependencias relevantes |
 | --- | --- | --- |
-| `cat` | Personalidad predeterminada de Manolo | IA conversacional |
+| `cat` | Onboarding interactivo de MeowLab y Gato Manolo conversacional | IA conversacional, `roleState` D1, botones interactivos Meta |
 | `radar` | Orientación sobre licitaciones y estado de alertas | IA, adaptador de estado RADAR; búsquedas/evidencia en escritorio |
 | `quotes` | Borrador, correlativo y PDF de cotización | D1, Groq, Browser Run, Meta |
 | `print-advisor` | Consultas analíticas del negocio | Bridge VPS, Groq, PostgreSQL/D1 |

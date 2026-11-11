@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "manolo-default-onboarding-role-20261108",
+      "title": "Convertir el rol por defecto cat en el onboarding interactivo de MeowLab",
+      "area": "Worker",
+      "owner": "Antigravity",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-11",
+      "notes": "Reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de WhatsApp + IA) con las opciones Facturación electrónica y guías (enterprise-advisor), Cotizaciones en PDF (quotes) y Gato Manolo conversacional (cat). Auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. Los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado D1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). Sin desplegar.",
+      "evidence": "Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores."
+    },
+    {
       "id": "manolo-gre-address-image-20261106",
       "title": "GRE: aceptar direcciones de referencia y usar imágenes solo como referencia",
       "area": "Worker",
@@ -1108,6 +1119,17 @@
       "updated": "2026-11-11",
       "notes": "Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Desplegado el 2026-11-11 (f679d352) tras reconciliar el Worker con git.",
       "evidence": "Worker f679d352 desde ba2ad51 (incluye 48d82); código activo idéntico al build del commit; 587/587 pruebas. Falta la prueba real por WhatsApp. Acta: docs/operations/manolo-worker-reconciliacion-2026-11-11.md"
+    },
+    {
+      "id": "manolo-onboarding-activation-requests-20261111",
+      "title": "Hacer visibles al administrador las solicitudes de activación del onboarding",
+      "area": "Worker",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "El onboarding de cat guarda requestedRole sólo en contact_role_states (D1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. Llevar la solicitud a PostgreSQL por el bridge y listarla en la TUI o en app.meowlab.tech.",
+      "evidence": ""
     }
   ]
 }

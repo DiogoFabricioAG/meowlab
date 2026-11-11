@@ -211,7 +211,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 35 · Total: 110</span>
+      <span class="summary">Abiertas: 36 · Total: 112</span>
     </div>
   </div>
 </header>
@@ -220,7 +220,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">33</span>
+          <span class="count">34</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -553,6 +553,17 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">npm-audit</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Worker" data-text="hacer visibles al administrador las solicitudes de activación del onboarding worker el onboarding de cat guarda requestedrole sólo en contact_role_states (d1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. llevar la solicitud a postgresql por el bridge y listarla en la tui o en app.meowlab.tech. ">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Hacer visibles al administrador las solicitudes de activación del onboarding</h3>
+          
+          <p class="card-notes">El onboarding de cat guarda requestedRole sólo en contact_role_states (D1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. Llevar la solicitud a PostgreSQL por el bridge y listarla en la TUI o en app.meowlab.tech.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">manolo-onboarding-activation-requests-20261111</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -621,9 +632,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">75</span>
+          <span class="count">76</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Convertir el rol por defecto cat en el onboarding interactivo de MeowLab</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores.</p>
+          <p class="card-notes">Reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de WhatsApp + IA) con las opciones Facturación electrónica y guías (enterprise-advisor), Cotizaciones en PDF (quotes) y Gato Manolo conversacional (cat). Auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. Los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado D1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). Sin desplegar.</p>
+          <p class="card-meta">Actualizado: 2026-11-11 · Responsable: Antigravity</p>
+          <code class="card-id">manolo-default-onboarding-role-20261108</code>
+        </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="gre: aceptar direcciones de referencia y usar imágenes solo como referencia worker prueba real: manolo exigía calle/número para «almacen del proveedor - arma - castrovirreyna - huancavelica» y tomó productos y partida de la foto de otra gre; el pdf no llegó a generarse. publicado por injerto (segunda excepción en agents.md). falta repetir la prueba por whatsapp hasta el pdf. 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); worker c1f9bc9e al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
