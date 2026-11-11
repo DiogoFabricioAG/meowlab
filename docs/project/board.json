@@ -1137,10 +1137,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-11",
-      "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md",
-      "evidence": ""
+      "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth).",
+      "evidence": "apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización)."
     },
     {
       "id": "app-portal-2-vinculacion-20261111",

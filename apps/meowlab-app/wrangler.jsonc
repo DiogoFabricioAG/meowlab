@@ -1,0 +1,45 @@
+{
+  // Portal app.meowlab.tech (ADR-0006). Cloudflare por simplicidad; la API es Hono +
+  // Better Auth y se puede mover al VPS cambiando D1 por PostgreSQL.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "meowlab-app",
+  "main": "server/worker.ts",
+  "compatibility_date": "2026-07-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:8787"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "meowlab-app-dev",
+      // Sólo para wrangler dev --local.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "env": {
+    "production": {
+      "name": "meowlab-app-production",
+      "routes": [{ "pattern": "app.meowlab.tech", "custom_domain": true }],
+      "vars": {
+        "BETTER_AUTH_URL": "https://app.meowlab.tech"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "meowlab-app",
+          // Pendiente: id real al crear la D1 de producción (requiere autorización).
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
+}

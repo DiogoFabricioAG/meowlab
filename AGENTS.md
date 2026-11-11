@@ -81,6 +81,7 @@ En las filas de Manolo, las rutas abreviadas `src/`, `test/`, `migrations/`,
 | Migración D1 a PostgreSQL o arquitectura futura | [`docs/architecture/current-system.md`](docs/architecture/current-system.md) y el documento fundacional | `docs/vps-migration/`, `docs/architecture-foundation.md`, `src/node/platform/` |
 | TUI de contactos, roles o empresas | [`docs/apps/manolo-platform.md`](docs/apps/manolo-platform.md) | `tools/users-tui-vps.mjs`, `tools/users-tui/` |
 | Pruebas, revisión o CI | [`docs/development/validation.md`](docs/development/validation.md) | `test/`, `vitest.config.ts`, scripts de ambos `package.json` |
+| Portal web app.meowlab.tech | [`docs/decisions/0006-portal-app-meowlab.md`](docs/decisions/0006-portal-app-meowlab.md) y `apps/meowlab-app/README.md` | `apps/meowlab-app/` |
 | Coordinación de varios agentes | [`docs/project/board.json`](docs/project/board.json) y [`docs/agents/orchestration.md`](docs/agents/orchestration.md) | Tareas del tablero y límites de archivos definidos en el plan de trabajo |
 | Una decisión estructural duradera | [`docs/decisions/README.md`](docs/decisions/README.md) | Nuevo ADR dentro de `docs/decisions/` |
 | Documentación | [`docs/README.md`](docs/README.md) | `docs/`, este archivo y los README locales |

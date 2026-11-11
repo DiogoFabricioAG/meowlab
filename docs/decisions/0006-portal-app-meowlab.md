@@ -1,6 +1,6 @@
 # 0006. Portal web app.meowlab.tech con cuentas propias vinculadas a WhatsApp
 
-- Estado: propuesto
+- Estado: aceptado (fase 1 implementada, sin desplegar)
 - Fecha: 2026-11-11
 - Responsable: MeowLab
 
@@ -21,6 +21,14 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
    Cloudflare con recursos estáticos en `app.meowlab.tech`. Tiene su propio
    `wrangler.jsonc`, sus secretos y su D1 (`meowlab-app`); no comparte la D1 ni
    el despliegue de Manolo ni de la landing.
+
+   Cloudflare es una elección de simplicidad, no un destino. Cuando el portal
+   crezca se muda al VPS para tener más control, y el código ya está separado
+   para eso: la API es Hono y la autenticación Better Auth, ambos corren en Node;
+   `server/worker.ts` es la única entrada específica de Cloudflare y la base de
+   datos es lo único que cambia (D1 hoy, un pool de PostgreSQL en el VPS, con el
+   mismo esquema de Better Auth generado para ese dialecto). La interfaz es un
+   sitio estático (React + Vite) que también puede servir Caddy.
 2. **Cuentas con Better Auth.** Correo y contraseña, más inicio de sesión con
    Google. Usuarios, sesiones y cuentas OAuth viven en la D1 del portal. Cookies
    `HttpOnly`, `Secure` y `SameSite=Lax`, limitadas a `app.meowlab.tech`.
@@ -59,8 +67,11 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
 - El bridge suma rutas firmadas para el portal: crear y confirmar vínculos, y
   consultas de facturación con autorización por cuenta.
 - Manolo suma el comando `MEOWLAB VINCULAR`, que no pasa por la IA ni por los roles.
-- Recuperar contraseña y verificar correo requieren un proveedor de correo; se
-  decide en la fase 1.
+- Recuperar contraseña y verificar correo requieren un proveedor de correo; está
+  pendiente. Mientras el correo no se verifique, el inicio con Google no se enlaza
+  a una cuenta con contraseña del mismo correo (evita el secuestro previo de cuentas).
+- La apariencia sigue a meowlab.tech: colores, tipografías Blinker y Actor,
+  botones y tarjetas de la landing.
 - El cliente OAuth de Google lo crea el operador en Google Cloud; su secreto va a
   Cloudflare Secrets.
 - Las solicitudes de activación del onboarding de `cat` podrán mostrarse en el
