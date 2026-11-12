@@ -1,3 +1,5 @@
+import { PgPortalLinkStore, PortalLinkService, type PortalLinkPool } from "./portal/link-service";
+import { WorkerAuthCodeSender } from "./portal/auth-code-sender";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -81,6 +83,40 @@ async function readRequestBody(
   return Buffer.concat(chunks).toString("utf8");
 }
 
+/**
+ * Portal app.meowlab.tech (ADR-0006). Optional: without its secrets the portal route
+ * answers 503 and the rest of the bridge is unaffected.
+ */
+function portalLinkDependencies(pool: PortalLinkPool) {
+  const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
+  const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
+  const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
+  if (!portalSecret || !authCodeSecret || !workerUrl) {
+    logSafeEvent("vps_portal_link_disabled");
+    return {};
+  }
+  if (portalSecret.length < 32 || authCodeSecret.length < 32) {
+    throw new Error("Portal secrets must contain at least 32 characters");
+  }
+  if (new URL(workerUrl).protocol !== "https:") throw new Error("MANOLO_WORKER_URL must use HTTPS");
+  return {
+    portalSecret,
+    portalLinkService: new PortalLinkService(
+      new PgPortalLinkStore(pool),
+      new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),
+      portalSecret,
+      logSafeEvent,
+    ),
+  };
+}
+
+function optionalSecret(name: string, fileName: string): string | null {
+  const direct = process.env[name]?.trim();
+  if (direct) return direct;
+  const path = process.env[fileName]?.trim();
+  return path ? readFileSync(path, "utf8").trim() || null : null;
+}
+
 async function main(): Promise<void> {
   const databaseUrl = requiredEnvironment("DATABASE_URL");
   const sharedSecret = process.env.VPS_BRIDGE_HMAC_SECRET?.trim()
@@ -143,6 +179,7 @@ async function main(): Promise<void> {
     platformSyncService,
     facturayaService,
     radarSelectionService: new PgRadarSelectionService(connection.pool),
+    ...portalLinkDependencies(connection.pool),
     log: logSafeEvent,
     healthCheck: async () => {
       try {

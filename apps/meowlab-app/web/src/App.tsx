@@ -28,7 +28,7 @@ export function App() {
     );
   }
   if (!session || !me) return <AuthPage config={config} />;
-  return <Panel me={me} />;
+  return <Panel me={me} onChange={() => void fetchJson<Me>("/api/me").then(setMe)} />;
 }
 
 export function Logo({ light = false }: { light?: boolean }) {

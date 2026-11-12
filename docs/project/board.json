@@ -1144,14 +1144,14 @@
     },
     {
       "id": "app-portal-2-vinculacion-20261111",
-      "title": "Portal: vincular el número de WhatsApp con MEOWLAB VINCULAR",
+      "title": "Portal: vincular el número de WhatsApp con un código (OTP)",
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-11",
-      "notes": "Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md",
-      "evidence": ""
+      "notes": "Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.",
+      "evidence": "Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización)."
     },
     {
       "id": "app-portal-3-lectura-facturaya-20261111",
@@ -1173,6 +1173,17 @@
       "status": "todo",
       "updated": "2026-11-11",
       "notes": "Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-link-fallback-20261111",
+      "title": "Portal: respaldo de vinculación con mensaje prellenado a Manolo",
+      "area": "Portal",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Si la plantilla de autenticación no está disponible, botón «Abrir WhatsApp» con el código en un mensaje prellenado que Manolo consume antes de los roles (como RADAR ACTIVAR). ADR-0006.",
       "evidence": ""
     }
   ]

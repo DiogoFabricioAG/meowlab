@@ -2,7 +2,7 @@ import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({ basePath: "/api/auth" });
 
-export type PortalConfig = { google: boolean; passwordReset: boolean };
+export type PortalConfig = { google: boolean; passwordReset: boolean; whatsappLinking?: boolean };
 
 export type PortalModule = {
   key: string;
@@ -12,9 +12,22 @@ export type PortalModule = {
 
 export type Me = {
   user: { id: string; name: string; email: string; image: string | null };
-  whatsapp: { linked: boolean };
+  whatsapp:
+    | { linked: true; maskedPhone: string; linkedAt: string; available: true }
+    | { linked: false; available: boolean };
   modules: PortalModule[];
 };
+
+export async function postJson<T>(path: string, body: Record<string, unknown> = {}): Promise<T | null> {
+  const response = await fetch(path, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) return null;
+  return (await response.json()) as T;
+}
 
 export async function fetchJson<T>(path: string): Promise<T | null> {
   const response = await fetch(path, { credentials: "same-origin" });

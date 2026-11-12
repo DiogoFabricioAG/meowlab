@@ -1,5 +1,6 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
+import type { PortalBridge, PortalLinkAction } from "./bridge";
 
 export type PortalModule = {
   key: string;
@@ -10,11 +11,19 @@ export type PortalModule = {
 export type AppDeps = {
   auth: Auth;
   googleEnabled: boolean;
+  /** Null until the bridge URL and the portal secret are configured. */
+  bridge: PortalBridge | null;
+  /** Origins allowed to send state-changing requests with the session cookie. */
+  allowedOrigins: readonly string[];
 };
+
+type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** HTTP API of the portal. Runtime-agnostic: the Cloudflare and Node entries only build its dependencies. */
 export function createApp(deps: AppDeps) {
-  const app = new Hono();
+  const app = new Hono<{ Variables: { session: Session } }>();
 
   app.use("/api/*", async (c, next) => {
     await next();
@@ -29,25 +38,63 @@ export function createApp(deps: AppDeps) {
       google: deps.googleEnabled,
       // Needs an e-mail provider; decided before production (ADR-0006).
       passwordReset: false,
+      whatsappLinking: deps.bridge !== null,
     }),
   );
 
   app.on(["GET", "POST"], "/api/auth/*", (c) => deps.auth.handler(c.req.raw));
 
-  app.get("/api/me", async (c) => {
+  // Everything below needs a session; writes also need a same-site Origin (Better Auth
+  // checks its own routes, these are ours).
+  app.use("/api/*", async (c, next) => {
+    if (c.req.method !== "GET" && !deps.allowedOrigins.includes(c.req.header("Origin") ?? "")) {
+      return c.json({ error: "forbidden_origin" }, 403);
+    }
     const session = await deps.auth.api.getSession({ headers: c.req.raw.headers });
     if (!session) return c.json({ error: "unauthenticated" }, 401);
-    const { user } = session;
-    // WhatsApp linking arrives in phase 2; until then no role data is reachable.
+    c.set("session", session);
+    await next();
+  });
+
+  app.get("/api/me", async (c) => {
+    const { user } = c.get("session");
+    const link = deps.bridge ? await deps.bridge.link(user.id, { action: "status" }) : null;
+    const linked = link?.status === "linked";
     const modules: PortalModule[] = [
-      { key: "billing", title: "Facturación electrónica", status: "needs_whatsapp" },
+      // Billing data arrives in phase 3; until then a linked number shows it as coming soon.
+      { key: "billing", title: "Facturación electrónica", status: linked ? "coming_soon" : "needs_whatsapp" },
     ];
     return c.json({
       user: { id: user.id, name: user.name, email: user.email, image: user.image ?? null },
-      whatsapp: { linked: false },
+      whatsapp: linked
+        ? { linked: true, maskedPhone: link.maskedPhone, linkedAt: link.linkedAt, available: true }
+        : { linked: false, available: deps.bridge !== null && link !== null },
       modules,
     });
   });
+
+  const relay = async (c: Context<{ Variables: { session: Session } }>, request: PortalLinkAction) => {
+    if (!deps.bridge) return c.json({ error: "linking_unavailable" }, 503);
+    const result = await deps.bridge.link(c.get("session").user.id, request);
+    return result ? c.json(result) : c.json({ error: "linking_unavailable" }, 503);
+  };
+
+  app.post("/api/whatsapp/start", async (c) => {
+    const body = await c.req.json().catch(() => null) as { phone?: unknown } | null;
+    const phone = typeof body?.phone === "string" ? body.phone.trim() : "";
+    if (!phone || phone.length > 32) return c.json({ status: "invalid_phone" });
+    return relay(c, { action: "start", phone });
+  });
+
+  app.post("/api/whatsapp/verify", async (c) => {
+    const body = await c.req.json().catch(() => null) as { challengeId?: unknown; code?: unknown } | null;
+    const challengeId = typeof body?.challengeId === "string" ? body.challengeId : "";
+    const code = typeof body?.code === "string" ? body.code.replace(/\s/g, "") : "";
+    if (!UUID.test(challengeId) || !/^\d{6}$/.test(code)) return c.json({ status: "invalid_code", attemptsLeft: null });
+    return relay(c, { action: "verify", challengeId, code });
+  });
+
+  app.post("/api/whatsapp/unlink", (c) => relay(c, { action: "unlink" }));
 
   app.all("/api/*", (c) => c.json({ error: "not_found" }, 404));
 

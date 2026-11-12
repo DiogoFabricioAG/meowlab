@@ -23,6 +23,8 @@ import {
   type PlatformSyncService,
 } from "../platform/platform-sync-service";
 import { verifyBridgeSignature } from "./signature-verifier";
+import { PORTAL_LINK_BRIDGE_PATH, isPortalLinkRequest } from "../../bridge/portal-link-contracts";
+import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
 
@@ -46,6 +48,9 @@ export type BridgeHttpHandlerDependencies = {
   platformSyncService?: PlatformSyncService;
   facturayaService?: FacturayaOperationService;
   radarSelectionService?: Pick<PgRadarSelectionService, "execute">;
+  /** Portal app.meowlab.tech: its own secret, valid only for the portal route. */
+  portalSecret?: string;
+  portalLinkService?: Pick<PortalLinkService, "handle">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -77,6 +82,9 @@ export function createBridgeHttpHandler(
       return await dependencies.healthCheck()
         ? jsonResponse(200, { status: "ok" })
         : jsonResponse(503, { status: "unavailable" });
+    }
+    if (request.path === PORTAL_LINK_BRIDGE_PATH) {
+      return handlePortalLink(request, dependencies);
     }
     if (
       request.path !== PRINT_ADVISOR_BRIDGE_PATH
@@ -254,4 +262,40 @@ function isObjectWithRequestId(
     && value !== null
     && "requestId" in value
     && typeof value.requestId === "string";
+}
+
+async function handlePortalLink(
+  request: BridgeHttpRequest,
+  dependencies: BridgeHttpHandlerDependencies,
+): Promise<BridgeHttpResponse> {
+  if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
+  if (!dependencies.portalSecret || !dependencies.portalLinkService) {
+    return jsonResponse(503, { error: "portal_unavailable" });
+  }
+  const verification = verifyBridgeSignature(
+    request.body,
+    request.headers["x-manolo-timestamp"],
+    request.headers["x-manolo-signature"],
+    dependencies.portalSecret,
+    dependencies.nowSeconds?.(),
+  );
+  if (!verification.valid) {
+    dependencies.log("vps_bridge_auth_rejected", { reason: verification.reason, route: "portal" });
+    return jsonResponse(401, { error: "unauthorized" });
+  }
+  let payload: unknown;
+  try {
+    payload = JSON.parse(request.body);
+  } catch {
+    return jsonResponse(400, { error: "invalid_json" });
+  }
+  if (!isPortalLinkRequest(payload) || request.headers["x-manolo-request-id"] !== payload.requestId) {
+    return jsonResponse(400, { error: "invalid_request" });
+  }
+  try {
+    return jsonResponse(200, await dependencies.portalLinkService.handle(payload));
+  } catch {
+    dependencies.log("vps_portal_link_failed", { action: payload.action });
+    return jsonResponse(503, { error: "portal_unavailable" });
+  }
 }

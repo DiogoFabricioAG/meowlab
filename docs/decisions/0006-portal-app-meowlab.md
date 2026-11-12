@@ -32,19 +32,28 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
 2. **Cuentas con Better Auth.** Correo y contraseña, más inicio de sesión con
    Google. Usuarios, sesiones y cuentas OAuth viven en la D1 del portal. Cookies
    `HttpOnly`, `Secure` y `SameSite=Lax`, limitadas a `app.meowlab.tech`.
-3. **Vinculación del número por WhatsApp entrante.** Una cuenta sólo ve datos
-   después de demostrar que controla el número:
-   - el usuario escribe su número; el portal pide al bridge un código de un solo
-     uso (6 dígitos, 10 minutos, 5 intentos; PostgreSQL guarda sólo su hash);
-   - el portal muestra un enlace `wa.me` con el mensaje `MEOWLAB VINCULAR <código>`;
-   - el Worker de Manolo consume ese comando antes de enrutar a un rol, como ya
-     hace con `RADAR ACTIVAR`, y pide al bridge confirmar el código con el número
-     remitente que firmó Meta;
-   - el bridge registra el vínculo cuenta ↔ contacto en PostgreSQL.
+3. **Vinculación del número con un código por WhatsApp (OTP).** Revisado el
+   2026-11-11 a pedido del operador: reemplaza el comando entrante `MEOWLAB VINCULAR`
+   por el flujo habitual de verificación, como el de Mercado Pago. Una cuenta sólo
+   ve datos después de demostrar que controla el número:
+   - el usuario escribe su número en el portal; el portal lo envía al bridge;
+   - el bridge genera un código de 6 dígitos y guarda sólo su hash en PostgreSQL;
+     vence a los 10 minutos y admite 5 intentos;
+   - el bridge pide a Manolo, por una ruta firmada propia, enviar el código con la
+     plantilla de **autenticación** aprobada por Meta (botón «Copiar código»).
+     Manolo es quien tiene el token de Meta; el portal nunca ve el código ni el token;
+   - el usuario pega el código en el portal y el bridge registra el vínculo
+     cuenta ↔ número en PostgreSQL.
 
-   No se envía el código por WhatsApp porque, fuera de la ventana de 24 horas,
-   exige una plantilla de autenticación aprobada por Meta. Un número sólo puede
-   estar vinculado a una cuenta; desvincular o revincular invalida el anterior.
+   Sólo se envían códigos a números que ya hablaron con Manolo; para cualquier otro
+   número el portal responde lo mismo, sin enviar nada ni revelar si es cliente.
+   Límites contra el abuso de envíos (cada mensaje tiene costo): 3 códigos por número
+   y 5 por cuenta cada hora, y 60 segundos entre reenvíos. Un número sólo puede estar
+   vinculado a una cuenta; verificarlo desde otra cuenta lo mueve a esa cuenta.
+
+   Respaldo previsto, no implementado: si la plantilla no está disponible, el portal
+   ofrece un botón «Abrir WhatsApp» con el mensaje ya escrito para enviárselo a
+   Manolo, que lo consume antes de los roles como `RADAR ACTIVAR`.
 4. **Autorización en el bridge.** El portal llama al bridge con HMAC, timestamp y
    request ID, con un secreto distinto del de Manolo. Envía sólo el id de la
    cuenta autenticada; el bridge resuelve contacto → roles → empresas FacturaYa
@@ -66,7 +75,9 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
   portal lo ofrecerá cuando exista una fuente común.
 - El bridge suma rutas firmadas para el portal: crear y confirmar vínculos, y
   consultas de facturación con autorización por cuenta.
-- Manolo suma el comando `MEOWLAB VINCULAR`, que no pasa por la IA ni por los roles.
+- Manolo suma una ruta interna firmada para enviar el código con la plantilla de
+  autenticación; no pasa por la IA ni por los roles. El operador crea y hace aprobar
+  la plantilla en WhatsApp Manager.
 - Recuperar contraseña y verificar correo requieren un proveedor de correo; está
   pendiente. Mientras el correo no se verifique, el inicio con Google no se enlaza
   a una cuenta con contraseña del mismo correo (evita el secuestro previo de cuentas).
@@ -81,8 +92,9 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
 
 1. Esqueleto de `apps/meowlab-app`, Better Auth sobre D1, Google y correo, y
    despliegue en `app.meowlab.tech` sin datos todavía.
-2. Vinculación: migración PostgreSQL de cuentas y códigos, rutas firmadas del
-   bridge y comando `MEOWLAB VINCULAR` en Manolo.
+2. Vinculación: migración PostgreSQL de vínculos y códigos, ruta firmada del
+   bridge para el portal, ruta de Manolo que envía la plantilla de autenticación y
+   pantalla de verificación en el portal.
 3. Lectura de facturación: endpoints de FacturaYa y rutas autorizadas del bridge.
 4. Pantallas de comprobantes, descargas, resumen mensual y guías.
 

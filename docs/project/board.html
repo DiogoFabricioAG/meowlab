@@ -212,7 +212,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 40 · Total: 116</span>
+      <span class="summary">Abiertas: 41 · Total: 117</span>
     </div>
   </div>
 </header>
@@ -410,17 +410,6 @@
           <p class="card-notes">extract_preview.cjs, render_original.cjs, scratch-verify-detail.cjs, PNG sueltos.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">commit-landing-y-scratch</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con meowlab vincular portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: vincular el número de WhatsApp con MEOWLAB VINCULAR</h3>
-          
-          <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: endpoints de lectura de facturaya y rutas autorizadas del bridge portal fase 3 del adr-0006. facturaya: listado paginado de comprobantes y resumen mensual. bridge: autorización cuenta → contacto → empresas permitidas. diseño: docs/decisions/0006-portal-app-meowlab.md ">
           <div class="card-top">
@@ -620,6 +609,17 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">revisar-tienda</code>
         </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="portal: respaldo de vinculación con mensaje prellenado a manolo portal si la plantilla de autenticación no está disponible, botón «abrir whatsapp» con el código en un mensaje prellenado que manolo consume antes de los roles (como radar activar). adr-0006. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Portal: respaldo de vinculación con mensaje prellenado a Manolo</h3>
+          
+          <p class="card-notes">Si la plantilla de autenticación no está disponible, botón «Abrir WhatsApp» con el código en un mensaje prellenado que Manolo consume antes de los roles (como RADAR ACTIVAR). ADR-0006.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-link-fallback-20261111</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -636,7 +636,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">3</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -660,6 +660,17 @@
           <p class="card-notes">Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth).</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-1-auth-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con un código (otp) portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a otp por plantilla de autenticación (codigo_otp_meowlab, es_pe) a pedido del operador; respaldo con mensaje prellenado sin implementar. rama feat/app-meowlab-portal. worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. postgresql 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). punta a punta local: portal wrangler dev → bridge local → postgresql, código, verificación, panel vinculado y desvinculado. falta: aprobación de la plantilla, secretos, migración 011 en el vps y despliegues (con autorización).">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: vincular el número de WhatsApp con un código (OTP)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización).</p>
+          <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

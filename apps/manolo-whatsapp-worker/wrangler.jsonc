@@ -53,6 +53,8 @@
     "RADAR_PRESENCE_ENABLED": "false",
     "META_GRAPH_API_VERSION": "",
     "WHATSAPP_PHONE_NUMBER_ID": "",
+    "WHATSAPP_AUTH_TEMPLATE": "",
+    "WHATSAPP_AUTH_TEMPLATE_LANGUAGE": "es_PE",
     "GROQ_MODEL": "llama-3.1-8b-instant",
     "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
     "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",
@@ -121,6 +123,10 @@
         "RADAR_PRESENCE_ENABLED": "false",
         "META_GRAPH_API_VERSION": "v25.0",
         "WHATSAPP_PHONE_NUMBER_ID": "1266091906580349",
+        // Plantilla de autenticación «Copiar código» de WhatsApp Manager (ADR-0006).
+        // La ruta sigue apagada mientras falte el secreto AUTH_CODE_HMAC_SECRET.
+        "WHATSAPP_AUTH_TEMPLATE": "codigo_otp_meowlab",
+        "WHATSAPP_AUTH_TEMPLATE_LANGUAGE": "es_PE",
         "GROQ_MODEL": "llama-3.1-8b-instant",
         "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
         "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",

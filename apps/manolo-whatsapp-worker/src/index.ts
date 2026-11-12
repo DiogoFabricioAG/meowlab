@@ -1,4 +1,5 @@
 import { presenceReceipts, withRadarPresence } from "./radar/presence";
+import { AUTH_CODE_WORKER_PATH, authCodeResponse } from "./portal/auth-code-route";
 import { consumeRadarReminderReplies, withRadarWindowReminders } from "./radar/window-reminder";
 import { CAT_ROLE_KEY, CAT_SYSTEM_PROMPT } from "./roles/cat-role";
 import { RADAR_API_PATH } from "./radar/contracts";
@@ -1186,6 +1187,10 @@ export default withRadarPresence(withRadarWindowReminders({
         createAiProvider(env.ENTERPRISE_AI_PROVIDER || "openai", {
           openAiApiKey: env.OPENAI_API_KEY, openAiBaseUrl: env.ENTERPRISE_AI_BASE_URL, groqApiKey: env.GROQ_API_KEY,
         }), env.ENTERPRISE_AI_MODEL || "gpt-6-luna"));
+    }
+
+    if (url.pathname === AUTH_CODE_WORKER_PATH) {
+      return authCodeResponse(request, env, logSafeEvent);
     }
 
     if (url.pathname === HEALTH_PATH) {

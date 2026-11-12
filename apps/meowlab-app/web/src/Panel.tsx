@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { authClient, type Me } from "./auth-client";
 import { Logo } from "./App";
-
-const LINK_STEPS = [
-  { n: "1", text: "Escribe aquí el número con el que hablas con Manolo." },
-  { n: "2", text: "Te damos un código para enviárselo desde tu WhatsApp." },
-  { n: "3", text: "Manolo confirma que el número es tuyo y se abren tus datos." },
-];
+import { WhatsAppLink } from "./WhatsAppLink";
 
 const BILLING_FEATURES = [
   "Facturas, boletas y notas con su estado en SUNAT",
@@ -15,7 +10,7 @@ const BILLING_FEATURES = [
   "Guías de remisión emitidas",
 ];
 
-export function Panel({ me }: { me: Me }) {
+export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
 
@@ -50,40 +45,7 @@ export function Panel({ me }: { me: Me }) {
           </p>
         </div>
 
-        {!me.whatsapp.linked && (
-          <section className="rounded-3xl border border-line-mint bg-mint-light p-6 sm:p-8" aria-labelledby="link-title">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="space-y-2 lg:max-w-md">
-                <span className="chip border border-line-mint bg-white text-forest">
-                  <span className="h-2 w-2 rounded-full bg-whatsapp" aria-hidden="true" /> Primer paso
-                </span>
-                <h2 id="link-title" className="text-2xl font-bold tracking-tight text-ink">
-                  Vincula tu WhatsApp
-                </h2>
-                <p className="text-ink-2">
-                  Tus datos están asociados al número con el que hablas con Manolo. Lo vincularás confirmándolo desde tu
-                  propio WhatsApp.
-                </p>
-              </div>
-              <ol className="grid gap-3 sm:grid-cols-3 lg:max-w-xl">
-                {LINK_STEPS.map((step) => (
-                  <li key={step.n} className="rounded-2xl bg-white p-4 shadow-soft">
-                    <span className="mb-2 grid h-8 w-8 place-items-center rounded-lg bg-mint text-sm font-bold text-forest">
-                      {step.n}
-                    </span>
-                    <span className="block text-sm leading-relaxed text-ink-2">{step.text}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <div className="mt-6 flex flex-col gap-3 border-t border-line-mint pt-6 sm:flex-row sm:items-center">
-              <button type="button" disabled className="btn-primary">
-                Vincular mi número
-              </button>
-              <span className="text-sm text-ink-muted">La vinculación se habilita en la próxima entrega del panel.</span>
-            </div>
-          </section>
-        )}
+        <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
 
         <section className="space-y-4" aria-labelledby="modules-title">
           <h2 id="modules-title" className="text-xl font-bold tracking-tight text-ink">
@@ -114,6 +76,11 @@ export function Panel({ me }: { me: Me }) {
                     </li>
                   ))}
                 </ul>
+                {module.status === "coming_soon" && (
+                  <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">
+                    Tu WhatsApp ya está vinculado. Tus comprobantes aparecerán aquí en la próxima entrega del panel.
+                  </p>
+                )}
                 {module.status === "needs_whatsapp" && (
                   <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
                     Se abre cuando vincules tu WhatsApp y Manolo confirme que tienes este agente activo.
