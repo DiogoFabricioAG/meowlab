@@ -1,6 +1,6 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
-import { legal } from '../data/legal';
+import { legal, titular } from '../data/legal';
 ---
 
 <LegalPage
@@ -16,8 +16,7 @@ import { legal } from '../data/legal';
 
   <h2>1. Responsable</h2>
   <p>
-    El responsable del tratamiento es <strong>{legal.razonSocial}</strong>, con RUC {legal.ruc} y domicilio en
-    {legal.domicilio} («MeowLab»). Para cualquier consulta sobre tus datos escribe a
+    El responsable del tratamiento es <strong>{titular()}</strong>. Para cualquier consulta sobre tus datos escribe a
     <a href={`mailto:${legal.correoPrivacidad}`}>{legal.correoPrivacidad}</a> o por WhatsApp al
     <a href={legal.whatsappUrl}>{legal.whatsapp}</a>.
   </p>

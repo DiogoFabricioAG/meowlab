@@ -1194,8 +1194,8 @@
       "priority": "high",
       "status": "in_progress",
       "updated": "2026-11-11",
-      "notes": "Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema; faltan razón social, RUC, domicilio y correo en src/data/legal.ts y revisión legal del operador antes de publicar.",
-      "evidence": "npx astro build: /privacidad y /terminos generados; enlaces del pie actualizados."
+      "notes": "Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. MeowLab aún no tiene RUC ni razón social (2026-11-11): las páginas identifican al titular como «MeowLab» y muestran RUC, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. Contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). Falta revisión legal y publicar la landing.",
+      "evidence": "npx astro build: /privacidad y /terminos generados sin «PENDIENTE»; titular «MeowLab»; privacy@meowlab.tech en ambas páginas; enlaces del pie actualizados."
     },
     {
       "id": "landing-libro-reclamaciones-20261111",

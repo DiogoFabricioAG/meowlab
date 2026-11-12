@@ -1,6 +1,6 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
-import { legal } from '../data/legal';
+import { legal, titular } from '../data/legal';
 ---
 
 <LegalPage
@@ -11,7 +11,7 @@ import { legal } from '../data/legal';
   <p>
     Estos términos regulan el uso de los agentes de MeowLab por WhatsApp (entre ellos, Manolo) y del panel
     <a href="https://app.meowlab.tech">app.meowlab.tech</a> (en conjunto, el «servicio»), prestado por
-    <strong>{legal.razonSocial}</strong>, con RUC {legal.ruc} («MeowLab»). Al usar el servicio aceptas estos
+    <strong>{titular()}</strong>. Al usar el servicio aceptas estos
     términos y la <a href="/privacidad">política de privacidad</a>.
   </p>
 
