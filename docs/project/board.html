@@ -184,7 +184,7 @@
   <div class="page-inner">
     <div class="page-title">
       <h1><span class="dot">●</span> MeowLab · Tablero de trabajo</h1>
-      <span class="meta">Actualizado: 2026-11-11</span>
+      <span class="meta">Actualizado: 2026-11-12</span>
     </div>
     <div class="controls">
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
@@ -750,13 +750,13 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
-        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el adr. rama feat/app-meowlab-portal: npm test 13/13 (precios del informe, firma, un pago = un mes, importe distinto rechazado, webhook firmado y reconsultado, cancelación); scripts/billing-pg-check.ts 11/11 en postgresql 16 (5 notificaciones simultáneas → 1 mes, encadenado, fin de mes). falta: despliegue, webhook configurado en mercado pago y compra con comprador de prueba.">
+        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el adr. desplegado en modo prueba (13530). compra real con comprador de prueba: preapproval autorizado, cobro 7033915896 de s/ 39 aprobado; la conciliación acreditó un mes (pagado hasta 12/12/2026). bug encontrado y corregido: authorized_payments/search rechaza limit &gt; 12. npm test 15/15; billing-pg-check 11/11. falta: recibir un webhook real de mercado pago (ninguno llegó; revisar url del modo prueba en el panel).">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Cobros: catálogo, precio y suscripción con Mercado Pago (prueba)</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-meowlab-portal: npm test 13/13 (precios del informe, firma, un pago = un mes, importe distinto rechazado, webhook firmado y reconsultado, cancelación); scripts/billing-pg-check.ts 11/11 en PostgreSQL 16 (5 notificaciones simultáneas → 1 mes, encadenado, fin de mes). Falta: despliegue, webhook configurado en Mercado Pago y compra con comprador de prueba.</p>
+          <p class="card-evidence"><strong>Evidencia:</strong> Desplegado en modo prueba (13530). Compra real con comprador de prueba: preapproval autorizado, cobro 7033915896 de S/ 39 aprobado; la conciliación acreditó un mes (pagado hasta 12/12/2026). Bug encontrado y corregido: authorized_payments/search rechaza limit &gt; 12. npm test 15/15; billing-pg-check 11/11. Falta: recibir un webhook real de Mercado Pago (ninguno llegó; revisar URL del modo prueba en el panel).</p>
           <p class="card-notes">Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el ADR.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-1-mercadopago-20261111</code>
