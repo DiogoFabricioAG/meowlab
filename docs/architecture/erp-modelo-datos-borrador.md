@@ -484,13 +484,10 @@ Respuestas del operador (2026-11-12):
 | Monedas | Sólo PEN por ahora (regla 3). |
 | Tender Cat | Ya funciona, pero sin precio ni agrupación. En duda: agente contratable en el número de cada empresa, o rol transversal en un número único operado por MeowLab. El modelo de canales admite ambos (3.2). |
 | Permisos | Todos los miembros de una empresa ven lo mismo; sólo el `owner` administra plan, pagos y miembros (3.1). |
+| Almacenes y listas de precios | Cada empresa empieza con **un almacén** («Principal») y **una lista de precios** («General»), creados automáticamente. El modelo admite más, pero los agentes no los exponen hasta que un cliente lo necesite. |
 
 Pendiente de confirmar:
 
-- **Almacenes y listas de precios del primer corte.** Propuesta: cada empresa empieza
-  con **un almacén** («Principal») y **una lista de precios** («General»), creados
-  automáticamente. El modelo admite más (un segundo local, precios mayoristas) sin
-  cambios, pero los agentes no los exponen hasta que alguien los pida.
 - **Tender Cat:** precio y si vive en el número de cada empresa o en el de MeowLab.
 - **Recetas de producción:** si los productos propios deben descontar insumos
   (receta) o basta con registrar el producto terminado.
