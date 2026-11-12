@@ -1304,7 +1304,7 @@
       "priority": "medium",
       "status": "todo",
       "updated": "2026-11-11",
-      "notes": "Fase 4 del ADR-0007; decidir si es el agente vendible o un rol interno. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "notes": "Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
       "evidence": ""
     }
   ]

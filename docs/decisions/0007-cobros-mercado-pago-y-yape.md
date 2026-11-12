@@ -73,11 +73,14 @@ y con QR o número propio verificado por un administrador.
   Mercado Pago; producción requiere credenciales productivas y la cuenta verificada.
 - Las comisiones de Mercado Pago no están en el modelo financiero (el informe lo
   advierte); medirlas desde el primer cobro.
-- **Collections Cat:** el informe lo define como seguimiento *interno* de cuentas
-  por cobrar del comercio, con alcance limitado por las políticas de WhatsApp. Usarlo
-  para cobrar las suscripciones de MeowLab es otro uso: los recordatorios de pago
-  de un servicio propio son mensajes de utilidad permitidos, pero conviene decidir
-  si es el mismo agente que se vende o un rol interno.
+- **Collections Cat es el mismo producto que se vende, y MeowLab es su primer
+  cliente** (decisión del operador, 2026-11-11). MeowLab lo usa para cobrar a quienes
+  prefieren pagar con el QR de Yape o enviar capturas: el agente envía el QR y el
+  importe, recibe la captura, la registra como pago **pendiente** y concilia; la
+  acreditación sigue requiriendo la aprobación de un administrador (punto 5). Lo
+  que se construya para MeowLab debe servir igual a un comercio que lo contrate,
+  con sus propios datos de cobro. Los mensajes deben ser recordatorios de pago de un
+  servicio contratado (utilidad), dentro de las políticas de WhatsApp.
 - Por decidir: días de gracia y avisos, prueba gratis, cambio de plan a mitad de
   periodo (prorrateo o desde el siguiente cobro) y emisión del comprobante de
   MeowLab por cada cobro.
@@ -88,4 +91,5 @@ y con QR o número propio verificado por un administrador.
    webhook, ledger y estado en el portal.
 2. Bloqueo por falta de pago en el bridge, avisos y días de gracia.
 3. Yape por QR propio con aprobación en Negocio, y métricas de cobros.
-4. Collections Cat: cobro por WhatsApp con enlace de Mercado Pago o QR de Yape.
+4. Collections Cat (MeowLab como primer cliente): cobro por WhatsApp con enlace de
+   Mercado Pago o QR de Yape, recepción de capturas y conciliación.
