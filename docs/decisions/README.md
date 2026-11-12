@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0008 — Modelo de datos de MeowLab como ERP](0008-modelo-de-datos-erp.md):
+  un esquema por módulo, agentes sobre datos compartidos, identidad unificada y Tender Cat en el número de MeowLab.
+
 - [0007 — Cobros con Mercado Pago y Yape](0007-cobros-mercado-pago-y-yape.md):
   propuesto; catálogo por agente con descuento por equipo, suscripción recurrente y bloqueo por impago.
 

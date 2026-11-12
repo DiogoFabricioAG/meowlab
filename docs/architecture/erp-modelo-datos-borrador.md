@@ -1,7 +1,8 @@
 # Modelo de datos de MeowLab como ERP — borrador
 
-- Estado: **borrador para discusión** (2026-11-12), con las primeras decisiones del
-  operador (sección 7). No hay migraciones ni código.
+- Estado: **aceptado como base del modelo** por el
+  [ADR-0008](../decisions/0008-modelo-de-datos-erp.md) (2026-11-12). Este documento
+  es el detalle; el ADR registra las decisiones. No hay migraciones ni código.
 - Base: los seis agentes del informe ejecutivo 2027–2029, RADAR y la
   infraestructura que ya corre (Manolo, bridge, portal, FacturaYa).
 - Cuando se acuerde, se convierte en un ADR y en migraciones por fase.
@@ -482,11 +483,8 @@ Respuestas del operador (2026-11-12):
 | Fuente de verdad | Todo se integra en MeowLab. FacturaYa y RADAR son productos sueltos hoy; el ERP es la fuente de verdad de clientes y productos y FacturaYa recibe copias hasta integrarse (4.2). |
 | Stock negativo | **No.** No se vende sin stock: el pedido reserva o no se confirma. Al cruzar el umbral, Reorder Cat contacta al proveedor o, si el producto es propio, genera una orden de producción (4.3). |
 | Monedas | Sólo PEN por ahora (regla 3). |
-| Tender Cat | **S/ 35 al mes.** Sigue en duda si atiende en el número de cada empresa o como rol transversal en un número único operado por MeowLab; el modelo de canales admite ambos (3.2). |
+| Tender Cat | **S/ 35 al mes**, como **rol transversal en el número de MeowLab** (como funciona RADAR hoy): los avisos son públicos y compartidos, las alertas proactivas no ponen en riesgo la calidad del número comercial de cada cliente y se puede vender sin esperar a que el cliente tenga su número listo. El costo de las plantillas de Meta se mide por empresa en `metering`. |
 | Permisos | Todos los miembros de una empresa ven lo mismo; sólo el `owner` administra plan, pagos y miembros (3.1). |
 | Producción | Sólo se registra el producto terminado; sin recetas ni descuento de insumos en el primer corte. |
+| Números de WhatsApp | Los agentes que hablan con los clientes de la empresa (Sales, Support, Collections hacia el cliente final) atienden en el **número de la empresa**; los que sólo hablan con el dueño o su equipo pueden vivir en el **número de MeowLab** cuando lo simplifica (3.2). |
 | Almacenes y listas de precios | Cada empresa empieza con **un almacén** («Principal») y **una lista de precios** («General»), creados automáticamente. El modelo admite más, pero los agentes no los exponen hasta que un cliente lo necesite. |
-
-Pendiente de confirmar:
-
-- **Tender Cat:** si atiende en el número de cada empresa o en el número de MeowLab.

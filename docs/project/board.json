@@ -1331,14 +1331,14 @@
     },
     {
       "id": "erp-data-model-draft-20261112",
-      "title": "Borrador del modelo de datos de MeowLab como ERP",
+      "title": "Modelo de datos de MeowLab como ERP (ADR-0008)",
       "area": "Arquitectura",
       "owner": "",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-12",
       "notes": "Módulos por esquema para los 6 agentes y Tender Cat. Decisiones 2026-11-12: integrar todo en MeowLab (ERP fuente de verdad), sin stock negativo (reservas; Reorder Cat contacta proveedor o genera producción), sólo PEN, Tender Cat en duda (número propio o compartido), sin permisos por módulo. Pendiente: almacenes/listas del primer corte, precio y número de Tender Cat, recetas de producción; luego ADR.",
-      "evidence": "docs/architecture/erp-modelo-datos-borrador.md"
+      "evidence": "docs/decisions/0008-modelo-de-datos-erp.md y detalle en docs/architecture/erp-modelo-datos-borrador.md; decisiones del operador del 2026-11-12 incorporadas."
     },
     {
       "id": "billing-tender-cat-catalog-20261112",
@@ -1348,7 +1348,18 @@
       "priority": "low",
       "status": "todo",
       "updated": "2026-11-12",
-      "notes": "Decisión del operador 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes. Migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende.",
+      "notes": "Decisión 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes y atiende como rol transversal en el número de MeowLab (ADR-0008). Migración nueva en el portal para billing_agents (no editar 0003).",
+      "evidence": ""
+    },
+    {
+      "id": "erp-phase-1-core-agents-20261112",
+      "title": "ERP fase 1: identidad unificada y activaciones por empresa",
+      "area": "Arquitectura",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-12",
+      "notes": "Fase 1 del ADR-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). Desbloquea el bloqueo por impago (ADR-0007) y la fase 3 del portal.",
       "evidence": ""
     }
   ]

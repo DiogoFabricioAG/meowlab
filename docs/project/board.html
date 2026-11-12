@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 52 · Total: 132</span>
+      <span class="summary">Abiertas: 52 · Total: 133</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">47</span>
+          <span class="count">48</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -434,6 +434,17 @@
           <p class="card-notes">Fase 2 del ADR-0007; bloqueo en el bridge antes de FacturaYa. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-2-bloqueo-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Arquitectura" data-text="erp fase 1: identidad unificada y activaciones por empresa arquitectura fase 1 del adr-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). desbloquea el bloqueo por impago (adr-0007) y la fase 3 del portal. ">
+          <div class="card-top">
+            <span class="badge area-other">Arquitectura</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">ERP fase 1: identidad unificada y activaciones por empresa</h3>
+          
+          <p class="card-notes">Fase 1 del ADR-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). Desbloquea el bloqueo por impago (ADR-0007) y la fase 3 del portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">erp-phase-1-core-agents-20261112</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -721,14 +732,14 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">radar-tests-clock-20261112</code>
         </article>
-        <article class="card" data-priority="low" data-area="Cobros" data-text="agregar tender cat (s/ 35) al catálogo de cobros cobros decisión del operador 2026-11-12: tender cat (hoy radar) cuesta s/ 35 al mes. migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende. ">
+        <article class="card" data-priority="low" data-area="Cobros" data-text="agregar tender cat (s/ 35) al catálogo de cobros cobros decisión 2026-11-12: tender cat (hoy radar) cuesta s/ 35 al mes y atiende como rol transversal en el número de meowlab (adr-0008). migración nueva en el portal para billing_agents (no editar 0003). ">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
             <span class="priority priority-low">Baja</span>
           </div>
           <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros</h3>
           
-          <p class="card-notes">Decisión del operador 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes. Migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende.</p>
+          <p class="card-notes">Decisión 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes y atiende como rol transversal en el número de MeowLab (ADR-0008). Migración nueva en el portal para billing_agents (no editar 0003).</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">billing-tender-cat-catalog-20261112</code>
         </article>
@@ -748,7 +759,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -795,23 +806,12 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Arquitectura" data-text="borrador del modelo de datos de meowlab como erp arquitectura módulos por esquema para los 6 agentes y tender cat. decisiones 2026-11-12: integrar todo en meowlab (erp fuente de verdad), sin stock negativo (reservas; reorder cat contacta proveedor o genera producción), sólo pen, tender cat en duda (número propio o compartido), sin permisos por módulo. pendiente: almacenes/listas del primer corte, precio y número de tender cat, recetas de producción; luego adr. docs/architecture/erp-modelo-datos-borrador.md">
-          <div class="card-top">
-            <span class="badge area-other">Arquitectura</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Borrador del modelo de datos de MeowLab como ERP</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> docs/architecture/erp-modelo-datos-borrador.md</p>
-          <p class="card-notes">Módulos por esquema para los 6 agentes y Tender Cat. Decisiones 2026-11-12: integrar todo en MeowLab (ERP fuente de verdad), sin stock negativo (reservas; Reorder Cat contacta proveedor o genera producción), sólo PEN, Tender Cat en duda (número propio o compartido), sin permisos por módulo. Pendiente: almacenes/listas del primer corte, precio y número de Tender Cat, recetas de producción; luego ADR.</p>
-          <p class="card-meta">Actualizado: 2026-11-12</p>
-          <code class="card-id">erp-data-model-draft-20261112</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">80</span>
+          <span class="count">81</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores. desplegado el 2026-11-12: worker dd113051 desde d3a845d. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
@@ -1627,6 +1627,17 @@
           <p class="card-notes">La migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">retire-finance-roles-20261112</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Arquitectura" data-text="modelo de datos de meowlab como erp (adr-0008) arquitectura módulos por esquema para los 6 agentes y tender cat. decisiones 2026-11-12: integrar todo en meowlab (erp fuente de verdad), sin stock negativo (reservas; reorder cat contacta proveedor o genera producción), sólo pen, tender cat en duda (número propio o compartido), sin permisos por módulo. pendiente: almacenes/listas del primer corte, precio y número de tender cat, recetas de producción; luego adr. docs/decisions/0008-modelo-de-datos-erp.md y detalle en docs/architecture/erp-modelo-datos-borrador.md; decisiones del operador del 2026-11-12 incorporadas.">
+          <div class="card-top">
+            <span class="badge area-other">Arquitectura</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Modelo de datos de MeowLab como ERP (ADR-0008)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0008-modelo-de-datos-erp.md y detalle en docs/architecture/erp-modelo-datos-borrador.md; decisiones del operador del 2026-11-12 incorporadas.</p>
+          <p class="card-notes">Módulos por esquema para los 6 agentes y Tender Cat. Decisiones 2026-11-12: integrar todo en MeowLab (ERP fuente de verdad), sin stock negativo (reservas; Reorder Cat contacta proveedor o genera producción), sólo PEN, Tender Cat en duda (número propio o compartido), sin permisos por módulo. Pendiente: almacenes/listas del primer corte, precio y número de Tender Cat, recetas de producción; luego ADR.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">erp-data-model-draft-20261112</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="nota de arquitectura actual y corrección de la contradicción financiera docs  docs/architecture/manolo-2026-09-13.md">
           <div class="card-top">
