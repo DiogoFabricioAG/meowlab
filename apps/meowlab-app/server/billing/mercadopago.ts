@@ -3,6 +3,7 @@
  * signature verification. WebCrypto + fetch: runs on Node and on Workers.
  */
 const API = "https://api.mercadopago.com";
+const PAGE = 12;
 
 export type Preapproval = {
   id: string;
@@ -102,12 +103,20 @@ export class MercadoPagoClient implements MercadoPagoApi {
     return this.request<Preapproval>("PUT", `/preapproval/${encodeURIComponent(id)}`, { status: "cancelled" });
   }
 
+  /** Every charge of a subscription. The API rejects pages larger than 12, so it walks them. */
   async authorizedPayments(preapprovalId: string) {
-    const page = await this.request<{ results?: AuthorizedPayment[] }>(
-      "GET",
-      `/authorized_payments/search?preapproval_id=${encodeURIComponent(preapprovalId)}&limit=100`,
-    );
-    return page.results ?? [];
+    const all: AuthorizedPayment[] = [];
+    for (let offset = 0; offset < 1_200; offset += PAGE) {
+      const page = await this.request<{ results?: AuthorizedPayment[]; paging?: { total?: number } }>(
+        "GET",
+        `/authorized_payments/search?preapproval_id=${encodeURIComponent(preapprovalId)}&limit=${PAGE}&offset=${offset}`,
+      );
+      const results = page.results ?? [];
+      all.push(...results);
+      const total = Number(page.paging?.total ?? 0);
+      if (results.length < PAGE || all.length >= total) break;
+    }
+    return all;
   }
 
   getAuthorizedPayment(id: string) {

@@ -168,8 +168,8 @@ export class BillingService {
       try {
         await this.sync(subscription);
         synced++;
-      } catch {
-        this.options.log("billing_reconcile_failed");
+      } catch (error) {
+        this.options.log("billing_reconcile_failed", { reason: error instanceof Error ? error.message.slice(0, 80) : "error" });
       }
     }
     return synced;

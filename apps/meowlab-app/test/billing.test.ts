@@ -207,3 +207,20 @@ describe("billing service errors", () => {
     expect(await service.subscribe("u1", ["invoice"], "real@gmail.com")).toEqual({ status: "test_account_mismatch" });
   });
 });
+
+describe("Mercado Pago client", () => {
+  it("walks the charges in pages of 12, the largest the API accepts", async () => {
+    const { MercadoPagoClient } = await import("../server/billing/mercadopago");
+    const urls: string[] = [];
+    const charge = (n: number) => ({ id: n, preapproval_id: "p", status: "processed", transaction_amount: 39, currency_id: "PEN" });
+    const fetchImpl = (async (url: string) => {
+      urls.push(url);
+      const offset = Number(new URL(url).searchParams.get("offset"));
+      const results = Array.from({ length: offset === 0 ? 12 : 3 }, (_, i) => charge(offset + i));
+      return new Response(JSON.stringify({ results, paging: { total: 15, limit: 12, offset } }));
+    }) as unknown as typeof fetch;
+    const charges = await new MercadoPagoClient("token", fetchImpl).authorizedPayments("p");
+    expect(charges).toHaveLength(15);
+    expect(urls.every((url) => new URL(url).searchParams.get("limit") === "12")).toBe(true);
+  });
+});
