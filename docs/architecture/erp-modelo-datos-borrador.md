@@ -1,6 +1,7 @@
 # Modelo de datos de MeowLab como ERP — borrador
 
-- Estado: **borrador para discusión** (2026-11-12). No hay migraciones ni código.
+- Estado: **borrador para discusión** (2026-11-12), con las primeras decisiones del
+  operador (sección 7). No hay migraciones ni código.
 - Base: los seis agentes del informe ejecutivo 2027–2029, RADAR y la
   infraestructura que ya corre (Manolo, bridge, portal, FacturaYa).
 - Cuando se acuerde, se convierte en un ADR y en migraciones por fase.
@@ -49,7 +50,7 @@ flowchart LR
 | Reorder Cat | S/ 25 | `purchasing` | `inventory`, `sales` (demanda) |
 | Support Cat | S/ 39 | `support` | todos, sólo lectura |
 | Collections Cat | S/ 25 | `receivables` | `fiscal`, `commerce` |
-| **Tender Cat** (hoy RADAR) | por definir | `tenders` | `sales` (cotizar una licitación) |
+| **Tender Cat** (hoy RADAR) | por definir (ver 7) | `tenders` | `sales` (cotizar una licitación) |
 
 **Nombre para RADAR: «Tender Cat».** Sigue la convención «<oficio> Cat» del
 catálogo y *tender* es licitación en inglés comercial. Alternativas: «Bid Cat» (más
@@ -65,7 +66,9 @@ puede quedar como nombre de la aplicación de escritorio.
    negocio son compuestas `(org_id, id)`: es imposible, por construcción, que un
    pedido de una empresa apunte al cliente de otra. Además, Row Level Security con
    `current_setting('app.org_id')`.
-3. **Dinero en céntimos (`bigint`) y moneda explícita.** IGV por línea con su
+3. **Dinero en céntimos (`bigint`), sólo soles por ahora** (decisión 2026-11-12). La
+   columna `currency` existe con `CHECK (currency = 'PEN')`: admitir USD más adelante
+   es quitar el `CHECK` y agregar tipo de cambio, sin rediseñar. IGV por línea con su
    afectación SUNAT (gravado, exonerado, inafecto). Nunca `float`.
 4. **Libros inmutables.** Movimientos de inventario, pagos recibidos y eventos de
    auditoría sólo se insertan; los saldos se derivan. Los comprobantes aceptados por
@@ -121,7 +124,7 @@ erDiagram
   memberships {
     uuid org_id FK
     uuid person_id FK
-    text role "owner|admin|operator|viewer"
+    text role "owner|member"
   }
 ```
 
@@ -130,13 +133,29 @@ erDiagram
   una identidad `whatsapp` de la persona».
 - Una persona puede pertenecer a varias empresas (contador con varios clientes); la
   empresa activa de la conversación vive en la sesión del agente.
+- **Sin permisos por módulo** (decisión 2026-11-12: mypes con equipos pequeños). Todo
+  miembro ve y opera todo lo de su empresa; `owner` además administra el plan, los
+  pagos y los miembros. El aislamiento obligatorio es entre empresas.
 
 ### 3.2 `channel`: canales y conversaciones
 
-`whatsapp_numbers` (número de Meta → empresa dueña), `conversations` (persona ×
-número), `messages` (entrantes y salientes, con `meta_message_id` único para la
-deduplicación) y `outbox` (mensajes por enviar con reintentos). Equivale a lo que hoy
-está en D1 y en `whatsapp.*`; la migración de D1 a PostgreSQL ya está planeada.
+`whatsapp_numbers`, `conversations` (persona × número), `messages` (entrantes y
+salientes, con `meta_message_id` único para la deduplicación) y `outbox` (mensajes
+por enviar con reintentos). Equivale a lo que hoy está en D1 y en `whatsapp.*`; la
+migración de D1 a PostgreSQL ya está planeada.
+
+Cada empresa tendrá su propio número (Kapso, su número comercial o Meta Cloud API
+directa, según la fase del informe), y algunos roles podrían vivir en un número
+**compartido** que opera el equipo de MeowLab. El modelo admite ambos:
+
+- `whatsapp_numbers.owner`: `org` (número de la empresa) o `platform` (número de
+  MeowLab), con `provider` (`kapso|meta`) y sus credenciales por referencia, nunca en
+  la tabla.
+- `number_agents`: qué agentes atienden en cada número. En un número de empresa, sus
+  agentes contratados; en el número compartido, los roles transversales.
+- En un número compartido, la empresa de cada conversación se resuelve por la
+  identidad de la persona (`core.identities`) y su membresía, como ya hace Manolo con
+  `tenant_members`.
 
 ### 3.3 `agents`: catálogo, activaciones y sesiones
 
@@ -233,6 +252,7 @@ erDiagram
     text unit_code "catálogo SUNAT"
     text igv_affectation "10, 20, 30…"
     bool tracks_stock
+    text supply_type "purchase|manufacture|service"
   }
   price_lists {
     uuid id PK
@@ -316,9 +336,13 @@ erDiagram
   }
 ```
 
-- **FacturaYa sigue siendo el motor fiscal** (firma, envío a SUNAT, CDR). `fiscal`
-  es el reflejo consultable para el ERP y el portal (fase 3 del ADR-0006): cada fila
-  apunta a su `facturaya_ref` y se actualiza desde FacturaYa, nunca al revés.
+- **El destino es un solo MeowLab** (decisión 2026-11-12): FacturaYa y RADAR son hoy
+  productos aparte y se integrarán. Mientras tanto FacturaYa sigue siendo el motor
+  fiscal (firma, envío a SUNAT, CDR) y `fiscal` es su reflejo consultable: cada fila
+  apunta a su `facturaya_ref` y se actualiza desde FacturaYa. Al integrarlo, el motor
+  fiscal escribe directamente en `fiscal` y `facturaya_ref` queda como dato histórico.
+  Clientes y productos nacen en `commerce`, que es la fuente de verdad; FacturaYa
+  recibe copias al emitir.
 - Las cuotas que ya se cargan en la factura (forma de pago a crédito) se convierten en
   `receivables`. Un pago se reparte entre varias deudas con `allocations`.
 - **Collections Cat** trabaja aquí: una captura crea `payments_received` en
@@ -336,7 +360,10 @@ erDiagram
   stock_counts ||--o{ stock_count_lines : contiene
   reorder_rules }o--|| products : vigila
   reorder_proposals ||--o{ reorder_proposal_lines : propone
+  reorder_proposals ||--o{ supplier_requests : contacta_proveedor
   reorder_proposals |o--o| purchase_orders : se_aprueba_como
+  reorder_proposals |o--o| production_orders : o_se_produce
+  products ||--o{ stock_reservations : reserva
   purchase_orders ||--o{ purchase_order_lines : contiene
   purchase_orders ||--o{ goods_receipts : se_recibe
   stock_movements {
@@ -352,6 +379,23 @@ erDiagram
   stock_counts {
     uuid id PK
     text status "open|reconciled"
+  }
+  stock_reservations {
+    uuid sales_order_line_id FK
+    numeric quantity
+    text status "active|consumed|released"
+  }
+  supplier_requests {
+    uuid id PK
+    uuid supplier_id FK
+    uuid message_id "conversación con el proveedor"
+    text status "sent|answered|accepted|declined"
+  }
+  production_orders {
+    uuid id PK
+    uuid product_id FK
+    numeric quantity
+    text status "planned|in_progress|done|cancelled"
   }
   reorder_rules {
     uuid product_id FK
@@ -374,11 +418,25 @@ erDiagram
 - El stock es la suma de `stock_movements` (con una vista materializada
   `stock_balances` para leer rápido). Una venta, una recepción, un conteo o una GRE
   generan movimientos; nadie «edita el stock».
+- **No se vende sin stock** (decisión 2026-11-12). Confirmar un pedido crea
+  `stock_reservations` en la misma transacción que verifica `disponible =
+  existencias − reservado`; si no alcanza, el pedido no se confirma. El saldo nunca
+  queda negativo: un bloqueo por producto y almacén lo garantiza aunque dos pedidos
+  lleguen a la vez.
 - **Stock Cat** concilia: un conteo crea `stock_count_lines` y la diferencia se
   registra como movimiento `ajuste`, con quién lo aprobó.
-- **Reorder Cat** sólo **propone**: compara `stock_balances` con `reorder_rules` y la
-  demanda reciente de `sales`. Una persona aprueba y recién entonces existe la orden
-  de compra (mismo principio que «la IA no emite sin botón»).
+- **Reorder Cat** se dispara cuando un producto cruza su umbral de `reorder_rules`
+  (y considera la demanda reciente de `sales`). Según cómo se abastece el producto
+  (`products.supply_type`):
+  - `purchase`: contacta al proveedor por WhatsApp para pedir la reposición y registra
+    la conversación en `supplier_requests` (pedido, respuesta, precio y fecha
+    ofrecidos). La orden de compra existe cuando una persona aprueba.
+  - `manufacture` (producto propio): crea una `production_orders` (producto, cantidad,
+    estado `planned|in_progress|done`). Al terminarla entra el producto terminado y,
+    si tiene receta (`bill_of_materials`), salen sus insumos.
+
+  Mismo principio que «la IA no emite sin botón»: el agente prepara, una persona
+  confirma.
 
 ### 4.4 `support` (Support Cat) y `tenders` (Tender Cat)
 
@@ -415,12 +473,24 @@ erDiagram
 4. `inventory` y `purchasing`: Stock y Reorder Cat.
 5. `support` y la migración de `tenders`.
 
-## 7. Preguntas abiertas
+## 7. Decisiones y preguntas abiertas
 
-- ¿El ERP es la fuente de verdad de clientes y productos, o FacturaYa sigue siéndolo
-  para lo fiscal? (Propuesta: el ERP para todo; FacturaYa recibe copias al emitir.)
-- ¿Se permite stock negativo (vender sin existencias registradas)?
-- ¿Varias monedas (USD) desde el inicio o sólo PEN?
-- ¿Cuántos almacenes y listas de precios por empresa en el primer corte?
-- ¿Tender Cat se vende como agente del catálogo y a qué precio?
-- ¿Las personas de una empresa ven todos sus datos o hay permisos por módulo?
+Respuestas del operador (2026-11-12):
+
+| Pregunta | Decisión |
+| --- | --- |
+| Fuente de verdad | Todo se integra en MeowLab. FacturaYa y RADAR son productos sueltos hoy; el ERP es la fuente de verdad de clientes y productos y FacturaYa recibe copias hasta integrarse (4.2). |
+| Stock negativo | **No.** No se vende sin stock: el pedido reserva o no se confirma. Al cruzar el umbral, Reorder Cat contacta al proveedor o, si el producto es propio, genera una orden de producción (4.3). |
+| Monedas | Sólo PEN por ahora (regla 3). |
+| Tender Cat | Ya funciona, pero sin precio ni agrupación. En duda: agente contratable en el número de cada empresa, o rol transversal en un número único operado por MeowLab. El modelo de canales admite ambos (3.2). |
+| Permisos | Todos los miembros de una empresa ven lo mismo; sólo el `owner` administra plan, pagos y miembros (3.1). |
+
+Pendiente de confirmar:
+
+- **Almacenes y listas de precios del primer corte.** Propuesta: cada empresa empieza
+  con **un almacén** («Principal») y **una lista de precios** («General»), creados
+  automáticamente. El modelo admite más (un segundo local, precios mayoristas) sin
+  cambios, pero los agentes no los exponen hasta que alguien los pida.
+- **Tender Cat:** precio y si vive en el número de cada empresa o en el de MeowLab.
+- **Recetas de producción:** si los productos propios deben descontar insumos
+  (receta) o basta con registrar el producto terminado.
