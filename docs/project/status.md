@@ -1,5 +1,16 @@
 # Estado del proyecto
 
+## Landing: compresión de imágenes a WebP — publicado 2026-11-12
+
+Landing desplegada en el VPS (`meowlab-web:d7cf736da0ea` desde `d7cf736`). 14 imágenes
+rasterizadas convertidas a WebP (Q88) y 3 variantes para fondo claro en WebP transparente,
+sustituyendo envoltorios SVG con base64 de 600 KB. Componentes actualizados con dimensiones
+explícitas y decoding asíncrono. Reducción de carga de imágenes en la home de 3.79 MB a 0.40 MB
+(89.4%). Dominio principal, rutas secundarias y servicios vecinos (portal, RADAR, FacturaYa)
+verificados con HTTP/2 200.
+[Acta de despliegue y rollback](../operations/landing-webp-despliegue-2026-11-12.md).
+
+
 ## Manolo: guía semántica y ubigeos por nombre — publicado 2026-11-06
 
 Worker `b82f74d9` al 100%. Luna interpreta fechas, peso y ubicaciones de GRE;
