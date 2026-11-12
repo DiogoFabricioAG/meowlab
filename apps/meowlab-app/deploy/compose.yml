@@ -18,6 +18,12 @@ services:
       # Bridge por la red interna; la firma HMAC protege igual que por Caddy.
       BRIDGE_URL: http://manolo-bridge:3000
       PORTAL_BRIDGE_HMAC_SECRET_FILE: /run/secrets/portal_bridge_hmac_secret
+      # Cobros (ADR-0007). Sin token, la pestaña Plan dice que los pagos no están
+      # disponibles; sin secreto del webhook, las notificaciones se rechazan y la
+      # conciliación horaria mantiene las suscripciones al día.
+      MERCADOPAGO_ACCESS_TOKEN_FILE: /run/secrets/mercadopago_access_token
+      MERCADOPAGO_WEBHOOK_SECRET_FILE: /run/secrets/mercadopago_webhook_secret
+      MERCADOPAGO_TEST_MODE: "${MERCADOPAGO_TEST_MODE:-true}"
       # Opcionales: sin ellos el portal funciona sólo con correo y contraseña.
       GOOGLE_CLIENT_ID_FILE: /run/secrets/google_client_id
       GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
@@ -27,6 +33,8 @@ services:
       - portal_bridge_hmac_secret
       - google_client_id
       - google_client_secret
+      - mercadopago_access_token
+      - mercadopago_webhook_secret
     networks:
       - manolo_ingress
       - manolo_internal
@@ -56,6 +64,10 @@ secrets:
     file: ./secrets/google_client_id
   google_client_secret:
     file: ./secrets/google_client_secret
+  mercadopago_access_token:
+    file: ./secrets/mercadopago_access_token
+  mercadopago_webhook_secret:
+    file: ./secrets/mercadopago_webhook_secret
 
 networks:
   manolo_ingress:

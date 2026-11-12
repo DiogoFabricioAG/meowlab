@@ -14,6 +14,14 @@ export type AdminMetrics = {
   signupsByDay: Array<{ day: string; count: number }>;
   /** Null until WhatsApp linking is live in the bridge (phase 2 deployment). */
   whatsappLinked: number | null;
+  /** Null where billing is not configured. Amounts in céntimos, IGV included. */
+  billing: {
+    live: number;
+    paying: number;
+    monthlyRevenueCents: number;
+    paymentsLast30Days: number;
+    revenueLast30DaysCents: number;
+  } | null;
 };
 
 export type AdminMetricsSource = () => Promise<AdminMetrics>;
@@ -22,7 +30,7 @@ type Query = (sql: string, values?: unknown[]) => Promise<{ rows: Array<Record<s
 
 const TIME_ZONE = "America/Lima";
 
-export function postgresAdminMetrics(query: Query): AdminMetricsSource {
+export function postgresAdminMetrics(query: Query, billing?: () => Promise<AdminMetrics["billing"]>): AdminMetricsSource {
   return async () => {
     const [counts, providers, active, days] = await Promise.all([
       query(`SELECT count(*)::int AS total,
@@ -54,6 +62,7 @@ export function postgresAdminMetrics(query: Query): AdminMetricsSource {
       },
       signupsByDay: days.rows.map((day) => ({ day: String(day.day), count: Number(day.count) })),
       whatsappLinked: null,
+      billing: billing ? await billing() : null,
     };
   };
 }

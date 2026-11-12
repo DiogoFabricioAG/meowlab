@@ -3,6 +3,7 @@ import { authClient, type Me } from "./auth-client";
 import { Logo } from "./App";
 import { WhatsAppLink } from "./WhatsAppLink";
 import { AdminPanel } from "./AdminPanel";
+import { PlanPanel } from "./PlanPanel";
 
 const BILLING_FEATURES = [
   "Facturas, boletas y notas con su estado en SUNAT",
@@ -13,7 +14,9 @@ const BILLING_FEATURES = [
 
 export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
-  const [tab, setTab] = useState<"panel" | "business">("panel");
+  const [tab, setTab] = useState<"panel" | "plan" | "business">(
+    new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : "panel",
+  );
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
 
   async function signOut() {
@@ -39,10 +42,10 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         </div>
       </header>
 
-      {me.isAdmin && (
-        <nav className="border-b border-line bg-white" aria-label="Secciones">
-          <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6 lg:px-8">
-            {([["panel", "Mi panel"], ["business", "Negocio"]] as const).map(([key, label]) => (
+      <nav className="border-b border-line bg-white" aria-label="Secciones">
+        <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6 lg:px-8">
+          {([["panel", "Mi panel"], ["plan", "Plan"], ...(me.isAdmin ? [["business", "Negocio"]] : [])] as Array<[typeof tab, string]>).map(
+            ([key, label]) => (
               <button
                 key={key}
                 type="button"
@@ -54,12 +57,16 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
               >
                 {label}
               </button>
-            ))}
-          </div>
-        </nav>
-      )}
+            ),
+          )}
+        </div>
+      </nav>
 
-      {me.isAdmin && tab === "business" ? (
+      {tab === "plan" ? (
+        <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          <PlanPanel email={me.user.email} />
+        </main>
+      ) : me.isAdmin && tab === "business" ? (
         <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <AdminPanel />
         </main>

@@ -76,6 +76,23 @@ registros por día de los últimos 30 días (hora de Lima), activas en 7 días y
 entran. Sólo totales, sin datos personales. El rol se lee de la base en cada
 petición, así que revocarlo tiene efecto inmediato.
 
+## Cobros (ADR-0007, fase 1)
+
+Pestaña **Plan**: catálogo de `billing_agents` (precios con IGV), descuento por
+equipo de `billing_discounts` y suscripción mensual con Mercado Pago (`preapproval`).
+
+- `POST /api/billing/subscribe` calcula el importe en el servidor, crea el
+  `preapproval` y devuelve el checkout. `POST /api/billing/sync` (al volver del
+  checkout), `POST /api/billing/cancel` y `GET /api/billing`.
+- `POST /api/webhooks/mercadopago` (público): verifica `x-signature`, reconsulta la
+  API y acredita. Una conciliación horaria cubre las notificaciones perdidas.
+- Un cobro aprobado concede un mes (`billing_payments` único por referencia del
+  proveedor); el importe debe coincidir con el de la suscripción.
+- Secretos: `mercadopago_access_token` y `mercadopago_webhook_secret` (vacío hasta
+  configurar el webhook en Mercado Pago). `MERCADOPAGO_TEST_MODE=true` muestra el aviso
+  de prueba.
+- Prueba en PostgreSQL desechable: `scripts/billing-pg-check.ts`. Pruebas: `npm test`.
+
 ## Vincular el WhatsApp (fase 2)
 
 1. El usuario escribe su número; `POST /api/whatsapp/start` lo pasa al bridge

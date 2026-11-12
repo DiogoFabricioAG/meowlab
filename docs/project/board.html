@@ -222,7 +222,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">46</span>
+          <span class="count">45</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -422,17 +422,6 @@
           <p class="card-notes">Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-3-lectura-facturaya-20261111</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
-          <div class="card-top">
-            <span class="badge area-other">Cobros</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Cobros: catálogo, precio y suscripción con Mercado Pago (prueba)</h3>
-          
-          <p class="card-notes">Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">billing-1-mercadopago-20261111</code>
         </article>
         <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: bloqueo por impago con avisos y días de gracia cobros fase 2 del adr-0007; bloqueo en el bridge antes de facturaya. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
           <div class="card-top">
@@ -736,7 +725,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">3</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -760,6 +749,17 @@
           <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-2-vinculacion-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el adr. rama feat/app-meowlab-portal: npm test 13/13 (precios del informe, firma, un pago = un mes, importe distinto rechazado, webhook firmado y reconsultado, cancelación); scripts/billing-pg-check.ts 11/11 en postgresql 16 (5 notificaciones simultáneas → 1 mes, encadenado, fin de mes). falta: despliegue, webhook configurado en mercado pago y compra con comprador de prueba.">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: catálogo, precio y suscripción con Mercado Pago (prueba)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-meowlab-portal: npm test 13/13 (precios del informe, firma, un pago = un mes, importe distinto rechazado, webhook firmado y reconsultado, cancelación); scripts/billing-pg-check.ts 11/11 en PostgreSQL 16 (5 notificaciones simultáneas → 1 mes, encadenado, fin de mes). Falta: despliegue, webhook configurado en Mercado Pago y compra con comprador de prueba.</p>
+          <p class="card-notes">Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el ADR.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">billing-1-mercadopago-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

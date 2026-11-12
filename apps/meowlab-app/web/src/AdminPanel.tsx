@@ -14,6 +14,7 @@ type AdminMetrics = {
   };
   signupsByDay: Array<{ day: string; count: number }>;
   whatsappLinked: number | null;
+  billing: { live: number; paying: number; monthlyRevenueCents: number; paymentsLast30Days: number; revenueLast30DaysCents: number } | null;
 };
 
 const dayLabel = (day: string, options: Intl.DateTimeFormatOptions) =>
@@ -65,6 +66,25 @@ export function AdminPanel() {
           </div>
         ))}
       </dl>
+
+      {metrics.billing && (
+        <section className="space-y-3" aria-labelledby="billing-title">
+          <h3 id="billing-title" className="text-lg font-bold text-ink">Cobros</h3>
+          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Ingreso mensual recurrente", value: `S/ ${(metrics.billing.monthlyRevenueCents / 100).toFixed(2)}`, note: "Suscripciones activas y al día, con IGV" },
+              { label: "Clientes al día", value: metrics.billing.paying, note: `${metrics.billing.live} suscripciones vivas` },
+              { label: "Cobrado en 30 días", value: `S/ ${(metrics.billing.revenueLast30DaysCents / 100).toFixed(2)}`, note: `${metrics.billing.paymentsLast30Days} pagos` },
+            ].map((tile) => (
+              <div key={tile.label} className="rounded-2xl border border-line bg-white p-5 shadow-soft">
+                <dt className="text-sm font-semibold text-ink-muted">{tile.label}</dt>
+                <dd className="mt-1 font-title text-3xl font-bold tracking-tight text-ink tabular-nums">{tile.value}</dd>
+                <dd className="mt-1 text-sm text-ink-muted">{tile.note}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       <SignupsChart days={metrics.signupsByDay} />
 

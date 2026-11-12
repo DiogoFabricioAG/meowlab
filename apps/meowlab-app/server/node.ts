@@ -11,6 +11,9 @@ import { createApp } from "./app";
 import { createAuth, googleEnabled, type AuthSettings } from "./auth";
 import { createPortalBridge } from "./bridge";
 import { postgresAdminMetrics } from "./admin-metrics";
+import { MercadoPagoClient } from "./billing/mercadopago";
+import { BillingService } from "./billing/service";
+import { PgBillingStore } from "./billing/store";
 
 function required(name: string): string {
   const value = process.env[name]?.trim();
@@ -71,12 +74,32 @@ const pool = new pg.Pool({
 // Caddy overwrites X-Forwarded-For for untrusted clients, so the first entry is the real client.
 const auth = createAuth(pool, settings, ["x-forwarded-for"]);
 const allowedOrigins = [settings.BETTER_AUTH_URL, ...(settings.TRUSTED_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean)];
+// Billing (ADR-0007): on only when the Mercado Pago token exists. Without the webhook
+// secret, notifications are refused and the return page plus the periodic
+// reconciliation keep subscriptions in sync.
+const mercadopagoToken = secret("MERCADOPAGO_ACCESS_TOKEN", true);
+const billingStore = new PgBillingStore(pool);
+const billing = mercadopagoToken
+  ? new BillingService(billingStore, new MercadoPagoClient(mercadopagoToken), {
+      appUrl: settings.BETTER_AUTH_URL,
+      webhookSecret: secret("MERCADOPAGO_WEBHOOK_SECRET", true),
+      testMode: process.env.MERCADOPAGO_TEST_MODE === "true",
+      log: (event, details) => console.log(JSON.stringify({ event, ...details })),
+    })
+  : undefined;
+if (billing) {
+  const reconcile = () => void billing.reconcileAll().catch(() => console.log(JSON.stringify({ event: "billing_reconcile_failed" })));
+  setTimeout(reconcile, 60_000).unref();
+  setInterval(reconcile, 60 * 60_000).unref();
+}
+
 const api = createApp({
   auth,
   googleEnabled: googleEnabled(settings),
   bridge: createPortalBridge(process.env.BRIDGE_URL, secret("PORTAL_BRIDGE_HMAC_SECRET", true)),
   allowedOrigins,
-  adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values)),
+  adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values), billing ? () => billingStore.metrics() : undefined),
+  billing,
 });
 
 const distDir = process.env.DIST_DIR ?? "./dist";

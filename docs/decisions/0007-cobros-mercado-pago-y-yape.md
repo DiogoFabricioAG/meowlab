@@ -93,3 +93,25 @@ y con QR o número propio verificado por un administrador.
 3. Yape por QR propio con aprobación en Negocio, y métricas de cobros.
 4. Collections Cat (MeowLab como primer cliente): cobro por WhatsApp con enlace de
    Mercado Pago o QR de Yape, recepción de capturas y conciliación.
+
+## Revisión 2026-11-11: la fase 1 vive en el portal
+
+Al implementar la fase 1 se movió el cobro al portal (`apps/meowlab-app`), no al
+bridge:
+
+- La vinculación del WhatsApp todavía no está desplegada, así que una cuenta del
+  portal aún no se puede asociar a su empresa. La suscripción pertenece por ahora a
+  la **cuenta del portal**; la fase 2 la asociará a las empresas de esa cuenta y
+  expondrá la vigencia al bridge con una ruta firmada para el bloqueo.
+- El portal ya es la aplicación pública: recibe el webhook en
+  `https://app.meowlab.tech/api/webhooks/mercadopago` y guarda catálogo, suscripciones
+  y pagos en su base `meowlab_app` (migración `0003_billing.sql`). El token de
+  Mercado Pago es un Docker secret del portal y no sale del VPS.
+- Además del webhook, el portal sincroniza al volver del checkout y concilia cada
+  hora todas las suscripciones vivas: un cobro se acredita aunque una notificación
+  se pierda. Las tres vías usan la misma lectura de la API y son idempotentes.
+- El `payer_email` del `preapproval` debe ser el de la cuenta de Mercado Pago que
+  paga; el portal lo pide aparte y propone el correo de la cuenta.
+- Mientras se usen credenciales de prueba, `MERCADOPAGO_TEST_MODE=true` muestra un
+  aviso de «modo de prueba» en la pestaña Plan.
+

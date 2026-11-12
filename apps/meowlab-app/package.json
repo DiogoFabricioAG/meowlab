@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "db:migrate:local": "wrangler d1 migrations apply meowlab-app-dev --local",
     "build:node": "vite build && esbuild server/node.ts --bundle --platform=node --format=esm --packages=external --outfile=build/server.mjs",
-    "start:node": "node build/server.mjs"
+    "start:node": "node build/server.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.19",
@@ -33,6 +34,7 @@
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
+    "vitest": "^4.1.12",
     "wrangler": "^4.160.1"
   }
 }
