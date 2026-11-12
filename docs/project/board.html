@@ -212,7 +212,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 46 · Total: 124</span>
+      <span class="summary">Abiertas: 45 · Total: 124</span>
     </div>
   </div>
 </header>
@@ -691,7 +691,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">3</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -716,17 +716,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: administrador con métricas del negocio portal pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. rol user/admin en better auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de google verificadas. pestaña negocio con métricas del portal (el operador eligió sólo portal; uso de manolo, facturación y clientes quedan para después). local con postgresql 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña negocio.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: administrador con métricas del negocio</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio.</p>
-          <p class="card-notes">Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">app-portal-admin-metrics-20261111</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -743,7 +732,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">78</span>
+          <span class="count">79</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores.">
@@ -1438,6 +1427,17 @@
           <p class="card-notes">Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. MeowLab aún no tiene RUC ni razón social (2026-11-11): las páginas identifican al titular como «MeowLab» y muestran RUC, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. Contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). Falta revisión legal y publicar la landing.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">landing-legal-pages-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: administrador con métricas del negocio portal pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. rol user/admin en better auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de google verificadas. pestaña negocio con métricas del portal (el operador eligió sólo portal; uso de manolo, facturación y clientes quedan para después). local con postgresql 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña negocio. desplegado en el vps desde 4f530 (migración 0002 aplicada con bootstrap-db.sh); grant-admin.sh otorgó el rol a diogo.abregu.g@uni.pe tras su ingreso con google; es el único administrador.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: administrador con métricas del negocio</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio. Desplegado en el VPS desde 4f530 (migración 0002 aplicada con bootstrap-db.sh); grant-admin.sh otorgó el rol a diogo.abregu.g@uni.pe tras su ingreso con Google; es el único administrador.</p>
+          <p class="card-notes">Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-admin-metrics-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Documentación" data-text="diagrama de arquitectura manolo para portfolio documentación vista pública del flujo fiscal actual, sin datos privados; fuentes de verdad d1/pg y confirmación explícita. docs/architecture/manolo-portfolio.md; archify showcase9/9 sin errores/avisos; navegador4viewports aprobado y capturas claro/oscuro revisadas.">
           <div class="card-top">

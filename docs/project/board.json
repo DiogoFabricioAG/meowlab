@@ -1258,10 +1258,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-11",
       "notes": "Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).",
-      "evidence": "Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio."
+      "evidence": "Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio. Desplegado en el VPS desde 4f530 (migración 0002 aplicada con bootstrap-db.sh); grant-admin.sh otorgó el rol a diogo.abregu.g@uni.pe tras su ingreso con Google; es el único administrador."
     }
   ]
 }
