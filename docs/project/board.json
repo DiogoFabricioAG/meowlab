@@ -22,9 +22,9 @@
       "owner": "Antigravity",
       "priority": "high",
       "status": "done",
-      "updated": "2026-11-11",
+      "updated": "2026-11-12",
       "notes": "Reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de WhatsApp + IA) con las opciones Facturación electrónica y guías (enterprise-advisor), Cotizaciones en PDF (quotes) y Gato Manolo conversacional (cat). Auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. Los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado D1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). Sin desplegar.",
-      "evidence": "Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores."
+      "evidence": "Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores. Desplegado el 2026-11-12: Worker dd113051 desde d3a845d. Acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md"
     },
     {
       "id": "manolo-gre-address-image-20261106",
@@ -1305,6 +1305,28 @@
       "status": "todo",
       "updated": "2026-11-11",
       "notes": "Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "evidence": ""
+    },
+    {
+      "id": "retire-finance-roles-20261112",
+      "title": "Retirar los roles de finanzas del catálogo de PostgreSQL",
+      "area": "Plataforma",
+      "owner": "",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-12",
+      "notes": "La migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat.",
+      "evidence": "007 aplicada (hash igual a git): 3 roles inactivos, 1 contacto sin rol, home-finance con cat por defecto. Acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md"
+    },
+    {
+      "id": "radar-tests-clock-20261112",
+      "title": "Fijar el reloj en las pruebas de ruta completa de RADAR",
+      "area": "Worker",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-12",
+      "notes": "radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.",
       "evidence": ""
     }
   ]

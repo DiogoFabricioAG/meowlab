@@ -19,7 +19,10 @@ Portal en el VPS (`meowlab-app`, PostgreSQL `meowlab_app`); procedimiento en `ap
 
 ## Worker
 
-Última entrega: [reconciliación con git y operación pendiente, 2026-11-11](manolo-worker-reconciliacion-2026-11-11.md).
+Última entrega: [onboarding del rol cat y retiro de roles de finanzas, 2026-11-12](manolo-onboarding-y-roles-2026-11-12.md).
+Worker `dd113051` desde `d3a845d`; rollback a `f679d352`.
+
+Entrega anterior: [reconciliación con git y operación pendiente, 2026-11-11](manolo-worker-reconciliacion-2026-11-11.md).
 Worker `f679d352` desplegado desde el commit `ba2ad51`, sin injertos; rollback a `c1f9bc9e`.
 
 Entrega anterior: [GRE, direcciones de referencia e imágenes, 2026-11-06](manolo-gre-address-2026-11-06.md).

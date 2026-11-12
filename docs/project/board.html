@@ -213,7 +213,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 49 · Total: 128</span>
+      <span class="summary">Abiertas: 50 · Total: 130</span>
     </div>
   </div>
 </header>
@@ -222,7 +222,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">45</span>
+          <span class="count">46</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -709,6 +709,17 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">meowlab-platform-prototype-route-20261111</code>
         </article>
+        <article class="card" data-priority="low" data-area="Worker" data-text="fijar el reloj en las pruebas de ruta completa de radar worker radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en lima (radar difiere alertas fuera del horario diurno). inyectar un reloj fijo. ">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Fijar el reloj en las pruebas de ruta completa de RADAR</h3>
+          
+          <p class="card-notes">radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">radar-tests-clock-20261112</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -777,18 +788,18 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">79</span>
+          <span class="count">80</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores.">
+        <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores. desplegado el 2026-11-12: worker dd113051 desde d3a845d. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Convertir el rol por defecto cat en el onboarding interactivo de MeowLab</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores.</p>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noEmit sin errores. Desplegado el 2026-11-12: Worker dd113051 desde d3a845d. Acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md</p>
           <p class="card-notes">Reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de WhatsApp + IA) con las opciones Facturación electrónica y guías (enterprise-advisor), Cotizaciones en PDF (quotes) y Gato Manolo conversacional (cat). Auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. Los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado D1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). Sin desplegar.</p>
-          <p class="card-meta">Actualizado: 2026-11-11 · Responsable: Antigravity</p>
+          <p class="card-meta">Actualizado: 2026-11-12 · Responsable: Antigravity</p>
           <code class="card-id">manolo-default-onboarding-role-20261108</code>
         </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="gre: aceptar direcciones de referencia y usar imágenes solo como referencia worker prueba real: manolo exigía calle/número para «almacen del proveedor - arma - castrovirreyna - huancavelica» y tomó productos y partida de la foto de otra gre; el pdf no llegó a generarse. publicado por injerto (segunda excepción en agents.md). falta repetir la prueba por whatsapp hasta el pdf. 552 pruebas/46 archivos; release 455 pruebas sobre runtime injertado; dry-run 21 bindings idénticos; commit 36b78 publicado (cabeza 76678d4); worker c1f9bc9e al 100%, verify after ok (health 200, bridge sin cambios, código activo = dry-run). docs/operations/manolo-gre-address-2026-11-06.md.">
@@ -1582,6 +1593,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">tablero-trabajo</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Plataforma" data-text="retirar los roles de finanzas del catálogo de postgresql plataforma la migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat. 007 aplicada (hash igual a git): 3 roles inactivos, 1 contacto sin rol, home-finance con cat por defecto. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
+          <div class="card-top">
+            <span class="badge area-platform">Plataforma</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Retirar los roles de finanzas del catálogo de PostgreSQL</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 007 aplicada (hash igual a git): 3 roles inactivos, 1 contacto sin rol, home-finance con cat por defecto. Acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md</p>
+          <p class="card-notes">La migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">retire-finance-roles-20261112</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="nota de arquitectura actual y corrección de la contradicción financiera docs  docs/architecture/manolo-2026-09-13.md">
           <div class="card-top">
