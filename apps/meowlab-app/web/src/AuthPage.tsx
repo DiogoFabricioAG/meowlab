@@ -71,7 +71,11 @@ export function AuthPage({ config }: { config: PortalConfig }) {
             ))}
           </ul>
         </div>
-        <p className="text-sm text-mint">¿Dudas? Escríbenos a Manolo desde tu WhatsApp.</p>
+        <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-mint">
+          <span>¿Dudas? Escríbenos a Manolo desde tu WhatsApp.</span>
+          <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/terminos">Términos</a>
+          <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/privacidad">Privacidad</a>
+        </p>
       </aside>
 
       <main className="flex flex-col px-4 py-8 sm:px-8 lg:col-span-7 lg:justify-center lg:px-16">
@@ -168,6 +172,19 @@ export function AuthPage({ config }: { config: PortalConfig }) {
             <button type="submit" disabled={busy} className="btn-primary w-full">
               {busy ? "Un momento…" : mode === "sign-in" ? "Entrar" : "Crear cuenta"}
             </button>
+            {mode === "sign-up" && (
+              <p className="text-center text-sm text-ink-muted">
+                Al crear tu cuenta aceptas los{" "}
+                <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/terminos">
+                  términos y condiciones
+                </a>{" "}
+                y la{" "}
+                <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/privacidad">
+                  política de privacidad
+                </a>
+                .
+              </p>
+            )}
             {mode === "sign-in" && !config.passwordReset && (
               <p className="text-center text-sm text-ink-muted">
                 ¿Olvidaste tu contraseña? Por ahora pídele ayuda al equipo de MeowLab.
@@ -175,6 +192,10 @@ export function AuthPage({ config }: { config: PortalConfig }) {
             )}
           </form>
         </div>
+        <p className="mx-auto mt-10 flex w-full max-w-md gap-4 text-sm text-ink-muted lg:hidden">
+          <a className="hover:text-forest" href="https://meowlab.tech/terminos">Términos</a>
+          <a className="hover:text-forest" href="https://meowlab.tech/privacidad">Privacidad</a>
+        </p>
       </main>
     </div>
   );

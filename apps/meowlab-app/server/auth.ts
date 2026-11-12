@@ -18,7 +18,16 @@ export function googleEnabled(settings: AuthSettings): boolean {
  * The database is the only runtime-specific piece: a D1 binding on Cloudflare,
  * a PostgreSQL pool once the portal moves to the VPS.
  */
-export function authOptions(database: BetterAuthOptions["database"], settings: AuthSettings): BetterAuthOptions {
+export function authOptions(
+  database: BetterAuthOptions["database"],
+  settings: AuthSettings,
+  /**
+   * Header with the real client IP, used by the sign-in rate limit. It must be one the
+   * edge overwrites: cf-connecting-ip on Cloudflare, x-forwarded-for behind Caddy.
+   * Trusting a header the client can set would let it dodge the limit.
+   */
+  ipAddressHeaders: string[] = ["cf-connecting-ip"],
+): BetterAuthOptions {
   const extraOrigins = (settings.TRUSTED_ORIGINS ?? "").split(",").map((origin) => origin.trim()).filter(Boolean);
   return {
     appName: "MeowLab",
@@ -57,14 +66,14 @@ export function authOptions(database: BetterAuthOptions["database"], settings: A
     },
     advanced: {
       useSecureCookies: settings.BETTER_AUTH_URL.startsWith("https://"),
-      ipAddress: { ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"] },
+      ipAddress: { ipAddressHeaders },
     },
     telemetry: { enabled: false },
   };
 }
 
-export function createAuth(database: BetterAuthOptions["database"], settings: AuthSettings) {
-  return betterAuth(authOptions(database, settings));
+export function createAuth(database: BetterAuthOptions["database"], settings: AuthSettings, ipAddressHeaders?: string[]) {
+  return betterAuth(authOptions(database, settings, ipAddressHeaders));
 }
 
 export type Auth = ReturnType<typeof createAuth>;

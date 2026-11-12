@@ -1,0 +1,130 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { legal } from '../data/legal';
+---
+
+<LegalPage
+  title="Política de privacidad | MeowLab"
+  description="Qué datos personales trata MeowLab, para qué, con quién los comparte y cómo ejercer tus derechos."
+  heading="Política de privacidad"
+>
+  <p>
+    Esta política explica cómo MeowLab trata los datos personales de quienes usan sus agentes por WhatsApp
+    (entre ellos, Manolo) y el panel <a href="https://app.meowlab.tech">app.meowlab.tech</a>. Se rige por la
+    Ley N.° 29733, Ley de Protección de Datos Personales, y su reglamento.
+  </p>
+
+  <h2>1. Responsable</h2>
+  <p>
+    El responsable del tratamiento es <strong>{legal.razonSocial}</strong>, con RUC {legal.ruc} y domicilio en
+    {legal.domicilio} («MeowLab»). Para cualquier consulta sobre tus datos escribe a
+    <a href={`mailto:${legal.correoPrivacidad}`}>{legal.correoPrivacidad}</a> o por WhatsApp al
+    <a href={legal.whatsappUrl}>{legal.whatsapp}</a>.
+  </p>
+
+  <h2>2. Qué datos tratamos</h2>
+  <h3>Cuenta del panel</h3>
+  <ul>
+    <li>Nombre y correo electrónico.</li>
+    <li>Contraseña, guardada sólo como huella cifrada (hash); nunca la conocemos.</li>
+    <li>Si entras con Google: nombre, correo y foto de perfil de tu cuenta de Google.</li>
+    <li>Datos técnicos de tus sesiones: dirección IP, navegador y fecha, y el registro de intentos de acceso.</li>
+  </ul>
+  <h3>Conversaciones por WhatsApp</h3>
+  <ul>
+    <li>Tu número de WhatsApp y nombre de perfil.</li>
+    <li>
+      El contenido de los mensajes que envías a nuestros agentes: textos, audios (que transcribimos a texto),
+      imágenes (de las que extraemos una descripción) y documentos.
+    </li>
+    <li>Las respuestas, botones y documentos que el agente te envía.</li>
+  </ul>
+  <h3>Facturación electrónica</h3>
+  <ul>
+    <li>
+      Los datos de los comprobantes y guías de remisión que pides emitir: datos de tu empresa y de tus clientes
+      (RUC o DNI, razón social o nombre, dirección), productos, montos, y para las guías, datos de traslado,
+      conductores y vehículos.
+    </li>
+  </ul>
+  <h3>Vinculación de tu WhatsApp con el panel</h3>
+  <ul>
+    <li>
+      El número que vinculas y un código de verificación de un solo uso. Del código guardamos sólo una huella
+      cifrada; vence a los 10 minutos.
+    </li>
+  </ul>
+
+  <h2>3. Para qué los usamos</h2>
+  <ul>
+    <li>Prestar el servicio: responder tus mensajes, preparar y emitir los documentos que confirmas, y mostrarte tus datos en el panel.</li>
+    <li>Verificar que el número de WhatsApp que vinculas es tuyo antes de mostrarte información asociada a él.</li>
+    <li>Proteger el servicio: limitar intentos de acceso y envíos de códigos, y detectar usos indebidos.</li>
+    <li>Cumplir obligaciones legales, en especial las tributarias ante la SUNAT.</li>
+  </ul>
+  <p>
+    No vendemos tus datos ni los usamos para publicidad. La base para tratarlos es la ejecución del servicio que
+    contratas, tu consentimiento cuando corresponde y el cumplimiento de obligaciones legales.
+  </p>
+
+  <h2>4. Datos de Google</h2>
+  <p>
+    Si inicias sesión con Google, sólo pedimos los permisos básicos de identidad (<em>openid</em>, correo y perfil)
+    para crear tu cuenta y reconocerte al volver. No accedemos a tu correo, contactos, archivos ni a otros datos
+    de Google, y no los compartimos con terceros salvo lo necesario para prestarte el servicio.
+  </p>
+  <p>
+    El uso que MeowLab hace de la información recibida de las API de Google cumple la
+    <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de datos de usuario de los
+    servicios de API de Google</a>, incluidos los requisitos de uso limitado. Puedes retirar el acceso en cualquier
+    momento desde <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.
+  </p>
+
+  <h2>5. Con quién los compartimos</h2>
+  <p>Usamos proveedores que tratan datos por encargo nuestro y sólo para prestar el servicio:</p>
+  <ul>
+    <li><strong>Meta Platforms</strong> (WhatsApp Business): envío y recepción de mensajes.</li>
+    <li><strong>Hostinger</strong>: servidor donde corren el panel, la base de datos y los servicios internos.</li>
+    <li><strong>Cloudflare</strong>: recepción de mensajes de WhatsApp, almacenamiento de conversaciones y documentos, y generación de PDF.</li>
+    <li><strong>OpenAI</strong> y <strong>Groq</strong>: procesamiento de inteligencia artificial para entender mensajes, transcribir audios y describir imágenes.</li>
+    <li><strong>Google</strong>: inicio de sesión, si eliges esa opción.</li>
+    <li><strong>SUNAT</strong>: recibe los comprobantes y guías que emites, por mandato legal.</li>
+  </ul>
+  <p>
+    Algunos de estos proveedores procesan datos fuera del Perú, principalmente en Estados Unidos. Elegimos
+    proveedores con garantías adecuadas de seguridad y confidencialidad.
+  </p>
+
+  <h2>6. Cuánto tiempo los conservamos</h2>
+  <ul>
+    <li>Los datos de tu cuenta, mientras la mantengas activa.</li>
+    <li>Los comprobantes y guías, durante los plazos que exige la normativa tributaria.</li>
+    <li>Los códigos de verificación vencen a los 10 minutos; el registro de intentos se conserva por seguridad.</li>
+  </ul>
+  <p>Cuando ya no los necesitemos, los eliminamos o los anonimizamos.</p>
+
+  <h2>7. Seguridad</h2>
+  <p>
+    Las conexiones viajan cifradas, las contraseñas y los códigos se guardan sólo como huellas cifradas, los
+    servicios internos se autentican con firmas criptográficas y el acceso a las bases de datos está restringido.
+    Ningún sistema es infalible: si detectamos un incidente que te afecte, te lo comunicaremos.
+  </p>
+
+  <h2>8. Tus derechos</h2>
+  <p>
+    Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición, así como revocar tu
+    consentimiento, escribiendo a <a href={`mailto:${legal.correoPrivacidad}`}>{legal.correoPrivacidad}</a>.
+    Responderemos dentro de los plazos de ley. También puedes desvincular tu WhatsApp desde el panel en cualquier
+    momento. Si no estás conforme con nuestra respuesta, puedes acudir a la Autoridad Nacional de Protección de
+    Datos Personales del Ministerio de Justicia y Derechos Humanos.
+  </p>
+
+  <h2>9. Menores de edad</h2>
+  <p>Nuestros servicios están dirigidos a empresas y personas mayores de 18 años.</p>
+
+  <h2>10. Cambios</h2>
+  <p>
+    Si cambiamos esta política, publicaremos la nueva versión en esta página con su fecha de vigencia y, si el
+    cambio es relevante, te avisaremos.
+  </p>
+</LegalPage>

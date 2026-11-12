@@ -1139,8 +1139,8 @@
       "priority": "high",
       "status": "in_progress",
       "updated": "2026-11-11",
-      "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth).",
-      "evidence": "apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización)."
+      "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth). 2026-11-11: producción pasa al VPS (DNS en Hostinger): server/node.ts con PostgreSQL, Dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de Caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech.",
+      "evidence": "apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización). VPS: node build/server.mjs contra PostgreSQL 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por X-Forwarded-For; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente)."
     },
     {
       "id": "app-portal-2-vinculacion-20261111",
@@ -1184,6 +1184,39 @@
       "status": "todo",
       "updated": "2026-11-11",
       "notes": "Si la plantilla de autenticación no está disponible, botón «Abrir WhatsApp» con el código en un mensaje prellenado que Manolo consume antes de los roles (como RADAR ACTIVAR). ADR-0006.",
+      "evidence": ""
+    },
+    {
+      "id": "landing-legal-pages-20261111",
+      "title": "Publicar política de privacidad y términos en la landing",
+      "area": "Landing",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-11",
+      "notes": "Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema; faltan razón social, RUC, domicilio y correo en src/data/legal.ts y revisión legal del operador antes de publicar.",
+      "evidence": "npx astro build: /privacidad y /terminos generados; enlaces del pie actualizados."
+    },
+    {
+      "id": "landing-libro-reclamaciones-20261111",
+      "title": "Libro de Reclamaciones virtual en la landing",
+      "area": "Landing",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "El pie lo enlaza a /contacto. Si MeowLab atiende consumidores, el Código de Protección al Consumidor exige un Libro de Reclamaciones; decidir y publicar.",
+      "evidence": ""
+    },
+    {
+      "id": "vps-caddyfile-drift-20261111",
+      "title": "Versionar el Caddyfile real del VPS",
+      "area": "Ops",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech.",
       "evidence": ""
     }
   ]

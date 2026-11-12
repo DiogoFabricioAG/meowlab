@@ -7,6 +7,11 @@ Estado: fases 1 (cuentas) y 2 (vincular el WhatsApp con un código) hechas y
 probadas en local. Los datos de facturación llegan en las fases 3 y 4. **No está
 desplegado.**
 
+**Dónde corre:** en el VPS, detrás del Caddy compartido. El DNS de meowlab.tech
+está en Hostinger, no en Cloudflare, así que un Worker no puede tomar
+`app.meowlab.tech` sin mudar la zona. La entrada de Cloudflare (`server/worker.ts`,
+D1) se conserva para desarrollo local con `wrangler dev`.
+
 ## Estructura
 
 | Ruta | Qué es |
@@ -14,7 +19,10 @@ desplegado.**
 | `server/app.ts` | API Hono (`/api/health`, `/api/config`, `/api/me`, `/api/auth/*`). No depende de Cloudflare. |
 | `server/auth.ts` | Opciones de Better Auth. Recibe la base de datos desde afuera. |
 | `server/bridge.ts` | Cliente firmado (HMAC) hacia el bridge del VPS. WebCrypto: corre en Cloudflare y en Node. |
-| `server/worker.ts` | Única entrada de Cloudflare: arma la API con la D1 `DB`. |
+| `server/node.ts` | Entrada del VPS: PostgreSQL, secretos en archivos, sirve `dist/` y aplica `_headers`. |
+| `server/worker.ts` | Entrada de Cloudflare con D1 (desarrollo local). |
+| `migrations-postgres/` | Esquema de Better Auth para PostgreSQL (VPS). |
+| `Dockerfile`, `deploy/` | Imagen, compose, creación de la base y bloque de Caddy. |
 | `web/src/WhatsAppLink.tsx` | Pedir el código, verificarlo, reenviar y desvincular. |
 | `web/` | Interfaz React + Vite con los tokens de meowlab.tech. Se compila a `dist/`. |
 | `migrations/` | Migraciones D1. `0001` es el esquema de Better Auth (`scripts/auth-schema.mjs`). |
@@ -43,7 +51,7 @@ npm run dev
 
 - Cookies de sesión `HttpOnly`; `Secure` en producción.
 - Better Auth rechaza peticiones de otros orígenes (403).
-- Límite de intentos guardado en la D1: 5 inicios de sesión por minuto y 5
+- Límite de intentos guardado en la base (D1 en local, PostgreSQL en el VPS): 5 inicios de sesión por minuto y 5
   registros cada 10 minutos.
 - Sin verificación de correo todavía, Google no se enlaza a una cuenta con
   contraseña existente.
@@ -64,30 +72,39 @@ npm run dev
 
 Las rutas propias que escriben exigen sesión y un `Origin` permitido.
 
-## Antes de desplegar (requiere autorización)
+## Despliegue en el VPS (requiere autorización)
 
-1. Crear la D1 `meowlab-app` y poner su `database_id` en `env.production`.
-2. Secretos: `BETTER_AUTH_SECRET`, y `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` del
-   cliente OAuth con redirección `https://app.meowlab.tech/api/auth/callback/google`.
-3. `wrangler d1 migrations apply meowlab-app --env production --remote`.
-4. `npm run deploy -- --env production` desde un commit publicado.
+Desde un commit publicado, en `ssh meowlab`:
+
+1. **Código:** `git archive` del commit a `/opt/meowlab-app` y
+   `docker build -t meowlab-app:<commit> /opt/meowlab-app`.
+2. **Secretos** en `/opt/meowlab-app/deploy/secrets/` (permisos 600, nunca en git):
+   `better_auth_secret`, `meowlab_app_db_password`, `portal_bridge_hmac_secret`,
+   `google_client_id` y `google_client_secret` (vacíos si todavía no hay Google).
+3. **Base:** `sh bootstrap-db.sh` crea el rol `meowlab_app` (sin superusuario) y su
+   base `meowlab_app` en el PostgreSQL de la plataforma, y aplica `migrations-postgres/`.
+4. **Arranque:** `MEOWLAB_APP_TAG=<commit> docker compose up -d` y
+   `docker exec meowlab-app wget -qO- http://127.0.0.1:8080/healthz`.
+5. **Caddy:** reemplazar el bloque `app.meowlab.tech` (hoy el prototipo de
+   meowlab-platform) por `deploy/Caddyfile.app.meowlab.tech`, validar y recargar.
+   `app.meowlab.tech` ya resuelve al VPS: no hace falta tocar el DNS.
+6. **Google:** cliente OAuth con origen `https://app.meowlab.tech`, redirección
+   `https://app.meowlab.tech/api/auth/callback/google`, y pantalla de consentimiento
+   con `https://meowlab.tech/privacidad` y `https://meowlab.tech/terminos`.
 
 Para la fase 2, además:
 
-5. Meta aprueba la plantilla `codigo_otp_meowlab` (Autenticación, Spanish (PER),
+7. Meta aprueba la plantilla `codigo_otp_meowlab` (Autenticación, Spanish (PER),
    «Copiar código», período de validez de 10 minutos).
-6. Generar dos secretos de al menos 32 caracteres:
-   - `PORTAL_BRIDGE_HMAC_SECRET`: en el portal y en el bridge;
-   - `AUTH_CODE_HMAC_SECRET`: en el bridge y en el Worker de Manolo.
-7. PostgreSQL: aplicar `infra/postgres/migrations/011-portal-whatsapp-links.sql`.
-8. Bridge: `MANOLO_WORKER_URL` (HTTPS del Worker de producción) y los dos secretos
-   como Docker secrets (`PORTAL_BRIDGE_HMAC_SECRET_FILE`, `AUTH_CODE_HMAC_SECRET_FILE`)
-   en `infra/vps/compose.yml`. Sin ellos la ruta del portal responde 503 y el resto
-   del bridge sigue igual.
-9. Manolo: `wrangler secret put AUTH_CODE_HMAC_SECRET --env production` y desplegar
-   desde un commit publicado.
-10. Portal: `BRIDGE_URL=https://facturas.meowlab.tech/internal/manolo` (la ruta de
-    Caddy hacia el bridge) y `PORTAL_BRIDGE_HMAC_SECRET` como secreto.
+8. Generar `AUTH_CODE_HMAC_SECRET` (bridge y Worker de Manolo). El
+   `portal_bridge_hmac_secret` del paso 2 también va al bridge.
+9. PostgreSQL de Manolo: aplicar
+   `apps/manolo-whatsapp-worker/infra/postgres/migrations/011-portal-whatsapp-links.sql`.
+10. Bridge: `MANOLO_WORKER_URL` (HTTPS del Worker de producción) y los secretos
+    `PORTAL_BRIDGE_HMAC_SECRET_FILE` y `AUTH_CODE_HMAC_SECRET_FILE` en su compose. Sin
+    ellos la ruta del portal responde 503 y el resto del bridge sigue igual.
+11. Manolo: `wrangler secret put AUTH_CODE_HMAC_SECRET --env production` y desplegar
+    desde un commit publicado.
 
 Prueba de PostgreSQL del almacén de vínculos (sólo contra una base desechable):
 `apps/manolo-whatsapp-worker/tools/portal-link-pg-check.ts`.

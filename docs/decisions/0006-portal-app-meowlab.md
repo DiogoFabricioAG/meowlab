@@ -100,3 +100,25 @@ FacturaYa por empresa viven en el VPS y sólo el bridge los usa.
 
 Cada fase se entrega desde un commit publicado, con acta, según la regla crítica
 de `AGENTS.md`.
+
+## Revisión 2026-11-11: el portal corre en el VPS
+
+El DNS de meowlab.tech está en Hostinger, no en Cloudflare, y la landing ya corre
+en el VPS detrás del Caddy compartido. Un Worker sólo puede tomar
+`app.meowlab.tech` si la zona está en Cloudflare, así que el operador decidió
+adelantar la mudanza prevista en el punto 1:
+
+- Producción usa `server/node.ts`: la misma API Hono y Better Auth, con PostgreSQL
+  (base `meowlab_app` y rol propio sin superusuario, en el PostgreSQL de la
+  plataforma) en lugar de D1. La entrada de Cloudflare queda sólo para desarrollo
+  local.
+- El contenedor `meowlab-app` se une a `manolo_ingress` (Caddy y bridge) y a
+  `manolo_internal` (PostgreSQL). El portal llama al bridge por la red interna con
+  la misma firma HMAC.
+- El límite de intentos usa `X-Forwarded-For`, que Caddy reescribe; ya no confía en
+  `cf-connecting-ip`, que fuera de Cloudflare podría enviar el cliente.
+- `app.meowlab.tech` mostraba el prototipo «Dashboard Facturas» de meowlab-platform;
+  el operador decidió reemplazarlo por este portal.
+- La política de privacidad y los términos, que Google exige para el inicio de
+  sesión, se publican en la landing: `meowlab.tech/privacidad` y `meowlab.tech/terminos`.
+

@@ -25,3 +25,5 @@ apps/manolo-whatsapp-worker/worker-startup.cpuprofile
 # Portal app.meowlab.tech
 apps/meowlab-app/.dev.vars
 apps/meowlab-app/.wrangler/
+
+apps/meowlab-app/build/
