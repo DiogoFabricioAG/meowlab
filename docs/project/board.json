@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-optimizar-imagenes-webp-20261112",
+      "title": "Comprimir y optimizar imágenes de la landing en formato WebP",
+      "area": "Landing",
+      "owner": "Antigravity",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-12",
+      "notes": "14 imágenes raster de la landing convertidas a WebP (calidad 88) y 3 variantes light de agentes convertidas a WebP transparente invertido, eliminando el envoltorio SVG de 600KB con filtro feComponentTransfer. PNGs originales optimizados in situ como respaldo. Reducción de payload de imágenes en la home de 3.79 MB a 0.40 MB (89.4% de ahorro).",
+      "evidence": "pnpm build OK (4 páginas generadas sin errores); dist/index.html y dist/contacto/index.html consumiendo .webp; meowlab-black.webp 16.3KB (era 688KB), gato-*.webp ~58-71KB (eran 400-670KB)."
+    },
+    {
       "id": "manolo-default-onboarding-role-20261108",
       "title": "Convertir el rol por defecto cat en el onboarding interactivo de MeowLab",
       "area": "Worker",

@@ -8,7 +8,7 @@ const agentsData = [
     name: 'Buscador de Licitaciones',
     subtitle: 'Encuentra compras del Estado para tu rubro',
     icon: 'file-search' as const,
-    image: '/assets/gato-licitaciones-light.svg',
+    image: '/assets/gato-licitaciones-light.webp',
     badge: '3 oportunidades hoy',
     reaction: 'Verificado',
     time: '10:42 a. m.',
@@ -29,7 +29,7 @@ const agentsData = [
     name: 'Asistente de Facturas',
     subtitle: 'Crea y envía facturas en segundos',
     icon: 'receipt-tax' as const,
-    image: '/assets/gato-facturas-light.svg',
+    image: '/assets/gato-facturas-light.webp',
     badge: 'Aprobada al instante',
     reaction: 'Validado',
     time: '10:43 a. m.',
@@ -50,7 +50,7 @@ const agentsData = [
     name: 'Asistente de tu Negocio',
     subtitle: 'Pregúntale por precios, stock o ventas',
     icon: 'database-cog' as const,
-    image: '/assets/gato-ventas-light.svg',
+    image: '/assets/gato-ventas-light.webp',
     badge: 'Te responde al segundo',
     reaction: 'En stock',
     time: '10:44 a. m.',
@@ -146,7 +146,7 @@ const agentsData = [
           
           <!-- Contact Avatar -->
           <div class="relative w-10 h-10 rounded-full bg-white border border-[#D1D7DB] flex items-center justify-center p-1 flex-shrink-0 shadow-xs overflow-hidden">
-            <img id="wa-header-avatar-img" src={agentsData[0].image} alt={agentsData[0].name} class="w-full h-full object-contain mix-blend-multiply" />
+            <img id="wa-header-avatar-img" src={agentsData[0].image} alt={agentsData[0].name} width="40" height="40" class="w-full h-full object-contain mix-blend-multiply" />
             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#25D366] border-2 border-[#F0F2F5]"></span>
           </div>
 
