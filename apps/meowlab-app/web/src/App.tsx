@@ -23,7 +23,14 @@ export function App() {
   if (isPending || (session && !me)) {
     return (
       <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true">
-        <img src="/meowlab-black.png" alt="" className="h-12 w-12 animate-pulse object-contain mix-blend-multiply" />
+        <img
+          src="/meowlab-black.webp"
+          alt=""
+          width={48}
+          height={48}
+          className="h-12 w-12 animate-pulse object-contain mix-blend-multiply"
+          decoding="async"
+        />
       </div>
     );
   }
@@ -35,9 +42,12 @@ export function Logo({ light = false }: { light?: boolean }) {
   return (
     <span className="inline-flex select-none items-center gap-2">
       <img
-        src="/meowlab-black.png"
+        src={light ? "/meowlab-white.webp" : "/meowlab-black.webp"}
         alt=""
-        className={`h-9 w-9 shrink-0 object-contain ${light ? "invert" : "mix-blend-multiply"}`}
+        width={36}
+        height={36}
+        className={`h-9 w-9 shrink-0 object-contain ${light ? "" : "mix-blend-multiply"}`}
+        decoding="async"
       />
       <span className={`font-title text-xl font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>
         meow<span className={light ? "font-normal text-mint" : "font-bold text-forest"}>lab</span>

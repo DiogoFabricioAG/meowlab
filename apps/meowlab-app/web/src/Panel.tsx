@@ -91,7 +91,14 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 shrink-0 rounded-xl border border-[#d6e2ec] bg-[#f3f7fa] p-1">
-                      <img src="/gato-facturas-light.svg" alt="" className="h-full w-full object-contain mix-blend-multiply" />
+                      <img
+                        src="/gato-facturas-light.webp"
+                        alt=""
+                        width={48}
+                        height={48}
+                        className="h-full w-full object-contain mix-blend-multiply"
+                        decoding="async"
+                      />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-ink">{module.title}</h3>
