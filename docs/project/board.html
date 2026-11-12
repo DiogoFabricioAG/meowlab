@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 52 · Total: 135</span>
+      <span class="summary">Abiertas: 52 · Total: 136</span>
     </div>
   </div>
 </header>
@@ -811,7 +811,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">83</span>
+          <span class="count">84</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1528,6 +1528,17 @@
           <p class="card-notes">Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-admin-metrics-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. rama feat/app-login-transition: npm test 16/16 (auth-page.test.ts 1/1, billing.test.ts 15/15), npm run typecheck limpio, npm run build:node ok. píldora deslizante con translate-x-full y cubic-bezier(0.16,1,0.3,1); campo nombre con animación fluida grid-rows 0fr/1fr y soporte motion-reduce.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: transición suave en el toggle y formulario de Iniciar sesión y Crear cuenta</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-login-transition: npm test 16/16 (auth-page.test.ts 1/1, billing.test.ts 15/15), npm run typecheck limpio, npm run build:node OK. Píldora deslizante con translate-x-full y cubic-bezier(0.16,1,0.3,1); campo Nombre con animación fluida grid-rows 0fr/1fr y soporte motion-reduce.</p>
+          <p class="card-notes">Transición fluida y animada entre Iniciar sesión y Crear cuenta en AuthPage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario.</p>
+          <p class="card-meta">Actualizado: 2026-11-12 · Responsable: Antigravity</p>
+          <code class="card-id">app-portal-auth-transition-20261112</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">

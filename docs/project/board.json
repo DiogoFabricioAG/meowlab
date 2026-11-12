@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "app-portal-auth-transition-20261112",
+      "title": "Portal: transición suave en el toggle y formulario de Iniciar sesión y Crear cuenta",
+      "area": "Portal",
+      "owner": "Antigravity",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-12",
+      "notes": "Transición fluida y animada entre Iniciar sesión y Crear cuenta en AuthPage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario.",
+      "evidence": "Rama feat/app-login-transition: npm test 16/16 (auth-page.test.ts 1/1, billing.test.ts 15/15), npm run typecheck limpio, npm run build:node OK. Píldora deslizante con translate-x-full y cubic-bezier(0.16,1,0.3,1); campo Nombre con animación fluida grid-rows 0fr/1fr y soporte motion-reduce."
+    },
+    {
       "id": "landing-conectar-plataforma-web-20261112",
       "title": "Conectar la landing con la plataforma web (app.meowlab.tech)",
       "area": "Landing",
