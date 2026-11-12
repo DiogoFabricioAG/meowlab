@@ -2,6 +2,7 @@ import { useState } from "react";
 import { authClient, type Me } from "./auth-client";
 import { Logo } from "./App";
 import { WhatsAppLink } from "./WhatsAppLink";
+import { AdminPanel } from "./AdminPanel";
 
 const BILLING_FEATURES = [
   "Facturas, boletas y notas con su estado en SUNAT",
@@ -12,6 +13,7 @@ const BILLING_FEATURES = [
 
 export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
+  const [tab, setTab] = useState<"panel" | "business">("panel");
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
 
   async function signOut() {
@@ -37,6 +39,31 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         </div>
       </header>
 
+      {me.isAdmin && (
+        <nav className="border-b border-line bg-white" aria-label="Secciones">
+          <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6 lg:px-8">
+            {([["panel", "Mi panel"], ["business", "Negocio"]] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                aria-current={tab === key ? "page" : undefined}
+                className={`-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
+                  tab === key ? "border-forest text-forest" : "border-transparent text-ink-muted hover:text-ink"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
+
+      {me.isAdmin && tab === "business" ? (
+        <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          <AdminPanel />
+        </main>
+      ) : (
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Hola, {firstName}</h1>
@@ -97,6 +124,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
           </div>
         </section>
       </main>
+      )}
     </div>
   );
 }

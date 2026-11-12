@@ -10,6 +10,7 @@ import pg from "pg";
 import { createApp } from "./app";
 import { createAuth, googleEnabled, type AuthSettings } from "./auth";
 import { createPortalBridge } from "./bridge";
+import { postgresAdminMetrics } from "./admin-metrics";
 
 function required(name: string): string {
   const value = process.env[name]?.trim();
@@ -75,6 +76,7 @@ const api = createApp({
   googleEnabled: googleEnabled(settings),
   bridge: createPortalBridge(process.env.BRIDGE_URL, secret("PORTAL_BRIDGE_HMAC_SECRET", true)),
   allowedOrigins,
+  adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values)),
 });
 
 const distDir = process.env.DIST_DIR ?? "./dist";

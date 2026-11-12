@@ -1251,6 +1251,17 @@
       "updated": "2026-11-11",
       "notes": "app.meowlab.tech pasó al portal; meowlab-platform-dashboard-1 sigue corriendo sin ruta en Caddy.",
       "evidence": ""
+    },
+    {
+      "id": "app-portal-admin-metrics-20261111",
+      "title": "Portal: administrador con métricas del negocio",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-11",
+      "notes": "Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).",
+      "evidence": "Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio."
     }
   ]
 }

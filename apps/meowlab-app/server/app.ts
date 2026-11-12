@@ -1,6 +1,7 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
 import type { PortalBridge, PortalLinkAction } from "./bridge";
+import type { AdminMetricsSource } from "./admin-metrics";
 
 export type PortalModule = {
   key: string;
@@ -15,7 +16,11 @@ export type AppDeps = {
   bridge: PortalBridge | null;
   /** Origins allowed to send state-changing requests with the session cookie. */
   allowedOrigins: readonly string[];
+  /** Aggregated portal metrics for administrators; absent where not implemented (local D1). */
+  adminMetrics?: AdminMetricsSource;
 };
+
+const isAdmin = (session: Session) => (session.user as { role?: unknown }).role === "admin";
 
 type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
 
@@ -66,6 +71,7 @@ export function createApp(deps: AppDeps) {
     ];
     return c.json({
       user: { id: user.id, name: user.name, email: user.email, image: user.image ?? null },
+      isAdmin: isAdmin(c.get("session")),
       whatsapp: linked
         ? { linked: true, maskedPhone: link.maskedPhone, linkedAt: link.linkedAt, available: true }
         : { linked: false, available: deps.bridge !== null && link !== null },
@@ -95,6 +101,18 @@ export function createApp(deps: AppDeps) {
   });
 
   app.post("/api/whatsapp/unlink", (c) => relay(c, { action: "unlink" }));
+
+  // The role comes from the database on every request (getSession reads the user row),
+  // so revoking it takes effect immediately.
+  app.get("/api/admin/metrics", async (c) => {
+    if (!isAdmin(c.get("session"))) return c.json({ error: "forbidden" }, 403);
+    if (!deps.adminMetrics) return c.json({ error: "metrics_unavailable" }, 503);
+    try {
+      return c.json(await deps.adminMetrics());
+    } catch {
+      return c.json({ error: "metrics_unavailable" }, 503);
+    }
+  });
 
   app.all("/api/*", (c) => c.json({ error: "not_found" }, 404));
 

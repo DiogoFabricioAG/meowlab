@@ -36,6 +36,13 @@ export function authOptions(
     secret: settings.BETTER_AUTH_SECRET,
     database,
     trustedOrigins: [settings.BETTER_AUTH_URL, ...extraOrigins],
+    user: {
+      additionalFields: {
+        // "user" or "admin". input:false: nobody can set it through sign-up or profile
+        // updates; only the operator grants it (deploy/grant-admin.sh).
+        role: { type: "string", required: false, defaultValue: "user", input: false },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 10,

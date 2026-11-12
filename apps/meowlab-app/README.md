@@ -59,6 +59,23 @@ npm run dev
 - Telemetría de Better Auth apagada.
 - Ningún dato de facturación es accesible hasta vincular el WhatsApp (fase 2).
 
+## Administradores
+
+`user.role` vale `user` o `admin`. Better Auth lo declara `input:false`: nadie puede
+dárselo al registrarse ni al editar su perfil. El operador lo otorga en el VPS desde
+`/opt/meowlab-app/deploy`:
+
+```bash
+sh grant-admin.sh grant correo@dominio   # sólo cuentas que entraron con Google y tienen el correo verificado
+sh grant-admin.sh revoke correo@dominio
+sh grant-admin.sh list
+```
+
+Un administrador ve la pestaña **Negocio** (`GET /api/admin/metrics`): cuentas,
+registros por día de los últimos 30 días (hora de Lima), activas en 7 días y cómo
+entran. Sólo totales, sin datos personales. El rol se lee de la base en cada
+petición, así que revocarlo tiene efecto inmediato.
+
 ## Vincular el WhatsApp (fase 2)
 
 1. El usuario escribe su número; `POST /api/whatsapp/start` lo pasa al bridge

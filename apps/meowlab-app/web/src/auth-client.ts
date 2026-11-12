@@ -12,6 +12,7 @@ export type PortalModule = {
 
 export type Me = {
   user: { id: string; name: string; email: string; image: string | null };
+  isAdmin?: boolean;
   whatsapp:
     | { linked: true; maskedPhone: string; linkedAt: string; available: true }
     | { linked: false; available: boolean };
