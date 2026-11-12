@@ -1328,6 +1328,17 @@
       "updated": "2026-11-12",
       "notes": "radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.",
       "evidence": ""
+    },
+    {
+      "id": "erp-data-model-draft-20261112",
+      "title": "Borrador del modelo de datos de MeowLab como ERP",
+      "area": "Arquitectura",
+      "owner": "",
+      "priority": "medium",
+      "status": "in_progress",
+      "updated": "2026-11-12",
+      "notes": "Módulos por esquema (core, channel, agents, billing, metering, audit, commerce, sales, fiscal, receivables, inventory, purchasing, support, tenders) para los 6 agentes del informe y RADAR (propuesta: Tender Cat). Pendiente: revisión del operador, preguntas abiertas y ADR.",
+      "evidence": "docs/architecture/erp-modelo-datos-borrador.md"
     }
   ]
 }
