@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 51 · Total: 131</span>
+      <span class="summary">Abiertas: 52 · Total: 132</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">46</span>
+          <span class="count">47</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -720,6 +720,17 @@
           <p class="card-notes">radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">radar-tests-clock-20261112</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Cobros" data-text="agregar tender cat (s/ 35) al catálogo de cobros cobros decisión del operador 2026-11-12: tender cat (hoy radar) cuesta s/ 35 al mes. migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende. ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros</h3>
+          
+          <p class="card-notes">Decisión del operador 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes. Migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">billing-tender-cat-catalog-20261112</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">

@@ -50,7 +50,7 @@ flowchart LR
 | Reorder Cat | S/ 25 | `purchasing` | `inventory`, `sales` (demanda) |
 | Support Cat | S/ 39 | `support` | todos, sólo lectura |
 | Collections Cat | S/ 25 | `receivables` | `fiscal`, `commerce` |
-| **Tender Cat** (hoy RADAR) | por definir (ver 7) | `tenders` | `sales` (cotizar una licitación) |
+| **Tender Cat** (hoy RADAR) | S/ 35 | `tenders` | `sales` (cotizar una licitación) |
 
 **Nombre para RADAR: «Tender Cat».** Sigue la convención «<oficio> Cat» del
 catálogo y *tender* es licitación en inglés comercial. Alternativas: «Bid Cat» (más
@@ -432,8 +432,8 @@ erDiagram
     la conversación en `supplier_requests` (pedido, respuesta, precio y fecha
     ofrecidos). La orden de compra existe cuando una persona aprueba.
   - `manufacture` (producto propio): crea una `production_orders` (producto, cantidad,
-    estado `planned|in_progress|done`). Al terminarla entra el producto terminado y,
-    si tiene receta (`bill_of_materials`), salen sus insumos.
+    estado `planned|in_progress|done`). Al terminarla entra el producto terminado. Sin
+    recetas en el primer corte (decisión 2026-11-12): no se descuentan insumos.
 
   Mismo principio que «la IA no emite sin botón»: el agente prepara, una persona
   confirma.
@@ -482,12 +482,11 @@ Respuestas del operador (2026-11-12):
 | Fuente de verdad | Todo se integra en MeowLab. FacturaYa y RADAR son productos sueltos hoy; el ERP es la fuente de verdad de clientes y productos y FacturaYa recibe copias hasta integrarse (4.2). |
 | Stock negativo | **No.** No se vende sin stock: el pedido reserva o no se confirma. Al cruzar el umbral, Reorder Cat contacta al proveedor o, si el producto es propio, genera una orden de producción (4.3). |
 | Monedas | Sólo PEN por ahora (regla 3). |
-| Tender Cat | Ya funciona, pero sin precio ni agrupación. En duda: agente contratable en el número de cada empresa, o rol transversal en un número único operado por MeowLab. El modelo de canales admite ambos (3.2). |
+| Tender Cat | **S/ 35 al mes.** Sigue en duda si atiende en el número de cada empresa o como rol transversal en un número único operado por MeowLab; el modelo de canales admite ambos (3.2). |
 | Permisos | Todos los miembros de una empresa ven lo mismo; sólo el `owner` administra plan, pagos y miembros (3.1). |
+| Producción | Sólo se registra el producto terminado; sin recetas ni descuento de insumos en el primer corte. |
 | Almacenes y listas de precios | Cada empresa empieza con **un almacén** («Principal») y **una lista de precios** («General»), creados automáticamente. El modelo admite más, pero los agentes no los exponen hasta que un cliente lo necesite. |
 
 Pendiente de confirmar:
 
-- **Tender Cat:** precio y si vive en el número de cada empresa o en el de MeowLab.
-- **Recetas de producción:** si los productos propios deben descontar insumos
-  (receta) o basta con registrar el producto terminado.
+- **Tender Cat:** si atiende en el número de cada empresa o en el número de MeowLab.

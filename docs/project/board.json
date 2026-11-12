@@ -1339,6 +1339,17 @@
       "updated": "2026-11-12",
       "notes": "Módulos por esquema para los 6 agentes y Tender Cat. Decisiones 2026-11-12: integrar todo en MeowLab (ERP fuente de verdad), sin stock negativo (reservas; Reorder Cat contacta proveedor o genera producción), sólo PEN, Tender Cat en duda (número propio o compartido), sin permisos por módulo. Pendiente: almacenes/listas del primer corte, precio y número de Tender Cat, recetas de producción; luego ADR.",
       "evidence": "docs/architecture/erp-modelo-datos-borrador.md"
+    },
+    {
+      "id": "billing-tender-cat-catalog-20261112",
+      "title": "Agregar Tender Cat (S/ 35) al catálogo de cobros",
+      "area": "Cobros",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-12",
+      "notes": "Decisión del operador 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes. Migración nueva en el portal para billing_agents (no editar 0003); disponible cuando se defina en qué número atiende.",
+      "evidence": ""
     }
   ]
 }
