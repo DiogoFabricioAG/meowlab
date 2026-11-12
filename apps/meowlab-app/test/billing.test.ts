@@ -199,3 +199,11 @@ describe("billing service", () => {
     expect((await service.status("u1")).subscription).toMatchObject({ status: "cancelled", active: true });
   });
 });
+
+describe("billing service errors", () => {
+  it("explains when a real buyer meets a test seller", async () => {
+    const { service, mp } = setup();
+    mp.createPreapproval = async () => { throw new Error("mercadopago_400_Both payer and collector must be real or test users"); };
+    expect(await service.subscribe("u1", ["invoice"], "real@gmail.com")).toEqual({ status: "test_account_mismatch" });
+  });
+});

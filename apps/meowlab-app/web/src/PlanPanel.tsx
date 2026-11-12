@@ -84,6 +84,8 @@ export function PlanPanel({ email }: { email: string }) {
         ? "Revisa el correo de Mercado Pago."
         : result?.status === "already_subscribed"
           ? "Ya tienes una suscripción activa."
+          : result?.status === "test_account_mismatch"
+            ? "En modo de prueba, el correo debe ser de una cuenta de prueba de Mercado Pago (termina en @testuser.com)."
           : result?.status === "invalid_agents"
             ? "Elige al menos un agente disponible."
             : "No pudimos abrir Mercado Pago. Inténtalo en unos minutos.",

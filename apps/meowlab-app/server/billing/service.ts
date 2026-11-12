@@ -17,6 +17,7 @@ export type SubscribeResult =
   | { status: "already_subscribed" }
   | { status: "invalid_agents"; reason: string }
   | { status: "invalid_email" }
+  | { status: "test_account_mismatch" }
   | { status: "provider_error" };
 
 export type WebhookResult = { status: number; outcome: string };
@@ -103,7 +104,10 @@ export class BillingService {
       return { status: "redirect", checkoutUrl: preapproval.init_point };
     } catch (error) {
       await this.store.markFailed(id);
-      this.options.log("billing_subscription_failed", { reason: error instanceof Error ? error.message.slice(0, 80) : "error" });
+      const reason = error instanceof Error ? error.message.slice(0, 80) : "error";
+      this.options.log("billing_subscription_failed", { reason });
+      // Mercado Pago refuses to mix a test seller with a real buyer (and vice versa).
+      if (/payer and collector must be real or test/i.test(reason)) return { status: "test_account_mismatch" };
       return { status: "provider_error" };
     }
   }
