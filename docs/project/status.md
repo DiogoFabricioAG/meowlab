@@ -1,5 +1,15 @@
 # Estado del proyecto
 
+## Portal app.meowlab.tech: compresión de imágenes a WebP — publicado 2026-11-12
+
+Portal desplegado en el VPS (`meowlab-app:fbfcf294de82` desde `fbfcf29`). Imágenes
+rasterizadas migradas a WebP (`meowlab-black.webp` de 16.7 KB y `meowlab-white.webp` de 16.7 KB;
+`gato-facturas-light.webp` de 64.2 KB reemplazando el SVG con base64 de 557 KB).
+Componentes `App.tsx` y `Panel.tsx` actualizados con dimensiones explícitas y decoding
+asíncrono. Reducción de la carga de imágenes de 1.26 MB a 80.9 KB (93.6% de ahorro).
+Dominio `https://app.meowlab.tech/` y rutas estáticas WebP verificadas con HTTP/2 200 y salud ok.
+[Acta de despliegue y rollback](../operations/portal-webp-despliegue-2026-11-12.md).
+
 ## Landing: compresión de imágenes a WebP — publicado 2026-11-12
 
 Landing desplegada en el VPS (`meowlab-web:d7cf736da0ea` desde `d7cf736`). 14 imágenes

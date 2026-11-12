@@ -14,7 +14,10 @@ landing.
 
 ## Portal y landing
 
-Última entrega: [landing con imágenes WebP, 2026-11-12](landing-webp-despliegue-2026-11-12.md).
+Última entrega: [portal app.meowlab.tech con imágenes WebP, 2026-11-12](portal-webp-despliegue-2026-11-12.md).
+Contenedor `meowlab-app:fbfcf294de82` desplegado en el VPS desde `fbfcf29`. Reducción del 93.6% de payload de imágenes en el portal (de 1.26 MB a 80.9 KB).
+
+Entrega anterior: [landing con imágenes WebP, 2026-11-12](landing-webp-despliegue-2026-11-12.md).
 Contenedor `meowlab-web:d7cf736da0ea` desplegado en el VPS desde `d7cf736`. Reducción del 89.4% de payload de imágenes.
 
 Entrega anterior: [portal app.meowlab.tech y páginas legales, 2026-11-11](portal-y-legales-2026-11-11.md).
