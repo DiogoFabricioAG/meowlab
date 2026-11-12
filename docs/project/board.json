@@ -1262,6 +1262,50 @@
       "updated": "2026-11-11",
       "notes": "Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).",
       "evidence": "Local con PostgreSQL 16: role=admin en el registro ignorado; /api/admin/metrics 401 sin sesión, 403 sin rol, 200 con rol y 403 tras revocar; grant-admin.sh rechaza cuentas con contraseña e intento de inyección; revisión visual de la pestaña Negocio. Desplegado en el VPS desde 4f530 (migración 0002 aplicada con bootstrap-db.sh); grant-admin.sh otorgó el rol a diogo.abregu.g@uni.pe tras su ingreso con Google; es el único administrador."
+    },
+    {
+      "id": "billing-1-mercadopago-20261111",
+      "title": "Cobros: catálogo, precio y suscripción con Mercado Pago (prueba)",
+      "area": "Cobros",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "evidence": ""
+    },
+    {
+      "id": "billing-2-bloqueo-20261111",
+      "title": "Cobros: bloqueo por impago con avisos y días de gracia",
+      "area": "Cobros",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 2 del ADR-0007; bloqueo en el bridge antes de FacturaYa. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "evidence": ""
+    },
+    {
+      "id": "billing-3-yape-qr-20261111",
+      "title": "Cobros: Yape por QR propio con aprobación del administrador",
+      "area": "Cobros",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 3 del ADR-0007; una captura no acredita hasta la aprobación. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "evidence": ""
+    },
+    {
+      "id": "billing-4-collections-cat-20261111",
+      "title": "Collections Cat: cobro por WhatsApp",
+      "area": "Cobros",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Fase 4 del ADR-0007; decidir si es el agente vendible o un rol interno. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "evidence": ""
     }
   ]
 }

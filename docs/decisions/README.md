@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0007 — Cobros con Mercado Pago y Yape](0007-cobros-mercado-pago-y-yape.md):
+  propuesto; catálogo por agente con descuento por equipo, suscripción recurrente y bloqueo por impago.
+
 - [0006 — Portal app.meowlab.tech](0006-portal-app-meowlab.md):
   propuesto; cuentas Better Auth vinculadas al número por WhatsApp entrante y lectura por el bridge.
 

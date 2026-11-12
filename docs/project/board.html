@@ -191,6 +191,7 @@
       <select id="area" aria-label="Filtrar por área">
         <option value="">Todas las áreas</option>
           <option value="Cloudflare">Cloudflare</option>
+          <option value="Cobros">Cobros</option>
           <option value="Docs">Docs</option>
           <option value="Documentación">Documentación</option>
           <option value="FacturaYa">FacturaYa</option>
@@ -212,7 +213,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 45 · Total: 124</span>
+      <span class="summary">Abiertas: 49 · Total: 128</span>
     </div>
   </div>
 </header>
@@ -221,7 +222,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">42</span>
+          <span class="count">46</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -421,6 +422,28 @@
           <p class="card-notes">Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-3-lectura-facturaya-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: catálogo, precio y suscripción con Mercado Pago (prueba)</h3>
+          
+          <p class="card-notes">Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">billing-1-mercadopago-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: bloqueo por impago con avisos y días de gracia cobros fase 2 del adr-0007; bloqueo en el bridge antes de facturaya. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: bloqueo por impago con avisos y días de gracia</h3>
+          
+          <p class="card-notes">Fase 2 del ADR-0007; bloqueo en el bridge antes de FacturaYa. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">billing-2-bloqueo-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -630,6 +653,28 @@
           <p class="card-notes">Hoy no hay recuperación de contraseña ni verificación de correo; por eso Google no se enlaza a cuentas con contraseña.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-email-provider-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Cobros" data-text="cobros: yape por qr propio con aprobación del administrador cobros fase 3 del adr-0007; una captura no acredita hasta la aprobación. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Cobros: Yape por QR propio con aprobación del administrador</h3>
+          
+          <p class="card-notes">Fase 3 del ADR-0007; una captura no acredita hasta la aprobación. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">billing-3-yape-qr-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007; decidir si es el agente vendible o un rol interno. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Collections Cat: cobro por WhatsApp</h3>
+          
+          <p class="card-notes">Fase 4 del ADR-0007; decidir si es el agente vendible o un rol interno. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
