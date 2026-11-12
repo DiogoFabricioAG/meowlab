@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0009 — Kapso como proveedor de números](0009-kapso-proveedor-de-numeros.md):
+  proveedor por número, payload de Meta reenviado a /webhooks/kapso con su firma y cada proveedor sólo por sus números.
+
 - [0008 — Modelo de datos de MeowLab como ERP](0008-modelo-de-datos-erp.md):
   un esquema por módulo, agentes sobre datos compartidos, identidad unificada y Tender Cat en el número de MeowLab.
 

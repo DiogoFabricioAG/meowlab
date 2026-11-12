@@ -1383,6 +1383,17 @@
       "updated": "2026-11-12",
       "notes": "Fase 1 del ADR-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). Desbloquea el bloqueo por impago (ADR-0007) y la fase 3 del portal.",
       "evidence": ""
+    },
+    {
+      "id": "manolo-kapso-20261112",
+      "title": "Integrar Kapso como proveedor de números (piloto +1 208 441 5504)",
+      "area": "Worker",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-12",
+      "notes": "ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue.",
+      "evidence": "Rama feat/manolo-kapso: npx vitest run 610/610 (10 de Kapso: envío con X-API-Key sin token de Meta, Meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio."
     }
   ]
 }

@@ -92,7 +92,8 @@ debe leer las dos filas correspondientes.
 ## Reglas arquitectónicas vigentes
 
 - Meta tiene un solo webhook: el Cloudflare Worker. No se debe registrar el
-  bridge del VPS, Vercel ni otra aplicación como callback paralelo.
+  bridge del VPS, Vercel ni otra aplicación como callback paralelo. Los números
+  conectados por Kapso llegan al mismo Worker por `/webhooks/kapso` (ADR-0009).
 - El estado actual es híbrido. D1 sigue ejecutando el runtime principal de
   conversaciones, deduplicación, estados y cotizaciones; PostgreSQL recibe
   mensajes en sombra y ya es la autoridad para roles, permisos y FacturaYa.

@@ -8,6 +8,9 @@ import type {
 } from "../../whatsapp/contracts";
 
 const GRAPH_API_BASE_URL = "https://graph.facebook.com";
+/** Kapso mirrors Meta's Cloud API under its own base URL, authenticated with a project API key. */
+export const KAPSO_API_BASE_URL = "https://api.kapso.ai/meta/whatsapp/v24.0";
+const KAPSO_MEDIA_DOWNLOAD_PREFIX = "https://api.kapso.ai/meta/whatsapp/media_download";
 const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 const MAX_IMAGE_CAPTION_LENGTH = 1_024;
 const MAX_BUTTONS = 3;
@@ -28,6 +31,8 @@ type WhatsAppLogger = (
 type MetaClientConfig = {
   accessToken?: string;
   graphApiVersion?: string;
+  /** Numbers connected through Kapso (stage 1 of the financial plan) and its API key. */
+  kapso?: { apiKey?: string; phoneNumberIds: ReadonlySet<string> };
 };
 
 type JsonObject = Record<string, unknown>;
@@ -116,7 +121,12 @@ export class MetaWhatsAppClient implements WhatsAppClient {
     private readonly log: WhatsAppLogger,
   ) {}
 
+  private isKapso(phoneNumberId?: string): boolean {
+    return Boolean(phoneNumberId && this.config.kapso?.phoneNumberIds.has(phoneNumberId.trim()));
+  }
+
   private isConfigured(phoneNumberId?: string): boolean {
+    if (this.isKapso(phoneNumberId)) return Boolean(this.config.kapso?.apiKey?.trim());
     return Boolean(
       this.config.accessToken?.trim() &&
         this.config.graphApiVersion?.trim() &&
@@ -125,7 +135,17 @@ export class MetaWhatsAppClient implements WhatsAppClient {
   }
 
   private endpoint(phoneNumberId: string, resource: string): string {
+    if (this.isKapso(phoneNumberId)) {
+      return `${KAPSO_API_BASE_URL}/${encodeURIComponent(phoneNumberId)}/${resource}`;
+    }
     return `${GRAPH_API_BASE_URL}/${encodeURIComponent(this.config.graphApiVersion ?? "")}/${encodeURIComponent(phoneNumberId)}/${resource}`;
+  }
+
+  /** Each number authenticates with its provider: Meta's token or Kapso's project key. */
+  private authHeaders(phoneNumberId: string): Record<string, string> {
+    return this.isKapso(phoneNumberId)
+      ? { "X-API-Key": this.config.kapso?.apiKey?.trim() ?? "" }
+      : { Authorization: `Bearer ${this.config.accessToken}` };
   }
 
   async sendTypingIndicator(
@@ -143,7 +163,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -188,7 +208,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -239,7 +259,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -303,7 +323,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -396,7 +416,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -456,7 +476,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          ...this.authHeaders(phoneNumberId),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -497,14 +517,17 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       return null;
     }
 
+    const kapso = this.isKapso(phoneNumberId);
     const endpoint = new URL(
-      `${GRAPH_API_BASE_URL}/${encodeURIComponent(this.config.graphApiVersion ?? "")}/${encodeURIComponent(mediaId)}`,
+      kapso
+        ? `${KAPSO_API_BASE_URL}/${encodeURIComponent(mediaId)}`
+        : `${GRAPH_API_BASE_URL}/${encodeURIComponent(this.config.graphApiVersion ?? "")}/${encodeURIComponent(mediaId)}`,
     );
     endpoint.searchParams.set("phone_number_id", phoneNumberId);
 
     try {
       const response = await fetch(endpoint, {
-        headers: { Authorization: `Bearer ${this.config.accessToken}` },
+        headers: this.authHeaders(phoneNumberId),
       });
       if (!response.ok) {
         this.log("whatsapp_media_metadata_failed", {
@@ -515,7 +538,10 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       }
 
       const data: unknown = await response.json();
-      const url = isRecord(data) ? stringValue(data.url) : "";
+      // Kapso returns a short-lived download_url whose token is its own authentication.
+      const url = isRecord(data)
+        ? (kapso && stringValue(data.download_url)) || stringValue(data.url)
+        : "";
       if (!isSafeMediaUrl(url)) {
         this.log("whatsapp_media_metadata_failed", {
           reason: "invalid_media_url",
@@ -548,7 +574,10 @@ export class MetaWhatsAppClient implements WhatsAppClient {
   ): Promise<WhatsAppDownloadedMedia | null> {
     try {
       const response = await fetch(metadata.url, {
-        headers: { Authorization: `Bearer ${this.config.accessToken}` },
+        // Kapso download URLs carry their own token; never send Meta's token to them.
+        headers: metadata.url.startsWith(KAPSO_MEDIA_DOWNLOAD_PREFIX)
+          ? {}
+          : { Authorization: `Bearer ${this.config.accessToken}` },
       });
       if (!response.ok) {
         this.log("whatsapp_media_download_failed", {
@@ -597,7 +626,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
     try {
       const response = await fetch(this.endpoint(phoneNumberId, "media"), {
         method: "POST",
-        headers: { Authorization: `Bearer ${this.config.accessToken}` },
+        headers: this.authHeaders(phoneNumberId),
         body: form,
       });
       if (!response.ok) {

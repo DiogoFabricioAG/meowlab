@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 52 · Total: 135</span>
+      <span class="summary">Abiertas: 53 · Total: 136</span>
     </div>
   </div>
 </header>
@@ -759,7 +759,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -794,6 +794,17 @@
           <p class="card-notes">Fase 1 del ADR-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. Requiere credenciales de prueba. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el ADR.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-1-mercadopago-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Worker" data-text="integrar kapso como proveedor de números (piloto +1 208 441 5504) worker adr-0009. etapa 1 del plan financiero (kapso pro). número del piloto de un cliente. falta: phone_number_id, kapso_api_key, secreto y webhook tipo meta en kapso, empresa y rol por defecto del piloto, despliegue. rama feat/manolo-kapso: npx vitest run 610/610 (10 de kapso: envío con x-api-key sin token de meta, meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Integrar Kapso como proveedor de números (piloto +1 208 441 5504)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/manolo-kapso: npx vitest run 610/610 (10 de Kapso: envío con X-API-Key sin token de Meta, Meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio.</p>
+          <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue.</p>
+          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <code class="card-id">manolo-kapso-20261112</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

@@ -25,7 +25,7 @@ import { SignedStoreCommerceClient } from "./adapters/store-designer/commerce-cl
 import { VpsFacturayaClient } from "./adapters/facturaya/vps-client";
 import { R2DocumentStore } from "./adapters/documents/r2-store";
 import { createBrowserPdfRenderer } from "./adapters/documents/browser-pdf";
-import { createWhatsAppClient } from "./adapters/whatsapp/factory";
+import { createWhatsAppClient, kapsoPhoneNumberIds } from "./adapters/whatsapp/factory";
 import { D1ConversationRepository } from "./adapters/conversations/d1-repository";
 import { SignedVpsBridgeClient } from "./adapters/bridge/signed-vps-client";
 import type { AiProvider } from "./ai/contracts";
@@ -57,6 +57,8 @@ import type { IncomingDocument } from "./documents/contracts";
 
 const HEALTH_PATH = "/health";
 const WEBHOOK_PATH = "/webhooks/whatsapp";
+/** Kapso forwards Meta's original payload (webhook kind "meta") to this path. */
+export const KAPSO_WEBHOOK_PATH = "/webhooks/kapso";
 const STORE_PAYMENT_PATH = "/internal/store/payment";
 const WHATSAPP_OBJECT = "whatsapp_business_account";
 const DEFAULT_TENANT_ID = "manolo";
@@ -147,6 +149,48 @@ async function isValidMetaSignature(
   );
   const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, body));
   return constantTimeEqual(digest, hexToBytes(match[1]));
+}
+
+async function isValidKapsoSignature(
+  body: ArrayBuffer,
+  headerValue: string | null,
+  secret: string,
+): Promise<boolean> {
+  if (!headerValue || secret.length === 0) return false;
+  const match = /^(?:sha256=)?([0-9a-fA-F]{64})$/.exec(headerValue.trim());
+  if (!match) return false;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, body));
+  return constantTimeEqual(digest, hexToBytes(match[1]));
+}
+
+type KapsoEnv = Env & { KAPSO_API_KEY?: string; KAPSO_WEBHOOK_SECRET?: string; KAPSO_PHONE_NUMBER_IDS?: string };
+
+/** Kapso numbers and key for the WhatsApp client; absent when none is configured. */
+export function kapsoConfig(env: Env) {
+  const kapsoEnv = env as KapsoEnv;
+  const phoneNumberIds = kapsoPhoneNumberIds(kapsoEnv.KAPSO_PHONE_NUMBER_IDS);
+  return phoneNumberIds.size ? { apiKey: kapsoEnv.KAPSO_API_KEY, phoneNumberIds } : undefined;
+}
+
+/** phone_number_id of every change in a WhatsApp webhook payload. */
+function payloadPhoneNumberIds(payload: Record<string, unknown>): string[] {
+  const ids: string[] = [];
+  for (const entry of Array.isArray(payload.entry) ? payload.entry : []) {
+    if (!isRecord(entry)) continue;
+    for (const change of Array.isArray(entry.changes) ? entry.changes : []) {
+      const value = isRecord(change) && isRecord(change.value) ? change.value : null;
+      const metadata = value && isRecord(value.metadata) ? value.metadata : null;
+      ids.push(metadata && typeof metadata.phone_number_id === "string" ? metadata.phone_number_id.trim() : "");
+    }
+  }
+  return ids;
 }
 
 async function isValidStoreSignature(
@@ -540,6 +584,7 @@ export async function processConversationTurn(
     env.META_ACCESS_TOKEN,
     env.META_GRAPH_API_VERSION,
     logSafeEvent,
+    kapsoConfig(env),
   );
   const audioTranscriber = createAudioTranscriber("groq", {
     groqApiKey: env.GROQ_API_KEY,
@@ -1009,22 +1054,29 @@ async function webhookResponse(
   request: Request,
   env: Env,
   ctx: ExecutionContext,
+  source: "meta" | "kapso" = "meta",
 ): Promise<Response> {
-  if (!env.META_APP_SECRET) {
+  // Meta signs with the app secret (X-Hub-Signature-256: sha256=<hex>); Kapso signs the
+  // same raw payload with the webhook's own secret (X-Webhook-Signature: <hex>).
+  const secret = source === "kapso" ? (env as KapsoEnv).KAPSO_WEBHOOK_SECRET : env.META_APP_SECRET;
+  if (!secret) {
     logSafeEvent("whatsapp_webhook_rejected", {
       reason: "missing_server_configuration",
+      source,
     });
-    return jsonResponse({ error: "server_configuration_error" }, 500);
+    return jsonResponse({ error: "server_configuration_error" }, source === "kapso" ? 503 : 500);
   }
 
   const body = await request.arrayBuffer();
-  const signature = request.headers.get("X-Hub-Signature-256");
+  const signature = request.headers.get(source === "kapso" ? "X-Webhook-Signature" : "X-Hub-Signature-256");
+  const validSignature = source === "kapso"
+    ? await isValidKapsoSignature(body, signature, secret)
+    : await isValidMetaSignature(body, signature, secret);
 
-  if (
-    !(await isValidMetaSignature(body, signature, env.META_APP_SECRET))
-  ) {
+  if (!validSignature) {
     logSafeEvent("whatsapp_webhook_rejected", {
       reason: signature === null ? "missing_signature" : "invalid_signature",
+      source,
     });
     return new Response(null, { status: 401 });
   }
@@ -1042,6 +1094,15 @@ async function webhookResponse(
       reason: "invalid_whatsapp_payload",
     });
     return jsonResponse({ error: "invalid_whatsapp_payload" }, 400);
+  }
+
+  // Each provider may only speak for its own numbers: a Kapso delivery for a number
+  // that is not on Kapso (or a Meta delivery for a Kapso number) is refused.
+  const kapsoNumbers = kapsoConfig(env)?.phoneNumberIds ?? new Set<string>();
+  const ids = payloadPhoneNumberIds(payload);
+  if (ids.some((id) => kapsoNumbers.has(id) !== (source === "kapso"))) {
+    logSafeEvent("whatsapp_webhook_rejected", { reason: "provider_number_mismatch", source });
+    return jsonResponse({ error: "provider_number_mismatch" }, 403);
   }
 
   const metadata = summarizeWebhook(payload, env.ENVIRONMENT);
@@ -1150,6 +1211,7 @@ async function storePaymentNotificationResponse(
     env.META_ACCESS_TOKEN,
     env.META_GRAPH_API_VERSION,
     logSafeEvent,
+    kapsoConfig(env),
   );
   const sendResult = await client.sendText(whatsappUserId, replyText, phoneNumberId);
   if (sendResult.status !== "sent") {
@@ -1205,6 +1267,16 @@ export default withRadarPresence(withRadarWindowReminders({
         return await storePaymentNotificationResponse(request, env);
       } catch {
         logSafeEvent("store_payment_notification_failed", { reason: "request_processing_error" });
+        return jsonResponse({ error: "request_processing_error" }, 500);
+      }
+    }
+
+    if (url.pathname === KAPSO_WEBHOOK_PATH) {
+      if (request.method !== "POST") return methodNotAllowed("POST");
+      try {
+        return await webhookResponse(request, env, ctx, "kapso");
+      } catch {
+        logSafeEvent("whatsapp_webhook_failed", { reason: "request_processing_error", source: "kapso" });
         return jsonResponse({ error: "request_processing_error" }, 500);
       }
     }

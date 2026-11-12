@@ -27,6 +27,8 @@ Cloudflare Worker en TypeScript para recibir webhooks de Meta WhatsApp Cloud API
 
 ## Agrupación de mensajes — activa, actualización 2026-11-06
 
+**Kapso (ADR-0009).** `KAPSO_PHONE_NUMBER_IDS` lista los `phone_number_id` conectados por Kapso; esos números envían por `https://api.kapso.ai/meta/whatsapp/v24.0` con el secreto `KAPSO_API_KEY` y reciben en `POST /webhooks/kapso`, firmado con `KAPSO_WEBHOOK_SECRET` (webhook de Kapso tipo `meta`). Sin secreto la ruta responde 503.
+
 `RADAR_PRESENCE_ENABLED` (por defecto `false`) mantiene apagada la presencia de RADAR: ruta, cron y recibos del webhook.
 
 `WHATSAPP_BURST_ENABLED` habilita la bandeja `WHATSAPP_BURSTS` por
