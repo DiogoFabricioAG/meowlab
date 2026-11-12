@@ -12,6 +12,11 @@ No existe un comando raíz que despliegue los tres. Esto evita que un cambio
 comercial reinicie el webhook o que una migración del bridge publique la
 landing.
 
+## Portal y landing
+
+Última entrega: [portal app.meowlab.tech y páginas legales, 2026-11-11](portal-y-legales-2026-11-11.md).
+Portal en el VPS (`meowlab-app`, PostgreSQL `meowlab_app`); procedimiento en `apps/meowlab-app/README.md`.
+
 ## Worker
 
 Última entrega: [reconciliación con git y operación pendiente, 2026-11-11](manolo-worker-reconciliacion-2026-11-11.md).

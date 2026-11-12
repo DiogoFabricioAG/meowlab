@@ -212,7 +212,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 44 · Total: 120</span>
+      <span class="summary">Abiertas: 45 · Total: 123</span>
     </div>
   </div>
 </header>
@@ -221,7 +221,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">39</span>
+          <span class="count">42</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -609,6 +609,28 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">vps-caddyfile-drift-20261111</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: activar el inicio de sesión con google portal crear el cliente oauth (origen https://app.meowlab.tech, redirección /api/auth/callback/google; consentimiento con meowlab.tech/privacidad y /terminos), cargar google_client_id/secret en /opt/meowlab-app/deploy/secrets y reiniciar el portal. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: activar el inicio de sesión con Google</h3>
+          
+          <p class="card-notes">Crear el cliente OAuth (origen https://app.meowlab.tech, redirección /api/auth/callback/google; consentimiento con meowlab.tech/privacidad y /terminos), cargar google_client_id/secret en /opt/meowlab-app/deploy/secrets y reiniciar el portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-google-oauth-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: proveedor de correo para verificar correos y recuperar contraseñas portal hoy no hay recuperación de contraseña ni verificación de correo; por eso google no se enlaza a cuentas con contraseña. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: proveedor de correo para verificar correos y recuperar contraseñas</h3>
+          
+          <p class="card-notes">Hoy no hay recuperación de contraseña ni verificación de correo; por eso Google no se enlaza a cuentas con contraseña.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-email-provider-20261111</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -642,6 +664,17 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-link-fallback-20261111</code>
         </article>
+        <article class="card" data-priority="low" data-area="Ops" data-text="decidir el destino del prototipo de meowlab-platform ops app.meowlab.tech pasó al portal; meowlab-platform-dashboard-1 sigue corriendo sin ruta en caddy. ">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Decidir el destino del prototipo de meowlab-platform</h3>
+          
+          <p class="card-notes">app.meowlab.tech pasó al portal; meowlab-platform-dashboard-1 sigue corriendo sin ruta en Caddy.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">meowlab-platform-prototype-route-20261111</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -658,7 +691,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">3</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -672,17 +705,6 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">estrategia-multicliente</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal app.meowlab.tech: esqueleto, better auth y despliegue portal fase 1 del adr-0006. apps/meowlab-app como worker con recursos estáticos, d1 propia, better auth con correo y google. requiere cliente oauth de google creado por el operador y decidir proveedor de correo. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar cloudflare como paso previo al vps (código portable hono + better auth). 2026-11-11: producción pasa al vps (dns en hostinger): server/node.ts con postgresql, dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech. apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build ok; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie httponly y csp. falta: revisión visual, cliente oauth de google, proveedor de correo, d1 y despliegue (con autorización). vps: node build/server.mjs contra postgresql 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por x-forwarded-for; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente).">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal app.meowlab.tech: esqueleto, Better Auth y despliegue</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización). VPS: node build/server.mjs contra PostgreSQL 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por X-Forwarded-For; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente).</p>
-          <p class="card-notes">Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth). 2026-11-11: producción pasa al VPS (DNS en Hostinger): server/node.ts con PostgreSQL, Dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de Caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech.</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">app-portal-1-auth-20261111</code>
-        </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con un código (otp) portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a otp por plantilla de autenticación (codigo_otp_meowlab, es_pe) a pedido del operador; respaldo con mensaje prellenado sin implementar. rama feat/app-meowlab-portal. worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. postgresql 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). punta a punta local: portal wrangler dev → bridge local → postgresql, código, verificación, panel vinculado y desvinculado. falta: aprobación de la plantilla, secretos, migración 011 en el vps y despliegues (con autorización).">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -693,17 +715,6 @@
           <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-2-vinculacion-20261111</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Landing" data-text="publicar política de privacidad y términos en la landing landing requisito de google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. meowlab aún no tiene ruc ni razón social (2026-11-11): las páginas identifican al titular como «meowlab» y muestran ruc, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). falta revisión legal y publicar la landing. npx astro build: /privacidad y /terminos generados sin «pendiente»; titular «meowlab»; privacy@meowlab.tech en ambas páginas; enlaces del pie actualizados.">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Publicar política de privacidad y términos en la landing</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> npx astro build: /privacidad y /terminos generados sin «PENDIENTE»; titular «MeowLab»; privacy@meowlab.tech en ambas páginas; enlaces del pie actualizados.</p>
-          <p class="card-notes">Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. MeowLab aún no tiene RUC ni razón social (2026-11-11): las páginas identifican al titular como «MeowLab» y muestran RUC, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. Contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). Falta revisión legal y publicar la landing.</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">landing-legal-pages-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
@@ -721,7 +732,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">76</span>
+          <span class="count">78</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores.">
@@ -1394,6 +1405,28 @@
           <p class="card-notes">Con una guía o comprobante sin confirmar, /reiniciar y cancelar se rechazaban y todo texto recibía la respuesta predefinida de estado. Ahora /reiniciar, cancelar o «ignora esa operación»/«déjala para después» la estacionan en la sesión (sin reenviar ni anular) y «retomar» la restaura; otra gestión fiscal o cambio de empresa pide «Dejarla y seguir». El texto libre con operación pendiente se interpreta con reglas y, si no alcanzan, con Decisions. Desplegado el 2026-11-11 (f679d352) tras reconciliar el Worker con git.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">manolo-pending-operation-control-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal app.meowlab.tech: esqueleto, better auth y despliegue portal fase 1 del adr-0006. apps/meowlab-app como worker con recursos estáticos, d1 propia, better auth con correo y google. requiere cliente oauth de google creado por el operador y decidir proveedor de correo. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar cloudflare como paso previo al vps (código portable hono + better auth). 2026-11-11: producción pasa al vps (dns en hostinger): server/node.ts con postgresql, dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech. apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build ok; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie httponly y csp. falta: revisión visual, cliente oauth de google, proveedor de correo, d1 y despliegue (con autorización). vps: node build/server.mjs contra postgresql 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por x-forwarded-for; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente). desplegado en el vps desde 381c3b3: https://app.meowlab.tech 200, healthz ok, /api/me 401 sin sesión, csp/hsts. google y correo pendientes (tareas aparte). acta: docs/operations/portal-y-legales-2026-11-11.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal app.meowlab.tech: esqueleto, Better Auth y despliegue</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización). VPS: node build/server.mjs contra PostgreSQL 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por X-Forwarded-For; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente). Desplegado en el VPS desde 381c3b3: https://app.meowlab.tech 200, healthz ok, /api/me 401 sin sesión, CSP/HSTS. Google y correo pendientes (tareas aparte). Acta: docs/operations/portal-y-legales-2026-11-11.md</p>
+          <p class="card-notes">Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth). 2026-11-11: producción pasa al VPS (DNS en Hostinger): server/node.ts con PostgreSQL, Dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de Caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">app-portal-1-auth-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Landing" data-text="publicar política de privacidad y términos en la landing landing requisito de google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. meowlab aún no tiene ruc ni razón social (2026-11-11): las páginas identifican al titular como «meowlab» y muestran ruc, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). falta revisión legal y publicar la landing. publicadas desde 381c3b3: https://meowlab.tech/privacidad y /terminos 200. logo bimi preservado. acta: docs/operations/portal-y-legales-2026-11-11.md">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Publicar política de privacidad y términos en la landing</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Publicadas desde 381c3b3: https://meowlab.tech/privacidad y /terminos 200. Logo BIMI preservado. Acta: docs/operations/portal-y-legales-2026-11-11.md</p>
+          <p class="card-notes">Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. MeowLab aún no tiene RUC ni razón social (2026-11-11): las páginas identifican al titular como «MeowLab» y muestran RUC, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. Contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). Falta revisión legal y publicar la landing.</p>
+          <p class="card-meta">Actualizado: 2026-11-11</p>
+          <code class="card-id">landing-legal-pages-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Documentación" data-text="diagrama de arquitectura manolo para portfolio documentación vista pública del flujo fiscal actual, sin datos privados; fuentes de verdad d1/pg y confirmación explícita. docs/architecture/manolo-portfolio.md; archify showcase9/9 sin errores/avisos; navegador4viewports aprobado y capturas claro/oscuro revisadas.">
           <div class="card-top">

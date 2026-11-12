@@ -4,3 +4,4 @@ build
 .wrangler
 .dev.vars
 *.log
+deploy/secrets

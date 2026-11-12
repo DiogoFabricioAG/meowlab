@@ -1137,10 +1137,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-11",
       "notes": "Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth). 2026-11-11: producción pasa al VPS (DNS en Hostinger): server/node.ts con PostgreSQL, Dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de Caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech.",
-      "evidence": "apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización). VPS: node build/server.mjs contra PostgreSQL 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por X-Forwarded-For; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente)."
+      "evidence": "apps/meowlab-app en rama feat/app-meowlab-portal: tsc server/web sin errores, vite build OK; wrangler dev local: registro, inicio de sesión, /api/me 200 con sesión y 401 sin ella, origen ajeno 403, límite 429 al tercer fallo, cookie HttpOnly y CSP. Falta: revisión visual, cliente OAuth de Google, proveedor de correo, D1 y despliegue (con autorización). VPS: node build/server.mjs contra PostgreSQL 16 desechable: healthz, interfaz, cabeceras, registro, sesión y límite 429 por X-Forwarded-For; bootstrap-db.sh probado dos veces (rol sin superusuario, idempotente). Desplegado en el VPS desde 381c3b3: https://app.meowlab.tech 200, healthz ok, /api/me 401 sin sesión, CSP/HSTS. Google y correo pendientes (tareas aparte). Acta: docs/operations/portal-y-legales-2026-11-11.md"
     },
     {
       "id": "app-portal-2-vinculacion-20261111",
@@ -1192,10 +1192,10 @@
       "area": "Landing",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-11",
       "notes": "Requisito de Google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. MeowLab aún no tiene RUC ni razón social (2026-11-11): las páginas identifican al titular como «MeowLab» y muestran RUC, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. Contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). Falta revisión legal y publicar la landing.",
-      "evidence": "npx astro build: /privacidad y /terminos generados sin «PENDIENTE»; titular «MeowLab»; privacy@meowlab.tech en ambas páginas; enlaces del pie actualizados."
+      "evidence": "Publicadas desde 381c3b3: https://meowlab.tech/privacidad y /terminos 200. Logo BIMI preservado. Acta: docs/operations/portal-y-legales-2026-11-11.md"
     },
     {
       "id": "landing-libro-reclamaciones-20261111",
@@ -1217,6 +1217,39 @@
       "status": "todo",
       "updated": "2026-11-11",
       "notes": "/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech.",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-google-oauth-20261111",
+      "title": "Portal: activar el inicio de sesión con Google",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Crear el cliente OAuth (origen https://app.meowlab.tech, redirección /api/auth/callback/google; consentimiento con meowlab.tech/privacidad y /terminos), cargar google_client_id/secret en /opt/meowlab-app/deploy/secrets y reiniciar el portal.",
+      "evidence": ""
+    },
+    {
+      "id": "app-portal-email-provider-20261111",
+      "title": "Portal: proveedor de correo para verificar correos y recuperar contraseñas",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "Hoy no hay recuperación de contraseña ni verificación de correo; por eso Google no se enlaza a cuentas con contraseña.",
+      "evidence": ""
+    },
+    {
+      "id": "meowlab-platform-prototype-route-20261111",
+      "title": "Decidir el destino del prototipo de meowlab-platform",
+      "area": "Ops",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-11",
+      "notes": "app.meowlab.tech pasó al portal; meowlab-platform-dashboard-1 sigue corriendo sin ruta en Caddy.",
       "evidence": ""
     }
   ]
