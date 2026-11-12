@@ -42,32 +42,32 @@ const navLinks = [
       <!-- Right: Action Buttons -->
       <div class="hidden sm:flex items-center gap-3">
         <a
-          href="/contacto"
+          href="https://app.meowlab.tech"
           class="hidden lg:inline-flex text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors px-3 py-2 rounded-xl"
+        >
+          Iniciar sesión
+        </a>
+        <a
+          href="/contacto"
+          class="hidden sm:inline-flex text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors px-3 py-2 rounded-xl"
         >
           Contacto
         </a>
         <a
-          href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="https://app.meowlab.tech"
           class="btn-primary text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5"
         >
-          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
-          <span>Configurar mi primer agente</span>
+          <span>Ingresar a la plataforma</span>
         </a>
       </div>
 
-      <!-- Mobile menu button -->
+      <!-- Mobile action & menu button -->
       <div class="flex md:hidden items-center gap-2">
         <a
-          href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="https://app.meowlab.tech"
           class="btn-primary text-sm font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1"
         >
-          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
-          <span>Configurar</span>
+          <span>Plataforma</span>
         </a>
         <button
           type="button"
@@ -95,7 +95,13 @@ const navLinks = [
         {link.name}
       </a>
     ))}
-    <div class="pt-2 flex flex-col gap-2">
+    <div class="pt-3 border-t border-surface-border/60 flex flex-col gap-2">
+      <a
+        href="https://app.meowlab.tech"
+        class="btn-primary block w-full py-2.5 text-center text-sm font-semibold rounded-xl"
+      >
+        Ingresar a la plataforma
+      </a>
       <a
         href="/contacto"
         class="block px-3 py-2 text-center text-sm font-medium text-[#111816] hover:text-brand-forest rounded-xl"

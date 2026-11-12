@@ -148,8 +148,8 @@ const agentsData = [
     },
 
     cta: {
-      label: "Configurar Agente de Facturas",
-      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Facturas"
+      label: "Activar en la plataforma",
+      href: "https://app.meowlab.tech"
     }
   },
   {
@@ -268,8 +268,8 @@ const agentsData = [
     },
 
     cta: {
-      label: "Configurar Agente de Licitaciones",
-      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Licitaciones"
+      label: "Activar en la plataforma",
+      href: "https://app.meowlab.tech"
     }
   },
   {
@@ -388,8 +388,8 @@ const agentsData = [
     },
 
     cta: {
-      label: "Configurar Agente de Ventas",
-      href: "https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20el%20Agente%20de%20Ventas"
+      label: "Activar en la plataforma",
+      href: "https://app.meowlab.tech"
     }
   }
 ];
@@ -718,22 +718,19 @@ const assetsData = {
             </div>
           </section>
 
-          <!-- Footer WhatsApp CTA -->
+          <!-- Footer Platform CTA -->
           <div class="md-dialog-footer">
             <a
               href={agent.cta.href}
-              target="_blank"
-              rel="noopener noreferrer"
               class="md-cta-btn"
             >
-              <TablerIcon name="brand-whatsapp" size={18} className="text-[#25D366]" strokeWidth={2.2} />
               <span>{agent.cta.label}</span>
               <ArrowRight class="w-4 h-4" />
             </a>
 
             <span class="md-cta-trust">
               <Check class="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Sin instalaciones · Activación en menos de 24 horas</span>
+              <span>Acceso directo en la plataforma web · Sin instalaciones</span>
             </span>
           </div>
         </div>

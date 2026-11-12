@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-conectar-plataforma-web-20261112",
+      "title": "Conectar la landing con la plataforma web (app.meowlab.tech)",
+      "area": "Landing",
+      "owner": "Antigravity",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-12",
+      "notes": "Reemplazar los botones de WhatsApp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (Ingresar a la plataforma e Iniciar sesión).",
+      "evidence": "pnpm build OK (4 páginas). Botones de Navbar (desktop y móvil), Hero, Supervisión, FAQ, modales de detalle de agentes y Footer actualizados con enlaces a https://app.meowlab.tech."
+    },
+    {
       "id": "landing-optimizar-imagenes-webp-20261112",
       "title": "Comprimir y optimizar imágenes de la landing en formato WebP",
       "area": "Landing",

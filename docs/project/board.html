@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 52 · Total: 134</span>
+      <span class="summary">Abiertas: 52 · Total: 135</span>
     </div>
   </div>
 </header>
@@ -811,9 +811,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">82</span>
+          <span class="count">83</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Conectar la landing con la plataforma web (app.meowlab.tech)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> pnpm build OK (4 páginas). Botones de Navbar (desktop y móvil), Hero, Supervisión, FAQ, modales de detalle de agentes y Footer actualizados con enlaces a https://app.meowlab.tech.</p>
+          <p class="card-notes">Reemplazar los botones de WhatsApp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (Ingresar a la plataforma e Iniciar sesión).</p>
+          <p class="card-meta">Actualizado: 2026-11-12 · Responsable: Antigravity</p>
+          <code class="card-id">landing-conectar-plataforma-web-20261112</code>
+        </article>
         <article class="card" data-priority="high" data-area="Worker" data-text="convertir el rol por defecto cat en el onboarding interactivo de meowlab worker reemplazar el comportamiento del rol por defecto cat para ofrecer un onboarding híbrido (botones interactivos de whatsapp + ia) con las opciones facturación electrónica y guías (enterprise-advisor), cotizaciones en pdf (quotes) y gato manolo conversacional (cat). auto-asignar el modo público conversacional y registrar solicitud de activación admin para roles empresariales/privados. 2026-11-11: revisado. los mensajes ya no dicen que la solicitud quedó registrada (sólo queda en el estado d1 y en el log) y un conflicto de compare-and-set ya no se sobrescribe con set(). sin desplegar. rama feat/manolo-onboarding-cat; npx vitest run 588/588 (8 casos de onboarding, incluido el conflicto concurrente); tsc --noemit sin errores. desplegado el 2026-11-12: worker dd113051 desde d3a845d. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
