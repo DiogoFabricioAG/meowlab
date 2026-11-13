@@ -121,6 +121,17 @@ se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`
   /api/internal/quotes/pdf`, `FACTURAYA_INTERNAL_TOKEN`) y el bridge lo guarda en
   `sales.quote_files` (migración `016-quote-pdf.sql`). El portal lo lee por
   `/v1/portal/public-quote` con su propio secreto.
+- **Stock Cat (ADR-0014, fase 1):** `/stock` en el mismo chat (`src/roles/stock-role.ts`,
+  extracción `src/stock/extractor.ts` con `SALES_AI_MODEL`). Entradas con costo (promedio
+  ponderado), salidas, conteos, mínimos con aviso único, regla de negativos de la titular y
+  consultas. Datos en el esquema `stock` (migración `018-stock-cat.sql`), ruta firmada
+  `/v1/stock/execute` con idempotencia (`src/node/stock/`). Los comprobantes aceptados de
+  FacturaYa (`/api/issued-documents?with_items=1`, con la credencial de la empresa) descuentan
+  una sola vez y las notas de crédito devuelven; se leen al abrir `/stock`, al consultar en el
+  portal y justo después de emitir con Invoice Cat, que avisa en el mismo chat si algo bajó de
+  su mínimo. Las líneas sin producto quedan «por asociar» hasta que alguien dice a cuál
+  corresponden. Costos y valor solo para la titular (cuenta del portal dueña de la empresa con
+  su WhatsApp vinculado). Se activa por empresa en `stock.settings`.
 - **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
   misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
   varios productos o sin el documento del cliente, deriva a Invoice Cat.

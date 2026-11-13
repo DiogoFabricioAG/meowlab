@@ -1808,10 +1808,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-13",
-      "notes": "ADR-0014. Requiere que FacturaYa exponga los productos de cada comprobante emitido. Piloto: CREACIONES J&D como cortesía.",
-      "evidence": ""
+      "notes": "Código listo, sin desplegar. meowlab feat/stock-cat (Worker, bridge, migración 018, portal); facturaya-ai feat/stock-items (065c4, productos de cada comprobante con with_items=1). Orden: FacturaYa, migración 018, bridge, Worker, portal; luego activar CREACIONES J&D como cortesía (INSERT INTO stock.settings). Límite: los comprobantes emitidos desde la web de FacturaYa se leen al abrir /stock o el portal, no al instante.",
+      "evidence": "2026-11-13: Worker 668/668 (stock-role.test.ts 8/8); tools/stock-pg-check.ts 39/39 contra PostgreSQL 16; FacturaYa 192 pruebas con la falla previa conocida; portal 33/33 y build; revisión local con bridge simulado en 1100 px y 375 px."
     },
     {
       "id": "stock-cat-2-digitalizar-20261113",
