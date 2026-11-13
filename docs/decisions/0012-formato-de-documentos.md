@@ -1,6 +1,7 @@
 # 0012. Formato de los documentos: kit de marca y plantillas
 
-- Estado: aceptado (2026-11-13), niveles 1 y 2 elegidos por el operador
+- Estado: reemplazado por [ADR-0013](0013-plantilla-unica-y-cotizacion-en-pdf.md) (2026-11-13);
+  antes aceptado el mismo día, niveles 1 y 2 elegidos por el operador
 - Responsable: MeowLab
 - Relacionado: ADR-0010 (empresas), ADR-0011 (Sales Cat), formato de facturas y boletas
   de FacturaYa (`app/Services/InvoicePdfService.php`), PDF de la GRE en Manolo

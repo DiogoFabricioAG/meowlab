@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 72 · Total: 169</span>
+      <span class="summary">Abiertas: 69 · Total: 171</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">68</span>
+          <span class="count">64</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -468,17 +468,6 @@
           <p class="card-notes">ADR-0011, fase 1 recién desplegada.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-whatsapp-20261113</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (facturaya) portal adr-0012. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (FacturaYa)</h3>
-          
-          <p class="card-notes">ADR-0012.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">docs-formato-2-facturaya-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -810,39 +799,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-libro-reclamaciones-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 3: kit en la gre y en el pdf de cotizaciones portal adr-0012. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Formato de documentos 3: kit en la GRE y en el PDF de cotizaciones</h3>
-          
-          <p class="card-notes">ADR-0012.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">docs-formato-3-gre-cotizacion-20261113</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 4: plantillas clásica, moderna y ticket 80 mm con vista previa portal adr-0012. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Formato de documentos 4: plantillas Clásica, Moderna y Ticket 80 mm con vista previa</h3>
-          
-          <p class="card-notes">ADR-0012.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">docs-formato-4-plantillas-20261113</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="cargar el kit de marca de creaciones j&amp;d y revisar una cotización con él portal adr-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Cargar el kit de marca de CREACIONES J&amp;D y revisar una cotización con él</h3>
-          
-          <p class="card-notes">ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción.</p>
-          <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
-          <code class="card-id">docs-formato-1-prueba-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="revisar el qr de la representación impresa de la gre (manolo) manolo el qr de facturas, boletas y notas ya está en facturaya; la gre se genera en manolo y no se revisó contra su propia norma. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -953,16 +909,16 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-fuentes-woff2-20261113</code>
         </article>
-        <article class="card" data-priority="low" data-area="Portal" data-text="formato de documentos 5: cambiar logo, pagos y pie desde el chat de manolo portal adr-0012. ">
+        <article class="card" data-priority="low" data-area="VPS" data-text="revisar si pasar los pdf de cotización a r2 (blob storage) vps según adr-0013: pasar a r2 si sales.quote_files supera ~1 gb o un cuarto de la base, si llegan archivos que no son pdf pequeños (fotos, catálogos, escaneos) o si hace falta servir sin el bridge. consulta: select pg_size_pretty(sum(octet_length(content))), count(*) from sales.quote_files; ">
           <div class="card-top">
-            <span class="badge area-other">Portal</span>
+            <span class="badge area-vps">VPS</span>
             <span class="priority priority-low">Baja</span>
           </div>
-          <h3 class="card-title">Formato de documentos 5: cambiar logo, pagos y pie desde el chat de Manolo</h3>
+          <h3 class="card-title">Revisar si pasar los PDF de cotización a R2 (blob storage)</h3>
           
-          <p class="card-notes">ADR-0012.</p>
+          <p class="card-notes">Según ADR-0013: pasar a R2 si sales.quote_files supera ~1 GB o un cuarto de la base, si llegan archivos que no son PDF pequeños (fotos, catálogos, escaneos) o si hace falta servir sin el bridge. Consulta: SELECT pg_size_pretty(sum(octet_length(content))), count(*) FROM sales.quote_files;</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">docs-formato-5-chat-20261113</code>
+          <code class="card-id">blob-storage-evaluacion-20261113</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
@@ -980,7 +936,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1016,6 +972,17 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="cotización de sales cat en pdf con la plantilla única y retiro del kit de marca (adr-0013) manolo código listo, sin desplegar: facturaya feat/cotizacion-pdf (cd7fb, endpoint interno), bridge y worker feat/cotizacion-pdf (ce50c, migración 016, sales.quote_files, operación quote_pdf, documento en el chat), portal feat/cotizacion-pdf-app (4b5c5, /cotizacion/&lt;código&gt; devuelve el pdf). orden de despliegue: facturaya, migración 016, bridge, worker, portal. 2026-11-13: facturaya phpunit 190/191 (falla previa conocida); worker 660/660; sales-pg-check en verde contra postgresql 16; portal 31/31.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cotización de Sales Cat en PDF con la plantilla única y retiro del kit de marca (ADR-0013)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: FacturaYa PHPUnit 190/191 (falla previa conocida); Worker 660/660; sales-pg-check en verde contra PostgreSQL 16; portal 31/31.</p>
+          <p class="card-notes">Código listo, sin desplegar: FacturaYa feat/cotizacion-pdf (cd7fb, endpoint interno), bridge y Worker feat/cotizacion-pdf (ce50c, migración 016, sales.quote_files, operación quote_pdf, documento en el chat), portal feat/cotizacion-pdf-app (4b5c5, /cotizacion/&lt;código&gt; devuelve el PDF). Orden de despliegue: FacturaYa, migración 016, bridge, Worker, portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">cotizacion-pdf-20261113</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1032,7 +999,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">97</span>
+          <span class="count">102</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1838,16 +1805,27 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-taste-20261113</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública portal desplegado el 13/11/2026: configuración → documentos en el portal y kit en la cotización pública de sales cat. acta: docs/operations/brand-kit-2026-11-13.md. producción: migración 015, bridge brand-kit-20261113t194050z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. antes: worker 659/659, brand-pg-check 15/15, portal 36/36.">
+        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública portal desplegado el 13/11/2026: configuración → documentos en el portal y kit en la cotización pública de sales cat. acta: docs/operations/brand-kit-2026-11-13.md. retirado el 13/11/2026 por adr-0013 (migración 016 borra sus tablas, vacías). producción: migración 015, bridge brand-kit-20261113t194050z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. antes: worker 659/659, brand-pg-check 15/15, portal 36/36.">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública</h3>
           <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 015, bridge brand-kit-20261113T194050Z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. Antes: Worker 659/659, brand-pg-check 15/15, portal 36/36.</p>
-          <p class="card-notes">Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md.</p>
+          <p class="card-notes">Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md. Retirado el 13/11/2026 por ADR-0013 (migración 016 borra sus tablas, vacías).</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">docs-formato-1-kit-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (facturaya) portal adr-0012. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (FacturaYa)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md</p>
+          <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-2-facturaya-20261113</code>
         </article>
         <article class="card" data-priority="high" data-area="FacturaYa" data-text="código qr de sunat en facturas, boletas y notas de crédito (facturaya) facturaya desplegado el 13/11/2026 en facturaya (release sunat-qr-20261113t200717z, commit 8c343, rama feat/sunat-qr). acta: docs/deployment-2026-11-13-sunat-qr.md en facturaya-ai. los pdf ya guardados no se regeneran. producción: pdf reales de f001-00000026, una boleta b001 y una nota de crédito con qr legible y 10 campos correctos; salud 200; api sin token 401.">
           <div class="card-top">
@@ -2036,6 +2014,39 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">agent-logos-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 3: kit en la gre y en el pdf de cotizaciones portal adr-0012. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 3: kit en la GRE y en el PDF de cotizaciones</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md</p>
+          <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-3-gre-cotizacion-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 4: plantillas clásica, moderna y ticket 80 mm con vista previa portal adr-0012. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 4: plantillas Clásica, Moderna y Ticket 80 mm con vista previa</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md</p>
+          <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-4-plantillas-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="cargar el kit de marca de creaciones j&amp;d y revisar una cotización con él portal adr-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Cargar el kit de marca de CREACIONES J&amp;D y revisar una cotización con él</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md</p>
+          <p class="card-notes">ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
+          <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
+          <code class="card-id">docs-formato-1-prueba-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="nota de arquitectura actual y corrección de la contradicción financiera docs  docs/architecture/manolo-2026-09-13.md">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -2046,6 +2057,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">nota-arquitectura-13-09</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="formato de documentos 5: cambiar logo, pagos y pie desde el chat de manolo portal adr-0012. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 5: cambiar logo, pagos y pie desde el chat de Manolo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md</p>
+          <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-5-chat-20261113</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="estructurar resumen whatsapp en bloques breves y corregir negritas undefined  activo 35d4c8bb; 271 pruebas, typecheck, 61 aisladas, dry-run y salud. docs/apps/radar-conversation.md">
           <div class="card-top">

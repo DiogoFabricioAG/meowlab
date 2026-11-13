@@ -1678,7 +1678,7 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-13",
-      "notes": "Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md.",
+      "notes": "Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md. Retirado el 13/11/2026 por ADR-0013 (migración 016 borra sus tablas, vacías).",
       "evidence": "Producción: migración 015, bridge brand-kit-20261113T194050Z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. Antes: Worker 659/659, brand-pg-check 15/15, portal 36/36."
     },
     {
@@ -1687,10 +1687,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0012.",
-      "evidence": ""
+      "notes": "ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).",
+      "evidence": "docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md"
     },
     {
       "id": "docs-formato-3-gre-cotizacion-20261113",
@@ -1698,10 +1698,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0012.",
-      "evidence": ""
+      "notes": "ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).",
+      "evidence": "docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md"
     },
     {
       "id": "docs-formato-4-plantillas-20261113",
@@ -1709,10 +1709,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0012.",
-      "evidence": ""
+      "notes": "ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).",
+      "evidence": "docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md"
     },
     {
       "id": "docs-formato-5-chat-20261113",
@@ -1720,10 +1720,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "low",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0012.",
-      "evidence": ""
+      "notes": "ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).",
+      "evidence": "docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md"
     },
     {
       "id": "docs-formato-1-prueba-20261113",
@@ -1731,10 +1731,10 @@
       "area": "Portal",
       "owner": "operador",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción.",
-      "evidence": ""
+      "notes": "ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).",
+      "evidence": "docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md"
     },
     {
       "id": "sunat-qr-representacion-20261113",
@@ -1756,6 +1756,28 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "El QR de facturas, boletas y notas ya está en FacturaYa; la GRE se genera en Manolo y no se revisó contra su propia norma.",
+      "evidence": ""
+    },
+    {
+      "id": "cotizacion-pdf-20261113",
+      "title": "Cotización de Sales Cat en PDF con la plantilla única y retiro del kit de marca (ADR-0013)",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Código listo, sin desplegar: FacturaYa feat/cotizacion-pdf (cd7fb, endpoint interno), bridge y Worker feat/cotizacion-pdf (ce50c, migración 016, sales.quote_files, operación quote_pdf, documento en el chat), portal feat/cotizacion-pdf-app (4b5c5, /cotizacion/<código> devuelve el PDF). Orden de despliegue: FacturaYa, migración 016, bridge, Worker, portal.",
+      "evidence": "2026-11-13: FacturaYa PHPUnit 190/191 (falla previa conocida); Worker 660/660; sales-pg-check en verde contra PostgreSQL 16; portal 31/31."
+    },
+    {
+      "id": "blob-storage-evaluacion-20261113",
+      "title": "Revisar si pasar los PDF de cotización a R2 (blob storage)",
+      "area": "VPS",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Según ADR-0013: pasar a R2 si sales.quote_files supera ~1 GB o un cuarto de la base, si llegan archivos que no son PDF pequeños (fotos, catálogos, escaneos) o si hace falta servir sin el bridge. Consulta: SELECT pg_size_pretty(sum(octet_length(content))), count(*) FROM sales.quote_files;",
       "evidence": ""
     }
   ]

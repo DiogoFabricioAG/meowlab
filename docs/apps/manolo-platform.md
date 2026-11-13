@@ -114,9 +114,13 @@ se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`
   `commerce.customers` y `commerce.products` (creados al vuelo), `sales.quotes`,
   `sales.sales`, `sales.lines`, numeración por empresa y `sales.audit_log`. Ruta firmada
   `/v1/sales/execute` con idempotencia por id de solicitud (`src/node/sales/`).
-- **Cotización:** se comparte con un botón de enlace (`cta_url`) a
-  `PORTAL_PUBLIC_URL/cotizacion/<código>`; sólo se guarda el hash del código. El portal la
-  lee por `/v1/portal/public-quote` con su propio secreto.
+- **Cotización (ADR-0013):** se comparte con un botón de enlace (`cta_url`) a
+  `PORTAL_PUBLIC_URL/cotizacion/<código>`, que abre el PDF, y además se envía el PDF como
+  documento en el chat (operación `quote_pdf`). Sólo se guarda el hash del código. FacturaYa
+  dibuja el PDF con la plantilla única la primera vez que se pide (`POST
+  /api/internal/quotes/pdf`, `FACTURAYA_INTERNAL_TOKEN`) y el bridge lo guarda en
+  `sales.quote_files` (migración `016-quote-pdf.sql`). El portal lo lee por
+  `/v1/portal/public-quote` con su propio secreto.
 - **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
   misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
   varios productos o sin el documento del cliente, deriva a Invoice Cat.
