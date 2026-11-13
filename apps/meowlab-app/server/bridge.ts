@@ -19,8 +19,30 @@ export type PublicQuote = {
   discountCents: number;
   totalCents: number;
   notes: string | null;
+  /** Copied from the brand kit when the quote was made (ADR-0012). */
+  paymentTerms?: string | null;
+  deliveryTerms?: string | null;
+  /** The company's current brand kit; absent from bridges older than ADR-0012. */
+  brand?: BrandKitView;
   lines: Array<{ description: string; quantity: number; unitPriceCents: number; totalCents: number }>;
 };
+
+/** A company's brand kit (ADR-0012, phase 1): what goes on all its documents. */
+export type PaymentEntry = { kind: "bank" | "cci" | "yape" | "plin"; label: string; value: string };
+export type BrandKit = {
+  primaryColor: string | null;
+  contactAddress: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  contactWeb: string | null;
+  paymentMethods: PaymentEntry[];
+  footerText: string | null;
+  quoteValidDays: number | null;
+  quotePaymentTerms: string | null;
+  quoteDeliveryTerms: string | null;
+};
+export type BrandKitView = BrandKit & { logo: { version: string; width: number; height: number } | null; updatedAt: string | null };
+export type BrandLogo = { mimeType: string; contentBase64: string; version: string };
 
 export type Taxpayer = { ruc: string; legalName: string; address: string | null; status: string | null; condition: string | null };
 
@@ -48,7 +70,10 @@ export type PortalCompanyAction =
   | { action: "remove"; tenantId: string; memberId: string }
   | { action: "preview"; token: string }
   | { action: "accept"; token: string }
-  | { action: "weekly"; tenantId: string };
+  | { action: "weekly"; tenantId: string }
+  | { action: "brand_get" | "brand_logo_get" | "brand_logo_delete"; tenantId: string }
+  | { action: "brand_save"; tenantId: string; kit: Record<string, unknown> }
+  | { action: "brand_logo_put"; tenantId: string; contentBase64: string };
 
 /** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
 export type WeeklySummary = {
@@ -77,7 +102,11 @@ export type PortalCompanyResponse =
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
-  | { status: "ok"; weekly: WeeklySummary };
+  | { status: "ok"; weekly: WeeklySummary }
+  | { status: "ok"; brand: BrandKitView; canEdit: boolean }
+  | { status: "ok"; logo: BrandLogo }
+  | { status: "invalid_brand"; problem: string }
+  | { status: "invalid_logo"; problem: "size" | "format" | "dimensions" };
 
 export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 
@@ -117,6 +146,8 @@ export interface PortalBridge {
   companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null>;
   /** Public: no account involved; the code is the only key. */
   publicQuote?(token: string): Promise<{ status: "ok"; quote: PublicQuote } | { status: "not_found" } | null>;
+  /** Public: the issuing company's logo, only through a valid quote code. */
+  publicQuoteLogo?(token: string): Promise<{ status: "ok"; logo: BrandLogo } | { status: "not_found" } | null>;
 }
 
 const encoder = new TextEncoder();
@@ -149,6 +180,10 @@ export class SignedPortalBridge implements PortalBridge {
 
   publicQuote(token: string) {
     return this.call<{ status: "ok"; quote: PublicQuote } | { status: "not_found" }>(PORTAL_PUBLIC_QUOTE_PATH, "public", { token });
+  }
+
+  publicQuoteLogo(token: string) {
+    return this.call<{ status: "ok"; logo: BrandLogo } | { status: "not_found" }>(PORTAL_PUBLIC_QUOTE_PATH, "public", { token, part: "logo" });
   }
 
   private async call<T>(path: string, portalUserId: string, request: Record<string, unknown>): Promise<T | null> {

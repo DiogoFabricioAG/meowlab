@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
+import type { BrandLogo, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
@@ -37,6 +37,23 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RUC = /^\d{11}$/;
 const TENANT = /^[A-Za-z0-9_.:-]{1,128}$/;
 const INVITATION = /^[A-Za-z0-9_-]{22}$/;
+const MAX_LOGO_BYTES = 300 * 1024;
+
+const toBase64 = (bytes: Uint8Array) => {
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  return btoa(binary);
+};
+
+/** A stored logo as an image; never sniffed as anything else. */
+const logoResponse = (logo: BrandLogo, cache: string) => {
+  const type = logo.mimeType === "image/jpeg" ? "image/jpeg" : "image/png";
+  const bytes = Uint8Array.from(atob(logo.contentBase64), (char) => char.charCodeAt(0));
+  return new Response(bytes, {
+    headers: { "Content-Type": type, "Cache-Control": cache, ETag: `"${logo.version}"`, "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "default-src 'none'" },
+  });
+};
 
 /** RUC lookups per account: each one may reach a paid registry provider. */
 const LOOKUP_LIMIT = 20;
@@ -71,7 +88,8 @@ export function createApp(deps: AppDeps) {
 
   app.use("/api/*", async (c, next) => {
     await next();
-    c.header("Cache-Control", "no-store");
+    // Only the brand logos declare their own cache (versioned URLs); everything else is no-store.
+    if (!c.res.headers.has("Cache-Control")) c.header("Cache-Control", "no-store");
     c.header("X-Content-Type-Options", "nosniff");
   });
 
@@ -101,6 +119,17 @@ export function createApp(deps: AppDeps) {
     if (result.status !== "ok") return c.json({ error: "not_found" }, 404);
     c.header("X-Robots-Tag", "noindex");
     return c.json(result.quote);
+  });
+
+  // Public: the issuing company's logo on that quote (ADR-0012). Versioned by the page.
+  app.get("/api/public/quotes/:token/logo", async (c) => {
+    const token = c.req.param("token");
+    if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return c.json({ error: "not_found" }, 404);
+    if (!deps.bridge?.publicQuoteLogo) return c.json({ error: "unavailable" }, 503);
+    const result = await deps.bridge.publicQuoteLogo(token);
+    if (!result) return c.json({ error: "unavailable" }, 503);
+    if (result.status !== "ok") return c.json({ error: "not_found" }, 404);
+    return logoResponse(result.logo, "public, max-age=86400");
   });
 
   app.post("/api/webhooks/mercadopago", async (c) => {
@@ -218,6 +247,53 @@ export function createApp(deps: AppDeps) {
     if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
     if (result.status !== "ok" || !("weekly" in result)) return c.json({ error: "companies_unavailable" }, 503);
     return c.json(result.weekly);
+  });
+
+  // ADR-0012, phase 1: the company's brand kit. Members read it; the bridge lets only owners change it.
+  app.get("/api/companies/:tenantId/brand", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "brand_get", tenantId });
+  });
+
+  app.put("/api/companies/:tenantId/brand", async (c) => {
+    const tenantId = tenantParam(c);
+    const raw = await c.req.text();
+    if (!tenantId || raw.length > 16 * 1024) return c.json({ error: "invalid_request" }, 400);
+    let kit: unknown = null;
+    try {
+      kit = JSON.parse(raw);
+    } catch {
+      return c.json({ error: "invalid_request" }, 400);
+    }
+    if (typeof kit !== "object" || kit === null || Array.isArray(kit)) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "brand_save", tenantId, kit: kit as Record<string, unknown> });
+  });
+
+  app.get("/api/companies/:tenantId/brand/logo", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "brand_logo_get", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status !== "ok" || !("logo" in result)) return c.json({ error: result.status }, result.status === "forbidden" ? 403 : 404);
+    return logoResponse(result.logo, "private, max-age=86400");
+  });
+
+  // The browser already reduced the image; the bridge checks bytes, type and size again.
+  app.put("/api/companies/:tenantId/brand/logo", async (c) => {
+    const tenantId = tenantParam(c);
+    const type = c.req.header("content-type")?.split(";")[0].trim();
+    if (!tenantId || (type !== "image/png" && type !== "image/jpeg")) return c.json({ error: "invalid_request" }, 400);
+    const bytes = new Uint8Array(await c.req.arrayBuffer());
+    if (bytes.length > MAX_LOGO_BYTES) return c.json({ status: "invalid_logo", problem: "size" }, 413);
+    return company(c, { action: "brand_logo_put", tenantId, contentBase64: toBase64(bytes) });
+  });
+
+  app.delete("/api/companies/:tenantId/brand/logo", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "brand_logo_delete", tenantId });
   });
 
   app.post("/api/companies/:tenantId/invitations", async (c) => {
