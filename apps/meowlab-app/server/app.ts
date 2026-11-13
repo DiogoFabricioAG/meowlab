@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { PortalBillingAction, PortalBridge, PortalLinkAction } from "./bridge";
+import type { PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
@@ -28,10 +28,24 @@ const isAdmin = (session: Session) => (session.user as { role?: unknown }).role 
 type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RUC = /^\d{11}$/;
+
+/** RUC lookups per account: each one may reach a paid registry provider. */
+const LOOKUP_LIMIT = 20;
+const LOOKUP_WINDOW_MS = 10 * 60_000;
 
 /** HTTP API of the portal. Runtime-agnostic: the Cloudflare and Node entries only build its dependencies. */
 export function createApp(deps: AppDeps) {
   const app = new Hono<{ Variables: { session: Session } }>();
+  // In memory: one portal process on the VPS; a restart only resets the window.
+  const lookups = new Map<string, number[]>();
+  const allowLookup = (userId: string, now = Date.now()) => {
+    const recent = (lookups.get(userId) ?? []).filter((at) => now - at < LOOKUP_WINDOW_MS);
+    if (recent.length >= LOOKUP_LIMIT) return false;
+    recent.push(now);
+    lookups.set(userId, recent);
+    return true;
+  };
 
   app.use("/api/*", async (c, next) => {
     await next();
@@ -90,7 +104,11 @@ export function createApp(deps: AppDeps) {
     const link = deps.bridge ? await deps.bridge.link(user.id, { action: "status" }) : null;
     const linked = link?.status === "linked";
     // Phase 3: the module opens when the linked number belongs to a company with FacturaYa.
-    const companies = linked && deps.bridge ? await deps.bridge.billing(user.id, { action: "companies" }) : null;
+    const [companies, memberships] = await Promise.all([
+      linked && deps.bridge ? deps.bridge.billing(user.id, { action: "companies" }) : null,
+      // ADR-0010: companies of the account itself, independent of WhatsApp.
+      deps.bridge ? deps.bridge.companies(user.id, { action: "mine" }) : null,
+    ]);
     const companyCount = companies?.status === "ok" && "companies" in companies ? companies.companies.length : 0;
     const modules: PortalModule[] = [
       {
@@ -106,7 +124,33 @@ export function createApp(deps: AppDeps) {
         ? { linked: true, maskedPhone: link.maskedPhone, linkedAt: link.linkedAt, available: true }
         : { linked: false, available: deps.bridge !== null && link !== null },
       modules,
+      // Null when the bridge cannot answer: the panel then skips the company step.
+      companies: memberships?.status === "ok" && "companies" in memberships ? memberships.companies : null,
     });
+  });
+
+  // ADR-0010, phase 1: create a company by RUC. The bridge re-reads the registry on
+  // creation and decides ownership; the portal only validates shape and relays.
+  const company = async (c: Context<{ Variables: { session: Session } }>, request: PortalCompanyAction) => {
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, request);
+    return result ? c.json(result) : c.json({ error: "companies_unavailable" }, 503);
+  };
+
+  app.get("/api/companies/lookup", async (c) => {
+    const ruc = (c.req.query("ruc") ?? "").trim();
+    if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
+    if (!allowLookup(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
+    return company(c, { action: "lookup", ruc });
+  });
+
+  app.post("/api/companies", async (c) => {
+    const body = await c.req.json().catch(() => null) as { ruc?: unknown; name?: unknown } | null;
+    const ruc = typeof body?.ruc === "string" ? body.ruc.trim() : "";
+    const name = typeof body?.name === "string" ? body.name.trim().replace(/\s+/g, " ") : "";
+    if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
+    if (name.length > 160) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "create", ruc, ...(name ? { name } : {}) });
   });
 
   const relay = async (c: Context<{ Variables: { session: Session } }>, request: PortalLinkAction) => {

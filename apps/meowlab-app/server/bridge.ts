@@ -5,6 +5,31 @@
  */
 export const PORTAL_LINK_BRIDGE_PATH = "/v1/portal/whatsapp-link";
 export const PORTAL_BILLING_BRIDGE_PATH = "/v1/portal/billing";
+export const PORTAL_COMPANY_BRIDGE_PATH = "/v1/portal/companies";
+
+export type Taxpayer = { ruc: string; legalName: string; address: string | null; status: string | null; condition: string | null };
+
+/** A company this account belongs to (ADR-0010). Invoice Cat needs SOL credentials until FacturaYa is connected. */
+export type PortalMembership = {
+  id: string;
+  name: string;
+  legalName: string | null;
+  ruc: string | null;
+  role: "owner" | "member";
+  invoicing: "active" | "needs_sol";
+};
+
+export type PortalCompanyAction =
+  | { action: "mine" }
+  | { action: "lookup"; ruc: string }
+  | { action: "create"; ruc: string; name?: string };
+
+export type PortalCompanyResponse =
+  | { status: "ok"; companies: PortalMembership[] }
+  | { status: "ok"; taxpayer: Taxpayer }
+  | { status: "created"; company: PortalMembership }
+  | { status: "inactive"; taxpayer: Taxpayer }
+  | { status: "invalid_ruc" | "not_found" | "taken" | "limit_reached" | "unavailable" };
 
 export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 
@@ -41,6 +66,7 @@ export type PortalLinkAction =
 export interface PortalBridge {
   link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null>;
   billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null>;
+  companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null>;
 }
 
 const encoder = new TextEncoder();
@@ -65,6 +91,10 @@ export class SignedPortalBridge implements PortalBridge {
 
   billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null> {
     return this.call<PortalBillingResponse>(PORTAL_BILLING_BRIDGE_PATH, portalUserId, request);
+  }
+
+  companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null> {
+    return this.call<PortalCompanyResponse>(PORTAL_COMPANY_BRIDGE_PATH, portalUserId, request);
   }
 
   private async call<T>(path: string, portalUserId: string, request: Record<string, unknown>): Promise<T | null> {

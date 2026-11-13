@@ -5,6 +5,25 @@ import { WhatsAppLink } from "./WhatsAppLink";
 import { AdminPanel } from "./AdminPanel";
 import { PlanPanel } from "./PlanPanel";
 import { InvoicingPanel } from "./InvoicingPanel";
+import { CompanyCards, CompanyStep } from "./CompanyStep";
+
+// Per-browser convenience: «Lo hago después» hides the step until the person reopens it.
+const SKIP_KEY = "meowlab.companyStep.skipped";
+const readSkip = () => {
+  try {
+    return window.localStorage.getItem(SKIP_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+const writeSkip = (value: boolean) => {
+  try {
+    if (value) window.localStorage.setItem(SKIP_KEY, "1");
+    else window.localStorage.removeItem(SKIP_KEY);
+  } catch {
+    // Storage blocked: the step simply shows again next time.
+  }
+};
 
 const BILLING_FEATURES = [
   "Facturas, boletas y notas con su estado en SUNAT",
@@ -20,6 +39,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : "panel",
   );
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
+  const [skipped, setSkipped] = useState(readSkip);
+  const withoutCompany = me.companies !== null && me.companies.length === 0;
 
   async function signOut() {
     setLeaving(true);
@@ -85,6 +106,38 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
           </p>
         </div>
 
+        {withoutCompany && !skipped && (
+          <CompanyStep
+            onDone={() => {
+              writeSkip(false);
+              onChange();
+            }}
+            onSkip={() => {
+              writeSkip(true);
+              setSkipped(true);
+            }}
+          />
+        )}
+        {withoutCompany && skipped && (
+          <section className="flex flex-col gap-3 rounded-3xl border border-dashed border-line bg-surface-subtle/60 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-ink">Todavía no estás en una empresa</h2>
+              <p className="text-ink-muted">Crea la tuya con tu RUC o únete a la de tu equipo con una invitación.</p>
+            </div>
+            <button
+              type="button"
+              className="btn-secondary w-fit"
+              onClick={() => {
+                writeSkip(false);
+                setSkipped(false);
+              }}
+            >
+              Elegir ahora
+            </button>
+          </section>
+        )}
+        {me.companies && me.companies.length > 0 && <CompanyCards companies={me.companies} />}
+
         <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
 
         <section className="space-y-4" aria-labelledby="modules-title">
@@ -130,8 +183,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
                 )}
                 {module.status === "no_company" && (
                   <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
-                    Tu WhatsApp está vinculado, pero todavía no es miembro de ninguna empresa con facturación electrónica. Pídele al
-                    equipo de MeowLab que agregue tu número a tu empresa.
+                    Tu WhatsApp está vinculado, pero todavía no es miembro de ninguna empresa con facturación electrónica activa.
+                    Crea tu empresa o pide al dueño que te invite.
                   </p>
                 )}
                 {module.status === "coming_soon" && (

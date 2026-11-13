@@ -8,7 +8,7 @@ const session = { user: { id: "user-1", name: "Ana", email: "ana@test.pe", image
 
 function app(billing: PortalBridge["billing"], link: PortalBridge["link"] = async () => ({ status: "linked", maskedPhone: "+51 9•• ••• 280", linkedAt: "2026-11-13T00:00:00Z" })) {
   const auth = { api: { getSession: async () => session }, handler: async () => new Response(null) } as unknown as Auth;
-  const bridge: PortalBridge = { link: vi.fn(link), billing: vi.fn(billing) };
+  const bridge: PortalBridge = { link: vi.fn(link), billing: vi.fn(billing), companies: vi.fn(async () => ({ status: "ok" as const, companies: [] })) };
   return { bridge, app: createApp({ auth, googleEnabled: false, bridge, allowedOrigins: ["https://app.meowlab.tech"] }) };
 }
 

@@ -88,6 +88,20 @@ Pestaña **Facturación**, visible cuando el WhatsApp vinculado es miembro activ
   FacturaYa con el token de esa empresa; el portal nunca ve tokens.
 - Las descargas usan un tipo de contenido de una lista cerrada y un nombre saneado.
 
+## Empresas (ADR-0010, fase 1)
+
+Después de crear la cuenta, «Mi panel» muestra el paso **Tu empresa**: crear la
+empresa con el RUC, unirse con una invitación (fase 2) o hacerlo después («Lo hago
+después» sólo se recuerda en ese navegador).
+
+- `GET /api/companies/lookup?ruc=` consulta el padrón (20 consultas por cuenta cada
+  10 minutos) y `POST /api/companies {ruc, name?}` crea la empresa con la cuenta como
+  dueña. `/api/me` incluye `companies` (o `null` si el bridge no responde).
+- El portal sólo reenvía al bridge (`/v1/portal/companies`). El bridge vuelve a leer
+  el RUC en el padrón de FacturaYa al crear, no dice de quién es un RUC ya registrado,
+  rechaza contribuyentes no activos y limita a 3 empresas por cuenta.
+- Invoice Cat queda pendiente de las credenciales SOL (fase 3).
+
 ## Cobros (ADR-0007, fase 1)
 
 Pestaña **Plan**: catálogo de `billing_agents` (precios con IGV), descuento por
