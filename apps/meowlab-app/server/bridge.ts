@@ -37,7 +37,8 @@ export type PortalCompanyAction =
   | { action: "remove"; tenantId: string; memberId: string }
   | { action: "preview"; token: string }
   | { action: "accept"; token: string }
-  | { action: "weekly"; tenantId: string };
+  | { action: "weekly"; tenantId: string }
+  | { action: "stock_view"; tenantId: string };
 
 /** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
 export type WeeklySummary = {
@@ -66,7 +67,23 @@ export type PortalCompanyResponse =
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
-  | { status: "ok"; weekly: WeeklySummary };
+  | { status: "ok"; weekly: WeeklySummary }
+  | { status: "ok"; stock: StockView };
+
+/** Stock Cat in the portal (ADR-0014): costs and value only reach the owner. */
+export type StockView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    allowNegative: boolean;
+    valueCents: number | null;
+    items: Array<{ name: string; kind: "product" | "supply"; onHand: number; minQty: number | null; low: boolean; needsCount: boolean;
+      avgCostCents: number | null }>;
+    moves: Array<{ at: string; kind: "in" | "out" | "count" | "document_out" | "document_in"; name: string; delta: number; balance: number;
+      document: string | null }>;
+    unmatched: string[];
+  };
 
 export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 

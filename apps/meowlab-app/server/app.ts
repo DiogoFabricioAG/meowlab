@@ -248,6 +248,18 @@ export function createApp(deps: AppDeps) {
     return c.json(result.weekly);
   });
 
+  // Stock Cat (ADR-0014): stock, alerts and moves of one company the account belongs to.
+  app.get("/api/companies/:tenantId/stock", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "stock_view", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("stock" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.stock);
+  });
+
   app.post("/api/companies/:tenantId/invitations", async (c) => {
     const tenantId = tenantParam(c);
     const body = await c.req.json().catch(() => null) as { access?: unknown; phone?: unknown } | null;
