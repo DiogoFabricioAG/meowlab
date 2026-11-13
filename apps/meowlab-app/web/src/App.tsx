@@ -3,12 +3,21 @@ import { authClient, fetchJson, type Me, type PortalConfig } from "./auth-client
 import { AuthPage } from "./AuthPage";
 import { Panel } from "./Panel";
 import { OnboardingPage } from "./OnboardingPage";
+import { QuotePage, quoteCodeFromPath } from "./QuotePage";
+
+// A shared quote (ADR-0011) is public: it renders without signing in.
+const publicQuote = quoteCodeFromPath();
 import { InvitationPage, captureInvitationFromUrl, clearPendingInvitation, readPendingInvitation, storePendingInvitation } from "./InvitationPage";
 
 // Before anything renders: /invitacion/<code> leaves the address bar and waits for the sign-in.
 const invitedWith = captureInvitationFromUrl();
 
 export function App() {
+  if (publicQuote) return <QuotePage code={publicQuote} />;
+  return <SignedInApp />;
+}
+
+function SignedInApp() {
   const { data: session, isPending } = authClient.useSession();
   const [config, setConfig] = useState<PortalConfig>({ google: false, passwordReset: false });
   const [me, setMe] = useState<Me | null>(null);

@@ -90,6 +90,19 @@ export function createApp(deps: AppDeps) {
 
   // Public: Mercado Pago calls it. Trust comes from the signature and a fresh read of
   // the resource from the API, never from the body.
+  // Public: a Sales Cat quote shared with a customer by link (ADR-0011). The 128-bit code
+  // is the only key; the bridge stores only its hash.
+  app.get("/api/public/quotes/:token", async (c) => {
+    const token = c.req.param("token");
+    if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return c.json({ error: "not_found" }, 404);
+    if (!deps.bridge?.publicQuote) return c.json({ error: "unavailable" }, 503);
+    const result = await deps.bridge.publicQuote(token);
+    if (!result) return c.json({ error: "unavailable" }, 503);
+    if (result.status !== "ok") return c.json({ error: "not_found" }, 404);
+    c.header("X-Robots-Tag", "noindex");
+    return c.json(result.quote);
+  });
+
   app.post("/api/webhooks/mercadopago", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
     const raw = await c.req.text();

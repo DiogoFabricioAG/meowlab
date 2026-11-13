@@ -6,6 +6,21 @@
 export const PORTAL_LINK_BRIDGE_PATH = "/v1/portal/whatsapp-link";
 export const PORTAL_BILLING_BRIDGE_PATH = "/v1/portal/billing";
 export const PORTAL_COMPANY_BRIDGE_PATH = "/v1/portal/companies";
+export const PORTAL_PUBLIC_QUOTE_PATH = "/v1/portal/public-quote";
+
+/** A Sales Cat quote as its customer sees it (ADR-0011). Amounts in céntimos, IGV included. */
+export type PublicQuote = {
+  company: { name: string; legalName: string | null; ruc: string | null; address: string | null };
+  number: number;
+  issuedAt: string;
+  validUntil: string;
+  customerName: string;
+  subtotalCents: number;
+  discountCents: number;
+  totalCents: number;
+  notes: string | null;
+  lines: Array<{ description: string; quantity: number; unitPriceCents: number; totalCents: number }>;
+};
 
 export type Taxpayer = { ruc: string; legalName: string; address: string | null; status: string | null; condition: string | null };
 
@@ -100,6 +115,8 @@ export interface PortalBridge {
   link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null>;
   billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null>;
   companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null>;
+  /** Public: no account involved; the code is the only key. */
+  publicQuote?(token: string): Promise<{ status: "ok"; quote: PublicQuote } | { status: "not_found" } | null>;
 }
 
 const encoder = new TextEncoder();
@@ -128,6 +145,10 @@ export class SignedPortalBridge implements PortalBridge {
 
   companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null> {
     return this.call<PortalCompanyResponse>(PORTAL_COMPANY_BRIDGE_PATH, portalUserId, request);
+  }
+
+  publicQuote(token: string) {
+    return this.call<{ status: "ok"; quote: PublicQuote } | { status: "not_found" }>(PORTAL_PUBLIC_QUOTE_PATH, "public", { token });
   }
 
   private async call<T>(path: string, portalUserId: string, request: Record<string, unknown>): Promise<T | null> {
