@@ -32,7 +32,8 @@ import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
 import { SALES_BRIDGE_PATH, isSalesBridgeRequest } from "../../sales/bridge-contracts";
-import type { PublicQuoteService, SalesService } from "../sales/sales-service";
+import type { SalesService } from "../sales/sales-service";
+import type { QuotePdfService } from "../sales/quote-pdf-service";
 
 /** Portal → bridge: a quote's public page (`/cotizacion/<code>`), signed with the portal secret. */
 export const PORTAL_PUBLIC_QUOTE_PATH = "/v1/portal/public-quote";
@@ -64,7 +65,8 @@ export type BridgeHttpHandlerDependencies = {
   portalCompanyService?: Pick<PortalCompanyService, "handle">;
   /** Sales Cat (ADR-0011). */
   salesService?: Pick<SalesService, "process">;
-  publicQuoteService?: Pick<PublicQuoteService, "view" | "logo">;
+  /** ADR-0013: the quote's PDF behind its public link code. */
+  quotePdfService?: Pick<QuotePdfService, "byToken">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -311,7 +313,7 @@ async function handlePublicQuote(
   dependencies: BridgeHttpHandlerDependencies,
 ): Promise<BridgeHttpResponse> {
   if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
-  if (!dependencies.portalSecret || !dependencies.publicQuoteService) return jsonResponse(503, { error: "portal_unavailable" });
+  if (!dependencies.portalSecret || !dependencies.quotePdfService) return jsonResponse(503, { error: "portal_unavailable" });
   const verification = verifyBridgeSignature(
     request.body,
     request.headers["x-manolo-timestamp"],
@@ -329,19 +331,16 @@ async function handlePublicQuote(
   } catch {
     return jsonResponse(400, { error: "invalid_json" });
   }
-  const body = payload as { version?: unknown; requestId?: unknown; token?: unknown; part?: unknown };
+  const body = payload as { version?: unknown; requestId?: unknown; token?: unknown };
   if (body?.version !== 1 || typeof body.requestId !== "string" || typeof body.token !== "string"
-    || (body.part !== undefined && body.part !== "logo")
     || request.headers["x-manolo-request-id"] !== body.requestId) {
     return jsonResponse(400, { error: "invalid_request" });
   }
   try {
-    if (body.part === "logo") {
-      const logo = await dependencies.publicQuoteService.logo(body.token);
-      return jsonResponse(200, logo ? { status: "ok", logo } : { status: "not_found" });
-    }
-    const quote = await dependencies.publicQuoteService.view(body.token);
-    return jsonResponse(200, quote ? { status: "ok", quote } : { status: "not_found" });
+    const pdf = await dependencies.quotePdfService.byToken(body.token);
+    return jsonResponse(200, pdf
+      ? { status: "ok", pdf: { number: pdf.number, filename: pdf.filename, contentBase64: Buffer.from(pdf.bytes).toString("base64") } }
+      : { status: "not_found" });
   } catch {
     dependencies.log("vps_public_quote_failed");
     return jsonResponse(503, { error: "portal_unavailable" });

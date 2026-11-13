@@ -8,7 +8,7 @@ import type {
 } from "../../sales/bridge-contracts";
 import type { BridgeRequestIdentity, BridgeRequestStore } from "../bridge/request-store";
 import type { RoleLog } from "../../roles/contracts";
-import { loadBrandKit } from "../portal/brand-service";
+import { QuotePdfUnavailable, type QuotePdfService } from "./quote-pdf-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -66,6 +66,7 @@ export class SalesService {
     private readonly log: RoleLog,
     private readonly now: () => Date = () => new Date(),
     private readonly newToken: () => string = () => randomBytes(16).toString("base64url"),
+    private readonly quotePdfs: Pick<QuotePdfService, "byNumber"> | null = null,
   ) {}
 
   async process(request: SalesBridgeRequest, requestId: string, requestHash: string): Promise<SalesServiceResult> {
@@ -194,6 +195,18 @@ export class SalesService {
       }
       case "summary":
         return this.summary(companyId, payload.period as SummaryPeriod);
+      case "quote_pdf": {
+        if (!this.quotePdfs) throw new SalesError("unavailable");
+        let pdf;
+        try {
+          pdf = await this.quotePdfs.byNumber(companyId, Number(payload.number));
+        } catch (error) {
+          if (error instanceof QuotePdfUnavailable) throw new SalesError("unavailable");
+          throw error;
+        }
+        if (!pdf) throw new SalesError("not_found");
+        return { pdf: { number: pdf.number, filename: pdf.filename, contentBase64: Buffer.from(pdf.bytes).toString("base64") } };
+      }
     }
   }
 
@@ -269,26 +282,17 @@ export class SalesService {
     const lines = await this.lines(client, companyId, contactId, payload.lines as SalesLineInput[]);
     const totals = this.totals(lines, payload.discountCents);
     const number = await this.nextNumber(client, companyId, "quote");
-    // The brand kit (ADR-0012) wins over Sales Cat's own default, and its terms are copied in.
-    const settings = await client.query(
-      `SELECT COALESCE(kit.quote_valid_days, settings.quote_valid_days) AS quote_valid_days,
-              kit.quote_payment_terms, kit.quote_delivery_terms
-         FROM (SELECT $1::text AS tenant_id) AS wanted
-         LEFT JOIN sales.settings AS settings ON settings.tenant_id = wanted.tenant_id
-         LEFT JOIN commerce.brand_kits AS kit ON kit.tenant_id = wanted.tenant_id`,
-      [companyId],
-    );
+    const settings = await client.query("SELECT quote_valid_days FROM sales.settings WHERE tenant_id = $1", [companyId]);
     const validDays = Number(settings.rows[0]?.quote_valid_days ?? 7);
     const validUntil = limaDate(new Date(this.now().getTime() + validDays * DAY_MS));
     const token = this.newToken();
     const id = randomUUID();
     await client.query(
       `INSERT INTO sales.quotes (id, tenant_id, number, customer_id, customer_name, subtotal_cents, discount_cents, total_cents,
-         notes, valid_until, public_token_hash, created_by_contact_id, created_at, updated_at, payment_terms, delivery_terms)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14, $15)`,
+         notes, valid_until, public_token_hash, created_by_contact_id, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)`,
       [id, companyId, number, customer.id, customer.name, totals.subtotal, totals.discount, totals.total,
-        (payload.notes as string | undefined)?.trim() || null, validUntil, hashToken(token), contactId, this.now(),
-        settings.rows[0]?.quote_payment_terms ?? null, settings.rows[0]?.quote_delivery_terms ?? null],
+        (payload.notes as string | undefined)?.trim() || null, validUntil, hashToken(token), contactId, this.now()],
     );
     await this.insertLines(client, "quote_id", id, lines);
     await this.audit(client, companyId, "quote", id, "created", contactId, { number, totalCents: totals.total });
@@ -377,64 +381,5 @@ export class SalesService {
     } finally {
       client.release(destroy);
     }
-  }
-}
-
-/** Public quote view for the portal (`/cotizacion/<code>`): only the hash is stored. */
-export class PublicQuoteService {
-  constructor(private readonly pool: SalesPool) {}
-
-  /** The issuing company's logo, reachable only through a valid quote link. */
-  async logo(token: string) {
-    if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return null;
-    const { rows } = await this.pool.query(
-      `SELECT logo.mime_type, logo.content, logo.sha256
-         FROM sales.quotes AS quote JOIN commerce.brand_logos AS logo ON logo.tenant_id = quote.tenant_id
-        WHERE quote.public_token_hash = $1 AND quote.status <> 'cancelled'`,
-      [hashToken(token)],
-    ) as Rows;
-    const logo = rows[0];
-    if (!logo) return null;
-    return { mimeType: String(logo.mime_type), contentBase64: Buffer.from(logo.content as Uint8Array).toString("base64"),
-      version: String(logo.sha256).slice(0, 16) };
-  }
-
-  async view(token: string) {
-    if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return null;
-    const { rows } = await this.pool.query(
-      `SELECT quote.*, tenant.name AS company_name, tenant.legal_name, tenant.ruc, tenant.address
-         FROM sales.quotes AS quote JOIN whatsapp.tenants AS tenant ON tenant.id = quote.tenant_id
-        WHERE quote.public_token_hash = $1 AND quote.status <> 'cancelled'`,
-      [hashToken(token)],
-    ) as Rows;
-    const quote = rows[0];
-    if (!quote) return null;
-    const lines = await this.pool.query(
-      `SELECT description, quantity::float AS quantity, unit_price_cents, line_total_cents
-         FROM sales.lines WHERE quote_id = $1 ORDER BY position`,
-      [quote.id],
-    ) as Rows;
-    return {
-      company: { name: String(quote.company_name), legalName: (quote.legal_name as string | null) ?? null,
-        ruc: (quote.ruc as string | null) ?? null, address: (quote.address as string | null) ?? null },
-      number: Number(quote.number),
-      issuedAt: new Date(quote.created_at as string | Date).toISOString(),
-      validUntil: new Date(quote.valid_until as string | Date).toISOString().slice(0, 10),
-      customerName: (quote.customer_name as string | null) ?? "Cliente varios",
-      subtotalCents: Number(quote.subtotal_cents),
-      discountCents: Number(quote.discount_cents),
-      totalCents: Number(quote.total_cents),
-      notes: (quote.notes as string | null) ?? null,
-      paymentTerms: (quote.payment_terms as string | null) ?? null,
-      deliveryTerms: (quote.delivery_terms as string | null) ?? null,
-      // Logo, color, contact and payment methods are the company's current ones.
-      brand: await loadBrandKit(this.pool, String(quote.tenant_id)),
-      lines: lines.rows.map((line) => ({
-        description: String(line.description),
-        quantity: Number(line.quantity),
-        unitPriceCents: Number(line.unit_price_cents),
-        totalCents: Number(line.line_total_cents),
-      })),
-    };
   }
 }

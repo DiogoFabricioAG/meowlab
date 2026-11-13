@@ -26,6 +26,8 @@ export interface SalesClient {
   cancelSale(companyId: string, number: number, reason: string | null): Promise<SalesResult<{ number: number }>>;
   linkInvoice(companyId: string, number: number, invoiceNumber: string): Promise<SalesResult<true>>;
   summary(companyId: string, period: SummaryPeriod): Promise<SalesResult<SalesSummary>>;
+  /** ADR-0013: the quote's PDF, to send it in the chat. */
+  quotePdf(companyId: string, number: number): Promise<SalesResult<{ filename: string; bytes: Uint8Array }>>;
 }
 
 /** Through the signed VPS bridge; the WhatsApp message id seeds idempotent writes. */
@@ -96,5 +98,15 @@ export class VpsSalesClient implements SalesClient {
 
   summary(companyId: string, period: SummaryPeriod) {
     return this.call("summary", companyId, { period }, (data) => data.summary as SalesSummary);
+  }
+
+  quotePdf(companyId: string, number: number) {
+    return this.call("quote_pdf", companyId, { number }, (data) => {
+      const pdf = data.pdf as { filename?: unknown; contentBase64?: unknown };
+      if (typeof pdf?.filename !== "string" || typeof pdf.contentBase64 !== "string") throw new Error("malformed");
+      const bytes = Uint8Array.from(atob(pdf.contentBase64), (char) => char.charCodeAt(0));
+      if (bytes.length < 100 || new TextDecoder().decode(bytes.subarray(0, 5)) !== "%PDF-") throw new Error("malformed");
+      return { filename: pdf.filename, bytes };
+    });
   }
 }

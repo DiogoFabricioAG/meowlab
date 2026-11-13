@@ -13,6 +13,8 @@ export const SALES_OPERATIONS = [
   "cancel_sale",
   "link_invoice",
   "summary",
+  // ADR-0013: the quote's PDF, to send it in the chat.
+  "quote_pdf",
 ] as const;
 export type SalesOperation = (typeof SALES_OPERATIONS)[number];
 
@@ -87,6 +89,8 @@ export function isSalesPayload(operation: SalesOperation, payload: Record<string
       return Number.isSafeInteger(payload.number) && Number(payload.number) >= 1 && text(payload.invoiceNumber, 40);
     case "summary":
       return SUMMARY_PERIODS.includes(payload.period as SummaryPeriod);
+    case "quote_pdf":
+      return Number.isSafeInteger(payload.number) && Number(payload.number) >= 1;
   }
 }
 

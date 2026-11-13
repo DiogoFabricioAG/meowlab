@@ -4,7 +4,8 @@
 //     --outfile=node_modules/.cache/sales-pg-check.mjs && node node_modules/.cache/sales-pg-check.mjs
 import { readFileSync } from "node:fs";
 import pg from "pg";
-import { PublicQuoteService, SalesService } from "../src/node/sales/sales-service";
+import { SalesService } from "../src/node/sales/sales-service";
+import { QuotePdfService, type QuotePdfInput } from "../src/node/sales/quote-pdf-service";
 import type { BridgeRequestStore } from "../src/node/bridge/request-store";
 import type { SalesBridgeRequest, SalesBridgeResponse } from "../src/sales/bridge-contracts";
 
@@ -23,8 +24,15 @@ await pool.query(`CREATE SCHEMA whatsapp;
 const migration = readFileSync("infra/postgres/migrations/014-sales-cat.sql", "utf8");
 await pool.query(migration);
 await pool.query(migration); // re-runnable
-// Quotes read the brand kit (ADR-0012) since migration 015.
+// 015 (brand kit) is retired by 016 (quote PDFs, ADR-0013); both run as in production.
 await pool.query(readFileSync("infra/postgres/migrations/015-brand-kit.sql", "utf8"));
+const quotePdfMigration = readFileSync("infra/postgres/migrations/016-quote-pdf.sql", "utf8");
+await pool.query(quotePdfMigration);
+await pool.query(quotePdfMigration); // re-runnable
+const rendered: QuotePdfInput[] = [];
+const quotePdfs = new QuotePdfService(pool, {
+  async render(quote) { rendered.push(quote); return new TextEncoder().encode(`%PDF-1.4 cotizacion ${quote.number} `.padEnd(300, "x")); },
+}, () => undefined);
 await pool.query("INSERT INTO sales.settings (tenant_id) VALUES ('org_jd')");
 
 // In-memory idempotency store with the same rules as PgBridgeRequestStore.
@@ -42,7 +50,7 @@ const store: BridgeRequestStore = {
 };
 let clock = new Date("2026-11-13T15:00:00Z");
 let tokens = 0;
-const service = new SalesService(pool, store, () => undefined, () => clock, () => `Tok${String(++tokens).padStart(19, "0")}`);
+const service = new SalesService(pool, store, () => undefined, () => clock, () => `Tok${String(++tokens).padStart(19, "0")}`, quotePdfs);
 let requests = 0;
 const call = async (contactId: number, operation: SalesBridgeRequest["operation"], payload: Record<string, unknown> = {}, company: string | undefined = "org_jd", requestId = `req-${++requests}`, hash = requestId) => {
   const result = await service.process({ channel_tenant_id: "manolo", contact_id: contactId, operation, ...(company ? { company_id: company } : {}), payload }, requestId, hash);
@@ -89,10 +97,21 @@ const quote = await call(1, "create_quote", { customer: ruc, lines: [{ descripti
 check("quote N.° 1, valid 7 days, code returned once", { n: quote.data.quote.number, until: quote.data.quote.validUntil, token: quote.data.quote.publicToken },
   { n: 1, until: "2026-11-20", token: "Tok0000000000000000001" });
 check("the code itself is not stored", (await pool.query("SELECT count(*)::int AS n FROM sales.quotes WHERE public_token_hash LIKE 'Tok%'")).rows[0], { n: 0 });
-const view = await new PublicQuoteService(pool).view("Tok0000000000000000001");
-check("public view shows company, customer and lines", { company: view?.company.ruc, customer: view?.customerName, lines: view?.lines, total: view?.totalCents },
-  { company: "20601234565", customer: "Comercial Lima", lines: [{ description: "Volantes A5", quantity: 100, unitPriceCents: 150, totalCents: 15000 }], total: 15000 });
-check("a wrong code shows nothing", await new PublicQuoteService(pool).view("Zzzzzzzzzzzzzzzzzzzzzz"), null);
+check("the brand kit tables are gone", (await pool.query("SELECT count(*)::int AS n FROM pg_tables WHERE schemaname = 'commerce' AND tablename LIKE 'brand%'")).rows[0], { n: 0 });
+const pdf = await quotePdfs.byToken("Tok0000000000000000001");
+check("the public link gets the PDF", pdf && { number: pdf.number, filename: pdf.filename, isPdf: new TextDecoder().decode(pdf.bytes.subarray(0, 5)) },
+  { number: 1, filename: "Cotizacion-000001.pdf", isPdf: "%PDF-" });
+check("FacturaYa receives company, customer, Lima dates and lines", rendered[0] && { ruc: rendered[0].company.ruc, customer: rendered[0].customer,
+  issued: rendered[0].issue_date, until: rendered[0].valid_until, lines: rendered[0].lines, total: rendered[0].total_cents },
+  { ruc: "20601234565", customer: { name: "Comercial Lima", document_type: "6", document_number: "20123456789" }, issued: "2026-11-13",
+    until: "2026-11-20", lines: [{ description: "Volantes A5", quantity: 100, unit_price_cents: 150, total_cents: 15000 }], total: 15000 });
+const fromChat = await call(1, "quote_pdf", { number: 1 });
+check("Manolo gets the same stored PDF without drawing it again", { same: fromChat.data.pdf.contentBase64 === Buffer.from(pdf!.bytes).toString("base64"), drawn: rendered.length },
+  { same: true, drawn: 1 });
+check("the PDF is stored once", (await pool.query("SELECT count(*)::int AS n FROM sales.quote_files")).rows[0], { n: 1 });
+check("another company cannot ask for it", (await call(1, "quote_pdf", { number: 1 }, "org_off")).error, { code: "forbidden" });
+check("an unknown quote number is not found", (await call(1, "quote_pdf", { number: 99 })).error, { code: "not_found" });
+check("a wrong code gets nothing", await quotePdfs.byToken("Zzzzzzzzzzzzzzzzzzzzzz"), null);
 
 check("cancel a sale", (await call(1, "cancel_sale", { number: 1, reason: null })).data, { cancelled: { number: 1 } });
 check("cannot cancel it twice", (await call(1, "cancel_sale", { number: 1, reason: null })).error, { code: "not_found" });

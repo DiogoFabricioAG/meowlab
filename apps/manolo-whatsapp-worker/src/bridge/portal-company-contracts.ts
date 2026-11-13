@@ -3,8 +3,6 @@
  * secret, like the other portal routes. The bridge re-reads the RUC from the taxpayer
  * registry on creation: the portal never supplies the legal name.
  */
-import type { BrandKitProblem, BrandKitView } from "./brand-contracts";
-
 export const PORTAL_COMPANY_BRIDGE_PATH = "/v1/portal/companies";
 
 type Base = { version: 1; requestId: string; portalUserId: string };
@@ -23,11 +21,7 @@ export type PortalCompanyRequest =
   | (Base & { action: "preview"; token: string })
   | (Base & { action: "accept"; token: string })
   // «Inicio»: what the company's agents did this week.
-  | (Base & { action: "weekly"; tenantId: string })
-  // Brand kit (ADR-0012, phase 1): members read it, owners change it.
-  | (Base & { action: "brand_get" | "brand_logo_get" | "brand_logo_delete"; tenantId: string })
-  | (Base & { action: "brand_save"; tenantId: string; kit: unknown })
-  | (Base & { action: "brand_logo_put"; tenantId: string; contentBase64: string });
+  | (Base & { action: "weekly"; tenantId: string });
 
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
@@ -97,11 +91,7 @@ export type PortalCompanyResponse =
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
-  | { status: "ok"; weekly: WeeklySummary }
-  | { status: "ok"; brand: BrandKitView; canEdit: boolean }
-  | { status: "ok"; logo: { mimeType: string; contentBase64: string; version: string } }
-  | { status: "invalid_brand"; problem: BrandKitProblem }
-  | { status: "invalid_logo"; problem: "size" | "format" | "dimensions" };
+  | { status: "ok"; weekly: WeeklySummary };
 
 /** Max companies one account may own; more needs the MeowLab team. */
 export const MAX_OWNED_COMPANIES = 3;
@@ -143,9 +133,6 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
         && (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160));
     case "team":
     case "weekly":
-    case "brand_get":
-    case "brand_logo_get":
-    case "brand_logo_delete":
       return tenant(value.tenantId);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")
@@ -154,12 +141,6 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
       return tenant(value.tenantId) && typeof value.invitationId === "string" && UUID.test(value.invitationId);
     case "remove":
       return tenant(value.tenantId) && text(value.memberId, 128);
-    case "brand_save":
-      return tenant(value.tenantId) && record(value.kit);
-    // 300 KB of image is at most 409 600 base64 characters.
-    case "brand_logo_put":
-      return tenant(value.tenantId) && typeof value.contentBase64 === "string"
-        && value.contentBase64.length <= 409_600 && /^[A-Za-z0-9+/]+={0,2}$/.test(value.contentBase64);
     case "preview":
     case "accept":
       return typeof value.token === "string" && INVITATION_TOKEN.test(value.token);

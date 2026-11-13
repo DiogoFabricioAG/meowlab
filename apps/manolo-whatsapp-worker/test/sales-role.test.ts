@@ -36,6 +36,7 @@ function fakeClient(overrides: Partial<SalesClient> = {}): SalesClient & Record<
       period: "today" as const, from: "2026-11-13", to: "2026-11-13", salesCount: 3, totalCents: 22500, creditCents: 5000,
       quotesCount: 1, quotedCents: 15000, topProducts: [{ description: "Polo blanco", quantity: 9, totalCents: 22500 }],
       topCustomers: [{ name: "Juan Pérez", salesCount: 2, totalCents: 15000 }] } })),
+    quotePdf: vi.fn(async () => ({ ok: true as const, data: { filename: "Cotizacion-000007.pdf", bytes: new TextEncoder().encode("%PDF-1.4 cotización") } })),
     ...overrides,
   } as SalesClient & Record<string, ReturnType<typeof vi.fn>>;
 }
@@ -147,7 +148,7 @@ describe("Sales Cat role", () => {
     expect(calls.reply.mock.calls[0][0]).toContain("¿A cuánto está *Taza estampada*?");
   });
 
-  it("creates a quote and shares it with a link button", async () => {
+  it("creates a quote and shares it with a link button and its PDF", async () => {
     const state = memoryState();
     const client = fakeClient();
     const ai = scriptedAi({ intent: "quote", items: [{ description: "Volantes A5", quantity: 100, unitPrice: 1.5 }],
@@ -161,6 +162,19 @@ describe("Sales Cat role", () => {
     }));
     expect(calls.sendCtaUrl).toHaveBeenCalledWith(expect.stringContaining("Cotización N.° 7"), "Ver cotización",
       "https://app.meowlab.tech/cotizacion/AbCdEfGhIjKlMnOpQrStUv");
+    expect(client.quotePdf).toHaveBeenCalledWith("org_jd", 7);
+    expect(calls.sendDocument).toHaveBeenCalledWith(expect.objectContaining({ filename: "Cotizacion-000007.pdf", caption: "Cotización N.° 7 en PDF." }));
+  });
+
+  it("still shares the link when the PDF is not ready", async () => {
+    const state = memoryState();
+    const client = fakeClient({ quotePdf: vi.fn(async () => ({ ok: false as const, code: "unavailable" })) });
+    const ai = scriptedAi({ intent: "quote", items: [{ description: "Volantes A5", quantity: 100, unitPrice: 1.5 }] });
+    await run({ text: "/sales cotiza 100 volantes", client, ai, state }).promise;
+    const { promise, calls } = run({ interactionId: "sales:confirm", client, state });
+    await promise;
+    expect(calls.sendCtaUrl).toHaveBeenCalled();
+    expect(calls.sendDocument).not.toHaveBeenCalled();
   });
 
   it("answers questions with the period summary", async () => {

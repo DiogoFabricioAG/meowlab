@@ -446,6 +446,15 @@ export class SalesRoleHandler implements RoleHandler {
       const body = `Cotización N.° ${saved.data.number} por ${soles(saved.data.totalCents)}, válida hasta el ${saved.data.validUntil.split("-").reverse().join("/")}. Reenvía este mensaje a tu cliente para que la vea.`;
       const sent = await context.sendCtaUrl?.(body, "Ver cotización", url);
       if (!sent || sent.status !== "sent") await context.reply(`${body}\n${url}`);
+      // ADR-0013: the same PDF as the link, as a document the owner can forward as is.
+      const pdf = await client.quotePdf(companyId, saved.data.number);
+      if (pdf.ok) {
+        await context.sendDocument({
+          pdf: new Blob([new Uint8Array(pdf.data.bytes)], { type: "application/pdf" }),
+          filename: pdf.data.filename,
+          caption: `Cotización N.° ${saved.data.number} en PDF.`,
+        });
+      }
       return;
     }
     if (!draft.paymentMethod) {

@@ -4,8 +4,8 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
-import { PortalBrandService } from "./portal/brand-service";
-import { PublicQuoteService, SalesService } from "./sales/sales-service";
+import { SalesService } from "./sales/sales-service";
+import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
@@ -119,8 +119,6 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       new PortalInvitationService(pool, logSafeEvent),
       // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
       new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
-      // ADR-0012: the company's brand kit for its documents.
-      new PortalBrandService(pool, logSafeEvent),
     ),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
@@ -203,6 +201,13 @@ async function main(): Promise<void> {
     logSafeEvent,
     { aiModel: process.env.PRINT_ADVISOR_MODEL },
   );
+  // ADR-0013: Sales Cat quotes as PDF, drawn by FacturaYa with the single layout.
+  const quotePdfToken = optionalSecret("FACTURAYA_INTERNAL_TOKEN", "FACTURAYA_INTERNAL_TOKEN_FILE");
+  const quotePdfs = new QuotePdfService(
+    connection.pool,
+    quotePdfToken ? new FacturayaQuotePdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
+    logSafeEvent,
+  );
   const handler = createBridgeHttpHandler({
     sharedSecret,
     service,
@@ -211,8 +216,8 @@ async function main(): Promise<void> {
     facturayaService,
     radarSelectionService: new PgRadarSelectionService(connection.pool),
     // Sales Cat (ADR-0011): its data and the public quote page.
-    salesService: new SalesService(connection.pool, requestStore, logSafeEvent),
-    publicQuoteService: new PublicQuoteService(connection.pool),
+    salesService: new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs),
+    quotePdfService: quotePdfs,
     ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl),
     log: logSafeEvent,
     healthCheck: async () => {
