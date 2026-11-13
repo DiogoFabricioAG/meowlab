@@ -8,11 +8,10 @@ import { InvoicingPanel } from "./InvoicingPanel";
 import { CompanyCards } from "./CompanyStep";
 import { WeeklyHome } from "./WeeklyHome";
 import { AgentsPage, TenderPanel } from "./AgentsPage";
-import { BrandKitPanel } from "./BrandKitPanel";
 import type { CatalogAgent, Weekly } from "./agents";
 import { Icon, type IconName } from "./icons";
 
-type Section = "home" | "agents" | "invoice" | "tender" | "plan" | "settings" | "team" | "documents" | "business";
+type Section = "home" | "agents" | "invoice" | "tender" | "plan" | "settings" | "team" | "business";
 
 /** Each section has its own address, so Back works and a link can point at it. */
 const ROUTES: Record<string, Section> = {
@@ -24,12 +23,11 @@ const ROUTES: Record<string, Section> = {
   "/plan": "plan",
   "/ajustes": "settings",
   "/ajustes/equipo": "team",
-  "/ajustes/documentos": "documents",
   "/negocio": "business",
 };
 const TITLES: Record<Section, string> = {
   home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", plan: "Plan",
-  settings: "Configuración", team: "Equipo", documents: "Documentos", business: "Negocio",
+  settings: "Configuración", team: "Equipo", business: "Negocio",
 };
 const sectionOf = (path: string): Section => ROUTES[path.replace(/\/+$/, "") || "/"] ?? "home";
 
@@ -113,7 +111,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     { path: "/inicio", label: "Inicio", icon: "home", matches: ["home"] },
     { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender"] },
     { path: "/plan", label: "Plan", icon: "card", matches: ["plan"] },
-    { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team", "documents"] },
+    { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team"] },
   ];
   const adminNav: NavItem[] = me.isAdmin ? [{ path: "/negocio", label: "Negocio", icon: "chart", matches: ["business"] }] : [];
 
@@ -202,33 +200,16 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
         {section === "tender" && <TenderPanel weekly={weekly} onBack={() => go("/agentes")} />}
         {section === "plan" && <PlanPanel email={me.user.email} />}
-        {company && section === "documents" && <BrandKitPanel key={company.id} company={company} onBack={() => go("/ajustes")} />}
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
           <div className="space-y-10">
             <header className="space-y-1">
               <h1 className="text-3xl font-bold tracking-tight text-ink">Configuración</h1>
-              <p className="text-lg text-ink-muted">Tu WhatsApp, tu empresa, tu equipo y tus documentos.</p>
+              <p className="text-lg text-ink-muted">Tu WhatsApp, tu empresa y tu equipo.</p>
             </header>
             <section className="space-y-4" aria-label="WhatsApp">
               <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
             </section>
-            {company && (
-              <section className="flex flex-col gap-4 rounded-3xl bg-forest p-6 text-white shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-8"
-                aria-labelledby="documents-title">
-                <div className="space-y-1">
-                  <h2 id="documents-title" className="text-xl font-bold tracking-tight">Tus documentos con tu marca</h2>
-                  <p className="text-mint-text">Logo, color, contacto y formas de pago de {company.name} en tus cotizaciones.</p>
-                </div>
-                <a href="/ajustes/documentos" className="btn-primary shrink-0 bg-white text-forest hover:bg-mint-light"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    go("/ajustes/documentos");
-                  }}>
-                  {company.role === "owner" ? "Personalizar documentos" : "Ver documentos"}
-                </a>
-              </section>
-            )}
             {companies.length > 0 && (
               <CompanyCards key={section} companies={companies} openTeamFor={section === "team" && company?.role === "owner" ? company.id : null} />
             )}
