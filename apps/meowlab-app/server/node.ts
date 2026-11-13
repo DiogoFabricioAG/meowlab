@@ -100,6 +100,11 @@ const api = createApp({
   allowedOrigins,
   adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values), billing ? () => billingStore.metrics() : undefined),
   billing,
+  users: async (ids) => {
+    const { rows } = await pool.query('SELECT id, name, email FROM "user" WHERE id = ANY($1::text[])', [ids]);
+    return new Map(rows.map((row) => [String(row.id), { name: String(row.name), email: String(row.email) }]));
+  },
+  appUrl: settings.BETTER_AUTH_URL,
 });
 
 const distDir = process.env.DIST_DIR ?? "./dist";

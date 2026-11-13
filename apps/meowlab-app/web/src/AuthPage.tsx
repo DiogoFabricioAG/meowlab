@@ -10,7 +10,7 @@ const HIGHLIGHTS = [
   { n: "3", title: "Vinculado a tu WhatsApp", text: "Sólo ves los datos del número que tú confirmas desde tu propio WhatsApp." },
 ];
 
-export function AuthPage({ config }: { config: PortalConfig }) {
+export function AuthPage({ config, invited = false }: { config: PortalConfig; invited?: boolean }) {
   const [mode, setMode] = useState<Mode>("sign-in");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -84,6 +84,11 @@ export function AuthPage({ config }: { config: PortalConfig }) {
           <Logo />
         </div>
         <div className="mx-auto w-full max-w-md space-y-8">
+          {invited && (
+            <p role="status" className="rounded-xl border border-line-mint bg-mint-light px-4 py-3 text-sm text-ink-2">
+              Tienes una invitación para unirte a una empresa. Entra o crea tu cuenta y la verás enseguida.
+            </p>
+          )}
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl transition-colors duration-200">
               {mode === "sign-in" ? "Entra a tu panel" : "Crea tu cuenta"}

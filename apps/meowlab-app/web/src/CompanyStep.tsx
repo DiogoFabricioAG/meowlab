@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { fetchJson, postJson, type Membership } from "./auth-client";
+import { invitationCodeFrom } from "./InvitationPage";
+import { TeamPanel } from "./TeamPanel";
 
 type Taxpayer = { ruc: string; legalName: string; address: string | null; status: string | null; condition: string | null };
 
@@ -29,7 +31,12 @@ const OPTIONS = [
 ] as const;
 
 /** «Tu empresa» (ADR-0010): create a company by RUC, join by invitation, or decide later. */
-export function CompanyStep({ onDone, onSkip }: { onDone: () => void; onSkip?: () => void }) {
+export function CompanyStep({ onDone, onSkip, onInvitation }: {
+  onDone: () => void;
+  onSkip?: () => void;
+  onInvitation: (code: string) => void;
+}) {
+  const [link, setLink] = useState("");
   const [mode, setMode] = useState<"choose" | "create" | "invite">("choose");
   const [ruc, setRuc] = useState("");
   const [name, setName] = useState("");
@@ -147,13 +154,27 @@ export function CompanyStep({ onDone, onSkip }: { onDone: () => void; onSkip?: (
       )}
 
       {mode === "invite" && (
-        <div className="mt-6 space-y-3 rounded-2xl bg-surface-subtle p-5">
+        <form
+          className="mt-6 space-y-3 rounded-2xl bg-surface-subtle p-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const code = invitationCodeFrom(link);
+            if (code) return onInvitation(code);
+            setError("Ese enlace no parece una invitación de MeowLab. Cópialo completo desde el mensaje del dueño.");
+          }}
+        >
           <p className="text-ink-2">
-            Pídele al dueño de tu empresa que te invite desde su panel de MeowLab. Te enviará un enlace por WhatsApp: ábrelo con
-            esta cuenta y quedarás dentro de la empresa.
+            El dueño de tu empresa te envía un enlace por WhatsApp desde su panel. Ábrelo, o pégalo aquí:
           </p>
-          <p className="text-sm text-ink-muted">Las invitaciones se activan en la próxima entrega del panel.</p>
-        </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <label className="block flex-1 space-y-1.5">
+              <span className="text-sm font-semibold text-ink-2">Enlace de invitación</span>
+              <input className="field bg-white" placeholder="https://app.meowlab.tech/invitacion/…" value={link}
+                onChange={(e) => setLink(e.target.value)} maxLength={300} required />
+            </label>
+            <button type="submit" disabled={!link.trim()} className="btn-primary">Continuar</button>
+          </div>
+        </form>
       )}
 
       {error && (
@@ -187,6 +208,8 @@ export function CompanyStep({ onDone, onSkip }: { onDone: () => void; onSkip?: (
 
 /** Companies the account belongs to, with what Invoice Cat still needs. */
 export function CompanyCards({ companies }: { companies: Membership[] }) {
+  const [teamOf, setTeamOf] = useState<string | null>(null);
+  const managed = companies.find((company) => company.id === teamOf && company.role === "owner");
   return (
     <section className="space-y-4" aria-labelledby="companies-title">
       <h2 id="companies-title" className="text-xl font-bold tracking-tight text-ink">
@@ -213,9 +236,20 @@ export function CompanyCards({ companies }: { companies: Membership[] }) {
                 Para emitir comprobantes con Invoice Cat se piden las credenciales SOL de la empresa. Esa activación llega pronto.
               </p>
             )}
+            {company.role === "owner" && (
+              <button
+                type="button"
+                onClick={() => setTeamOf(teamOf === company.id ? null : company.id)}
+                aria-expanded={teamOf === company.id}
+                className="btn-secondary w-fit"
+              >
+                {teamOf === company.id ? "Cerrar equipo" : "Equipo e invitaciones"}
+              </button>
+            )}
           </article>
         ))}
       </div>
+      {managed && <TeamPanel key={managed.id} company={managed} />}
     </section>
   );
 }

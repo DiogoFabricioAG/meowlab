@@ -19,17 +19,32 @@ export type PortalMembership = {
   invoicing: "active" | "needs_sol";
 };
 
+export type InvitationAccess = "view" | "full";
+export type TeamMember = { portalUserId: string; role: "owner" | "member"; joinedAt: string };
+export type PendingInvitation = { id: string; createdAt: string; expiresAt: string; maskedPhone: string | null; access: InvitationAccess };
+
 export type PortalCompanyAction =
   | { action: "mine" }
   | { action: "lookup"; ruc: string }
-  | { action: "create"; ruc: string; name?: string };
+  | { action: "create"; ruc: string; name?: string }
+  | { action: "team"; tenantId: string }
+  | { action: "invite"; tenantId: string; phone?: string; access: InvitationAccess }
+  | { action: "revoke"; tenantId: string; invitationId: string }
+  | { action: "remove"; tenantId: string; memberId: string }
+  | { action: "preview"; token: string }
+  | { action: "accept"; token: string };
 
 export type PortalCompanyResponse =
   | { status: "ok"; companies: PortalMembership[] }
   | { status: "ok"; taxpayer: Taxpayer }
   | { status: "created"; company: PortalMembership }
   | { status: "inactive"; taxpayer: Taxpayer }
-  | { status: "invalid_ruc" | "not_found" | "taken" | "limit_reached" | "unavailable" };
+  | { status: "invalid_ruc" | "not_found" | "taken" | "limit_reached" | "unavailable" }
+  | { status: "ok"; team: { members: TeamMember[]; invitations: PendingInvitation[] } }
+  | { status: "invited"; invitation: PendingInvitation & { token: string } }
+  | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
+  | { status: "joined"; company: PortalMembership }
+  | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" };
 
 export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 

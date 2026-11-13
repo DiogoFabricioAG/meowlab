@@ -2,11 +2,16 @@ import { useEffect, useState } from "react";
 import { authClient, fetchJson, type Me, type PortalConfig } from "./auth-client";
 import { AuthPage } from "./AuthPage";
 import { Panel } from "./Panel";
+import { InvitationPage, captureInvitationFromUrl, clearPendingInvitation, readPendingInvitation, storePendingInvitation } from "./InvitationPage";
+
+// Before anything renders: /invitacion/<code> leaves the address bar and waits for the sign-in.
+const invitedWith = captureInvitationFromUrl();
 
 export function App() {
   const { data: session, isPending } = authClient.useSession();
   const [config, setConfig] = useState<PortalConfig>({ google: false, passwordReset: false });
   const [me, setMe] = useState<Me | null>(null);
+  const [invitation, setInvitation] = useState<string | null>(() => invitedWith ?? readPendingInvitation());
 
   useEffect(() => {
     void fetchJson<PortalConfig>("/api/config").then((value) => value && setConfig(value));
@@ -34,8 +39,31 @@ export function App() {
       </div>
     );
   }
-  if (!session || !me) return <AuthPage config={config} />;
-  return <Panel me={me} onChange={() => void fetchJson<Me>("/api/me").then(setMe)} />;
+  const refresh = () => void fetchJson<Me>("/api/me").then(setMe);
+  if (!session || !me) return <AuthPage config={config} invited={invitation !== null} />;
+  if (invitation) {
+    return (
+      <InvitationPage
+        code={invitation}
+        me={me}
+        onDone={(joined) => {
+          clearPendingInvitation();
+          setInvitation(null);
+          if (joined) refresh();
+        }}
+      />
+    );
+  }
+  return (
+    <Panel
+      me={me}
+      onChange={refresh}
+      onInvitation={(code) => {
+        storePendingInvitation(code);
+        setInvitation(code);
+      }}
+    />
+  );
 }
 
 export function Logo({ light = false }: { light?: boolean }) {

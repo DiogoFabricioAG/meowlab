@@ -21,7 +21,13 @@ export type AppDeps = {
   adminMetrics?: AdminMetricsSource;
   /** Subscriptions with Mercado Pago (ADR-0007); absent where not configured. */
   billing?: BillingService;
+  /** Names and e-mails of portal accounts, to show a team (ADR-0010); absent where not implemented. */
+  users?: UserDirectory;
+  /** Public origin used to build invitation links. Defaults to the first allowed origin. */
+  appUrl?: string;
 };
+
+export type UserDirectory = (ids: string[]) => Promise<Map<string, { name: string; email: string }>>;
 
 const isAdmin = (session: Session) => (session.user as { role?: unknown }).role === "admin";
 
@@ -29,6 +35,8 @@ type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RUC = /^\d{11}$/;
+const TENANT = /^[A-Za-z0-9_.:-]{1,128}$/;
+const INVITATION = /^[A-Za-z0-9_-]{22}$/;
 
 /** RUC lookups per account: each one may reach a paid registry provider. */
 const LOOKUP_LIMIT = 20;
@@ -38,13 +46,27 @@ const LOOKUP_WINDOW_MS = 10 * 60_000;
 export function createApp(deps: AppDeps) {
   const app = new Hono<{ Variables: { session: Session } }>();
   // In memory: one portal process on the VPS; a restart only resets the window.
-  const lookups = new Map<string, number[]>();
-  const allowLookup = (userId: string, now = Date.now()) => {
-    const recent = (lookups.get(userId) ?? []).filter((at) => now - at < LOOKUP_WINDOW_MS);
-    if (recent.length >= LOOKUP_LIMIT) return false;
-    recent.push(now);
-    lookups.set(userId, recent);
-    return true;
+  const limiter = (limit: number) => {
+    const hits = new Map<string, number[]>();
+    return (userId: string, now = Date.now()) => {
+      const recent = (hits.get(userId) ?? []).filter((at) => now - at < LOOKUP_WINDOW_MS);
+      if (recent.length >= limit) return false;
+      recent.push(now);
+      hits.set(userId, recent);
+      return true;
+    };
+  };
+  const allowLookup = limiter(LOOKUP_LIMIT);
+  // Invitation codes are 128-bit; this only keeps one account from hammering the bridge.
+  const allowInvitationUse = limiter(30);
+  const appUrl = (deps.appUrl ?? deps.allowedOrigins[0] ?? "https://app.meowlab.tech").replace(/\/$/, "");
+  const namesOf = async (ids: string[]) => {
+    if (!deps.users || !ids.length) return new Map<string, { name: string; email: string }>();
+    try {
+      return await deps.users([...new Set(ids)]);
+    } catch {
+      return new Map<string, { name: string; email: string }>();
+    }
   };
 
   app.use("/api/*", async (c, next) => {
@@ -142,6 +164,84 @@ export function createApp(deps: AppDeps) {
     if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
     if (!allowLookup(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
     return company(c, { action: "lookup", ruc });
+  });
+
+  // ADR-0010, phase 2: the owner's team and invitations. The bridge checks ownership.
+  const tenantParam = (c: Context) => {
+    const tenantId = c.req.param("tenantId") ?? "";
+    return TENANT.test(tenantId) ? tenantId : null;
+  };
+
+  app.get("/api/companies/:tenantId/team", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const me = c.get("session").user.id;
+    const result = await deps.bridge.companies(me, { action: "team", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status !== "ok" || !("team" in result)) return c.json({ status: result.status }, result.status === "forbidden" ? 403 : 200);
+    const names = await namesOf(result.team.members.map((member) => member.portalUserId));
+    return c.json({
+      status: "ok",
+      members: result.team.members.map((member) => ({
+        id: member.portalUserId,
+        role: member.role,
+        joinedAt: member.joinedAt,
+        name: names.get(member.portalUserId)?.name ?? "Cuenta de MeowLab",
+        email: names.get(member.portalUserId)?.email ?? null,
+        you: member.portalUserId === me,
+      })),
+      invitations: result.team.invitations,
+    });
+  });
+
+  app.post("/api/companies/:tenantId/invitations", async (c) => {
+    const tenantId = tenantParam(c);
+    const body = await c.req.json().catch(() => null) as { access?: unknown; phone?: unknown } | null;
+    const access = body?.access === "full" ? "full" : body?.access === "view" ? "view" : null;
+    const phone = typeof body?.phone === "string" ? body.phone.trim() : "";
+    if (!tenantId || !access || phone.length > 32) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "invite", tenantId, access, ...(phone ? { phone } : {}) });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status !== "invited" || !("invitation" in result)) return c.json({ status: result.status }, result.status === "forbidden" ? 403 : 200);
+    const { token, ...invitation } = result.invitation as typeof result.invitation & { token: string };
+    // The only time the link exists in clear: the owner copies it or sends it by WhatsApp.
+    return c.json({ status: "invited", invitation: { ...invitation, url: `${appUrl}/invitacion/${token}` } });
+  });
+
+  app.post("/api/companies/:tenantId/invitations/:invitationId/revoke", async (c) => {
+    const tenantId = tenantParam(c);
+    const invitationId = c.req.param("invitationId");
+    if (!tenantId || !UUID.test(invitationId)) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "revoke", tenantId, invitationId });
+  });
+
+  app.post("/api/companies/:tenantId/members/:memberId/remove", async (c) => {
+    const tenantId = tenantParam(c);
+    const memberId = c.req.param("memberId");
+    if (!tenantId || !memberId || memberId.length > 128) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "remove", tenantId, memberId });
+  });
+
+  app.get("/api/invitations/:token", async (c) => {
+    const token = c.req.param("token");
+    if (!INVITATION.test(token)) return c.json({ status: "invalid" });
+    if (!allowInvitationUse(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "preview", token });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status !== "ok" || !("invitation" in result)) return c.json({ status: result.status });
+    const { invitedBy, ...invitation } = result.invitation as { invitedBy: string; companyName: string };
+    const inviter = (await namesOf([invitedBy])).get(invitedBy)?.name ?? null;
+    return c.json({ status: "ok", invitation: { ...invitation, invitedByName: inviter } });
+  });
+
+  app.post("/api/invitations/:token/accept", async (c) => {
+    const token = c.req.param("token");
+    if (!INVITATION.test(token)) return c.json({ status: "invalid" });
+    if (!allowInvitationUse(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
+    return company(c, { action: "accept", token });
   });
 
   app.post("/api/companies", async (c) => {

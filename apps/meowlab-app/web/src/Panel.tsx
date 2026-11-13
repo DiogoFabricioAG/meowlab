@@ -32,7 +32,7 @@ const BILLING_FEATURES = [
   "Guías de remisión emitidas",
 ];
 
-export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
+export function Panel({ me, onChange, onInvitation }: { me: Me; onChange: () => void; onInvitation: (code: string) => void }) {
   const [leaving, setLeaving] = useState(false);
   const invoicingAvailable = me.modules.some((module) => module.key === "billing" && module.status === "available");
   const [tab, setTab] = useState<"panel" | "invoicing" | "plan" | "business">(
@@ -108,6 +108,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
 
         {withoutCompany && !skipped && (
           <CompanyStep
+            onInvitation={onInvitation}
             onDone={() => {
               writeSkip(false);
               onChange();

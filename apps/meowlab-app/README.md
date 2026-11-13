@@ -102,6 +102,26 @@ después» sólo se recuerda en ese navegador).
   rechaza contribuyentes no activos y limita a 3 empresas por cuenta.
 - Invoice Cat queda pendiente de las credenciales SOL (fase 3).
 
+## Invitaciones (ADR-0010, fase 2)
+
+El dueño abre **Equipo e invitaciones** en su empresa, elige el acceso («Ver
+comprobantes» o «Emitir y ver») y, si quiere, el WhatsApp de la persona. El portal
+muestra el enlace `https://app.meowlab.tech/invitacion/<código>` una sola vez, con
+«Enviar por WhatsApp» (`wa.me`) y «Copiar enlace».
+
+- Rutas del dueño: `GET /api/companies/:empresa/team`,
+  `POST /api/companies/:empresa/invitations`, `…/invitations/:id/revoke` y
+  `…/members/:cuenta/remove`. El bridge comprueba que la cuenta sea la dueña.
+- Quien abre el enlace: el código sale de la barra de direcciones y espera en
+  `sessionStorage` hasta que inicie sesión (también con Google). Luego
+  `GET /api/invitations/:código` muestra la empresa y quién invita, y
+  `POST /api/invitations/:código/accept` la une como miembro (30 usos por cuenta cada 10
+  minutos).
+- El código es de 128 bits; el bridge guarda sólo su SHA-256. Vale una vez y 7 días, el
+  dueño puede anularlo y, con número, sólo lo acepta una cuenta con ese WhatsApp
+  vinculado. Al aceptar, el número vinculado entra a la empresa para los agentes con el
+  acceso elegido; al quitar a alguien, deja de actuar por la empresa.
+
 ## Cobros (ADR-0007, fase 1)
 
 Pestaña **Plan**: catálogo de `billing_agents` (precios con IGV), descuento por
