@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
@@ -31,11 +30,7 @@ const currentPath = Astro.url.pathname;
     <meta name="description" content={description} />
     <meta name="theme-color" content="#FFFFFF" />
 
-    <!-- Google Fonts: Blinker & Actor -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Blinker:wght@100;200;300;400;600;700;800;900&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Actor&display=swap" rel="stylesheet" />
+    <!-- Blinker & Actor are served from public/fonts (src/styles/fonts.css) -->
 
     <!-- Open Graph / Social Meta -->
     <meta property="og:type" content="website" />
@@ -45,9 +40,6 @@ const currentPath = Astro.url.pathname;
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-
-    <!-- View Transitions -->
-    <ClientRouter />
   </head>
   <body class="bg-white text-content-main font-sans selection:bg-brand-mint selection:text-brand-forest flex flex-col min-h-[100dvh]">
     <!-- Clean Navbar -->

@@ -1,0 +1,7 @@
+[
+  {
+    "check": "container-edges",
+    "target": "section#portal > div.mo-io__stage",
+    "reason": "the stage is inserted at runtime by the kit's own iris-opens moment.js (unchanged copy in public/taste/moments); it is the moment's inset cover, not page content, and the page cannot move it onto the container lines without editing the kit"
+  }
+]
