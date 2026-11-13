@@ -1482,6 +1482,39 @@
       "updated": "2026-11-13",
       "notes": "CREACIONES J&D ya tiene dueño (cuenta admin del portal, 13/11/2026; acta portal-invitaciones-2026-11-13). Faltan KROMATA, Home Finance y Manolo si llegan a necesitar invitaciones.",
       "evidence": ""
+    },
+    {
+      "id": "portal-estructura-inicio-20261113",
+      "title": "Portal: onboarding antes del panel, menú fijo, apartado por agente, Configuración e Inicio semanal",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Pedido del operador (13/11/2026). Código y pruebas listos, sin desplegar. Ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). Para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en FacturaYa.",
+      "evidence": "Bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en PostgreSQL 17 desechable 4/4. Portal: typecheck limpio, vitest 29/29, onboarding, Inicio, Configuración y barra del celular revisados en local con bridge falso."
+    },
+    {
+      "id": "portal-inicio-resumen-ia-20261113",
+      "title": "Portal: resumen semanal con IA (conversaciones clave, oportunidades de mejora)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Segunda entrega de Inicio sobre los datos reales. Requiere decidir qué conversaciones puede leer, costo de IA y un proceso semanal por empresa.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-leads-20261113",
+      "title": "Registrar leads para mostrarlos en Inicio",
+      "area": "Portal",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Ningún agente registra prospectos todavía; llega con los agentes de ventas (Sales Cat).",
+      "evidence": ""
     }
   ]
 }

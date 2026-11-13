@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 55 · Total: 144</span>
+      <span class="summary">Abiertas: 58 · Total: 147</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">51</span>
+          <span class="count">53</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -699,6 +699,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-duenos-operador-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: resumen semanal con ia (conversaciones clave, oportunidades de mejora) portal segunda entrega de inicio sobre los datos reales. requiere decidir qué conversaciones puede leer, costo de ia y un proceso semanal por empresa. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: resumen semanal con IA (conversaciones clave, oportunidades de mejora)</h3>
+          
+          <p class="card-notes">Segunda entrega de Inicio sobre los datos reales. Requiere decidir qué conversaciones puede leer, costo de IA y un proceso semanal por empresa.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-inicio-resumen-ia-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -776,6 +787,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-link-notice-20261113</code>
         </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="registrar leads para mostrarlos en inicio portal ningún agente registra prospectos todavía; llega con los agentes de ventas (sales cat). ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Registrar leads para mostrarlos en Inicio</h3>
+          
+          <p class="card-notes">Ningún agente registra prospectos todavía; llega con los agentes de ventas (Sales Cat).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-leads-20261113</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -792,7 +814,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -827,6 +849,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: onboarding antes del panel, menú fijo, apartado por agente, configuración e inicio semanal portal pedido del operador (13/11/2026). código y pruebas listos, sin desplegar. ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en facturaya. bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en postgresql 17 desechable 4/4. portal: typecheck limpio, vitest 29/29, onboarding, inicio, configuración y barra del celular revisados en local con bridge falso.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: onboarding antes del panel, menú fijo, apartado por agente, Configuración e Inicio semanal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en PostgreSQL 17 desechable 4/4. Portal: typecheck limpio, vitest 29/29, onboarding, Inicio, Configuración y barra del celular revisados en local con bridge falso.</p>
+          <p class="card-notes">Pedido del operador (13/11/2026). Código y pruebas listos, sin desplegar. Ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). Para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en FacturaYa.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-estructura-inicio-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
