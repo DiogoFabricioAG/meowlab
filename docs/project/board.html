@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 58 · Total: 147</span>
+      <span class="summary">Abiertas: 57 · Total: 147</span>
     </div>
   </div>
 </header>
@@ -814,7 +814,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -850,17 +850,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: onboarding antes del panel, menú fijo, apartado por agente, configuración e inicio semanal portal pedido del operador (13/11/2026). código y pruebas listos, sin desplegar. ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en facturaya. bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en postgresql 17 desechable 4/4. portal: typecheck limpio, vitest 29/29, onboarding, inicio, configuración y barra del celular revisados en local con bridge falso.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: onboarding antes del panel, menú fijo, apartado por agente, Configuración e Inicio semanal</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en PostgreSQL 17 desechable 4/4. Portal: typecheck limpio, vitest 29/29, onboarding, Inicio, Configuración y barra del celular revisados en local con bridge falso.</p>
-          <p class="card-notes">Pedido del operador (13/11/2026). Código y pruebas listos, sin desplegar. Ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). Para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en FacturaYa.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-estructura-inicio-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -877,7 +866,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">89</span>
+          <span class="count">90</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1638,6 +1627,17 @@
           <p class="card-notes">ADR-0010, fase 2 desplegada el 13/11/2026. Acta: docs/operations/portal-invitaciones-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-2-invitaciones-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: onboarding antes del panel, menú fijo, apartado por agente, configuración e inicio semanal portal desplegado el 13/11/2026. acta: docs/operations/portal-inicio-2026-11-13.md. producción: bridge portal-inicio-20261113t151931z (weekly ajeno forbidden; semana real de creaciones j&amp;d ok en 0,6 s), portal meowlab-app:57263d3b6e93 healthy, /api/companies/&lt;id&gt;/weekly 401 sin sesión. antes: bridge 641/641, weekly pg-check 4/4, portal 29/29.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: onboarding antes del panel, menú fijo, apartado por agente, Configuración e Inicio semanal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: bridge portal-inicio-20261113T151931Z (weekly ajeno forbidden; semana real de CREACIONES J&amp;D ok en 0,6 s), portal meowlab-app:57263d3b6e93 healthy, /api/companies/&lt;id&gt;/weekly 401 sin sesión. Antes: bridge 641/641, weekly pg-check 4/4, portal 29/29.</p>
+          <p class="card-notes">Desplegado el 13/11/2026. Acta: docs/operations/portal-inicio-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-estructura-inicio-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">

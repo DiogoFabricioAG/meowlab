@@ -1489,10 +1489,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Pedido del operador (13/11/2026). Código y pruebas listos, sin desplegar. Ramas: feat/portal-inicio (bridge, acción weekly) y feat/portal-inicio-app (portal). Para desplegar: release del bridge e imagen del portal; sin migraciones ni cambios en FacturaYa.",
-      "evidence": "Bridge: tsc limpio, vitest 641/641, tools/portal-weekly-pg-check.ts en PostgreSQL 17 desechable 4/4. Portal: typecheck limpio, vitest 29/29, onboarding, Inicio, Configuración y barra del celular revisados en local con bridge falso."
+      "notes": "Desplegado el 13/11/2026. Acta: docs/operations/portal-inicio-2026-11-13.md.",
+      "evidence": "Producción: bridge portal-inicio-20261113T151931Z (weekly ajeno forbidden; semana real de CREACIONES J&D ok en 0,6 s), portal meowlab-app:57263d3b6e93 healthy, /api/companies/<id>/weekly 401 sin sesión. Antes: bridge 641/641, weekly pg-check 4/4, portal 29/29."
     },
     {
       "id": "portal-inicio-resumen-ia-20261113",
