@@ -4,6 +4,7 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
+import { PortalBrandService } from "./portal/brand-service";
 import { PublicQuoteService, SalesService } from "./sales/sales-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
@@ -118,6 +119,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       new PortalInvitationService(pool, logSafeEvent),
       // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
       new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+      // ADR-0012: the company's brand kit for its documents.
+      new PortalBrandService(pool, logSafeEvent),
     ),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),

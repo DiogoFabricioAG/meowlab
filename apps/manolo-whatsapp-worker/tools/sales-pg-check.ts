@@ -23,6 +23,8 @@ await pool.query(`CREATE SCHEMA whatsapp;
 const migration = readFileSync("infra/postgres/migrations/014-sales-cat.sql", "utf8");
 await pool.query(migration);
 await pool.query(migration); // re-runnable
+// Quotes read the brand kit (ADR-0012) since migration 015.
+await pool.query(readFileSync("infra/postgres/migrations/015-brand-kit.sql", "utf8"));
 await pool.query("INSERT INTO sales.settings (tenant_id) VALUES ('org_jd')");
 
 // In-memory idempotency store with the same rules as PgBridgeRequestStore.

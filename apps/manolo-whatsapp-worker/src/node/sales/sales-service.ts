@@ -8,6 +8,7 @@ import type {
 } from "../../sales/bridge-contracts";
 import type { BridgeRequestIdentity, BridgeRequestStore } from "../bridge/request-store";
 import type { RoleLog } from "../../roles/contracts";
+import { loadBrandKit } from "../portal/brand-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -268,17 +269,26 @@ export class SalesService {
     const lines = await this.lines(client, companyId, contactId, payload.lines as SalesLineInput[]);
     const totals = this.totals(lines, payload.discountCents);
     const number = await this.nextNumber(client, companyId, "quote");
-    const settings = await client.query("SELECT quote_valid_days FROM sales.settings WHERE tenant_id = $1", [companyId]);
+    // The brand kit (ADR-0012) wins over Sales Cat's own default, and its terms are copied in.
+    const settings = await client.query(
+      `SELECT COALESCE(kit.quote_valid_days, settings.quote_valid_days) AS quote_valid_days,
+              kit.quote_payment_terms, kit.quote_delivery_terms
+         FROM (SELECT $1::text AS tenant_id) AS wanted
+         LEFT JOIN sales.settings AS settings ON settings.tenant_id = wanted.tenant_id
+         LEFT JOIN commerce.brand_kits AS kit ON kit.tenant_id = wanted.tenant_id`,
+      [companyId],
+    );
     const validDays = Number(settings.rows[0]?.quote_valid_days ?? 7);
     const validUntil = limaDate(new Date(this.now().getTime() + validDays * DAY_MS));
     const token = this.newToken();
     const id = randomUUID();
     await client.query(
       `INSERT INTO sales.quotes (id, tenant_id, number, customer_id, customer_name, subtotal_cents, discount_cents, total_cents,
-         notes, valid_until, public_token_hash, created_by_contact_id, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)`,
+         notes, valid_until, public_token_hash, created_by_contact_id, created_at, updated_at, payment_terms, delivery_terms)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $14, $15)`,
       [id, companyId, number, customer.id, customer.name, totals.subtotal, totals.discount, totals.total,
-        (payload.notes as string | undefined)?.trim() || null, validUntil, hashToken(token), contactId, this.now()],
+        (payload.notes as string | undefined)?.trim() || null, validUntil, hashToken(token), contactId, this.now(),
+        settings.rows[0]?.quote_payment_terms ?? null, settings.rows[0]?.quote_delivery_terms ?? null],
     );
     await this.insertLines(client, "quote_id", id, lines);
     await this.audit(client, companyId, "quote", id, "created", contactId, { number, totalCents: totals.total });
@@ -374,6 +384,21 @@ export class SalesService {
 export class PublicQuoteService {
   constructor(private readonly pool: SalesPool) {}
 
+  /** The issuing company's logo, reachable only through a valid quote link. */
+  async logo(token: string) {
+    if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return null;
+    const { rows } = await this.pool.query(
+      `SELECT logo.mime_type, logo.content, logo.sha256
+         FROM sales.quotes AS quote JOIN commerce.brand_logos AS logo ON logo.tenant_id = quote.tenant_id
+        WHERE quote.public_token_hash = $1 AND quote.status <> 'cancelled'`,
+      [hashToken(token)],
+    ) as Rows;
+    const logo = rows[0];
+    if (!logo) return null;
+    return { mimeType: String(logo.mime_type), contentBase64: Buffer.from(logo.content as Uint8Array).toString("base64"),
+      version: String(logo.sha256).slice(0, 16) };
+  }
+
   async view(token: string) {
     if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return null;
     const { rows } = await this.pool.query(
@@ -400,6 +425,10 @@ export class PublicQuoteService {
       discountCents: Number(quote.discount_cents),
       totalCents: Number(quote.total_cents),
       notes: (quote.notes as string | null) ?? null,
+      paymentTerms: (quote.payment_terms as string | null) ?? null,
+      deliveryTerms: (quote.delivery_terms as string | null) ?? null,
+      // Logo, color, contact and payment methods are the company's current ones.
+      brand: await loadBrandKit(this.pool, String(quote.tenant_id)),
       lines: lines.rows.map((line) => ({
         description: String(line.description),
         quantity: Number(line.quantity),

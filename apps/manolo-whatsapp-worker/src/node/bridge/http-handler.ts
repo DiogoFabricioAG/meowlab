@@ -64,7 +64,7 @@ export type BridgeHttpHandlerDependencies = {
   portalCompanyService?: Pick<PortalCompanyService, "handle">;
   /** Sales Cat (ADR-0011). */
   salesService?: Pick<SalesService, "process">;
-  publicQuoteService?: Pick<PublicQuoteService, "view">;
+  publicQuoteService?: Pick<PublicQuoteService, "view" | "logo">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -329,12 +329,17 @@ async function handlePublicQuote(
   } catch {
     return jsonResponse(400, { error: "invalid_json" });
   }
-  const body = payload as { version?: unknown; requestId?: unknown; token?: unknown };
+  const body = payload as { version?: unknown; requestId?: unknown; token?: unknown; part?: unknown };
   if (body?.version !== 1 || typeof body.requestId !== "string" || typeof body.token !== "string"
+    || (body.part !== undefined && body.part !== "logo")
     || request.headers["x-manolo-request-id"] !== body.requestId) {
     return jsonResponse(400, { error: "invalid_request" });
   }
   try {
+    if (body.part === "logo") {
+      const logo = await dependencies.publicQuoteService.logo(body.token);
+      return jsonResponse(200, logo ? { status: "ok", logo } : { status: "not_found" });
+    }
     const quote = await dependencies.publicQuoteService.view(body.token);
     return jsonResponse(200, quote ? { status: "ok", quote } : { status: "not_found" });
   } catch {
