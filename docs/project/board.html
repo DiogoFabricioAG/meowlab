@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">50</span>
+          <span class="count">49</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -434,17 +434,6 @@
           <p class="card-notes">Fase 1 del ADR-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). Desbloquea el bloqueo por impago (ADR-0007) y la fase 3 del portal.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">erp-phase-1-core-agents-20261112</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: crear empresa con ruc y paso «tu empresa» portal adr-0010. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: crear empresa con RUC y paso «Tu empresa»</h3>
-          
-          <p class="card-notes">ADR-0010.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-org-1-crear-20261113</code>
         </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: invitaciones del dueño con enlace seguro y panel de equipo portal adr-0010. ">
           <div class="card-top">
@@ -781,7 +770,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -816,6 +805,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: crear empresa con ruc y paso «tu empresa» portal adr-0010. código y pruebas listos, sin desplegar. ramas: facturaya-ai feat/portal-empresas (consulta interna de ruc), meowlab feat/portal-empresas (bridge, migración 012) y feat/portal-empresas-app (portal). para desplegar: release de facturaya, migración 012 en postgresql, secreto facturaya_internal_token del bridge (mismo valor que fiscal_profile_bridge_token de facturaya), release del bridge e imagen del portal. facturaya: internaltaxpayerlookuptest 4/4, suite 179 pasan y 2 fallas previas (companyadministrationtest, fiscalsetupprobeendpointtest, iguales en 9039d). bridge: tsc limpio, vitest 630/632 (2 radar por reloj, radar-tests-clock-20261112), tools/portal-company-pg-check.ts contra postgresql 17 desechable: todo pasa (carrera de ruc, límite de 3, un solo dueño). portal: typecheck limpio, vitest 24/24, flujo probado en local con bridge falso.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: crear empresa con RUC y paso «Tu empresa»</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> FacturaYa: InternalTaxpayerLookupTest 4/4, suite 179 pasan y 2 fallas previas (CompanyAdministrationTest, FiscalSetupProbeEndpointTest, iguales en 9039d). Bridge: tsc limpio, vitest 630/632 (2 RADAR por reloj, radar-tests-clock-20261112), tools/portal-company-pg-check.ts contra PostgreSQL 17 desechable: todo pasa (carrera de RUC, límite de 3, un solo dueño). Portal: typecheck limpio, vitest 24/24, flujo probado en local con bridge falso.</p>
+          <p class="card-notes">ADR-0010. Código y pruebas listos, sin desplegar. Ramas: facturaya-ai feat/portal-empresas (consulta interna de RUC), meowlab feat/portal-empresas (bridge, migración 012) y feat/portal-empresas-app (portal). Para desplegar: release de FacturaYa, migración 012 en PostgreSQL, secreto facturaya_internal_token del bridge (mismo valor que FISCAL_PROFILE_BRIDGE_TOKEN de FacturaYa), release del bridge e imagen del portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-1-crear-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
