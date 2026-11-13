@@ -3,6 +3,7 @@ import {
   PgReadOnlyExecutor,
   type ReadOnlyTransactionPool,
 } from "../src/node/postgres/transactional-read-only-executor";
+import { advisorConnectionString } from "../src/node/postgres/advisor-connection";
 
 describe("PgReadOnlyExecutor", () => {
   it("usa un solo cliente, transacción de lectura y timeout", async () => {
@@ -55,5 +56,30 @@ describe("PgReadOnlyExecutor", () => {
 
     expect(query).toHaveBeenCalledWith("ROLLBACK");
     expect(release).toHaveBeenCalledWith(false);
+  });
+});
+
+describe("advisorConnectionString", () => {
+  const platformUrl = "postgresql://manolo_app:owner-secret@postgres:5432/manolo_platform?sslmode=disable";
+
+  it("conserva servidor y base, y cambia solo las credenciales", () => {
+    const url = new URL(advisorConnectionString(platformUrl, "manolo_advisor_ro", "a1b2c3"));
+
+    expect(url.username).toBe("manolo_advisor_ro");
+    expect(url.password).toBe("a1b2c3");
+    expect(`${url.host}${url.pathname}${url.search}`).toBe("postgres:5432/manolo_platform?sslmode=disable");
+    expect(url.toString()).not.toContain("owner-secret");
+  });
+
+  it("codifica caracteres especiales de la clave", () => {
+    const url = new URL(advisorConnectionString(platformUrl, "manolo_advisor_ro", "p@ss:w/rd"));
+
+    expect(decodeURIComponent(url.password)).toBe("p@ss:w/rd");
+  });
+
+  it("rechaza reutilizar el rol de la plataforma o una clave vacía", () => {
+    expect(() => advisorConnectionString(platformUrl, "manolo_app", "x")).toThrow(/own PostgreSQL role/);
+    expect(() => advisorConnectionString(platformUrl, "manolo_advisor_ro", "")).toThrow(/own PostgreSQL role/);
+    expect(() => advisorConnectionString(platformUrl, "", "x")).toThrow(/own PostgreSQL role/);
   });
 });

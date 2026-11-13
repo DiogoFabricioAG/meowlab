@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-18",
+  "scope": "explicit_project_registrations",
+  "projects": [
+    {
+      "id": "radar",
+      "name": "RADAR",
+      "owner": "MeowLab",
+      "description": "Escritorio conversacional para descubrir, investigar y presupuestar oportunidades de contratación pública peruana.",
+      "repository": "https://github.com/DiogoFabricioAG/radar-compras-publicas",
+      "localPath": "D:/Proyectos2026/licitaciones",
+      "documentation": "docs/apps/radar.md",
+      "registrationStatus": "registered",
+      "productRuntime": "desktop_bun_electrobun",
+      "businessDataAuthority": "desktop_sqlite",
+      "whatsapp": {
+        "integrationStatus": "active",
+        "integrationType": "notification_capability",
+        "ingress": "existing_manolo_meta_webhook",
+        "conversationalRole": null,
+        "metaCredentialsOwner": "meowlab_server",
+        "recipientBinding": "required",
+        "requiresRecipientOptIn": true,
+        "messagePolicy": "user_inbound_24h_only",
+        "automaticTemplateFallback": false,
+        "requiresRunningDesktopForDiscovery": true,
+        "deployedVersion": "02e3ea4b-da57-47ba-b73d-4ecb4fe8f849",
+        "realDeliveryVerified": false
+      }
+    }
+  ]
+}

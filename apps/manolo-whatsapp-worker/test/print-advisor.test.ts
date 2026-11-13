@@ -138,7 +138,6 @@ describe("print advisor", () => {
       persisted: { duplicate: false, conversationId: "conversation-1", contactId: 1 },
       env: {} as Env,
       ai,
-      finance: null,
       businessData: {
         executeReadOnlyQuery: async (query) => {
           queries.push(query);
@@ -207,7 +206,6 @@ describe("print advisor", () => {
       },
       env: {} as Env,
       ai,
-      finance: null,
       businessData: {
         dialect: "postgres",
         executeReadOnlyQuery: async () => ({ rows: [] }),

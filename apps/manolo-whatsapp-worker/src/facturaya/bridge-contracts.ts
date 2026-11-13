@@ -5,11 +5,16 @@ export type FacturayaBridgeOperation =
   | "select_tenant"
   | "clear_tenant"
   | "lookup_customer"
+  | "lookup_customer_dni"
   | "import_invoice_draft"
   | "list_invoice_drafts"
   | "issue_invoice"
   | "create_credit_note"
-  | "download_file";
+  | "download_file"
+  | "create_despatch"
+  | "get_despatch"
+  | "issue_despatch"
+  | "refresh_despatch";
 
 export type FacturayaBridgeRequest = {
   tenant_id: string;
@@ -34,11 +39,16 @@ const OPERATIONS = new Set<FacturayaBridgeOperation>([
   "select_tenant",
   "clear_tenant",
   "lookup_customer",
+  "lookup_customer_dni",
   "import_invoice_draft",
   "list_invoice_drafts",
   "issue_invoice",
   "create_credit_note",
   "download_file",
+  "create_despatch",
+  "get_despatch",
+  "issue_despatch",
+  "refresh_despatch",
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {

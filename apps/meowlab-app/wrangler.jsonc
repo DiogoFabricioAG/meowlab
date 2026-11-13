@@ -1,0 +1,27 @@
+{
+  // Sólo desarrollo local (wrangler dev + D1). Producción corre en el VPS con
+  // server/node.ts y PostgreSQL: el DNS de meowlab.tech está en Hostinger (ADR-0006).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "meowlab-app",
+  "main": "server/worker.ts",
+  "compatibility_date": "2026-07-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:8787"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "meowlab-app-dev",
+      // Sólo para wrangler dev --local.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

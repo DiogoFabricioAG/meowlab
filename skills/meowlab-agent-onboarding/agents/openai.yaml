@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agentes de MeowLab"
+  short_description: "Integra servicios como agentes de MeowLab"
+  default_prompt: "Usa $meowlab-agent-onboarding para incorporar este servicio a MeowLab con contratos acotados y sin explorar todo su código."

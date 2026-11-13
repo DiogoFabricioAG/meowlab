@@ -1,7 +1,6 @@
 ---
-import MeowLogo from './ui/MeowLogo.astro';
-import TablerIcon from './ui/TablerIcon.astro';
-
+// Header of the inner pages (contacto, privacidad, terminos). It mirrors the home page's nav
+// (src/components/landing/LandingNav.astro): the cat mark, four words in the middle, one main action.
 interface Props {
   currentPath?: string;
 }
@@ -10,119 +9,70 @@ const { currentPath = '/' } = Astro.props;
 
 const navLinks = [
   { name: 'Agentes', href: '/#agentes' },
-  { name: 'Supervisión', href: '/#supervision' },
-  { name: 'Colaboración', href: '/#equipo' },
-  { name: 'Preguntas frecuentes', href: '/#faq' },
+  { name: 'Portal', href: '/#portal' },
+  { name: 'Equipo', href: '/#equipo' },
+  { name: 'Preguntas', href: '/#preguntas' },
 ];
+const portal = 'https://app.meowlab.tech';
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-colors duration-200" id="main-header">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="relative flex items-center justify-between h-20">
-      
-      <!-- Left: Logo -->
-      <div class="flex items-center">
-        <a href="/" class="group flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-forest rounded-xl">
-          <MeowLogo size="md" />
-        </a>
-      </div>
+<header class="sticky top-0 z-50 bg-white border-b border-[#111816]/10" id="main-header" data-path={currentPath}>
+  <div class="max-w-[1280px] mx-auto px-6 md:px-12 lg:px-0 lg:w-[calc(100%-160px)]">
+    <div class="relative flex items-center justify-between h-[72px]">
+      <a href="/" class="flex items-center gap-2 rounded-lg focus-visible:outline-2 focus-visible:outline-brand-forest">
+        <img src="/assets/landing/meowlab-mark.png" alt="" width="26" height="26" class="w-[26px] h-[26px]" />
+        <span class="font-title text-[22px] font-semibold tracking-tight text-[#111816]">meow<span class="text-brand-forest">lab</span></span>
+      </a>
 
-      <!-- Center: Navigation Links (Desktop - Perfectly Centered) -->
-      <nav class="hidden md:flex items-center gap-7 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" aria-label="Navegación principal">
+      <nav class="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" aria-label="Principal">
         {navLinks.map((link) => (
-          <a
-            href={link.href}
-            class="text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors py-1 whitespace-nowrap"
-          >
+          <a href={link.href} class="text-[15px] text-[#111816] hover:text-brand-forest underline-offset-4 hover:underline">
             {link.name}
           </a>
         ))}
       </nav>
 
-      <!-- Right: Action Buttons -->
-      <div class="hidden sm:flex items-center gap-3">
-        <a
-          href="/contacto"
-          class="hidden lg:inline-flex text-sm font-medium text-[#111816] hover:text-brand-forest transition-colors px-3 py-2 rounded-xl"
-        >
-          Contacto
-        </a>
-        <a
-          href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-primary text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5"
-        >
-          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
-          <span>Configurar mi primer agente</span>
-        </a>
-      </div>
-
-      <!-- Mobile menu button -->
-      <div class="flex md:hidden items-center gap-2">
-        <a
-          href="https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-primary text-sm font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1"
-        >
-          <TablerIcon name="brand-whatsapp" size={16} strokeWidth={2} className="text-[#25D366]" />
-          <span>Configurar</span>
+      <div class="flex items-center gap-2">
+        <a href={portal} class="inline-flex items-center h-11 px-5 rounded-lg bg-brand-forest text-white text-[15px] hover:bg-brand-forest-hover transition-colors">
+          Entrar al portal
         </a>
         <button
           type="button"
           id="mobile-menu-btn"
-          class="p-2 rounded-xl text-[#111816] hover:text-brand-forest hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-brand-forest"
-          aria-label="Abrir menú"
+          class="md:hidden inline-grid place-items-center w-11 h-11 rounded-lg bg-[#111816]/5 text-[#111816]"
+          aria-label="Menú"
           aria-expanded="false"
+          aria-controls="mobile-menu"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- Mobile Drawer -->
-  <div id="mobile-menu" class="hidden md:hidden bg-[#F2F6F4] px-4 pt-3 pb-6 space-y-2">
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-[#111816]/10 px-6 pb-4">
     {navLinks.map((link) => (
-      <a
-        href={link.href}
-        class="mobile-nav-link block px-3 py-2.5 text-base font-medium text-[#111816] hover:text-brand-forest hover:bg-white rounded-xl transition-colors text-center"
-      >
+      <a href={link.href} class="mobile-nav-link flex items-center h-14 border-b border-[#111816]/10 text-base text-[#111816]">
         {link.name}
       </a>
     ))}
-    <div class="pt-2 flex flex-col gap-2">
-      <a
-        href="/contacto"
-        class="block px-3 py-2 text-center text-sm font-medium text-[#111816] hover:text-brand-forest rounded-xl"
-      >
-        Contacto
-      </a>
-    </div>
   </div>
 </header>
 
 <script>
   const btn = document.getElementById('mobile-menu-btn');
   const menu = document.getElementById('mobile-menu');
-  const links = document.querySelectorAll('.mobile-nav-link');
-
   if (btn && menu) {
     btn.addEventListener('click', () => {
-      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', (!isExpanded).toString());
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
       menu.classList.toggle('hidden');
     });
-
-    links.forEach(link => {
+    document.querySelectorAll('.mobile-nav-link').forEach((link) =>
       link.addEventListener('click', () => {
         menu.classList.add('hidden');
         btn.setAttribute('aria-expanded', 'false');
-      });
-    });
+      }),
+    );
   }
 </script>

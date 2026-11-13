@@ -14,12 +14,15 @@ const { variant = 'laptop', className = '', size = 80 } = Astro.props;
     class="relative rounded-2xl bg-brand-forest flex items-center justify-center p-2.5 shadow-card group-hover:scale-105 transition-transform duration-200"
     style={`width: ${size}px; height: ${size}px;`}
   >
-    <!-- The authentic meowlab-cat.png -->
+    <!-- The authentic meowlab-cat.webp -->
     <img 
-      src="/meowlab-cat.png" 
+      src="/meowlab-cat.webp" 
       alt="meowlab cat" 
+      width={size}
+      height={size}
       class="w-full h-full object-contain select-none"
       loading="lazy"
+      decoding="async"
     />
 
     <!-- Contextual micro badge for agent specialty -->

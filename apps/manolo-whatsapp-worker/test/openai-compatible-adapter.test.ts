@@ -6,12 +6,26 @@ describe("OpenAiCompatibleAdapter", () => {
     vi.unstubAllGlobals();
   });
 
-  it("sends the exact enterprise model through Chat Completions", async () => {
+  it("omits unsupported temperature when a reasoning model uses its default effort", async () => {
+    const fetchMock = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body));
+      expect(body).not.toHaveProperty("temperature");
+      expect(body.model).toBe("gpt-6-luna");
+      return new Response(JSON.stringify({ choices: [{ message: { content: '{"patch":{}}' } }] }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const adapter = new OpenAiCompatibleAdapter({ apiKey: "test-key", baseUrl: "https://api.openai.com/v1" });
+    expect(await adapter.complete({ model: "gpt-6-luna", temperature: 0, maxTokens: 6000,
+      messages: [{ role: "user", content: "Peso 160 kilos" }], responseFormat: { type: "json_object" } }, vi.fn())).toBe('{"patch":{}}');
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it.each(["gpt-5.6-luna", "gpt-6-luna"])("sends the exact reasoning model %s through Chat Completions", async (model) => {
     const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
       expect(String(input)).toBe("https://api.openai.com/v1/chat/completions");
 
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-      expect(body.model).toBe("gpt-5.6-luna");
+      expect(body.model).toBe(model);
       expect(body.reasoning_effort).toBe("high");
       expect(body.response_format).toEqual({ type: "json_object" });
       expect(body.max_completion_tokens).toBe(400);
@@ -30,7 +44,7 @@ describe("OpenAiCompatibleAdapter", () => {
     });
 
     await expect(adapter.complete({
-      model: "gpt-5.6-luna",
+      model,
       messages: [
         { role: "system", content: "Eres un asesor empresarial." },
         { role: "user", content: "Resume las ventas." },
@@ -101,5 +115,108 @@ describe("OpenAiCompatibleAdapter", () => {
       errorParam: "temperature",
     }));
     expect(JSON.stringify(log.mock.calls)).not.toContain("Sensitive provider detail");
+  });
+
+  it("calls /v1/decisions with gpt-6-luna and parses structured answers", async () => {
+    const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      expect(String(input)).toBe("https://api.openai.com/v1/decisions");
+      expect(init?.method).toBe("POST");
+
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      expect(body.model).toBe("gpt-6-luna");
+      expect(body.input).toBe("Me puedes mostrar las facturas que hice esta ultima semana");
+      expect(Array.isArray(body.questions)).toBe(true);
+      expect((body.questions as { choices: unknown[] }[])[0].choices).toEqual([
+        { value: "greeting_or_ambiguous" }, { value: "elaborate_request" },
+      ]);
+
+      return new Response(JSON.stringify({
+        id: "dec_12345",
+        model: "gpt-6-luna",
+        answers: [
+          {
+            type: "choice",
+            name: "request_nature",
+            choice: "elaborate_request",
+            confidence: 0.98,
+            probabilities: [{ value: "greeting_or_ambiguous", probability: 0.02 }, { value: "elaborate_request", probability: 0.98 }],
+          },
+          {
+            type: "predicate",
+            name: "is_elaborate_request",
+            probability: 0.95,
+          },
+        ],
+      }), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const adapter = new OpenAiCompatibleAdapter({
+      apiKey: "enterprise-key",
+      baseUrl: "https://api.openai.com/v1",
+    });
+
+    const result = await adapter.decide({
+      model: "gpt-6-luna",
+      input: "Me puedes mostrar las facturas que hice esta ultima semana",
+      questions: [
+        {
+          type: "choice",
+          name: "request_nature",
+          instructions: "Clasifica el mensaje.",
+          choices: ["greeting_or_ambiguous", "elaborate_request"],
+        },
+        {
+          type: "predicate",
+          name: "is_elaborate_request",
+          instructions: "Determina si es elaborado.",
+        },
+      ],
+    }, vi.fn());
+
+    expect(result).not.toBeNull();
+    expect(result?.answers).toHaveLength(2);
+    expect(result?.answers[0]).toEqual({
+      type: "choice",
+      name: "request_nature",
+      choice: "elaborate_request",
+      confidence: 0.98,
+      probabilities: { greeting_or_ambiguous: 0.02, elaborate_request: 0.98 },
+    });
+    expect(result?.answers[1]).toEqual({
+      type: "predicate",
+      name: "is_elaborate_request",
+      probability: 0.95,
+    });
+  });
+
+  it("handles Decisions API failure gracefully and logs sanitized error", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+      error: {
+        message: "Decisions endpoint unavailable",
+        type: "invalid_request_error",
+        code: "model_not_found",
+      },
+    }), {
+      status: 404,
+      headers: { "x-request-id": "req_dec_fail" },
+    })));
+    const log = vi.fn();
+    const adapter = new OpenAiCompatibleAdapter({
+      apiKey: "enterprise-key",
+      baseUrl: "https://api.openai.com/v1",
+    });
+
+    const result = await adapter.decide({
+      input: "hola",
+      questions: [{ type: "predicate", name: "is_elaborate", instructions: "test" }],
+    }, log);
+
+    expect(result).toBeNull();
+    expect(log).toHaveBeenCalledWith("whatsapp_ai_provider_failed", expect.objectContaining({
+      operation: "decisions",
+      status: 404,
+      requestId: "req_dec_fail",
+    }));
   });
 });

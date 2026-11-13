@@ -11,10 +11,55 @@ Antes de modificar archivos:
 1. Lee [`docs/README.md`](docs/README.md).
 2. Lee [`docs/project/status.md`](docs/project/status.md) para conocer el estado
    real de la migración y las limitaciones activas.
-3. Ejecuta `git status --short --branch` y conserva todos los cambios que ya
+3. Revisa el tablero de trabajo en
+   [`docs/project/board.json`](docs/project/board.json): ubica tu tarea o
+   agrégala si no existe.
+4. Ejecuta `git status --short --branch` y conserva todos los cambios que ya
    existan. No asumas que un archivo sin commit puede descartarse.
-4. Usa la tabla de enrutamiento de este documento y lee únicamente los
+5. Usa la tabla de enrutamiento de este documento y lee únicamente los
    documentos adicionales que correspondan al trabajo.
+
+## Regla crítica: todo lo desplegado vive en git
+
+Esta regla tiene prioridad sobre cualquier procedimiento de entrega,
+script de `tools/` o costumbre previa. Motivo: la revisión del 2026-11-06
+encontró en producción código que nunca se commiteó (RADAR, ráfagas,
+migraciones D1 `0014`–`0019`) y releases armados desde `backups/`, que git
+ignora. Si se perdía ese equipo, se perdía la única copia de lo que corre.
+
+1. **Nada se despliega sin commit publicado.** Worker, bridge, migraciones D1 o
+   PostgreSQL y landing salen únicamente de un commit que ya existe en
+   `origin`. El acta del despliegue registra ese hash.
+2. **Prohibido desplegar desde fuentes fuera de git**: working tree con cambios
+   sin commit, `backups/`, `releases/` o un bundle parcheado. `backups/` es
+   evidencia local, nunca fuente de verdad.
+3. **Antes de desplegar**: los archivos del release están commiteados, se hizo
+   `git push` y se despliega desde ese commit. Si no puedes cumplirlo, no
+   despliegues y repórtalo como bloqueo.
+4. **Migraciones**: toda migración aplicada en cualquier entorno se commitea
+   en la misma entrega en que se aplicó.
+5. **Al cerrar una tarea con cambios**, haz commit de tus archivos en una rama
+   de trabajo (nunca directo en `main`). `push`, merge y despliegue siguen
+   requiriendo autorización de la tarea. Si no puedes commitear, lista en tu
+   reporte los archivos que quedan sin versionar como riesgo pendiente; nunca
+   los presentes como trabajo terminado.
+6. **No destruyas historia ni trabajo ajeno**: nada de `push --force`,
+   `reset --hard`, `checkout --` o `clean` sobre cambios que no sean tuyos.
+
+**Excepciones registradas.** Solo el operador puede autorizarlas, una por vez.
+Desde el 2026-11-11 el Worker volvió a desplegarse desde un commit (`f679d352` desde `ba2ad51`); las dos
+excepciones siguientes quedan cerradas y no habilitan nuevos injertos.
+
+- 2026-11-06 — PDF de la guía de remisión publicado por injerto sobre el Worker
+  `5a7c916e` (rama `feat/gre-pdf-formato`, `tools/prepare-gre-pdf-release.mjs`).
+  Fuentes y scripts se commitearon y publicaron antes de desplegar; el bundle base
+  sigue fuera de git. Antes de otra publicación hay que reconciliar `src/` con
+  producción (tareas `git-version-production-code-20261106` y
+  `wrangler-config-drift-20261106` del tablero).
+- 2026-11-06 — Corrección de direcciones e imágenes en la GRE publicada por
+  injerto sobre `c2070081` (`tools/prepare-gre-address-release.mjs`), autorizada
+  por el operador tras la prueba real. Misma condición: fuentes y scripts
+  commiteados y publicados antes de desplegar.
 
 ## Enrutamiento por tipo de tarea
 
@@ -36,7 +81,8 @@ En las filas de Manolo, las rutas abreviadas `src/`, `test/`, `migrations/`,
 | Migración D1 a PostgreSQL o arquitectura futura | [`docs/architecture/current-system.md`](docs/architecture/current-system.md) y el documento fundacional | `docs/vps-migration/`, `docs/architecture-foundation.md`, `src/node/platform/` |
 | TUI de contactos, roles o empresas | [`docs/apps/manolo-platform.md`](docs/apps/manolo-platform.md) | `tools/users-tui-vps.mjs`, `tools/users-tui/` |
 | Pruebas, revisión o CI | [`docs/development/validation.md`](docs/development/validation.md) | `test/`, `vitest.config.ts`, scripts de ambos `package.json` |
-| Coordinación de varios agentes | [`docs/agents/orchestration.md`](docs/agents/orchestration.md) | Límites de archivos definidos en el plan de trabajo |
+| Portal web app.meowlab.tech | [`docs/decisions/0006-portal-app-meowlab.md`](docs/decisions/0006-portal-app-meowlab.md) y `apps/meowlab-app/README.md` | `apps/meowlab-app/` |
+| Coordinación de varios agentes | [`docs/project/board.json`](docs/project/board.json) y [`docs/agents/orchestration.md`](docs/agents/orchestration.md) | Tareas del tablero y límites de archivos definidos en el plan de trabajo |
 | Una decisión estructural duradera | [`docs/decisions/README.md`](docs/decisions/README.md) | Nuevo ADR dentro de `docs/decisions/` |
 | Documentación | [`docs/README.md`](docs/README.md) | `docs/`, este archivo y los README locales |
 
@@ -46,7 +92,8 @@ debe leer las dos filas correspondientes.
 ## Reglas arquitectónicas vigentes
 
 - Meta tiene un solo webhook: el Cloudflare Worker. No se debe registrar el
-  bridge del VPS, Vercel ni otra aplicación como callback paralelo.
+  bridge del VPS, Vercel ni otra aplicación como callback paralelo. Los números
+  conectados por Kapso llegan al mismo Worker por `/webhooks/kapso` (ADR-0009).
 - El estado actual es híbrido. D1 sigue ejecutando el runtime principal de
   conversaciones, deduplicación, estados y cotizaciones; PostgreSQL recibe
   mensajes en sombra y ya es la autoridad para roles, permisos y FacturaYa.
@@ -93,7 +140,29 @@ nueva nota fechada o corrige el documento de estado.
 6. Si cambió una frontera, fuente de verdad, variable, ruta o procedimiento,
    actualiza la documentación en la misma entrega.
 7. Reporta archivos modificados, pruebas ejecutadas y riesgos pendientes. No
-   despliegues ni hagas commit salvo que la tarea lo autorice.
+   despliegues ni hagas push o merge salvo que la tarea lo autorice, y aplica
+   siempre la [regla crítica de git](#regla-crítica-todo-lo-desplegado-vive-en-git).
+
+## Tablero de trabajo
+
+El estado visible de las tareas vive en
+[`docs/project/board.html`](docs/project/board.html), generado desde
+[`docs/project/board.json`](docs/project/board.json) con columnas `todo`,
+`in_progress` y `done`.
+
+Reglas:
+
+- Cada agente revisa el tablero al empezar. Si su tarea no está, la agrega en
+  `todo` dentro de `board.json`.
+- Al empezar a trabajar, mueve su tarea a `in_progress` (una sola tarea por
+  agente a la vez).
+- Al terminar y validar, la mueve a `done` con la evidencia: comando, prueba o
+  archivo verificable.
+- Si descubre trabajo nuevo durante la tarea, lo agrega a `todo` en la misma
+  entrega; no lo deja únicamente en el chat.
+- `board.json` es la fuente de verdad. No se edita `board.html` a mano: se
+  regenera con `node tools/board/build-board.mjs` y se verifica con
+  `node tools/board/build-board.mjs --check`.
 
 ## Definición de terminado
 
@@ -104,5 +173,8 @@ Un cambio está terminado cuando:
 - no expone secretos ni datos sensibles en errores o logs;
 - pasa las comprobaciones aplicables;
 - deja documentación y contratos coherentes con el código;
+- deja su tarea del tablero en `done` con evidencia y el HTML regenerado;
+- queda commiteado en una rama de trabajo, o reportado explícitamente como
+  pendiente de versionar con la lista de archivos;
 - distingue claramente entre código probado, código desplegado y trabajo aún
   pendiente.

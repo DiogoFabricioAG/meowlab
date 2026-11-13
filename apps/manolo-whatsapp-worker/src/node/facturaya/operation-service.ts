@@ -1,4 +1,6 @@
 import { FacturayaApiClient } from "../../adapters/facturaya/client";
+import { decimalAmount, parseInstallments, paymentProblems } from "../../facturaya/payment-terms";
+import { parseCreateDespatch } from "../../facturaya/despatch-contracts";
 import type {
   CreditNoteInput,
   FacturayaResult,
@@ -60,6 +62,9 @@ function failure(
 }
 
 function permissionFor(operation: FacturayaBridgeRequest["operation"]): string {
+  if (operation === "create_despatch") return "create_invoice";
+  if (operation === "issue_despatch") return "issue_invoice";
+  if (operation === "lookup_customer_dni") return "create_invoice";
   if (operation === "import_invoice_draft") return "create_invoice";
   if (operation === "issue_invoice") return "issue_invoice";
   if (operation === "create_credit_note") return "create_credit_note";
@@ -67,12 +72,16 @@ function permissionFor(operation: FacturayaBridgeRequest["operation"]): string {
 }
 
 function isMutation(operation: FacturayaBridgeRequest["operation"]): boolean {
-  return operation === "import_invoice_draft"
+  return operation === "create_despatch" || operation === "issue_despatch" || operation === "refresh_despatch"
+    || operation === "lookup_customer_dni"
+    || operation === "import_invoice_draft"
     || operation === "issue_invoice"
     || operation === "create_credit_note";
 }
 
 function auditOperation(request: FacturayaBridgeRequest): string {
+  if (request.operation.endsWith("_despatch")) return request.operation;
+  if (request.operation === "lookup_customer_dni") return "customer_lookup";
   if (request.operation === "issue_invoice") return "invoice_issued";
   if (request.operation === "import_invoice_draft") return "invoice_modified";
   if (
@@ -104,6 +113,13 @@ function parseImportInput(value: unknown): ImportInvoiceDraftInput | null {
   const documentType = value.documentType === "01" || value.documentType === "03"
     ? value.documentType
     : null;
+  const paymentMethod = value.paymentMethod === undefined ? "contado"
+    : value.paymentMethod === "contado" || value.paymentMethod === "credito" ? value.paymentMethod : null;
+  const outstandingAmount = value.outstandingAmount == null ? null : decimalAmount(value.outstandingAmount);
+  const installments = value.installments === undefined ? [] : parseInstallments(value.installments);
+  if (!paymentMethod || !installments || (value.outstandingAmount != null && outstandingAmount === null)
+    || (documentType && paymentProblems({ paymentMethod, outstandingAmount, installments },
+      documentType, typeof value.issueDate === "string" ? value.issueDate : "").length > 0)) return null;
   const customerDocumentType = value.customerDocumentType === "0"
     || value.customerDocumentType === "1"
     || value.customerDocumentType === "6"
@@ -147,6 +163,9 @@ function parseImportInput(value: unknown): ImportInvoiceDraftInput | null {
     customerName: customerName || null,
     issueDate,
     taxMode,
+    paymentMethod,
+    outstandingAmount,
+    installments,
     ...(productsText ? { productsText } : {}),
     ...(document ? { document } : {}),
   };
@@ -319,7 +338,9 @@ export class FacturayaOperationService {
         operation: auditOperation(request),
         idempotencyKey: requestId,
         status: response.ok ? "completed" : "failed",
-        resourceType: request.operation === "create_credit_note"
+        resourceType: request.operation.endsWith("_despatch") ? "despatch" : request.operation === "lookup_customer_dni"
+          ? "customer"
+          : request.operation === "create_credit_note"
           ? "credit_note"
           : request.operation === "issue_invoice"
             ? "invoice"
@@ -343,6 +364,28 @@ export class FacturayaOperationService {
     request: FacturayaBridgeRequest,
     requestId: string,
   ): Promise<FacturayaBridgeResponse> {
+    if (request.operation === "create_despatch") {
+      const input = parseCreateDespatch(request.payload);
+      if (!input) return failure(requestId, "invalid_request");
+      return this.apiResponse(requestId, await client.despatch.create(input));
+    }
+    if (["get_despatch", "issue_despatch", "refresh_despatch"].includes(request.operation)) {
+      const input = isRecord(request.payload) ? request.payload : {};
+      const id = boundedString(input.id, 26);
+      if (!id || !/^[0-9A-HJKMNP-TV-Z]{26}$/i.test(id)) return failure(requestId, "invalid_request");
+      if (request.operation === "issue_despatch") {
+        const digest = boundedString(input.confirmation_digest, 64);
+        if (input.confirmed !== true || !digest || !/^[a-f0-9]{64}$/.test(digest)) return failure(requestId, "invalid_request");
+        return this.apiResponse(requestId, await client.despatch.issue(id, digest));
+      }
+      return this.apiResponse(requestId, request.operation === "refresh_despatch"
+        ? await client.despatch.refresh(id) : await client.despatch.get(id));
+    }
+    if (request.operation === "lookup_customer_dni") {
+      const dni = isRecord(request.payload) ? boundedString(request.payload.dni, 8) : null;
+      if (!dni || !/^\d{8}$/.test(dni)) return failure(requestId, "invalid_request");
+      return this.apiResponse(requestId, await client.lookupCustomerByDni(dni));
+    }
     if (request.operation === "lookup_customer") {
       const ruc = isRecord(request.payload)
         ? boundedString(request.payload.ruc, 20)
@@ -356,7 +399,11 @@ export class FacturayaOperationService {
       return this.apiResponse(requestId, await client.importInvoiceDraft(input));
     }
     if (request.operation === "list_invoice_drafts") {
-      return this.apiResponse(requestId, await client.listInvoiceDrafts());
+      const draftId = isRecord(request.payload) ? request.payload.draftId : undefined;
+      if (draftId !== undefined && (typeof draftId !== "string" || !/^[0-9A-HJKMNP-TV-Z]{26}$/i.test(draftId))) return failure(requestId, "invalid_request");
+      const page = isRecord(request.payload) ? request.payload.page : undefined;
+      if (page !== undefined && (!Number.isInteger(page) || Number(page) < 1 || Number(page) > 1000)) return failure(requestId, "invalid_request");
+      return this.apiResponse(requestId, await client.listInvoiceDrafts(typeof page === "number" ? page : undefined, draftId as string | undefined));
     }
     if (request.operation === "issue_invoice") {
       const draftId = isRecord(request.payload)

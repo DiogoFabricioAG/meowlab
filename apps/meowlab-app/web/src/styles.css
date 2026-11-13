@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* Tokens de meowlab.tech (tailwind.config.mjs y global.css de la landing). */
+@theme {
+  --color-forest: #0c493c;
+  --color-forest-hover: #08372d;
+  --color-forest-dark: #062821;
+  --color-forest-card: #12594a;
+  --color-mint: #d8f0e5;
+  --color-mint-light: #f0f9f5;
+  --color-mint-subtle: #e7f5ee;
+  --color-mint-text: #e2f3ec;
+  --color-surface-subtle: #f2f6f4;
+  --color-surface-muted: #eef2ef;
+  --color-line: #e8ece9;
+  --color-line-mint: #c3e5d4;
+  --color-ink: #111816;
+  --color-ink-2: #2d3a35;
+  --color-ink-muted: #46544f;
+  --color-ink-faint: #bdc7c2;
+  --color-whatsapp: #25d366;
+
+  --font-sans: "Actor", sans-serif;
+  --font-title: "Blinker", sans-serif;
+
+  --radius-xl: 10px;
+  --radius-2xl: 14px;
+  --radius-3xl: 18px;
+
+  --shadow-soft: 0 1px 3px rgba(17, 24, 22, 0.04), 0 1px 2px rgba(17, 24, 22, 0.02);
+  --shadow-card: 0 2px 6px rgba(17, 24, 22, 0.05), 0 1px 2px rgba(17, 24, 22, 0.03);
+  --shadow-elevated: 0 12px 28px -6px rgba(12, 73, 60, 0.1);
+}
+
+@layer base {
+  html {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-title);
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background-color: var(--color-mint);
+    color: var(--color-forest);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-[12px] bg-forest px-5 py-3 font-semibold text-white transition-colors hover:bg-forest-hover disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-[12px] bg-surface-subtle px-5 py-3 font-semibold text-ink transition-colors hover:bg-[#e3ede8] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-[12px] bg-red-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .field {
+    @apply w-full rounded-[12px] border border-line bg-white px-4 py-3 text-ink placeholder:text-[#66756f] transition-colors focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold;
+  }
+}
+
+/* Phones: the fixed bottom menu must never cover the focused element. */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
+}

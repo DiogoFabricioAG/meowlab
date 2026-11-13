@@ -86,6 +86,13 @@ es rol → contrato → adaptador; nunca rol → API externa directamente.
 
 ## Límites de otros repositorios
 
+RADAR está registrado en [`projects.json`](projects.json) y su ficha vive en
+[`../apps/radar.md`](../apps/radar.md). Su código permanece en
+`D:/Proyectos2026/licitaciones`; MeowLab compartirá el transporte de WhatsApp
+mediante una capacidad de notificaciones implementada localmente, pendiente de
+despliegue/activación. No incorpora un nuevo rol conversacional ni copia el
+producto a este monorepo. Véase el [contrato API](../apps/radar-whatsapp-api.md).
+
 Este monorepo contiene clientes y contratos, no las implementaciones completas
 de los siguientes sistemas:
 
