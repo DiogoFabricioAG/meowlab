@@ -98,6 +98,32 @@ los mensajes del bot nunca la renuevan.
 El rol efectivo del contacto puede sobrescribir el rol base del tenant. Un rol
 desconocido cae en `cat`, pero no reescribe la configuración persistida.
 
+## Sales Cat (`/sales`, ADR-0011 fase 1)
+
+Sales Cat no es un rol del contacto: funciona encima del rol que tenga. `/sales` lo
+abre, sus botones (`sales:*`) vuelven a él y, mientras la conversación siga abierta (30
+minutos desde el último mensaje, estado `sales` en `contact_role_states`), los mensajes
+se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`).
+
+- **Empresa:** sólo las empresas donde el número es miembro activo y que tienen Sales Cat
+  activo (`sales.settings.enabled`). Con varias, se elige de una lista.
+- **IA:** `SALES_AI_MODEL` (Groq `openai/gpt-oss-120b`) con salida estructurada
+  (`src/sales/extractor.ts`): venta, cotización, consulta, producto o anulación. Los
+  precios salen del mensaje o del catálogo, nunca inventados; si falta uno, lo pregunta.
+- **Datos:** PostgreSQL de la plataforma (migración `014-sales-cat.sql`):
+  `commerce.customers` y `commerce.products` (creados al vuelo), `sales.quotes`,
+  `sales.sales`, `sales.lines`, numeración por empresa y `sales.audit_log`. Ruta firmada
+  `/v1/sales/execute` con idempotencia por id de solicitud (`src/node/sales/`).
+- **Cotización:** se comparte con un botón de enlace (`cta_url`) a
+  `PORTAL_PUBLIC_URL/cotizacion/<código>`; sólo se guarda el hash del código. El portal la
+  lee por `/v1/portal/public-quote` con su propio secreto.
+- **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
+  misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
+  varios productos o sin el documento del cliente, deriva a Invoice Cat.
+- **Activar para una empresa:** `INSERT INTO sales.settings (tenant_id) VALUES ('<id>')`.
+- **Pruebas:** `test/sales-role.test.ts` y `tools/sales-pg-check.ts` (PostgreSQL
+  desechable).
+
 ## Regla para añadir un rol
 
 1. Define contratos del dominio fuera del handler si hay un proveedor externo.

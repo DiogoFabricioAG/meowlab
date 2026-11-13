@@ -1566,10 +1566,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-13",
-      "notes": "ADR-0011.",
-      "evidence": ""
+      "notes": "ADR-0011. Código y pruebas listos, sin desplegar. Ramas: feat/sales-cat-fase1 (Manolo: rol, bridge, migración 014) y feat/sales-cat-app (portal: cotización pública y ficha). Para desplegar: migración 014, release del bridge, Worker (variables SALES_AI_MODEL y PORTAL_PUBLIC_URL) e imagen del portal; activar CREACIONES J&D en sales.settings.",
+      "evidence": "Manolo: tsc limpio, vitest 654/654 (13 de Sales Cat), tools/sales-pg-check.ts en PostgreSQL 17 desechable 25/25 (numeración concurrente, idempotencia, permisos, enlace público, anulación auditada, resumen por periodo). Portal: typecheck limpio, vitest 31/31, cotización pública revisada en escritorio y celular."
     },
     {
       "id": "sales-cat-2-clientes-20261113",
