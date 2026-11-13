@@ -5,6 +5,8 @@ import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/compa
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
 import { SalesService } from "./sales/sales-service";
+import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-service";
+import { PortalStockService } from "./stock/portal-stock-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
@@ -94,7 +96,8 @@ async function readRequestBody(
  * Portal app.meowlab.tech (ADR-0006). Optional: without its secrets the portal route
  * answers 503 and the rest of the bridge is unaffected.
  */
-function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string) {
+function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string,
+  stock: StockService | null = null) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
   const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
   const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
@@ -119,6 +122,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       new PortalInvitationService(pool, logSafeEvent),
       // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
       new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+      // ADR-0014: Stock Cat's page in the portal.
+      new PortalStockService(pool, stock, logSafeEvent),
     ),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
@@ -208,6 +213,13 @@ async function main(): Promise<void> {
     quotePdfToken ? new FacturayaQuotePdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
     logSafeEvent,
   );
+  // ADR-0014: Stock Cat; documents are read from FacturaYa with each company's own token.
+  const stockService = new StockService(
+    connection.pool,
+    requestStore,
+    logSafeEvent,
+    new FacturayaIssuedDocumentReader(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, logSafeEvent),
+  );
   const handler = createBridgeHttpHandler({
     sharedSecret,
     service,
@@ -218,7 +230,8 @@ async function main(): Promise<void> {
     // Sales Cat (ADR-0011): its data and the public quote page.
     salesService: new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs),
     quotePdfService: quotePdfs,
-    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl),
+    stockService,
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService),
     log: logSafeEvent,
     healthCheck: async () => {
       try {

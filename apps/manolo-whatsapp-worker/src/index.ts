@@ -45,6 +45,8 @@ import { ENTERPRISE_ADVISOR_ROLE_KEY } from "./roles/enterprise-advisor-role";
 import { QUOTE_ROLE_KEY } from "./quotes/types";
 import { SALES_ROLE_KEY, SalesRoleHandler, isSalesCommand, parseSalesState } from "./roles/sales-role";
 import { VpsSalesClient } from "./sales/client";
+import { STOCK_ROLE_KEY, StockRoleHandler, isStockCommand, parseStockState, stockAlertsAfterInvoice } from "./roles/stock-role";
+import { VpsStockClient } from "./stock/client";
 import {
   PRINT_ADVISOR_PROVIDER,
   PRINT_ADVISOR_ROLE_KEY,
@@ -749,15 +751,33 @@ export async function processConversationTurn(
       // Sales Cat (ADR-0011) works on top of whatever role the contact has: `/sales` opens
       // it, its buttons come back to it, and an open Sales Cat conversation keeps the turn.
       const roleState = new D1RoleStateRepository(env.DB);
-      const salesTurn = persisted.contactId !== null && (
-        isSalesCommand(activeMessage.text)
-        || Boolean(activeMessage.interactionId?.startsWith("sales:"))
+      // Stock Cat (ADR-0014) works the same way with `/stock`. An explicit command or button
+      // picks the cat; otherwise the open conversation keeps the turn, Stock Cat first.
+      const salesSignal = isSalesCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("sales:"));
+      const stockSignal = isStockCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("stock:"));
+      const stockOpen = persisted.contactId !== null && !salesSignal
+        && parseStockState(await roleState.get(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => null)) !== null;
+      const stockTurn = persisted.contactId !== null && !salesSignal && (stockSignal || stockOpen);
+      const salesTurn = persisted.contactId !== null && !stockTurn && (
+        salesSignal
         || parseSalesState(await roleState.get(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => null)) !== null
       );
+      // Opening one cat closes the other's open conversation.
+      if (persisted.contactId !== null && isStockCommand(activeMessage.text)) {
+        await roleState.clear(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => false);
+      }
+      if (persisted.contactId !== null && isSalesCommand(activeMessage.text)) {
+        await roleState.clear(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => false);
+      }
       const salesRole = new SalesRoleHandler((context) => bridgeClient
         ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
-      const configuredTenant = salesTurn
+      const stockRole = new StockRoleHandler((context) => bridgeClient
+        ? new VpsStockClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
+        : null);
+      const configuredTenant = stockTurn
+        ? stockRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
+        : salesTurn
         ? salesRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
         : roleRegistry.apply(
           tenant,
@@ -767,7 +787,7 @@ export async function processConversationTurn(
         ...configuredTenant,
         systemPrompt: withMultimodalContext(configuredTenant.systemPrompt),
         aiProvider:
-          configuredTenant.roleKey === SALES_ROLE_KEY
+          configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
             ? "groq"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_PROVIDER?.trim() || "openai"
@@ -775,7 +795,7 @@ export async function processConversationTurn(
             ? PRINT_ADVISOR_PROVIDER
             : configuredTenant.aiProvider,
         aiModel:
-          configuredTenant.roleKey === SALES_ROLE_KEY
+          configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
             ? env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_MODEL?.trim() || configuredTenant.aiModel
@@ -916,7 +936,7 @@ export async function processConversationTurn(
       );
       const documentStore = new R2DocumentStore(env.ENTERPRISE_DOCUMENTS);
 
-      const roleHandler = salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
+      const roleHandler = stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
       if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
         || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
         || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {
@@ -995,6 +1015,9 @@ export async function processConversationTurn(
           await persistOutbound(body, sendResult, "interactive");
           return sendResult;
         },
+        stockAlertsAfterInvoice: () => stockAlertsAfterInvoice(bridgeClient && persisted.contactId !== null
+          ? new VpsStockClient(bridgeClient, tenant.tenantId, persisted.contactId, `${bridgeRequestId}:after-invoice`, logSafeEvent)
+          : null).catch(() => null),
         sendDocument: async (document) => {
           const sendResult = await whatsappClient.sendDocument(
             activeMessage.to,

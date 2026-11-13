@@ -32,6 +32,8 @@ import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
 import { SALES_BRIDGE_PATH, isSalesBridgeRequest } from "../../sales/bridge-contracts";
+import { STOCK_BRIDGE_PATH, isStockBridgeRequest } from "../../stock/bridge-contracts";
+import type { StockService } from "../stock/stock-service";
 import type { SalesService } from "../sales/sales-service";
 import type { QuotePdfService } from "../sales/quote-pdf-service";
 
@@ -65,6 +67,8 @@ export type BridgeHttpHandlerDependencies = {
   portalCompanyService?: Pick<PortalCompanyService, "handle">;
   /** Sales Cat (ADR-0011). */
   salesService?: Pick<SalesService, "process">;
+  /** Stock Cat (ADR-0014). */
+  stockService?: Pick<StockService, "process">;
   /** ADR-0013: the quote's PDF behind its public link code. */
   quotePdfService?: Pick<QuotePdfService, "byToken">;
   healthCheck: () => Promise<boolean>;
@@ -119,6 +123,7 @@ export function createBridgeHttpHandler(
       && request.path !== FACTURAYA_BRIDGE_PATH
       && request.path !== RADAR_SYNC_BRIDGE_PATH
       && request.path !== SALES_BRIDGE_PATH
+      && request.path !== STOCK_BRIDGE_PATH
     ) {
       return jsonResponse(404, { error: "not_found" });
     }
@@ -163,6 +168,23 @@ export function createBridgeHttpHandler(
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
       } catch {
         dependencies.log("vps_sales_processing_failed", { operation: payload.operation });
+        return jsonResponse(500, { error: "internal_error" });
+      }
+    }
+
+    if (request.path === STOCK_BRIDGE_PATH) {
+      if (!dependencies.stockService) return jsonResponse(503, { error: "stock_unavailable" });
+      const headerRequestId = request.headers["x-manolo-request-id"]?.trim();
+      if (!headerRequestId || headerRequestId.length > 255 || !isStockBridgeRequest(payload)) {
+        return jsonResponse(400, { error: "invalid_request" });
+      }
+      try {
+        const result = await dependencies.stockService.process(payload, headerRequestId, requestHash);
+        if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
+        if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
+        return jsonResponse(200, result.response as unknown as Record<string, unknown>);
+      } catch {
+        dependencies.log("vps_stock_processing_failed", { operation: payload.operation });
         return jsonResponse(500, { error: "internal_error" });
       }
     }

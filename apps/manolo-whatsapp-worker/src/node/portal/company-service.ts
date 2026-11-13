@@ -10,6 +10,7 @@ import {
 import type { RoleLog } from "../../roles/contracts";
 import { PortalInvitationService, type InvitationRequest } from "./invitation-service";
 import type { PortalWeeklyService } from "./weekly-service";
+import type { PortalStockService } from "../stock/portal-stock-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -82,11 +83,15 @@ export class PortalCompanyService {
     private readonly newId: () => string = () => `org_${randomBytes(12).toString("hex")}`,
     private readonly invitations: Pick<PortalInvitationService, "handle"> = new PortalInvitationService(pool, log),
     private readonly weekly: Pick<PortalWeeklyService, "handle"> | null = null,
+    private readonly stock: Pick<PortalStockService, "handle"> | null = null,
   ) {}
 
   async handle(request: PortalCompanyRequest): Promise<PortalCompanyResponse> {
     if (request.action === "weekly") {
       return this.weekly ? this.weekly.handle(request.portalUserId, request.tenantId) : { status: "unavailable" };
+    }
+    if (request.action === "stock_view") {
+      return this.stock ? this.stock.handle(request.portalUserId, request.tenantId) : { status: "unavailable" };
     }
     if (request.action !== "mine" && request.action !== "lookup" && request.action !== "create") {
       return this.invitations.handle(request as InvitationRequest);
