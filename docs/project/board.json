@@ -1434,10 +1434,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0010. Código y pruebas listos, sin desplegar. Ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). Para desplegar: migración 013, release del bridge e imagen del portal; FacturaYa no cambia.",
-      "evidence": "Bridge: tsc limpio, vitest 634/636 (2 RADAR por reloj), tools/portal-invitation-pg-check.ts en PostgreSQL 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). Portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso."
+      "notes": "ADR-0010, fase 2 desplegada el 13/11/2026. Acta: docs/operations/portal-invitaciones-2026-11-13.md.",
+      "evidence": "Producción: migración 013, release del bridge portal-invitaciones-20261113T044525Z (team ajeno forbidden, preview inexistente invalid), portal meowlab-app:9ad227bff394 healthy, rutas nuevas 401 sin sesión. Antes: invitation pg-check 28/28, bridge vitest 634/636 (2 RADAR por reloj), portal 28/28."
     },
     {
       "id": "portal-org-3-invoice-sol-20261113",

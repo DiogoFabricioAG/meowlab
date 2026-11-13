@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 56 · Total: 144</span>
+      <span class="summary">Abiertas: 55 · Total: 144</span>
     </div>
   </div>
 </header>
@@ -792,7 +792,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -828,17 +828,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: invitaciones del dueño con enlace seguro y panel de equipo portal adr-0010. código y pruebas listos, sin desplegar. ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). para desplegar: migración 013, release del bridge e imagen del portal; facturaya no cambia. bridge: tsc limpio, vitest 634/636 (2 radar por reloj), tools/portal-invitation-pg-check.ts en postgresql 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: invitaciones del dueño con enlace seguro y panel de equipo</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 634/636 (2 RADAR por reloj), tools/portal-invitation-pg-check.ts en PostgreSQL 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). Portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso.</p>
-          <p class="card-notes">ADR-0010. Código y pruebas listos, sin desplegar. Ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). Para desplegar: migración 013, release del bridge e imagen del portal; FacturaYa no cambia.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-org-2-invitaciones-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -855,7 +844,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">88</span>
+          <span class="count">89</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1605,6 +1594,17 @@
           <p class="card-notes">ADR-0010, fase 1 desplegada el 13/11/2026. Acta: docs/operations/portal-empresas-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-1-crear-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: invitaciones del dueño con enlace seguro y panel de equipo portal adr-0010, fase 2 desplegada el 13/11/2026. acta: docs/operations/portal-invitaciones-2026-11-13.md. producción: migración 013, release del bridge portal-invitaciones-20261113t044525z (team ajeno forbidden, preview inexistente invalid), portal meowlab-app:9ad227bff394 healthy, rutas nuevas 401 sin sesión. antes: invitation pg-check 28/28, bridge vitest 634/636 (2 radar por reloj), portal 28/28.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: invitaciones del dueño con enlace seguro y panel de equipo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 013, release del bridge portal-invitaciones-20261113T044525Z (team ajeno forbidden, preview inexistente invalid), portal meowlab-app:9ad227bff394 healthy, rutas nuevas 401 sin sesión. Antes: invitation pg-check 28/28, bridge vitest 634/636 (2 RADAR por reloj), portal 28/28.</p>
+          <p class="card-notes">ADR-0010, fase 2 desplegada el 13/11/2026. Acta: docs/operations/portal-invitaciones-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-2-invitaciones-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">
