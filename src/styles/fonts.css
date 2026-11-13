@@ -1,0 +1,30 @@
+/* Brand faces, served from public/fonts (no font CDN). Blinker sets titles, Actor the text.
+   Actor has a single weight: 500 for buttons and labels resolves to the same file. */
+@font-face {
+  font-family: "Blinker";
+  src: url("/fonts/Blinker-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blinker";
+  src: url("/fonts/Blinker-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blinker";
+  src: url("/fonts/Blinker-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Actor";
+  src: url("/fonts/Actor-Regular.ttf") format("truetype");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}

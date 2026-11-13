@@ -1,0 +1,75 @@
+---
+/*
+  The home page's shell, built on the taste-skill kit (public/taste, copied unchanged from the skill's
+  assets). Tailwind is not loaded here: the kit's system.css is the one system of this page. The other
+  pages (contacto, privacidad, terminos) keep Layout.astro.
+*/
+import '../styles/landing.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const site = 'https://meowlab.tech';
+---
+
+<!doctype html>
+<html lang="es-PE" data-type="software" data-radius="soft" data-ground="sand" data-buttons="tonal" data-motion>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${site}/share.jpg`} />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="canonical" href={`${site}/`} />
+    <meta name="site-kind" content="software" />
+    <meta name="page-type" content="software" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preload" href="/fonts/Blinker-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/Actor-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/taste/system.css" />
+    <link rel="stylesheet" href="/taste/ui/cards.css" />
+    <link rel="stylesheet" href="/taste/motion/motion.css" />
+    <link rel="stylesheet" href="/taste/layout/layout.css" />
+    <link rel="stylesheet" href="/taste/ui/base.css" />
+    <!-- palette: start.mjs brand (the client's colours: white ground, mint-light surface, ink, forest accent);
+         type: the dealt pairing replaced by the brand's own faces, Blinker for titles and Actor for text -->
+    <style is:inline>
+:root {
+  --p-bg: #ffffff; --p-surface: #f0f9f5; --p-ink: #111816; --p-muted: #46544f;
+  --p-accent: #0c493c; --p-accent-ink: #ffffff; --p-action: #0c493c; --p-action-ink: #ffffff;
+  --p-inv-bg: #111816; --p-inv-surface: #1e2523; --p-inv-ink: #ffffff; --p-inv-muted: #9b9e9d;
+  --p-inv-accent: #ffffff; --p-inv-accent-ink: #111816; --p-inv-action: #ffffff; --p-inv-action-ink: #111816;
+  --font-display: "Blinker", system-ui, sans-serif;
+  --font-text: "Actor", system-ui, sans-serif;
+  --font-mono: "Actor", ui-monospace, Menlo, Consolas, monospace;
+  /* Brand: Blinker Bold for titles, as in app.meowlab.tech (tracking-tight). */
+  --display-weight: 700;
+  --display-tracking: -0.025em;
+  --display-tracking-xl: -0.03em;
+  --ly-scale: 0.96;
+}
+    </style>
+    <script is:inline>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+    <script is:inline>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+    <link rel="modulepreload" href="/taste/moments/moments.js" />
+    <link rel="modulepreload" href="/taste/moments/lib.js" />
+    <link rel="modulepreload" href="/taste/moments/iris-opens/moment.js" />
+    <link rel="modulepreload" href="/taste/moments/word-highlight/moment.js" />
+  </head>
+  <body>
+    <slot />
+    <script is:inline type="module" src="/taste/system.js"></script>
+    <script is:inline type="module" src="/taste/motion/motion.js"></script>
+    <script is:inline type="module" src="/taste/layout/layout.js"></script>
+  </body>
+</html>

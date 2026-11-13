@@ -27,3 +27,7 @@ apps/meowlab-app/.dev.vars
 apps/meowlab-app/.wrangler/
 
 apps/meowlab-app/build/
+
+# taste-skill: working files (Chrome profiles, shots, gate state); only the waivers are versioned
+.taste-skill/*
+!.taste-skill/waivers.json

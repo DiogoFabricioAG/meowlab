@@ -1,0 +1,33 @@
+---
+// footer.closing: row 1 the dealt close (close-type), row 2 the dealt footer (footer-columns).
+const portal = 'https://app.meowlab.tech';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer closing g2m" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--type">
+      <div class="section-head">
+        <h2 id="close-h">Empieza con Invoice Cat por S/ 39 al mes</h2>
+        <p>Entras con tu correo o con tu cuenta de Google.</p>
+      </div>
+      <a class="btn btn--primary btn--xl btn--wide" href={portal}>Entrar al portal<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8" /><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" /></svg></a>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="#top"><img src="/assets/landing/meowlab-mark.png" alt="" width="26" height="26" loading="lazy" /><span>meow<b>lab</b></span></a>
+          <p class="footer__lede">Agentes de IA en WhatsApp para mypes del Perú.</p>
+        </div>
+        <div class="span-2 footer__col"><h3>Agentes</h3><ul><li><a href="#facturas">Invoice Cat</a></li><li><a href="#licitaciones">Tender Cat</a></li><li><a href="#agentes">Agentes</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Portal</h3><ul><li><a href="#portal">Portal</a></li><li><a href="#equipo">Equipo</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Ayuda</h3><ul><li><a href="#preguntas">Preguntas</a></li><li><a href="/contacto">Contacto</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Legal</h3><ul><li><a href="/privacidad">Privacidad</a></li><li><a href="/terminos">Términos</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; {year} MeowLab</span>
+        <div class="socials"></div>
+      </div>
+    </div>
+  </div>
+</footer>

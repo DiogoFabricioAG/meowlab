@@ -1,0 +1,57 @@
+---
+/*
+  A WhatsApp conversation with Manolo, drawn as live HTML (the product's own interface).
+  Every agent works inside this one chat; nothing here is a screenshot.
+*/
+export interface WaMessage {
+  from: 'in' | 'out';
+  text?: string;
+  time: string;
+  doc?: { name: string; detail: string };
+  buttons?: string[];
+}
+
+interface Props {
+  label: string;
+  day?: string;
+  messages: WaMessage[];
+  name?: string;
+  state?: string;
+  eager?: boolean;
+}
+
+const { label, eager = false, day = 'Hoy', messages, name = 'Manolo · MeowLab', state = 'en línea' } = Astro.props;
+---
+
+<div class="ui wa" role="img" aria-label={label}>
+  <div class="wa__head">
+    <span class="wa__avatar"><img src="/assets/landing/meowlab-mark.png" alt="" width="24" height="24" loading={eager ? "eager" : "lazy"} /></span>
+    <span class="wa__who"><span class="wa__name">{name}</span><span class="wa__state">{state}</span></span>
+  </div>
+  <div class="wa__body">
+    <span class="wa__day">{day}</span>
+    {messages.map((m) => (
+      <>
+        <div class={`wa__msg wa__msg--${m.from}`}>
+          {m.doc && (
+            <span class="wa__doc">
+              <span class="wa__pdf">PDF</span>
+              <span class="wa__file"><span>{m.doc.name}</span><span>{m.doc.detail}</span></span>
+            </span>
+          )}
+          {m.text && <span class="wa__text" set:html={m.text} />}
+          <span class="wa__meta">{m.time}{m.from === 'out' && <span class="wa__ticks">✓✓</span>}</span>
+        </div>
+        {m.buttons && (
+          <div class="wa__btns wa__btns--row">
+            {m.buttons.map((b) => <span class="wa__btn">{b}</span>)}
+          </div>
+        )}
+      </>
+    ))}
+  </div>
+  <div class="wa__input">
+    <span class="wa__field">Escribe un mensaje</span>
+    <span class="wa__send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h13M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+  </div>
+</div>
