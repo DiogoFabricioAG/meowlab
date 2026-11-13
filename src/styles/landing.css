@@ -151,6 +151,8 @@
 #agentes .rows__name { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
 #agentes .agent-logo { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #d8f0e5; }
 #agentes .agent-logo img { width: 28px; height: 28px; mix-blend-mode: multiply; }
+/* Narrow phones: the list stays compact (the logos still show in the cat row and the plan). */
+@media (max-width: 479px) { #agentes .agent-logo { display: none; } }
 @media (min-width: 640px) and (max-width: 1023px) { #agentes .grid > .rows { grid-column: 1 / span 6; } #agentes .grid > .plan-frame { grid-column: 7 / -1; --ratio: 150%; } #agentes .plan-ui__tiers { display: grid; } }
 .cat { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: #d8f0e5; }
 .cat img { width: 40px; height: 40px; mix-blend-mode: multiply; }
