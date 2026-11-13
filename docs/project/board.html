@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 54 · Total: 138</span>
+      <span class="summary">Abiertas: 52 · Total: 138</span>
     </div>
   </div>
 </header>
@@ -759,7 +759,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">6</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -772,17 +772,6 @@
           <p class="card-notes">Comparación hecha; falta ADR y prototipo de migración.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">estrategia-multicliente</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: endpoints de lectura de facturaya y rutas autorizadas del bridge portal fase 3 del adr-0006. facturaya: listado paginado de comprobantes y resumen mensual. bridge: autorización cuenta → contacto → empresas permitidas. diseño: docs/decisions/0006-portal-app-meowlab.md facturaya feat/portal-lectura: get /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). portal feat/portal-facturacion-app: pestaña facturación, 20/20. pendiente: despliegue y membresía del número vinculado.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: endpoints de lectura de FacturaYa y rutas autorizadas del bridge</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> FacturaYa feat/portal-lectura: GET /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). Bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). Portal feat/portal-facturacion-app: pestaña Facturación, 20/20. Pendiente: despliegue y membresía del número vinculado.</p>
-          <p class="card-notes">Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">app-portal-3-lectura-facturaya-20261111</code>
         </article>
         <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el adr. desplegado en modo prueba (13530). compra real con comprador de prueba: preapproval autorizado, cobro 7033915896 de s/ 39 aprobado; la conciliación acreditó un mes (pagado hasta 12/12/2026). bug encontrado y corregido: authorized_payments/search rechaza limit &gt; 12. npm test 15/15; billing-pg-check 11/11. falta: recibir un webhook real de mercado pago (ninguno llegó; revisar url del modo prueba en el panel).">
           <div class="card-top">
@@ -817,23 +806,12 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: pantallas de comprobantes, descargas, resumen y guías portal fase 4 del adr-0006. sólo lectura; pdf de la guía cuando exista una fuente común con manolo. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app). ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: pantallas de comprobantes, descargas, resumen y guías</h3>
-          
-          <p class="card-notes">Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">app-portal-4-pantallas-20261111</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">84</span>
+          <span class="count">86</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1540,6 +1518,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: endpoints de lectura de facturaya y rutas autorizadas del bridge portal fase 3 del adr-0006. facturaya: listado paginado de comprobantes y resumen mensual. bridge: autorización cuenta → contacto → empresas permitidas. diseño: docs/decisions/0006-portal-app-meowlab.md facturaya feat/portal-lectura: get /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). portal feat/portal-facturacion-app: pestaña facturación, 20/20. pendiente: despliegue y membresía del número vinculado. desplegado el 2026-11-13 (facturaya, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. acta: docs/operations/portal-facturacion-2026-11-13.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: endpoints de lectura de FacturaYa y rutas autorizadas del bridge</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> FacturaYa feat/portal-lectura: GET /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). Bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). Portal feat/portal-facturacion-app: pestaña Facturación, 20/20. Pendiente: despliegue y membresía del número vinculado. Desplegado el 2026-11-13 (FacturaYa, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. Acta: docs/operations/portal-facturacion-2026-11-13.md</p>
+          <p class="card-notes">Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">app-portal-3-lectura-facturaya-20261111</code>
+        </article>
         <article class="card" data-priority="high" data-area="Landing" data-text="publicar política de privacidad y términos en la landing landing requisito de google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. meowlab aún no tiene ruc ni razón social (2026-11-11): las páginas identifican al titular como «meowlab» y muestran ruc, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). falta revisión legal y publicar la landing. publicadas desde 381c3b3: https://meowlab.tech/privacidad y /terminos 200. logo bimi preservado. acta: docs/operations/portal-y-legales-2026-11-11.md">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
@@ -1671,6 +1660,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">tablero-trabajo</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: pantallas de comprobantes, descargas, resumen y guías portal fase 4 del adr-0006. sólo lectura; pdf de la guía cuando exista una fuente común con manolo. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).  desplegado el 2026-11-13 (facturaya, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. acta: docs/operations/portal-facturacion-2026-11-13.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: pantallas de comprobantes, descargas, resumen y guías</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong>  Desplegado el 2026-11-13 (FacturaYa, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. Acta: docs/operations/portal-facturacion-2026-11-13.md</p>
+          <p class="card-notes">Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">app-portal-4-pantallas-20261111</code>
         </article>
         <article class="card" data-priority="medium" data-area="Plataforma" data-text="retirar los roles de finanzas del catálogo de postgresql plataforma la migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat. 007 aplicada (hash igual a git): 3 roles inactivos, 1 contacto sin rol, home-finance con cat por defecto. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
           <div class="card-top">

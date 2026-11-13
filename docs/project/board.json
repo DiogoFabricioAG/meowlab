@@ -1181,10 +1181,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
       "notes": "Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md",
-      "evidence": "FacturaYa feat/portal-lectura: GET /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). Bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). Portal feat/portal-facturacion-app: pestaña Facturación, 20/20. Pendiente: despliegue y membresía del número vinculado."
+      "evidence": "FacturaYa feat/portal-lectura: GET /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). Bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). Portal feat/portal-facturacion-app: pestaña Facturación, 20/20. Pendiente: despliegue y membresía del número vinculado. Desplegado el 2026-11-13 (FacturaYa, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. Acta: docs/operations/portal-facturacion-2026-11-13.md"
     },
     {
       "id": "app-portal-4-pantallas-20261111",
@@ -1192,10 +1192,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
       "notes": "Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).",
-      "evidence": ""
+      "evidence": " Desplegado el 2026-11-13 (FacturaYa, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. Acta: docs/operations/portal-facturacion-2026-11-13.md"
     },
     {
       "id": "app-portal-link-fallback-20261111",
