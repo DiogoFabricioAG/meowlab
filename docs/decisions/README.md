@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0010 — Empresas e invitaciones en el portal](0010-empresas-e-invitaciones-en-el-portal.md):
+  crear empresa con RUC, unirse sólo con enlace del dueño y credenciales SOL sólo para Invoice Cat.
+
 - [0009 — Kapso como proveedor de números](0009-kapso-proveedor-de-numeros.md):
   proveedor por número, payload de Meta reenviado a /webhooks/kapso con su firma y cada proveedor sólo por sus números.
 

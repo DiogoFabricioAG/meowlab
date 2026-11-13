@@ -1416,6 +1416,39 @@
       "updated": "2026-11-13",
       "notes": "El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.",
       "evidence": "…0280 miembro activo de CREACIONES J&D con todos los permisos (conserva RADAR); …2447 sólo RADAR (rol cambiado en PostgreSQL con auditoría y en D1; membresía inactiva). Bridge: la cuenta vinculada ve la empresa. Acta: docs/operations/portal-facturacion-2026-11-13.md"
+    },
+    {
+      "id": "portal-org-1-crear-20261113",
+      "title": "Portal: crear empresa con RUC y paso «Tu empresa»",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0010.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-org-2-invitaciones-20261113",
+      "title": "Portal: invitaciones del dueño con enlace seguro y panel de equipo",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0010.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-org-3-invoice-sol-20261113",
+      "title": "Portal: activar Invoice Cat con credenciales SOL",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0010.",
+      "evidence": ""
     }
   ]
 }
