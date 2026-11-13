@@ -65,3 +65,15 @@ describe("invitation routes (ADR-0010, phase 2)", () => {
     expect(bridge.companies).toHaveBeenLastCalledWith("owner-1", { action: "accept", token: TOKEN });
   });
 });
+
+describe("weekly route", () => {
+  it("relays the week for members and maps a stranger to 403", async () => {
+    const weekly = { week: { start: "2026-11-09", end: "2026-11-15" }, team: { members: 1, messages: 2, activePeople: 1, previousMessages: 0 },
+      tender: { found: 0, interesting: 0, highlights: [] }, invoicing: null };
+    const ok = app(async () => ({ status: "ok", weekly }));
+    expect(await (await ok.app.request("/api/companies/org_1/weekly")).json()).toEqual(weekly);
+    expect(ok.bridge.companies).toHaveBeenCalledWith("owner-1", { action: "weekly", tenantId: "org_1" });
+    expect((await app(async () => ({ status: "forbidden" })).app.request("/api/companies/org_1/weekly")).status).toBe(403);
+    expect((await app(async () => null).app.request("/api/companies/org_1/weekly")).status).toBe(503);
+  });
+});

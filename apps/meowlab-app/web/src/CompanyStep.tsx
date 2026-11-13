@@ -31,9 +31,8 @@ const OPTIONS = [
 ] as const;
 
 /** «Tu empresa» (ADR-0010): create a company by RUC, join by invitation, or decide later. */
-export function CompanyStep({ onDone, onSkip, onInvitation }: {
+export function CompanyStep({ onDone, onInvitation }: {
   onDone: () => void;
-  onSkip?: () => void;
   onInvitation: (code: string) => void;
 }) {
   const [link, setLink] = useState("");
@@ -69,7 +68,6 @@ export function CompanyStep({ onDone, onSkip, onInvitation }: {
   return (
     <section className="rounded-3xl border border-line bg-white p-6 shadow-card sm:p-8" aria-labelledby="company-title">
       <div className="space-y-2">
-        <span className="chip border border-line-mint bg-mint-light text-forest">Tu empresa</span>
         <h2 id="company-title" className="text-2xl font-bold tracking-tight text-ink">
           ¿Con qué empresa vas a usar MeowLab?
         </h2>
@@ -183,8 +181,8 @@ export function CompanyStep({ onDone, onSkip, onInvitation }: {
         </p>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-5 text-sm">
-        {mode !== "choose" && (
+      {mode !== "choose" && (
+        <div className="mt-6 border-t border-line pt-5 text-sm">
           <button
             type="button"
             className="font-semibold text-forest underline-offset-4 hover:underline"
@@ -195,13 +193,8 @@ export function CompanyStep({ onDone, onSkip, onInvitation }: {
           >
             Volver
           </button>
-        )}
-        {onSkip && (
-          <button type="button" className="font-semibold text-ink-muted underline-offset-4 hover:text-ink hover:underline" onClick={onSkip}>
-            Lo hago después
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

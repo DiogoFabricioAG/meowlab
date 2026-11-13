@@ -88,6 +88,20 @@ Pestaña **Facturación**, visible cuando el WhatsApp vinculado es miembro activ
   FacturaYa con el token de esa empresa; el portal nunca ve tokens.
 - Las descargas usan un tipo de contenido de una lista cerrada y un nombre saneado.
 
+## Estructura del panel
+
+- **Onboarding:** al iniciar sesión sin empresa se abre una pantalla completa para
+  crear la empresa con el RUC o entrar con una invitación. El panel se abre después.
+- **Menú fijo:** lateral en escritorio y barra inferior en el celular. Inicio, un
+  apartado por cada agente que tiene la empresa (hoy Invoice Cat, cuando el WhatsApp
+  vinculado puede ver sus comprobantes), «Sumar agente» (lleva al Plan), Plan,
+  Configuración y, para administradores, Negocio. Con varias empresas se elige cuál ver.
+- **Inicio:** la semana de la empresa (lunes a domingo en Lima) con datos reales:
+  facturado aceptado contra la semana anterior, comprobantes y rechazados, licitaciones
+  de Tender Cat (las interesantes van a «Para atender») y mensajes del equipo a sus
+  agentes. `GET /api/companies/:empresa/weekly`, sólo para miembros de la empresa.
+- **Configuración:** WhatsApp vinculado, la empresa y su equipo e invitaciones.
+
 ## Empresas (ADR-0010, fase 1)
 
 Después de crear la cuenta, «Mi panel» muestra el paso **Tu empresa**: crear la

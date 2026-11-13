@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { authClient, fetchJson, type Me, type PortalConfig } from "./auth-client";
 import { AuthPage } from "./AuthPage";
 import { Panel } from "./Panel";
+import { OnboardingPage } from "./OnboardingPage";
 import { InvitationPage, captureInvitationFromUrl, clearPendingInvitation, readPendingInvitation, storePendingInvitation } from "./InvitationPage";
 
 // Before anything renders: /invitacion/<code> leaves the address bar and waits for the sign-in.
@@ -54,16 +55,20 @@ export function App() {
       />
     );
   }
-  return (
-    <Panel
-      me={me}
-      onChange={refresh}
-      onInvitation={(code) => {
-        storePendingInvitation(code);
-        setInvitation(code);
-      }}
-    />
-  );
+  // Without a company there is no panel yet: create one or join by invitation first.
+  if (me.companies !== null && me.companies.length === 0) {
+    return (
+      <OnboardingPage
+        me={me}
+        onDone={refresh}
+        onInvitation={(code) => {
+          storePendingInvitation(code);
+          setInvitation(code);
+        }}
+      />
+    );
+  }
+  return <Panel me={me} onChange={refresh} />;
 }
 
 export function Logo({ light = false }: { light?: boolean }) {

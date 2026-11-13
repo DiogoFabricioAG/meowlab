@@ -32,7 +32,24 @@ export type PortalCompanyAction =
   | { action: "revoke"; tenantId: string; invitationId: string }
   | { action: "remove"; tenantId: string; memberId: string }
   | { action: "preview"; token: string }
-  | { action: "accept"; token: string };
+  | { action: "accept"; token: string }
+  | { action: "weekly"; tenantId: string };
+
+/** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
+export type WeeklySummary = {
+  week: { start: string; end: string };
+  team: { members: number; messages: number; activePeople: number; previousMessages: number };
+  tender: {
+    found: number;
+    interesting: number;
+    highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
+  };
+  invoicing:
+    | null
+    | { status: "unavailable" }
+    | { status: "ok"; documents: number; accepted: number; totalPen: string; previousTotalPen: string; partial: boolean;
+        rejected: Array<{ number: string; customer: string; message: string | null }> };
+};
 
 export type PortalCompanyResponse =
   | { status: "ok"; companies: PortalMembership[] }
@@ -44,7 +61,8 @@ export type PortalCompanyResponse =
   | { status: "invited"; invitation: PendingInvitation & { token: string } }
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
-  | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" };
+  | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
+  | { status: "ok"; weekly: WeeklySummary };
 
 export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 
