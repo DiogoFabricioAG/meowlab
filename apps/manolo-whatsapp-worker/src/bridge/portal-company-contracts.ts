@@ -36,6 +36,8 @@ export type WeeklySummary = {
     interesting: number;
     highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
+  /** Sales Cat (ADR-0011): sales registered today and this week. */
+  sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
   invoicing:
     | null

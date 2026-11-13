@@ -4,6 +4,8 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
+import { PublicQuoteService, SalesService } from "./sales/sales-service";
+import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -205,6 +207,9 @@ async function main(): Promise<void> {
     platformSyncService,
     facturayaService,
     radarSelectionService: new PgRadarSelectionService(connection.pool),
+    // Sales Cat (ADR-0011): its data and the public quote page.
+    salesService: new SalesService(connection.pool, requestStore, logSafeEvent),
+    publicQuoteService: new PublicQuoteService(connection.pool),
     ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl),
     log: logSafeEvent,
     healthCheck: async () => {
@@ -250,6 +255,7 @@ async function main(): Promise<void> {
         PLATFORM_OUTBOUND_SYNC_PATH,
         FACTURAYA_BRIDGE_PATH,
         RADAR_SYNC_BRIDGE_PATH,
+        SALES_BRIDGE_PATH,
       ],
     });
   });

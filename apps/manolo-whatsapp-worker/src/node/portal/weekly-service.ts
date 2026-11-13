@@ -64,10 +64,11 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing] = await Promise.all([
+    const [team, tender, invoicing, sales] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
+      this.sales(tenantId, start, end, day),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -75,6 +76,7 @@ export class PortalWeeklyService {
       team,
       tender,
       invoicing,
+      sales,
     };
     return { status: "ok", weekly: summary };
   }
@@ -106,6 +108,40 @@ export class PortalWeeklyService {
       previousMessages: Number(row.previous_messages ?? 0),
       messagesToday: Number(row.messages_today ?? 0),
     };
+  }
+
+  private async sales(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["sales"]> {
+    const off = { enabled: false, todayCount: 0, todayTotalCents: 0, weekCount: 0, weekTotalCents: 0, weekQuotes: 0 };
+    try {
+      const settings = await this.query("SELECT enabled FROM sales.settings WHERE tenant_id = $1", [tenantId]);
+      if (!settings.rows[0]?.enabled) return off;
+      const [sales, quotes] = await Promise.all([
+        this.query(
+          `SELECT count(*) FILTER (WHERE sold_at >= $4)::int AS today_n,
+                  COALESCE(sum(total_cents) FILTER (WHERE sold_at >= $4), 0)::bigint AS today_total,
+                  count(*)::int AS week_n, COALESCE(sum(total_cents), 0)::bigint AS week_total
+             FROM sales.sales WHERE tenant_id = $1 AND status = 'confirmed' AND sold_at >= $2 AND sold_at < $3`,
+          [tenantId, start, end, day],
+        ),
+        this.query(
+          `SELECT count(*)::int AS n FROM sales.quotes
+            WHERE tenant_id = $1 AND status <> 'cancelled' AND created_at >= $2 AND created_at < $3`,
+          [tenantId, start, end],
+        ),
+      ]);
+      const row = sales.rows[0] ?? {};
+      return {
+        enabled: true,
+        todayCount: Number(row.today_n ?? 0),
+        todayTotalCents: Number(row.today_total ?? 0),
+        weekCount: Number(row.week_n ?? 0),
+        weekTotalCents: Number(row.week_total ?? 0),
+        weekQuotes: Number(quotes.rows[0]?.n ?? 0),
+      };
+    } catch {
+      // Before migration 014 the schema does not exist: Sales Cat is simply off.
+      return off;
+    }
   }
 
   private async tender(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["tender"]> {

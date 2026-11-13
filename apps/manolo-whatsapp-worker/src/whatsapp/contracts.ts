@@ -62,6 +62,14 @@ export interface WhatsAppClient extends WhatsAppMediaClient {
     buttons: readonly WhatsAppReplyButton[],
     phoneNumberId: string,
   ): Promise<WhatsAppSendResult>;
+  /** One button that opens an https link (interactive `cta_url`). Optional: older fakes omit it. */
+  sendCtaUrl?(
+    to: string,
+    body: string,
+    displayText: string,
+    url: string,
+    phoneNumberId: string,
+  ): Promise<WhatsAppSendResult>;
   sendList(
     to: string,
     body: string,

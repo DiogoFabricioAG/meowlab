@@ -43,6 +43,8 @@ import { analyzeWhatsAppImage } from "./image/analysis";
 import { roleRegistry } from "./roles/registry";
 import { ENTERPRISE_ADVISOR_ROLE_KEY } from "./roles/enterprise-advisor-role";
 import { QUOTE_ROLE_KEY } from "./quotes/types";
+import { SALES_ROLE_KEY, SalesRoleHandler, isSalesCommand, parseSalesState } from "./roles/sales-role";
+import { VpsSalesClient } from "./sales/client";
 import {
   PRINT_ADVISOR_PROVIDER,
   PRINT_ADVISOR_ROLE_KEY,
@@ -744,21 +746,38 @@ export async function processConversationTurn(
         log: logSafeEvent,
       });
 
-      const configuredTenant = roleRegistry.apply(
-        tenant,
-        roleResolution.roleKey,
+      // Sales Cat (ADR-0011) works on top of whatever role the contact has: `/sales` opens
+      // it, its buttons come back to it, and an open Sales Cat conversation keeps the turn.
+      const roleState = new D1RoleStateRepository(env.DB);
+      const salesTurn = persisted.contactId !== null && (
+        isSalesCommand(activeMessage.text)
+        || Boolean(activeMessage.interactionId?.startsWith("sales:"))
+        || parseSalesState(await roleState.get(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => null)) !== null
       );
+      const salesRole = new SalesRoleHandler((context) => bridgeClient
+        ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
+        : null);
+      const configuredTenant = salesTurn
+        ? salesRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
+        : roleRegistry.apply(
+          tenant,
+          roleResolution.roleKey,
+        );
       const effectiveTenant: TenantContext = {
         ...configuredTenant,
         systemPrompt: withMultimodalContext(configuredTenant.systemPrompt),
         aiProvider:
-          configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
+          configuredTenant.roleKey === SALES_ROLE_KEY
+            ? "groq"
+            : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_PROVIDER?.trim() || "openai"
             : configuredTenant.roleKey === PRINT_ADVISOR_ROLE_KEY
             ? PRINT_ADVISOR_PROVIDER
             : configuredTenant.aiProvider,
         aiModel:
-          configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
+          configuredTenant.roleKey === SALES_ROLE_KEY
+            ? env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b"
+            : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_MODEL?.trim() || configuredTenant.aiModel
             : configuredTenant.roleKey === PRINT_ADVISOR_ROLE_KEY
             ? env.PRINT_ADVISOR_MODEL?.trim() || configuredTenant.aiModel
@@ -878,7 +897,6 @@ export async function processConversationTurn(
         env.DB,
         logSafeEvent,
       );
-      const roleState = new D1RoleStateRepository(env.DB);
       const storeDesigner = new SignedStoreDesignClient(
         env.STORE_DESIGN_API_URL,
         env.STORE_DESIGN_API_SECRET,
@@ -898,7 +916,7 @@ export async function processConversationTurn(
       );
       const documentStore = new R2DocumentStore(env.ENTERPRISE_DOCUMENTS);
 
-      const roleHandler = roleRegistry.resolve(effectiveTenant.roleKey);
+      const roleHandler = salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
       if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
         || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
         || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {
@@ -957,6 +975,13 @@ export async function processConversationTurn(
             await persistOutbound(fallbackText, fallbackResult);
             return effectiveTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY ? sendResult : fallbackResult;
           }
+          return sendResult;
+        },
+        sendCtaUrl: async (body, displayText, url) => {
+          const sendResult = whatsappClient.sendCtaUrl
+            ? await whatsappClient.sendCtaUrl(activeMessage.to, body, displayText, url, effectiveTenant.phoneNumberId)
+            : { status: "failed" as const, metaMessageId: null };
+          if (sendResult.status === "sent") await persistOutbound(`${body}\n${url}`, sendResult, "interactive");
           return sendResult;
         },
         sendList: async (body, buttonText, sections) => {

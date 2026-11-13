@@ -31,6 +31,11 @@ import type { PortalCompanyService } from "../portal/company-service";
 import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
+import { SALES_BRIDGE_PATH, isSalesBridgeRequest } from "../../sales/bridge-contracts";
+import type { PublicQuoteService, SalesService } from "../sales/sales-service";
+
+/** Portal → bridge: a quote's public page (`/cotizacion/<code>`), signed with the portal secret. */
+export const PORTAL_PUBLIC_QUOTE_PATH = "/v1/portal/public-quote";
 
 export type BridgeHttpRequest = {
   method: string;
@@ -57,6 +62,9 @@ export type BridgeHttpHandlerDependencies = {
   portalLinkService?: Pick<PortalLinkService, "handle">;
   portalBillingService?: Pick<PortalBillingService, "handle">;
   portalCompanyService?: Pick<PortalCompanyService, "handle">;
+  /** Sales Cat (ADR-0011). */
+  salesService?: Pick<SalesService, "process">;
+  publicQuoteService?: Pick<PublicQuoteService, "view">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -98,6 +106,9 @@ export function createBridgeHttpHandler(
     if (request.path === PORTAL_COMPANY_BRIDGE_PATH) {
       return handlePortalRoute(request, dependencies, "companies");
     }
+    if (request.path === PORTAL_PUBLIC_QUOTE_PATH) {
+      return handlePublicQuote(request, dependencies);
+    }
     if (
       request.path !== PRINT_ADVISOR_BRIDGE_PATH
       && request.path !== CONTACT_ROLE_RESOLUTION_PATH
@@ -105,6 +116,7 @@ export function createBridgeHttpHandler(
       && request.path !== PLATFORM_OUTBOUND_SYNC_PATH
       && request.path !== FACTURAYA_BRIDGE_PATH
       && request.path !== RADAR_SYNC_BRIDGE_PATH
+      && request.path !== SALES_BRIDGE_PATH
     ) {
       return jsonResponse(404, { error: "not_found" });
     }
@@ -135,6 +147,23 @@ export function createBridgeHttpHandler(
     const requestHash = createHash("sha256")
       .update(request.body, "utf8")
       .digest("hex");
+
+    if (request.path === SALES_BRIDGE_PATH) {
+      if (!dependencies.salesService) return jsonResponse(503, { error: "sales_unavailable" });
+      const headerRequestId = request.headers["x-manolo-request-id"]?.trim();
+      if (!headerRequestId || headerRequestId.length > 255 || !isSalesBridgeRequest(payload)) {
+        return jsonResponse(400, { error: "invalid_request" });
+      }
+      try {
+        const result = await dependencies.salesService.process(payload, headerRequestId, requestHash);
+        if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
+        if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
+        return jsonResponse(200, result.response as unknown as Record<string, unknown>);
+      } catch {
+        dependencies.log("vps_sales_processing_failed", { operation: payload.operation });
+        return jsonResponse(500, { error: "internal_error" });
+      }
+    }
 
     if (request.path === FACTURAYA_BRIDGE_PATH) {
       if (!dependencies.facturayaService) {
@@ -277,6 +306,43 @@ function isObjectWithRequestId(
 }
 
 /** Every portal route shares the portal's own secret, signature check and request-id rule. */
+async function handlePublicQuote(
+  request: BridgeHttpRequest,
+  dependencies: BridgeHttpHandlerDependencies,
+): Promise<BridgeHttpResponse> {
+  if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
+  if (!dependencies.portalSecret || !dependencies.publicQuoteService) return jsonResponse(503, { error: "portal_unavailable" });
+  const verification = verifyBridgeSignature(
+    request.body,
+    request.headers["x-manolo-timestamp"],
+    request.headers["x-manolo-signature"],
+    dependencies.portalSecret,
+    dependencies.nowSeconds?.(),
+  );
+  if (!verification.valid) {
+    dependencies.log("vps_bridge_auth_rejected", { reason: verification.reason, route: "public_quote" });
+    return jsonResponse(401, { error: "unauthorized" });
+  }
+  let payload: unknown;
+  try {
+    payload = JSON.parse(request.body);
+  } catch {
+    return jsonResponse(400, { error: "invalid_json" });
+  }
+  const body = payload as { version?: unknown; requestId?: unknown; token?: unknown };
+  if (body?.version !== 1 || typeof body.requestId !== "string" || typeof body.token !== "string"
+    || request.headers["x-manolo-request-id"] !== body.requestId) {
+    return jsonResponse(400, { error: "invalid_request" });
+  }
+  try {
+    const quote = await dependencies.publicQuoteService.view(body.token);
+    return jsonResponse(200, quote ? { status: "ok", quote } : { status: "not_found" });
+  } catch {
+    dependencies.log("vps_public_quote_failed");
+    return jsonResponse(503, { error: "portal_unavailable" });
+  }
+}
+
 async function handlePortalRoute(
   request: BridgeHttpRequest,
   dependencies: BridgeHttpHandlerDependencies,

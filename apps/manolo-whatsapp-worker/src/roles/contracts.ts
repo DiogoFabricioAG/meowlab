@@ -96,6 +96,12 @@ export type RoleHandlerContext = {
     body: string,
     buttons: readonly WhatsAppReplyButton[],
   ) => Promise<SendResult>;
+  /** A button that opens a link; falls back to text with the link when it cannot be shown. */
+  sendCtaUrl?: (
+    body: string,
+    displayText: string,
+    url: string,
+  ) => Promise<SendResult>;
   sendList?: (
     body: string,
     buttonText: string,

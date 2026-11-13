@@ -369,6 +369,54 @@ export class MetaWhatsAppClient implements WhatsAppClient {
     }
   }
 
+  async sendCtaUrl(
+    to: string,
+    body: string,
+    displayText: string,
+    url: string,
+    phoneNumberId: string,
+  ): Promise<WhatsAppSendResult> {
+    if (!this.isConfigured(phoneNumberId)) {
+      this.log("whatsapp_cta_send_skipped", { reason: "missing_outbound_configuration" });
+      return { status: "skipped", metaMessageId: null };
+    }
+    if (!/^https:\/\//.test(url) || !displayText.trim()) {
+      this.log("whatsapp_cta_send_failed", { reason: "invalid_cta" });
+      return { status: "failed", metaMessageId: null };
+    }
+    try {
+      const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
+        method: "POST",
+        headers: { ...this.authHeaders(phoneNumberId), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to,
+          type: "interactive",
+          interactive: {
+            type: "cta_url",
+            body: { text: body.slice(0, 1_024) },
+            action: { name: "cta_url", parameters: { display_text: displayText.slice(0, MAX_BUTTON_TITLE_LENGTH), url } },
+          },
+        }),
+      });
+      if (!response.ok) {
+        this.log("whatsapp_cta_send_failed", {
+          reason: "graph_api_error",
+          status: response.status,
+          ...(await this.graphErrorDetails(response)),
+        });
+        return { status: "failed", metaMessageId: null };
+      }
+      const metaMessageId = await this.extractMessageId(response);
+      this.log("whatsapp_cta_sent", { status: response.status });
+      return { status: "sent", metaMessageId };
+    } catch {
+      this.log("whatsapp_cta_send_failed", { reason: "graph_api_request_error" });
+      return { status: "failed", metaMessageId: null };
+    }
+  }
+
   async sendList(
     to: string,
     body: string,

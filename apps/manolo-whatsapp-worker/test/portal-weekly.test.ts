@@ -16,6 +16,9 @@ function setup(options: { member?: boolean; integration?: boolean; facturaya?: "
   const pool = {
     query: vi.fn(async (sql: string) => {
       if (sql.includes("active_role_key = 'radar'")) return { rows: [{ "?column?": 1 }] };
+      if (sql.includes("sales.settings")) return { rows: [{ enabled: true }] };
+      if (sql.includes("FROM sales.sales")) return { rows: [{ today_n: 2, today_total: 5000, week_n: 5, week_total: 12500 }] };
+      if (sql.includes("FROM sales.quotes")) return { rows: [{ n: 3 }] };
       if (sql.includes("portal_company_members")) return { rows: options.member === false ? [] : [{ "?column?": 1 }] };
       if (sql.includes("tenant_integrations")) return { rows: options.integration === false ? [] : [{ encrypted_token: "enc" }] };
       if (sql.includes("whatsapp.messages")) return { rows: [{ members: 2, messages: 9, active: 2, previous_messages: 4, messages_today: 3 }] };
@@ -68,6 +71,7 @@ describe("portal weekly summary", () => {
     expect(urls).toContain("https://f.example/api/issued-documents?from=2026-11-09&to=2026-11-15&page=1");
     expect(urls).toContain("https://f.example/api/issued-documents?from=2026-11-02&to=2026-11-08&page=1");
     expect(result.weekly.team).toEqual({ members: 2, messages: 9, activePeople: 2, previousMessages: 4, messagesToday: 3 });
+    expect(result.weekly.sales).toEqual({ enabled: true, todayCount: 2, todayTotalCents: 5000, weekCount: 5, weekTotalCents: 12500, weekQuotes: 3 });
   });
 
   it("keeps only SEACE links and counts interesting tenders", async () => {

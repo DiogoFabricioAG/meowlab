@@ -15,6 +15,12 @@ import {
   type PrintAdvisorBridgeResponse,
 } from "../../bridge/contracts";
 import { signBridgePayload } from "../../bridge/signature";
+import {
+  SALES_BRIDGE_PATH,
+  isSalesBridgeResponse,
+  type SalesBridgeRequest,
+  type SalesBridgeResponse,
+} from "../../sales/bridge-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import {
   FACTURAYA_BRIDGE_PATH,
@@ -154,6 +160,22 @@ export class SignedVpsBridgeClient {
       this.timeoutMs,
       (value) => value.request_id === requestId,
       MAX_FACTURAYA_RESPONSE_BYTES,
+    );
+  }
+
+  async requestSalesOperation(
+    requestId: string,
+    request: SalesBridgeRequest,
+  ): Promise<SalesBridgeResponse | null> {
+    return this.requestSignedJson(
+      SALES_BRIDGE_PATH,
+      requestId,
+      request,
+      isSalesBridgeResponse,
+      "sales_operation",
+      this.timeoutMs,
+      (value) => value.request_id === requestId,
+      256 * 1024,
     );
   }
 
