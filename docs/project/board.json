@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-12",
+  "updatedAt": "2026-11-13",
   "columns": [
     {
       "id": "todo",
@@ -1170,10 +1170,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
-      "updated": "2026-11-11",
+      "status": "done",
+      "updated": "2026-11-13",
       "notes": "Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.",
-      "evidence": "Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización)."
+      "evidence": "Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización). Desplegado el 2026-11-13: Worker c1147d37, migración 011, bridge con ruta del portal; vinculación real del operador (código enviado y vinculado en 29 s). Acta: docs/operations/portal-vinculacion-otp-2026-11-13.md"
     },
     {
       "id": "app-portal-3-lectura-facturaya-20261111",
@@ -1392,8 +1392,19 @@
       "priority": "high",
       "status": "in_progress",
       "updated": "2026-11-12",
-      "notes": "ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue.",
+      "notes": "ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.",
       "evidence": "Rama feat/manolo-kapso: npx vitest run 610/610 (10 de Kapso: envío con X-API-Key sin token de Meta, Meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio."
+    },
+    {
+      "id": "portal-link-notice-20261113",
+      "title": "Avisar por WhatsApp cuando se vincula un número al portal",
+      "area": "Portal",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Hoy la vinculación no envía confirmación. Un aviso alerta al dueño si alguien vincula su número; fuera de la ventana de 24 h requiere plantilla de utilidad.",
+      "evidence": ""
     }
   ]
 }

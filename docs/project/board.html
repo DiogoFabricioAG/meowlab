@@ -184,7 +184,7 @@
   <div class="page-inner">
     <div class="page-title">
       <h1><span class="dot">●</span> MeowLab · Tablero de trabajo</h1>
-      <span class="meta">Actualizado: 2026-11-12</span>
+      <span class="meta">Actualizado: 2026-11-13</span>
     </div>
     <div class="controls">
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 53 · Total: 136</span>
+      <span class="summary">Abiertas: 53 · Total: 137</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">48</span>
+          <span class="count">49</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -743,6 +743,17 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">billing-tender-cat-catalog-20261112</code>
         </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="avisar por whatsapp cuando se vincula un número al portal portal hoy la vinculación no envía confirmación. un aviso alerta al dueño si alguien vincula su número; fuera de la ventana de 24 h requiere plantilla de utilidad. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Avisar por WhatsApp cuando se vincula un número al portal</h3>
+          
+          <p class="card-notes">Hoy la vinculación no envía confirmación. Un aviso alerta al dueño si alguien vincula su número; fuera de la ventana de 24 h requiere plantilla de utilidad.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-link-notice-20261113</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -759,7 +770,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -773,17 +784,6 @@
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">estrategia-multicliente</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con un código (otp) portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a otp por plantilla de autenticación (codigo_otp_meowlab, es_pe) a pedido del operador; respaldo con mensaje prellenado sin implementar. rama feat/app-meowlab-portal. worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. postgresql 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). punta a punta local: portal wrangler dev → bridge local → postgresql, código, verificación, panel vinculado y desvinculado. falta: aprobación de la plantilla, secretos, migración 011 en el vps y despliegues (con autorización).">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: vincular el número de WhatsApp con un código (OTP)</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización).</p>
-          <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">app-portal-2-vinculacion-20261111</code>
-        </article>
         <article class="card" data-priority="high" data-area="Cobros" data-text="cobros: catálogo, precio y suscripción con mercado pago (prueba) cobros fase 1 del adr-0007: catálogo del informe 2027–2029, cálculo de precio con descuento por equipo, preapproval, webhook firmado, ledger idempotente y estado en el portal. requiere credenciales de prueba. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-11: implementado en el portal (no en el bridge) porque la vinculación aún no está desplegada; ver revisión en el adr. desplegado en modo prueba (13530). compra real con comprador de prueba: preapproval autorizado, cobro 7033915896 de s/ 39 aprobado; la conciliación acreditó un mes (pagado hasta 12/12/2026). bug encontrado y corregido: authorized_payments/search rechaza limit &gt; 12. npm test 15/15; billing-pg-check 11/11. falta: recibir un webhook real de mercado pago (ninguno llegó; revisar url del modo prueba en el panel).">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
@@ -795,14 +795,14 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-1-mercadopago-20261111</code>
         </article>
-        <article class="card" data-priority="high" data-area="Worker" data-text="integrar kapso como proveedor de números (piloto +1 208 441 5504) worker adr-0009. etapa 1 del plan financiero (kapso pro). número del piloto de un cliente. falta: phone_number_id, kapso_api_key, secreto y webhook tipo meta en kapso, empresa y rol por defecto del piloto, despliegue. rama feat/manolo-kapso: npx vitest run 610/610 (10 de kapso: envío con x-api-key sin token de meta, meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio.">
+        <article class="card" data-priority="high" data-area="Worker" data-text="integrar kapso como proveedor de números (piloto +1 208 441 5504) worker adr-0009. etapa 1 del plan financiero (kapso pro). número del piloto de un cliente. falta: phone_number_id, kapso_api_key, secreto y webhook tipo meta en kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos kapso_* cargados y webhook creado en kapso. rama feat/manolo-kapso: npx vitest run 610/610 (10 de kapso: envío con x-api-key sin token de meta, meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio.">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Integrar Kapso como proveedor de números (piloto +1 208 441 5504)</h3>
           <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/manolo-kapso: npx vitest run 610/610 (10 de Kapso: envío con X-API-Key sin token de Meta, Meta intacto, número sin llave omitido, media por download_url sin token, webhook firmado 200, firma mala 401, número ajeno 403 en ambos sentidos, sin secreto 503); tsc limpio.</p>
-          <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue.</p>
+          <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
@@ -822,7 +822,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">83</span>
+          <span class="count">84</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1517,6 +1517,17 @@
           <p class="card-notes">Fase 1 del ADR-0006. apps/meowlab-app como Worker con recursos estáticos, D1 propia, Better Auth con correo y Google. Requiere cliente OAuth de Google creado por el operador y decidir proveedor de correo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: el operador pidió apariencia de meowlab.tech y dejar Cloudflare como paso previo al VPS (código portable Hono + Better Auth). 2026-11-11: producción pasa al VPS (DNS en Hostinger): server/node.ts con PostgreSQL, Dockerfile, deploy/compose.yml, bootstrap-db.sh y bloque de Caddy; reemplaza el prototipo de meowlab-platform en app.meowlab.tech.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-1-auth-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: vincular el número de whatsapp con un código (otp) portal fase 2 del adr-0006. migración postgresql de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por manolo antes de los roles. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a otp por plantilla de autenticación (codigo_otp_meowlab, es_pe) a pedido del operador; respaldo con mensaje prellenado sin implementar. rama feat/app-meowlab-portal. worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. postgresql 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). punta a punta local: portal wrangler dev → bridge local → postgresql, código, verificación, panel vinculado y desvinculado. falta: aprobación de la plantilla, secretos, migración 011 en el vps y despliegues (con autorización). desplegado el 2026-11-13: worker c1147d37, migración 011, bridge con ruta del portal; vinculación real del operador (código enviado y vinculado en 29 s). acta: docs/operations/portal-vinculacion-otp-2026-11-13.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: vincular el número de WhatsApp con un código (OTP)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/app-meowlab-portal. Worker: npx vitest run 600/600 (12 de vinculación), tsc limpio. PostgreSQL 16 desechable: tools/portal-link-pg-check.ts 19/19 (límites, 5 pedidos concurrentes → 1 código, vencimiento, 5 intentos, traspaso del número, sin códigos en claro). Punta a punta local: portal wrangler dev → bridge local → PostgreSQL, código, verificación, panel vinculado y desvinculado. Falta: aprobación de la plantilla, secretos, migración 011 en el VPS y despliegues (con autorización). Desplegado el 2026-11-13: Worker c1147d37, migración 011, bridge con ruta del portal; vinculación real del operador (código enviado y vinculado en 29 s). Acta: docs/operations/portal-vinculacion-otp-2026-11-13.md</p>
+          <p class="card-notes">Fase 2 del ADR-0006. Migración PostgreSQL de vínculos y códigos (sólo hash), rutas firmadas del bridge con secreto propio del portal, comando consumido por Manolo antes de los roles. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-11: cambiado a OTP por plantilla de autenticación (codigo_otp_meowlab, es_PE) a pedido del operador; respaldo con mensaje prellenado sin implementar.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">app-portal-2-vinculacion-20261111</code>
         </article>
         <article class="card" data-priority="high" data-area="Landing" data-text="publicar política de privacidad y términos en la landing landing requisito de google para el inicio de sesión del portal. /privacidad y /terminos redactados según lo que hace el sistema. meowlab aún no tiene ruc ni razón social (2026-11-11): las páginas identifican al titular como «meowlab» y muestran ruc, razón social y domicilio sólo cuando se agreguen en src/data/legal.ts. contacto: privacy@meowlab.tech (el operador debe confirmar que el buzón recibe correo). falta revisión legal y publicar la landing. publicadas desde 381c3b3: https://meowlab.tech/privacidad y /terminos 200. logo bimi preservado. acta: docs/operations/portal-y-legales-2026-11-11.md">
           <div class="card-top">
