@@ -2,6 +2,8 @@ import { PgPortalLinkStore, PortalLinkService, type PortalLinkPool } from "./por
 import { WorkerAuthCodeSender } from "./portal/auth-code-sender";
 import { PortalBillingService, type BillingPool } from "./portal/billing-service";
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
+import { PortalInvitationService } from "./portal/invitation-service";
+import { PortalWeeklyService } from "./portal/weekly-service";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -106,7 +108,15 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
     // Phase 3: read-only billing data through FacturaYa, authorized per linked number.
     portalBillingService: new PortalBillingService(pool, cipher, facturayaBaseUrl, logSafeEvent),
     // ADR-0010: companies created from the portal; RUC read from FacturaYa's registry.
-    portalCompanyService: new PortalCompanyService(pool, taxpayerDirectory(facturayaBaseUrl), logSafeEvent),
+    portalCompanyService: new PortalCompanyService(
+      pool,
+      taxpayerDirectory(facturayaBaseUrl),
+      logSafeEvent,
+      undefined,
+      new PortalInvitationService(pool, logSafeEvent),
+      // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
+      new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+    ),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
       new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),

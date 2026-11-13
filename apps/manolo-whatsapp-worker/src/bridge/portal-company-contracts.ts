@@ -19,7 +19,33 @@ export type PortalCompanyRequest =
   | (Base & { action: "revoke"; tenantId: string; invitationId: string })
   | (Base & { action: "remove"; tenantId: string; memberId: string })
   | (Base & { action: "preview"; token: string })
-  | (Base & { action: "accept"; token: string });
+  | (Base & { action: "accept"; token: string })
+  // «Inicio»: what the company's agents did this week.
+  | (Base & { action: "weekly"; tenantId: string });
+
+export type WeeklySummary = {
+  /** Monday to Sunday, Lima dates. */
+  week: { start: string; end: string };
+  team: { members: number; messages: number; activePeople: number; previousMessages: number };
+  tender: {
+    found: number;
+    interesting: number;
+    highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
+  };
+  /** Null when the company has no Invoice Cat (FacturaYa) yet. */
+  invoicing:
+    | null
+    | { status: "unavailable" }
+    | {
+      status: "ok";
+      documents: number;
+      accepted: number;
+      totalPen: string;
+      previousTotalPen: string;
+      partial: boolean;
+      rejected: Array<{ number: string; customer: string; message: string | null }>;
+    };
+};
 
 export type TeamMember = { portalUserId: string; role: "owner" | "member"; joinedAt: string };
 export type PendingInvitation = { id: string; createdAt: string; expiresAt: string; maskedPhone: string | null; access: InvitationAccess };
@@ -57,7 +83,8 @@ export type PortalCompanyResponse =
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" }
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
-  | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" };
+  | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
+  | { status: "ok"; weekly: WeeklySummary };
 
 /** Max companies one account may own; more needs the MeowLab team. */
 export const MAX_OWNED_COMPANIES = 3;
@@ -98,6 +125,7 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
       return typeof value.ruc === "string" && value.ruc.length <= 11
         && (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160));
     case "team":
+    case "weekly":
       return tenant(value.tenantId);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")
