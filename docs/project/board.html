@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 71 · Total: 167</span>
+      <span class="summary">Abiertas: 72 · Total: 168</span>
     </div>
   </div>
 </header>
@@ -969,7 +969,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1004,6 +1004,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="FacturaYa" data-text="código qr de sunat en facturas, boletas y notas de crédito (facturaya) facturaya obligatorio desde el 1/1/2020 (rs 309-2018; contenido en rs 097-2012 anexo 6, 6.4). código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del xml firmado, codificador propio nivel q, qr abajo en la última página. falta desplegar facturaya. los pdf ya guardados no se regeneran. pendiente aparte: revisar si la gre de manolo cumple su propio qr. 2026-11-13: phpunit 188/189 (la falla es la previa de fiscalsetupprobeendpointtest); sunatqrtest 9/9 junto con la paginación; qr decodificados con opencv (factura, boleta, nota, 120 bytes y versión 10); 48 xml de producción leídos en solo lectura con 10 campos válidos.">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Código QR de SUNAT en facturas, boletas y notas de crédito (FacturaYa)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: PHPUnit 188/189 (la falla es la previa de FiscalSetupProbeEndpointTest); SunatQrTest 9/9 junto con la paginación; QR decodificados con OpenCV (factura, boleta, nota, 120 bytes y versión 10); 48 XML de producción leídos en solo lectura con 10 campos válidos.</p>
+          <p class="card-notes">Obligatorio desde el 1/1/2020 (RS 309-2018; contenido en RS 097-2012 anexo 6, 6.4). Código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del XML firmado, codificador propio nivel Q, QR abajo en la última página. Falta desplegar FacturaYa. Los PDF ya guardados no se regeneran. Pendiente aparte: revisar si la GRE de Manolo cumple su propio QR.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sunat-qr-representacion-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

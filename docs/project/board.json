@@ -1735,6 +1735,17 @@
       "updated": "2026-11-13",
       "notes": "ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción.",
       "evidence": ""
+    },
+    {
+      "id": "sunat-qr-representacion-20261113",
+      "title": "Código QR de SUNAT en facturas, boletas y notas de crédito (FacturaYa)",
+      "area": "FacturaYa",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Obligatorio desde el 1/1/2020 (RS 309-2018; contenido en RS 097-2012 anexo 6, 6.4). Código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del XML firmado, codificador propio nivel Q, QR abajo en la última página. Falta desplegar FacturaYa. Los PDF ya guardados no se regeneran. Pendiente aparte: revisar si la GRE de Manolo cumple su propio QR.",
+      "evidence": "2026-11-13: PHPUnit 188/189 (la falla es la previa de FiscalSetupProbeEndpointTest); SunatQrTest 9/9 junto con la paginación; QR decodificados con OpenCV (factura, boleta, nota, 120 bytes y versión 10); 48 XML de producción leídos en solo lectura con 10 campos válidos."
     }
   ]
 }
