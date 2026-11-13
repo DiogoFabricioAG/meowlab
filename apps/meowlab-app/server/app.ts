@@ -150,6 +150,8 @@ export function createApp(deps: AppDeps) {
     const name = typeof body?.name === "string" ? body.name.trim().replace(/\s+/g, " ") : "";
     if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
     if (name.length > 160) return c.json({ error: "invalid_request" }, 400);
+    // Creation re-reads the registry too, so it shares the lookup budget.
+    if (!allowLookup(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
     return company(c, { action: "create", ruc, ...(name ? { name } : {}) });
   });
 

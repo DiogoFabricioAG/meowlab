@@ -36,6 +36,8 @@ describe("company routes (ADR-0010)", () => {
     const { app: api } = app(async () => ({ status: "not_found" }));
     for (let i = 0; i < 20; i++) expect((await api.request("/api/companies/lookup?ruc=20557288016")).status).toBe(200);
     expect((await api.request("/api/companies/lookup?ruc=20557288016")).status).toBe(429);
+    const create = await api.request("/api/companies", { method: "POST", headers: ORIGIN, body: JSON.stringify({ ruc: "20557288016" }) });
+    expect(create.status).toBe(429);
   });
 
   it("creates with the RUC and an optional trimmed name, and needs a same-site origin", async () => {
