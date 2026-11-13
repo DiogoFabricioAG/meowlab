@@ -31,13 +31,13 @@ const teamChat = [
 ] as const;
 
 const agents = [
-  { name: 'Invoice Cat', line: 'Facturas, boletas y guías de remisión ante SUNAT.', price: 'S/ 39', img: 'gato-facturas', live: true },
-  { name: 'Tender Cat', line: 'Alertas de licitaciones del SEACE para tu rubro.', price: 'S/ 35', img: 'gato-licitaciones', live: true },
-  { name: 'Sales Cat', line: 'Ventas.', price: 'S/ 59', img: 'gato-ventas', live: false },
-  { name: 'Stock Cat', line: 'Inventario.', price: 'S/ 29', img: 'gato-busca', live: false },
-  { name: 'Reorder Cat', line: 'Reposición de mercadería.', price: 'S/ 25', img: 'gato-laptop', live: false },
-  { name: 'Support Cat', line: 'Atención a tus clientes.', price: 'S/ 39', img: 'gato-maulla', live: false },
-  { name: 'Collections Cat', line: 'Cobros por Yape.', price: 'S/ 25', img: 'gato-listo', live: false },
+  { name: 'Invoice Cat', line: 'Facturas, boletas y guías de remisión ante SUNAT.', price: 'S/ 39', img: 'gato-facturas', logo: 'invoice-cat', live: true },
+  { name: 'Tender Cat', line: 'Alertas de licitaciones del SEACE para tu rubro.', price: 'S/ 35', img: 'gato-licitaciones', logo: 'tender-cat', live: true },
+  { name: 'Sales Cat', line: 'Ventas.', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: false },
+  { name: 'Stock Cat', line: 'Inventario.', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: false },
+  { name: 'Reorder Cat', line: 'Reposición de mercadería.', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: false },
+  { name: 'Support Cat', line: 'Atención a tus clientes.', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: false },
+  { name: 'Collections Cat', line: 'Cobros por Yape.', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: false },
 ];
 const firstCol = agents.slice(0, 4);
 const secondCol = agents.slice(4);
@@ -162,7 +162,7 @@ const secondCol = agents.slice(4);
         <p class="t-label">Un solo chat</p>
         <p class="mo-wh__text">Cada gato que sumas trabaja en el <strong>mismo chat</strong> con Manolo. No guardas otro número ni instalas otra app: escribes como siempre y el trabajo de oficina sale de tus manos.</p>
         <div class="statement__cats">
-          {agents.map((a) => <span><img src={`/assets/landing/${a.img}-sm.webp`} alt={a.name} width="48" height="48" loading="lazy" /></span>)}
+          {agents.map((a) => <span><img src={`/assets/agents/${a.logo}.webp`} alt={a.name} width="48" height="48" loading="lazy" /></span>)}
         </div>
       </div>
     </section>
@@ -246,7 +246,7 @@ const secondCol = agents.slice(4);
           <ul class="rows span-6">
             {agents.map((a) => (
               <li>
-                <span class="rows__name">{a.name} <span class={`tag ${a.live ? 'tag--live' : 'tag--soon'}`}>{a.live ? 'Disponible' : 'Próximamente'}</span></span>
+                <span class="rows__name"><span class="agent-logo"><img src={`/assets/agents/${a.logo}.webp`} alt="" width="28" height="28" loading="lazy" /></span>{a.name} <span class={`tag ${a.live ? 'tag--live' : 'tag--soon'}`}>{a.live ? 'Disponible' : 'Próximamente'}</span></span>
                 {a.live && <p>{a.line}</p>}
                 <span class="rows__value">{a.price} al mes</span>
               </li>
@@ -256,7 +256,7 @@ const secondCol = agents.slice(4);
             <div class="stage stage--fade-b">
               <div class="at-rise plan-rise">
                 <div class="ui plan-ui" role="img" aria-label="El plan en el portal: Invoice Cat y Tender Cat con 10 % de descuento por dos agentes, S/ 66.60 al mes con Mercado Pago.">
-                  <div class="plan-ui__head"><span class="cat"><img src="/assets/landing/gato-facturas-sm.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="cat"><img src="/assets/landing/gato-licitaciones-sm.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="tm__title">Tu plan</span></div>
+                  <div class="plan-ui__head"><span class="cat"><img src="/assets/agents/invoice-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="cat"><img src="/assets/agents/tender-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="tm__title">Tu plan</span></div>
                   <div class="plan-ui__row"><span>Invoice Cat</span><span>S/ 39.00</span></div>
                   <div class="plan-ui__row"><span>Tender Cat</span><span>S/ 35.00</span></div>
                   <div class="plan-ui__row plan-ui__row--off"><span>Descuento por 2 agentes, 10 %</span><span>− S/ 7.40</span></div>

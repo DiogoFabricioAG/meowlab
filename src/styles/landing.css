@@ -149,9 +149,11 @@
 .tag--live { background: #d8f0e5; color: #0c493c; }
 .tag--soon { background: color-mix(in oklab, var(--ink) 7%, var(--bg)); color: var(--ink); }
 #agentes .rows__name { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+#agentes .agent-logo { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #d8f0e5; }
+#agentes .agent-logo img { width: 28px; height: 28px; mix-blend-mode: multiply; }
 @media (min-width: 640px) and (max-width: 1023px) { #agentes .grid > .rows { grid-column: 1 / span 6; } #agentes .grid > .plan-frame { grid-column: 7 / -1; --ratio: 150%; } #agentes .plan-ui__tiers { display: grid; } }
-.cat { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: #0c493c; }
-.cat img { width: 40px; height: 40px; }
+.cat { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: #d8f0e5; }
+.cat img { width: 40px; height: 40px; mix-blend-mode: multiply; }
 .plan-ui { padding: 20px 24px 24px; gap: 0; }
 .plan-ui__head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .plan-ui__head .tm__title { margin-left: 6px; }
@@ -171,8 +173,8 @@
 .statement .mo-wh__text { font: var(--display-weight) clamp(30px, 2.3vw + 21px, 54px)/1.14 var(--font-display); letter-spacing: var(--display-tracking); max-width: 24ch; }
 .statement .t-label { margin-bottom: var(--s-6); color: var(--muted); }
 .statement__cats { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-9); }
-.statement__cats span { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: var(--accent); }
-.statement__cats img { width: 48px; height: 48px; }
+.statement__cats span { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: #d8f0e5; }
+.statement__cats img { width: 48px; height: 48px; mix-blend-mode: multiply; }
 @media (max-width: 639px) { .statement__cats { margin-top: var(--s-7); } .statement__cats span { width: 52px; height: 52px; border-radius: 14px; } .statement__cats img { width: 40px; height: 40px; } }
 
 /* the split's facts: three plain lines */
