@@ -39,3 +39,14 @@ Sin migraciones, sin cambios en FacturaYa ni en el compose del bridge.
 cd /opt/meowlab-app/deploy && MEOWLAB_APP_TAG=57263d3b6e93 docker compose up -d
 bash /opt/manolo-platform/releases/portal-agentes-20261113T161923Z/rollback.sh
 ```
+
+## Más verde de la marca (13/11/2026, autorizado por el operador: «despliega lo del verde del portal»)
+
+- Portal desde el commit publicado `b81c604327c785bc39b32cb6ace3e7c61970569c` (`feat/portal-verde-app`):
+  imagen `meowlab-app:b81c604327c7` (antes `meowlab-app:b087f59e78d4`). Sólo interfaz.
+- Menú lateral y barra superior en verde bosque, fondo menta suave, el día de Inicio en un
+  bloque verde, mosaicos menta en los agentes; logo claro mezclado sobre el verde y foco
+  menta en fondos oscuros. Textos sobre verde con contraste de 6,9:1 o más.
+- Verificación: `healthy`; `/`, `/inicio`, `/agentes` y `/api/config` 200; `/api/me` sin sesión
+  401; la hoja de estilos servida incluye las clases nuevas; sin errores en el log.
+- Rollback: `cd /opt/meowlab-app/deploy && MEOWLAB_APP_TAG=b087f59e78d4 docker compose up -d`.

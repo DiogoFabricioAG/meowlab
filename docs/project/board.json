@@ -1548,6 +1548,17 @@
       "updated": "2026-11-13",
       "notes": "La crítica marcó Ayuda 1/4: «pídele ayuda al equipo de MeowLab» no dice cómo. Depende del proveedor de correo o de un número de soporte.",
       "evidence": ""
+    },
+    {
+      "id": "portal-verde-20261113",
+      "title": "Portal: más verde de la marca (menú, Inicio, fichas)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-13",
+      "notes": "Pedido del operador. Acta: docs/operations/portal-agentes-2026-11-13.md (sección «Más verde de la marca»).",
+      "evidence": "Producción: meowlab-app:b81c604327c7 healthy; rutas 200; CSS servido con las clases nuevas. Antes: portal vitest 29/29 y revisión local."
     }
   ]
 }
