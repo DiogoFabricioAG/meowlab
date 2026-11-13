@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 71 · Total: 166</span>
+      <span class="summary">Abiertas: 71 · Total: 167</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">66</span>
+          <span class="count">67</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -832,6 +832,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">docs-formato-4-plantillas-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="cargar el kit de marca de creaciones j&amp;d y revisar una cotización con él portal adr-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Cargar el kit de marca de CREACIONES J&amp;D y revisar una cotización con él</h3>
+          
+          <p class="card-notes">ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción.</p>
+          <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
+          <code class="card-id">docs-formato-1-prueba-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -958,7 +969,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -994,17 +1005,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública portal código listo, sin desplegar. bridge (rama feat/brand-kit, commit 408b0): migración 015 (commerce.brand_kits, commerce.brand_logos y condiciones copiadas en sales.quotes), acciones brand_* en /v1/portal/companies (miembros leen, titulares cambian), logo png/jpg validado por bytes (máx. 300 kb, 16–1200 px), logo público solo a través del enlace de una cotización. portal (rama feat/brand-kit-app, commit e77b2): configuración → documentos con vista previa en vivo, recorte y reducción del logo en el navegador, control de contraste del color; la cotización pública usa el kit. para desplegar: aplicar la migración 015 antes del corte del bridge, luego bridge y después portal. 2026-11-13: vitest del worker 659/659 (incluye test/portal-brand.test.ts); tools/brand-pg-check.ts 15/15 y tools/sales-pg-check.ts en verde contra postgresql 16 descartable; vitest del portal 36/36 (test/brand.test.ts) y typecheck; revisión local con bridge simulado en 1440 px y 375 px sin desborde.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: vitest del Worker 659/659 (incluye test/portal-brand.test.ts); tools/brand-pg-check.ts 15/15 y tools/sales-pg-check.ts en verde contra PostgreSQL 16 descartable; vitest del portal 36/36 (test/brand.test.ts) y typecheck; revisión local con bridge simulado en 1440 px y 375 px sin desborde.</p>
-          <p class="card-notes">Código listo, sin desplegar. Bridge (rama feat/brand-kit, commit 408b0): migración 015 (commerce.brand_kits, commerce.brand_logos y condiciones copiadas en sales.quotes), acciones brand_* en /v1/portal/companies (miembros leen, titulares cambian), logo PNG/JPG validado por bytes (máx. 300 KB, 16–1200 px), logo público solo a través del enlace de una cotización. Portal (rama feat/brand-kit-app, commit e77b2): Configuración → Documentos con vista previa en vivo, recorte y reducción del logo en el navegador, control de contraste del color; la cotización pública usa el kit. Para desplegar: aplicar la migración 015 antes del corte del bridge, luego bridge y después portal.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">docs-formato-1-kit-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1021,7 +1021,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">95</span>
+          <span class="count">96</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1826,6 +1826,17 @@
           <p class="card-notes">Desplegada el 13/11/2026. Acta: docs/operations/landing-taste-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-taste-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública portal desplegado el 13/11/2026: configuración → documentos en el portal y kit en la cotización pública de sales cat. acta: docs/operations/brand-kit-2026-11-13.md. producción: migración 015, bridge brand-kit-20261113t194050z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. antes: worker 659/659, brand-pg-check 15/15, portal 36/36.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 015, bridge brand-kit-20261113T194050Z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. Antes: Worker 659/659, brand-pg-check 15/15, portal 36/36.</p>
+          <p class="card-notes">Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-1-kit-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">

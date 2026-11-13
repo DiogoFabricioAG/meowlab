@@ -1676,10 +1676,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Código listo, sin desplegar. Bridge (rama feat/brand-kit, commit 408b0): migración 015 (commerce.brand_kits, commerce.brand_logos y condiciones copiadas en sales.quotes), acciones brand_* en /v1/portal/companies (miembros leen, titulares cambian), logo PNG/JPG validado por bytes (máx. 300 KB, 16–1200 px), logo público solo a través del enlace de una cotización. Portal (rama feat/brand-kit-app, commit e77b2): Configuración → Documentos con vista previa en vivo, recorte y reducción del logo en el navegador, control de contraste del color; la cotización pública usa el kit. Para desplegar: aplicar la migración 015 antes del corte del bridge, luego bridge y después portal.",
-      "evidence": "2026-11-13: vitest del Worker 659/659 (incluye test/portal-brand.test.ts); tools/brand-pg-check.ts 15/15 y tools/sales-pg-check.ts en verde contra PostgreSQL 16 descartable; vitest del portal 36/36 (test/brand.test.ts) y typecheck; revisión local con bridge simulado en 1440 px y 375 px sin desborde."
+      "notes": "Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md.",
+      "evidence": "Producción: migración 015, bridge brand-kit-20261113T194050Z (2726a), portal meowlab-app:e77b2a4472ef; brand-check firmado responde forbidden a cuentas ajenas; rutas del portal 200/401/403/404 según lo esperado. Antes: Worker 659/659, brand-pg-check 15/15, portal 36/36."
     },
     {
       "id": "docs-formato-2-facturaya-20261113",
@@ -1723,6 +1723,17 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "ADR-0012.",
+      "evidence": ""
+    },
+    {
+      "id": "docs-formato-1-prueba-20261113",
+      "title": "Cargar el kit de marca de CREACIONES J&D y revisar una cotización con él",
+      "area": "Portal",
+      "owner": "operador",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción.",
       "evidence": ""
     }
   ]
