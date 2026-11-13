@@ -1624,7 +1624,7 @@
       "status": "done",
       "updated": "2026-11-13",
       "notes": "Desplegada el 13/11/2026. Acta: docs/operations/landing-taste-2026-11-13.md.",
-      "evidence": "Imagen meowlab-web:d08578ba8df8; GATE: PASS sobre la versión unida; meowlab.tech, www, legales, contacto, BIMI y share.jpg 200."
+      "evidence": "Imagen meowlab-web:d08578ba8df8; GATE: PASS sobre la versión unida; meowlab.tech, www, legales, contacto, BIMI y share.jpg 200. Títulos en Blinker 700: meowlab-web:ff6a51284b91."
     },
     {
       "id": "landing-tablet-revision-20261113",

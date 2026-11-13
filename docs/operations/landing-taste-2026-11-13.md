@@ -36,3 +36,14 @@ Fecha: 13/11/2026. Pedido y autorizado por el operador («Sí, despliégala»).
 docker rm -f meowlab-web && docker rename meowlab-web-prev-cf06e204412f meowlab-web \
   && docker update --restart=unless-stopped meowlab-web && docker start meowlab-web
 ```
+
+## Títulos en Blinker negrita (13/11/2026, autorizado: «Sí, despliégala»)
+
+- Commit publicado `ff6a51284b91801b89bbe660d5c2abdd47ffbdaf` (`feat/landing-taste-live`):
+  `--display-weight` 700 y tracking ajustado, como en app.meowlab.tech; el logo de la barra
+  con el mismo peso que el del portal. Gate de taste-skill en PASS.
+- Imagen `meowlab-web:ff6a51284b91` (antes `meowlab-web:d08578ba8df8`, detenido como
+  `meowlab-web-prev-d08578ba8df8`).
+- Verificación: candidata y público con `/`, `www`, `/privacidad/`, `/terminos/`,
+  `/contacto/`, `/meowlab-bimi.svg` y `app.meowlab.tech` 200; el HTML servido trae el peso 700.
+- Rollback: `docker rm -f meowlab-web && docker rename meowlab-web-prev-d08578ba8df8 meowlab-web && docker update --restart=unless-stopped meowlab-web && docker start meowlab-web`.
