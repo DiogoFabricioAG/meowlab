@@ -66,3 +66,12 @@ leyenda de representación impresa). La forma puede cambiar; esos datos no.
 3. **Kit en la GRE** y en el PDF de cotizaciones.
 4. **Plantillas:** «Clásica», «Moderna» y «Ticket 80 mm», con selector por tipo y vista previa.
 5. **Por chat:** cambiar logo, formas de pago y pie desde Manolo.
+
+## Notas
+
+- 2026-11-13, fase 1 implementada (sin desplegar). El kit vive en `commerce.brand_kits` y el
+  logo en `commerce.brand_logos` (migración 015), dentro de PostgreSQL para que viaje con
+  sus respaldos. Validez, condiciones de pago y plazo de entrega se **copian** a cada
+  cotización al crearla; logo, color, contacto y formas de pago se muestran con los valores
+  vigentes de la empresa. El logo de una cotización pública solo se sirve a través de su
+  enlace (`/api/public/quotes/<código>/logo`), no por identificador de empresa.

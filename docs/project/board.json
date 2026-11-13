@@ -1676,10 +1676,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-13",
-      "notes": "ADR-0012.",
-      "evidence": ""
+      "notes": "Código listo, sin desplegar. Bridge (rama feat/brand-kit, commit 408b0): migración 015 (commerce.brand_kits, commerce.brand_logos y condiciones copiadas en sales.quotes), acciones brand_* en /v1/portal/companies (miembros leen, titulares cambian), logo PNG/JPG validado por bytes (máx. 300 KB, 16–1200 px), logo público solo a través del enlace de una cotización. Portal (rama feat/brand-kit-app, commit e77b2): Configuración → Documentos con vista previa en vivo, recorte y reducción del logo en el navegador, control de contraste del color; la cotización pública usa el kit. Para desplegar: aplicar la migración 015 antes del corte del bridge, luego bridge y después portal.",
+      "evidence": "2026-11-13: vitest del Worker 659/659 (incluye test/portal-brand.test.ts); tools/brand-pg-check.ts 15/15 y tools/sales-pg-check.ts en verde contra PostgreSQL 16 descartable; vitest del portal 36/36 (test/brand.test.ts) y typecheck; revisión local con bridge simulado en 1440 px y 375 px sin desborde."
     },
     {
       "id": "docs-formato-2-facturaya-20261113",
