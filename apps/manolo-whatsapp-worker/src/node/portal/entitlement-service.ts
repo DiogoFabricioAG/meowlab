@@ -33,8 +33,11 @@ export class PortalEntitlementService {
         `INSERT INTO sales.settings (tenant_id, enabled, source, active_until, updated_at)
          VALUES ($1, TRUE, 'subscription', $2, CURRENT_TIMESTAMP)
          ON CONFLICT (tenant_id) DO UPDATE SET
-           enabled = CASE WHEN sales.settings.source = 'courtesy' THEN sales.settings.enabled ELSE TRUE END,
-           active_until = CASE WHEN sales.settings.source = 'courtesy' THEN sales.settings.active_until
+           -- An active courtesy is never touched; a switched-off one becomes the paid subscription.
+           source = CASE WHEN sales.settings.source = 'courtesy' AND sales.settings.enabled THEN 'courtesy' ELSE 'subscription' END,
+           enabled = TRUE,
+           active_until = CASE WHEN sales.settings.source = 'courtesy' AND sales.settings.enabled THEN NULL
+                               WHEN sales.settings.source = 'courtesy' THEN EXCLUDED.active_until
                                ELSE GREATEST(sales.settings.active_until, EXCLUDED.active_until) END,
            updated_at = CURRENT_TIMESTAMP`,
         [request.tenantId, new Date(request.activeUntil)],

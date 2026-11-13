@@ -66,6 +66,13 @@ check("…but its settings row is kept", (await settings("org_paid"))?.enabled, 
 await entitlements.handle(request("org_paid", future));
 check("paying again turns it back on", (await companies() as string[]).includes("org_paid"), true);
 
+// A pilot that was switched off and then pays: the payment wins and becomes the subscription.
+await pool.query("INSERT INTO whatsapp.tenants (id, name) VALUES ('org_old', 'Ex piloto')");
+await pool.query("INSERT INTO sales.settings (tenant_id, enabled) VALUES ('org_old', FALSE)");
+await entitlements.handle(request("org_old", future));
+check("a switched-off courtesy that pays becomes an active subscription", await settings("org_old"),
+  { enabled: true, source: "subscription", until: future.toISOString().slice(0, 10) });
+
 let rejected = false;
 try { await pool.query("UPDATE sales.settings SET active_until = now() WHERE tenant_id = 'org_jd'"); } catch { rejected = true; }
 check("a courtesy row cannot get an end date by mistake", rejected, true);
