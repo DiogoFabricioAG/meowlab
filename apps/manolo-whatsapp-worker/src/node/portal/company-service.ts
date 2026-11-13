@@ -8,6 +8,7 @@ import {
   type Taxpayer,
 } from "../../bridge/portal-company-contracts";
 import type { RoleLog } from "../../roles/contracts";
+import { PortalInvitationService, type InvitationRequest } from "./invitation-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -78,9 +79,13 @@ export class PortalCompanyService {
     private readonly directory: TaxpayerDirectory | null,
     private readonly log: RoleLog,
     private readonly newId: () => string = () => `org_${randomBytes(12).toString("hex")}`,
+    private readonly invitations: Pick<PortalInvitationService, "handle"> = new PortalInvitationService(pool, log),
   ) {}
 
   async handle(request: PortalCompanyRequest): Promise<PortalCompanyResponse> {
+    if (request.action !== "mine" && request.action !== "lookup" && request.action !== "create") {
+      return this.invitations.handle(request as InvitationRequest);
+    }
     if (request.action === "mine") {
       const { rows } = await this.pool.query(MEMBERSHIPS_SQL, [request.portalUserId]) as Rows;
       return { status: "ok", companies: rows.map(membership) };

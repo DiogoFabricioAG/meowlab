@@ -3,6 +3,7 @@ import { PORTAL_COMPANY_BRIDGE_PATH, isPortalCompanyRequest, isValidRuc } from "
 import { signBridgePayload } from "../src/bridge/signature";
 import { createBridgeHttpHandler } from "../src/node/bridge/http-handler";
 import { FacturayaTaxpayerDirectory, PortalCompanyService, type TaxpayerDirectory } from "../src/node/portal/company-service";
+import { PortalInvitationService } from "../src/node/portal/invitation-service";
 import type { PrintAdvisorBridgeService } from "../src/node/bridge/print-advisor-service";
 import type { ContactRoleResolver } from "../src/node/control/contact-role-resolver";
 
@@ -169,5 +170,62 @@ describe("portal company route", () => {
     expect((await route(await signed("worker-secret-worker-secret-worker-secret", { ...base, action: "mine" }))).status).toBe(401);
     expect((await route(await signed(SECRET, { ...base, action: "drop" }))).status).toBe(400);
     expect(service.handle).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("portal invitation contracts", () => {
+  const TOKEN = "AbCdEfGhIjKlMnOpQrStUv";
+  it("validates invitation actions", () => {
+    expect(isPortalCompanyRequest({ ...base, action: "team", tenantId: "org_1" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "invite", tenantId: "org_1", access: "view" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "invite", tenantId: "org_1", access: "full", phone: "987654321" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "invite", tenantId: "org_1", access: "admin" })).toBe(false);
+    expect(isPortalCompanyRequest({ ...base, action: "revoke", tenantId: "org_1", invitationId: "not-a-uuid" })).toBe(false);
+    expect(isPortalCompanyRequest({ ...base, action: "revoke", tenantId: "org_1", invitationId: "6f1c2b3a-1d2e-4f50-9a6b-7c8d9e0f1a2b" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "remove", tenantId: "org_1", memberId: "user-2" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "preview", token: TOKEN })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "accept", token: TOKEN + "x" })).toBe(false);
+    expect(isPortalCompanyRequest({ ...base, action: "accept", token: "../../etc/passwd/xxxxx" })).toBe(false);
+  });
+});
+
+describe("portal invitation service", () => {
+  it("rejects a bad phone before touching the database and refuses non-owners", async () => {
+    const pool = { connect: vi.fn(), query: vi.fn(async () => ({ rows: [] })) };
+    const service = new PortalInvitationService(pool, vi.fn());
+    expect(await service.handle({ ...base, action: "invite", tenantId: "org_1", access: "view", phone: "12" })).toEqual({ status: "invalid_phone" });
+    expect(pool.query).not.toHaveBeenCalled();
+    expect(await service.handle({ ...base, action: "invite", tenantId: "org_1", access: "view" })).toEqual({ status: "forbidden" });
+    expect(await service.handle({ ...base, action: "team", tenantId: "org_1" })).toEqual({ status: "forbidden" });
+    expect(await service.handle({ ...base, action: "remove", tenantId: "org_1", memberId: "user-1" })).toEqual({ status: "forbidden" });
+  });
+
+  it("stores only the hash of the code and returns the code once", async () => {
+    const statements: Array<{ sql: string; values?: readonly unknown[] }> = [];
+    const pool = {
+      connect: vi.fn(),
+      query: vi.fn(async (sql: string, values?: readonly unknown[]) => {
+        statements.push({ sql, values });
+        if (sql.includes("role = 'owner'")) return { rows: [{ "?column?": 1 }] };
+        if (sql.includes("count(*)")) return { rows: [{ total: 0 }] };
+        return { rows: [] };
+      }),
+    };
+    const now = new Date("2026-11-13T05:00:00Z");
+    const service = new PortalInvitationService(pool, vi.fn(), () => now, () => "AbCdEfGhIjKlMnOpQrStUv");
+    const result = await service.handle({ ...base, action: "invite", tenantId: "org_1", access: "full", phone: "987654321" });
+    expect(result).toMatchObject({ status: "invited", invitation: { token: "AbCdEfGhIjKlMnOpQrStUv", maskedPhone: "+51 9•• ••• 321",
+      access: "full", expiresAt: "2026-11-20T05:00:00.000Z" } });
+    const insert = statements.find((s) => s.sql.includes("INSERT INTO whatsapp.portal_company_invitations"));
+    expect(JSON.stringify(insert?.values)).not.toContain("AbCdEfGhIjKlMnOpQrStUv");
+    expect(insert?.values?.[2]).toMatch(/^[0-9a-f]{64}$/);
+    expect(insert?.values?.[4]).toBe("51987654321");
+  });
+
+  it("is reached through the company service", async () => {
+    const invitations = { handle: vi.fn(async () => ({ status: "forbidden" as const })) };
+    const service = new PortalCompanyService({ connect: vi.fn(), query: vi.fn() }, null, vi.fn(), () => "org", invitations);
+    expect(await service.handle({ ...base, action: "team", tenantId: "org_1" })).toEqual({ status: "forbidden" });
+    expect(invitations.handle).toHaveBeenCalledWith({ ...base, action: "team", tenantId: "org_1" });
   });
 });
