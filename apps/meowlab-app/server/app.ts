@@ -331,33 +331,53 @@ export function createApp(deps: AppDeps) {
 
   app.post("/api/whatsapp/unlink", (c) => relay(c, { action: "unlink" }));
 
+  // Plan per company (ADR-0007, 13/11/2026): members see the company's plan; only its owner
+  // subscribes or cancels. Membership always comes from the bridge, never from the client.
+  const companyRole = async (userId: string, tenantId: unknown): Promise<"owner" | "member" | null> => {
+    if (typeof tenantId !== "string" || !TENANT.test(tenantId) || !deps.bridge) return null;
+    const result = await deps.bridge.companies(userId, { action: "mine" });
+    if (!result || result.status !== "ok" || !("companies" in result)) return null;
+    return result.companies.find((company) => company.id === tenantId)?.role ?? null;
+  };
+
   app.get("/api/billing", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
-    return c.json(await deps.billing.status(c.get("session").user.id));
+    const tenantId = c.req.query("company");
+    if (!tenantId) return c.json(await deps.billing.status(null));
+    const role = await companyRole(c.get("session").user.id, tenantId);
+    if (!role) return c.json({ error: "forbidden" }, 403);
+    return c.json({ ...await deps.billing.status(tenantId), canManage: role === "owner" });
   });
 
   app.post("/api/billing/subscribe", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
-    const body = await c.req.json().catch(() => null) as { agents?: unknown; payerEmail?: unknown } | null;
+    const body = await c.req.json().catch(() => null) as { company?: unknown; agents?: unknown; payerEmail?: unknown } | null;
+    const me = c.get("session").user.id;
+    if (await companyRole(me, body?.company) !== "owner") return c.json({ status: "forbidden" }, 403);
     const agents = Array.isArray(body?.agents) ? body.agents.filter((a): a is string => typeof a === "string").slice(0, 10) : [];
     const payerEmail = typeof body?.payerEmail === "string" ? body.payerEmail : "";
-    return c.json(await deps.billing.subscribe(c.get("session").user.id, agents, payerEmail));
+    return c.json(await deps.billing.subscribe(me, body!.company as string, agents, payerEmail));
   });
 
   app.post("/api/billing/sync", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
+    const body = await c.req.json().catch(() => null) as { company?: unknown } | null;
+    const role = await companyRole(c.get("session").user.id, body?.company);
+    if (!role) return c.json({ error: "forbidden" }, 403);
     try {
-      await deps.billing.syncFor(c.get("session").user.id);
+      await deps.billing.syncFor(body!.company as string);
     } catch {
       return c.json({ error: "provider_unavailable" }, 503);
     }
-    return c.json(await deps.billing.status(c.get("session").user.id));
+    return c.json({ ...await deps.billing.status(body!.company as string), canManage: role === "owner" });
   });
 
   app.post("/api/billing/cancel", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
+    const body = await c.req.json().catch(() => null) as { company?: unknown } | null;
+    if (await companyRole(c.get("session").user.id, body?.company) !== "owner") return c.json({ status: "forbidden" }, 403);
     try {
-      return c.json({ status: await deps.billing.cancel(c.get("session").user.id) });
+      return c.json({ status: await deps.billing.cancel(body!.company as string) });
     } catch {
       return c.json({ error: "provider_unavailable" }, 503);
     }

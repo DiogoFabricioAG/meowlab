@@ -78,6 +78,7 @@ const allowedOrigins = [settings.BETTER_AUTH_URL, ...(settings.TRUSTED_ORIGINS ?
 // secret, notifications are refused and the return page plus the periodic
 // reconciliation keep subscriptions in sync.
 const mercadopagoToken = secret("MERCADOPAGO_ACCESS_TOKEN", true);
+const bridge = createPortalBridge(process.env.BRIDGE_URL, secret("PORTAL_BRIDGE_HMAC_SECRET", true));
 const billingStore = new PgBillingStore(pool);
 const billing = mercadopagoToken
   ? new BillingService(billingStore, new MercadoPagoClient(mercadopagoToken), {
@@ -85,6 +86,10 @@ const billing = mercadopagoToken
       webhookSecret: secret("MERCADOPAGO_WEBHOOK_SECRET", true),
       testMode: process.env.MERCADOPAGO_TEST_MODE === "true",
       log: (event, details) => console.log(JSON.stringify({ event, ...details })),
+      // Per company billing: a paid period switches the agents on in that company.
+      entitlements: bridge?.entitlements
+        ? { apply: async (tenantId, agents, until) => (await bridge.entitlements!(tenantId, agents, until))?.status === "ok" }
+        : undefined,
     })
   : undefined;
 if (billing) {
@@ -96,7 +101,7 @@ if (billing) {
 const api = createApp({
   auth,
   googleEnabled: googleEnabled(settings),
-  bridge: createPortalBridge(process.env.BRIDGE_URL, secret("PORTAL_BRIDGE_HMAC_SECRET", true)),
+  bridge,
   allowedOrigins,
   adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values), billing ? () => billingStore.metrics() : undefined),
   billing,

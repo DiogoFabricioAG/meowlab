@@ -1801,6 +1801,17 @@
       "updated": "2026-11-13",
       "notes": "ADR-0013 recién desplegado.",
       "evidence": ""
+    },
+    {
+      "id": "sales-cat-venta-plan-20261113",
+      "title": "Vender Sales Cat en el Plan: suscripción por empresa y activación automática",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Código listo, sin desplegar (rama feat/billing-por-empresa). Portal: migración 0004 (tenant_id, una suscripción viva por empresa, Sales Cat disponible), Plan por empresa, solo la titular contrata. Plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. Mercado Pago sigue en modo de prueba. Orden: migración 017, bridge, migración 0004 y portal.",
+      "evidence": "2026-11-13: Worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde."
     }
   ]
 }

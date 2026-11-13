@@ -28,6 +28,8 @@ import { PORTAL_BILLING_BRIDGE_PATH, isPortalBillingRequest } from "../../bridge
 import type { PortalBillingService } from "../portal/billing-service";
 import { PORTAL_COMPANY_BRIDGE_PATH, isPortalCompanyRequest } from "../../bridge/portal-company-contracts";
 import type { PortalCompanyService } from "../portal/company-service";
+import { PORTAL_ENTITLEMENT_BRIDGE_PATH, isPortalEntitlementRequest } from "../../bridge/portal-entitlement-contracts";
+import type { PortalEntitlementService } from "../portal/entitlement-service";
 import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
@@ -63,6 +65,8 @@ export type BridgeHttpHandlerDependencies = {
   portalLinkService?: Pick<PortalLinkService, "handle">;
   portalBillingService?: Pick<PortalBillingService, "handle">;
   portalCompanyService?: Pick<PortalCompanyService, "handle">;
+  /** Agents a company paid for in the Plan (per company billing). */
+  portalEntitlementService?: Pick<PortalEntitlementService, "handle">;
   /** Sales Cat (ADR-0011). */
   salesService?: Pick<SalesService, "process">;
   /** ADR-0013: the quote's PDF behind its public link code. */
@@ -107,6 +111,9 @@ export function createBridgeHttpHandler(
     }
     if (request.path === PORTAL_COMPANY_BRIDGE_PATH) {
       return handlePortalRoute(request, dependencies, "companies");
+    }
+    if (request.path === PORTAL_ENTITLEMENT_BRIDGE_PATH) {
+      return handlePortalRoute(request, dependencies, "entitlements");
     }
     if (request.path === PORTAL_PUBLIC_QUOTE_PATH) {
       return handlePublicQuote(request, dependencies);
@@ -350,11 +357,12 @@ async function handlePublicQuote(
 async function handlePortalRoute(
   request: BridgeHttpRequest,
   dependencies: BridgeHttpHandlerDependencies,
-  route: "link" | "billing" | "companies",
+  route: "link" | "billing" | "companies" | "entitlements",
 ): Promise<BridgeHttpResponse> {
   if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
   const service = route === "link" ? dependencies.portalLinkService
     : route === "billing" ? dependencies.portalBillingService
+    : route === "entitlements" ? dependencies.portalEntitlementService
     : dependencies.portalCompanyService;
   if (!dependencies.portalSecret || !service) {
     return jsonResponse(503, { error: "portal_unavailable" });
@@ -378,6 +386,7 @@ async function handlePortalRoute(
   }
   const valid = route === "link" ? isPortalLinkRequest(payload)
     : route === "billing" ? isPortalBillingRequest(payload)
+    : route === "entitlements" ? isPortalEntitlementRequest(payload)
     : isPortalCompanyRequest(payload);
   if (!valid || request.headers["x-manolo-request-id"] !== (payload as { requestId?: unknown }).requestId) {
     return jsonResponse(400, { error: "invalid_request" });
@@ -388,7 +397,9 @@ async function handlePortalRoute(
       ? await dependencies.portalLinkService!.handle(payload as Parameters<PortalLinkService["handle"]>[0])
       : route === "billing"
         ? await dependencies.portalBillingService!.handle(payload as Parameters<PortalBillingService["handle"]>[0])
-        : await dependencies.portalCompanyService!.handle(payload as Parameters<PortalCompanyService["handle"]>[0]);
+        : route === "entitlements"
+          ? await dependencies.portalEntitlementService!.handle(payload as Parameters<PortalEntitlementService["handle"]>[0])
+          : await dependencies.portalCompanyService!.handle(payload as Parameters<PortalCompanyService["handle"]>[0]);
     return jsonResponse(200, result as Record<string, unknown>);
   } catch {
     dependencies.log(`vps_portal_${route}_failed`, { action });

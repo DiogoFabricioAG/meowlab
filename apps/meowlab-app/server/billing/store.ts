@@ -5,6 +5,8 @@ export type SubscriptionStatus = "creating" | "pending" | "authorized" | "paused
 export type SubscriptionRow = {
   id: string;
   userId: string;
+  /** The company the subscription pays for; null on subscriptions from before 13/11/2026. */
+  tenantId: string | null;
   agents: string[];
   amountCents: number;
   status: SubscriptionStatus;
@@ -14,6 +16,8 @@ export type SubscriptionRow = {
   checkoutUrl: string | null;
   paidUntil: Date | null;
   nextPaymentAt: Date | null;
+  /** End of the paid period last confirmed by the platform. */
+  entitlementAppliedUntil: Date | null;
   createdAt: Date;
 };
 
@@ -21,11 +25,12 @@ export type GrantResult = "granted" | "duplicate";
 
 export interface BillingStore {
   catalog(): Promise<{ agents: CatalogAgent[]; discounts: Discount[] }>;
-  /** The live subscription (creating/pending/authorized/paused) or, failing that, the latest one. */
-  currentFor(userId: string): Promise<SubscriptionRow | null>;
+  /** The company's live subscription (creating/pending/authorized/paused) or, failing that, its latest one. */
+  currentFor(tenantId: string): Promise<SubscriptionRow | null>;
   createSubscription(input: {
     id: string;
     userId: string;
+    tenantId: string;
     agents: string[];
     amountCents: number;
     externalReference: string;
@@ -38,6 +43,8 @@ export interface BillingStore {
   /** Atomic: one provider payment grants at most one month, chained after the paid period. */
   grantMonth(input: { subscriptionId: string; provider: "mercadopago"; providerRef: string; amountCents: number; paidAt: Date }): Promise<GrantResult>;
   recordWebhook(input: { topic: string; resourceRef: string; requestId: string | null; outcome: string }): Promise<void>;
+  markEntitlementApplied(id: string, until: Date): Promise<void>;
+  /** Live subscriptions to read again, plus any paid period the platform has not confirmed yet. */
   reconcilable(): Promise<SubscriptionRow[]>;
   metrics(): Promise<{ live: number; paying: number; monthlyRevenueCents: number; paymentsLast30Days: number; revenueLast30DaysCents: number }>;
 }
@@ -46,13 +53,14 @@ type Query = (sql: string, values?: unknown[]) => Promise<{ rows: Array<Record<s
 type Client = { query: Query; release(): void };
 export type BillingPool = { query: Query; connect(): Promise<Client> };
 
-const COLUMNS = `id, user_id, agents, amount_cents, status, external_reference, provider_ref, payer_email,
-  checkout_url, paid_until, next_payment_at, created_at`;
+const COLUMNS = `id, user_id, tenant_id, agents, amount_cents, status, external_reference, provider_ref, payer_email,
+  checkout_url, paid_until, next_payment_at, entitlement_applied_until, created_at`;
 
 function toRow(row: Record<string, unknown>): SubscriptionRow {
   return {
     id: String(row.id),
     userId: String(row.user_id),
+    tenantId: (row.tenant_id as string | null) ?? null,
     agents: row.agents as string[],
     amountCents: Number(row.amount_cents),
     status: row.status as SubscriptionStatus,
@@ -62,6 +70,7 @@ function toRow(row: Record<string, unknown>): SubscriptionRow {
     checkoutUrl: (row.checkout_url as string | null) ?? null,
     paidUntil: (row.paid_until as Date | null) ?? null,
     nextPaymentAt: (row.next_payment_at as Date | null) ?? null,
+    entitlementAppliedUntil: (row.entitlement_applied_until as Date | null) ?? null,
     createdAt: row.created_at as Date,
   };
 }
@@ -86,11 +95,11 @@ export class PgBillingStore implements BillingStore {
     };
   }
 
-  async currentFor(userId: string) {
+  async currentFor(tenantId: string) {
     const { rows } = await this.pool.query(
-      `SELECT ${COLUMNS} FROM billing_subscriptions WHERE user_id = $1
+      `SELECT ${COLUMNS} FROM billing_subscriptions WHERE tenant_id = $1
         ORDER BY (status IN ('creating', 'pending', 'authorized', 'paused')) DESC, created_at DESC LIMIT 1`,
-      [userId],
+      [tenantId],
     );
     return rows[0] ? toRow(rows[0]) : null;
   }
@@ -98,9 +107,9 @@ export class PgBillingStore implements BillingStore {
   async createSubscription(input: Parameters<BillingStore["createSubscription"]>[0]) {
     try {
       await this.pool.query(
-        `INSERT INTO billing_subscriptions (id, user_id, agents, amount_cents, status, external_reference, payer_email)
-         VALUES ($1, $2, $3, $4, 'creating', $5, $6)`,
-        [input.id, input.userId, input.agents, input.amountCents, input.externalReference, input.payerEmail],
+        `INSERT INTO billing_subscriptions (id, user_id, tenant_id, agents, amount_cents, status, external_reference, payer_email)
+         VALUES ($1, $2, $3, $4, $5, 'creating', $6, $7)`,
+        [input.id, input.userId, input.tenantId, input.agents, input.amountCents, input.externalReference, input.payerEmail],
       );
       return "created" as const;
     } catch (error) {
@@ -175,9 +184,20 @@ export class PgBillingStore implements BillingStore {
     );
   }
 
+  async markEntitlementApplied(id: string, until: Date) {
+    await this.pool.query(
+      `UPDATE billing_subscriptions SET entitlement_applied_until = GREATEST(entitlement_applied_until, $2), updated_at = now() WHERE id = $1`,
+      [id, until],
+    );
+  }
+
   async reconcilable() {
     const { rows } = await this.pool.query(
-      `SELECT ${COLUMNS} FROM billing_subscriptions WHERE provider_ref IS NOT NULL AND status IN ('pending', 'authorized', 'paused')`,
+      `SELECT ${COLUMNS} FROM billing_subscriptions
+        WHERE (provider_ref IS NOT NULL AND status IN ('pending', 'authorized', 'paused'))
+           OR (tenant_id IS NOT NULL AND paid_until > now()
+               -- JavaScript dates carry milliseconds; PostgreSQL keeps microseconds.
+               AND (entitlement_applied_until IS NULL OR entitlement_applied_until < date_trunc('milliseconds', paid_until)))`,
     );
     return rows.map(toRow);
   }

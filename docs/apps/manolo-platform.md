@@ -106,7 +106,9 @@ minutos desde el último mensaje, estado `sales` en `contact_role_states`), los 
 se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`).
 
 - **Empresa:** sólo las empresas donde el número es miembro activo y que tienen Sales Cat
-  activo (`sales.settings.enabled`). Con varias, se elige de una lista.
+  activo (`sales.settings.enabled` y, si viene de una suscripción, `active_until` en el
+  futuro; migración `017-sales-subscriptions.sql`). Lo activa el pago en el Plan del portal
+  por la ruta firmada `/v1/portal/entitlements`, o a mano como cortesía (`source`). Con varias, se elige de una lista.
 - **IA:** `SALES_AI_MODEL` (Groq `openai/gpt-oss-120b`) con salida estructurada
   (`src/sales/extractor.ts`): venta, cotización, consulta, producto o anulación. Los
   precios salen del mensaje o del catálogo, nunca inventados; si falta uno, lo pregunta.

@@ -83,3 +83,9 @@ un PDF. Este ADR fija qué es Sales Cat a partir del cuestionario del operador.
   los mensajes) o desde el portal.
 - Qué puede decidir Sales Cat solo frente a un cliente (descuentos, plazos) y cuándo
   avisa a la titular.
+
+## Nota 2026-11-13: a la venta en el Plan
+
+Sales Cat se vende en el Plan del portal a S/ 59 al mes, por empresa. Al confirmarse el pago
+queda activo para esa empresa hasta el fin del periodo pagado (ADR-0007, nota del mismo día).
+CREACIONES J&D lo conserva gratis como cortesía.

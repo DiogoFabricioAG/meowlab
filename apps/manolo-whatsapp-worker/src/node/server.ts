@@ -4,6 +4,7 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
+import { PortalEntitlementService } from "./portal/entitlement-service";
 import { SalesService } from "./sales/sales-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
@@ -120,6 +121,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
       new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
     ),
+    // Plan per company: what a company paid for, until the end of the paid period.
+    portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
       new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),

@@ -7,6 +7,7 @@ export const PORTAL_LINK_BRIDGE_PATH = "/v1/portal/whatsapp-link";
 export const PORTAL_BILLING_BRIDGE_PATH = "/v1/portal/billing";
 export const PORTAL_COMPANY_BRIDGE_PATH = "/v1/portal/companies";
 export const PORTAL_PUBLIC_QUOTE_PATH = "/v1/portal/public-quote";
+export const PORTAL_ENTITLEMENT_BRIDGE_PATH = "/v1/portal/entitlements";
 
 /** A Sales Cat quote's PDF (ADR-0013), drawn once with the documents' single layout. */
 export type QuotePdf = { number: number; filename: string; contentBase64: string };
@@ -104,6 +105,8 @@ export interface PortalBridge {
   link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null>;
   billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null>;
   companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null>;
+  /** What a company paid for in the Plan, until the end of the paid period. */
+  entitlements?(tenantId: string, agents: string[], activeUntil: Date): Promise<{ status: "ok"; applied: string[]; skipped: string[] } | { status: "not_found" } | null>;
   /** Public: no account involved; the code is the only key. */
   publicQuote?(token: string): Promise<{ status: "ok"; pdf: QuotePdf } | { status: "not_found" } | null>;
 }
@@ -134,6 +137,11 @@ export class SignedPortalBridge implements PortalBridge {
 
   companies(portalUserId: string, request: PortalCompanyAction): Promise<PortalCompanyResponse | null> {
     return this.call<PortalCompanyResponse>(PORTAL_COMPANY_BRIDGE_PATH, portalUserId, request);
+  }
+
+  entitlements(tenantId: string, agents: string[], activeUntil: Date) {
+    return this.call<{ status: "ok"; applied: string[]; skipped: string[] } | { status: "not_found" }>(
+      PORTAL_ENTITLEMENT_BRIDGE_PATH, "billing", { tenantId, agents, activeUntil: activeUntil.toISOString() });
   }
 
   publicQuote(token: string) {
