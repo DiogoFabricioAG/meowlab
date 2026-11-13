@@ -1,5 +1,6 @@
 import { PgPortalLinkStore, PortalLinkService, type PortalLinkPool } from "./portal/link-service";
 import { WorkerAuthCodeSender } from "./portal/auth-code-sender";
+import { PortalBillingService, type BillingPool } from "./portal/billing-service";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -87,7 +88,7 @@ async function readRequestBody(
  * Portal app.meowlab.tech (ADR-0006). Optional: without its secrets the portal route
  * answers 503 and the rest of the bridge is unaffected.
  */
-function portalLinkDependencies(pool: PortalLinkPool) {
+function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
   const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
   const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
@@ -101,6 +102,8 @@ function portalLinkDependencies(pool: PortalLinkPool) {
   if (new URL(workerUrl).protocol !== "https:") throw new Error("MANOLO_WORKER_URL must use HTTPS");
   return {
     portalSecret,
+    // Phase 3: read-only billing data through FacturaYa, authorized per linked number.
+    portalBillingService: new PortalBillingService(pool, cipher, facturayaBaseUrl, logSafeEvent),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
       new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),
@@ -179,7 +182,7 @@ async function main(): Promise<void> {
     platformSyncService,
     facturayaService,
     radarSelectionService: new PgRadarSelectionService(connection.pool),
-    ...portalLinkDependencies(connection.pool),
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl),
     log: logSafeEvent,
     healthCheck: async () => {
       try {

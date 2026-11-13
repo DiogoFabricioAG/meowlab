@@ -24,6 +24,8 @@ import {
 } from "../platform/platform-sync-service";
 import { verifyBridgeSignature } from "./signature-verifier";
 import { PORTAL_LINK_BRIDGE_PATH, isPortalLinkRequest } from "../../bridge/portal-link-contracts";
+import { PORTAL_BILLING_BRIDGE_PATH, isPortalBillingRequest } from "../../bridge/portal-billing-contracts";
+import type { PortalBillingService } from "../portal/billing-service";
 import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
@@ -51,6 +53,7 @@ export type BridgeHttpHandlerDependencies = {
   /** Portal app.meowlab.tech: its own secret, valid only for the portal route. */
   portalSecret?: string;
   portalLinkService?: Pick<PortalLinkService, "handle">;
+  portalBillingService?: Pick<PortalBillingService, "handle">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -84,7 +87,10 @@ export function createBridgeHttpHandler(
         : jsonResponse(503, { status: "unavailable" });
     }
     if (request.path === PORTAL_LINK_BRIDGE_PATH) {
-      return handlePortalLink(request, dependencies);
+      return handlePortalRoute(request, dependencies, "link");
+    }
+    if (request.path === PORTAL_BILLING_BRIDGE_PATH) {
+      return handlePortalRoute(request, dependencies, "billing");
     }
     if (
       request.path !== PRINT_ADVISOR_BRIDGE_PATH
@@ -264,12 +270,15 @@ function isObjectWithRequestId(
     && typeof value.requestId === "string";
 }
 
-async function handlePortalLink(
+/** Both portal routes share the portal's own secret, signature check and request-id rule. */
+async function handlePortalRoute(
   request: BridgeHttpRequest,
   dependencies: BridgeHttpHandlerDependencies,
+  route: "link" | "billing",
 ): Promise<BridgeHttpResponse> {
   if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
-  if (!dependencies.portalSecret || !dependencies.portalLinkService) {
+  const service = route === "link" ? dependencies.portalLinkService : dependencies.portalBillingService;
+  if (!dependencies.portalSecret || !service) {
     return jsonResponse(503, { error: "portal_unavailable" });
   }
   const verification = verifyBridgeSignature(
@@ -289,13 +298,18 @@ async function handlePortalLink(
   } catch {
     return jsonResponse(400, { error: "invalid_json" });
   }
-  if (!isPortalLinkRequest(payload) || request.headers["x-manolo-request-id"] !== payload.requestId) {
+  const valid = route === "link" ? isPortalLinkRequest(payload) : isPortalBillingRequest(payload);
+  if (!valid || request.headers["x-manolo-request-id"] !== (payload as { requestId?: unknown }).requestId) {
     return jsonResponse(400, { error: "invalid_request" });
   }
+  const action = (payload as { action: string }).action;
   try {
-    return jsonResponse(200, await dependencies.portalLinkService.handle(payload));
+    const result = route === "link"
+      ? await dependencies.portalLinkService!.handle(payload as Parameters<PortalLinkService["handle"]>[0])
+      : await dependencies.portalBillingService!.handle(payload as Parameters<PortalBillingService["handle"]>[0]);
+    return jsonResponse(200, result as Record<string, unknown>);
   } catch {
-    dependencies.log("vps_portal_link_failed", { action: payload.action });
+    dependencies.log(route === "link" ? "vps_portal_link_failed" : "vps_portal_billing_failed", { action });
     return jsonResponse(503, { error: "portal_unavailable" });
   }
 }

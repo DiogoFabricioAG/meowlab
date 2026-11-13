@@ -1181,10 +1181,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
-      "updated": "2026-11-11",
+      "status": "in_progress",
+      "updated": "2026-11-13",
       "notes": "Fase 3 del ADR-0006. FacturaYa: listado paginado de comprobantes y resumen mensual. Bridge: autorización cuenta → contacto → empresas permitidas. Diseño: docs/decisions/0006-portal-app-meowlab.md",
-      "evidence": ""
+      "evidence": "FacturaYa feat/portal-lectura: GET /api/issued-documents y /api/reports/monthly, 4 pruebas nuevas (suite 175/177; 2 fallos previos de entorno). Bridge feat/portal-facturacion: /v1/portal/billing con autorización por número vinculado → miembro con view_invoice, 21 pruebas (billing y link). Portal feat/portal-facturacion-app: pestaña Facturación, 20/20. Pendiente: despliegue y membresía del número vinculado."
     },
     {
       "id": "app-portal-4-pantallas-20261111",
@@ -1192,9 +1192,9 @@
       "area": "Portal",
       "owner": "",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-11",
-      "notes": "Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Fase 4 del ADR-0006. Sólo lectura; PDF de la guía cuando exista una fuente común con Manolo. Diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).",
       "evidence": ""
     },
     {
@@ -1404,6 +1404,17 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "Hoy la vinculación no envía confirmación. Un aviso alerta al dueño si alguien vincula su número; fuera de la ventana de 24 h requiere plantilla de utilidad.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-membership-0280-20261113",
+      "title": "Decidir de qué empresa es miembro el número vinculado del operador",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.",
       "evidence": ""
     }
   ]
