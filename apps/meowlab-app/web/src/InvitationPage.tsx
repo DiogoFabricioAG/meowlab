@@ -84,7 +84,7 @@ export function InvitationPage({ code, me, onDone }: { code: string; me: Me; onD
   }
 
   const shell = (children: ReactNode) => (
-    <div className="min-h-dvh bg-mint-light">
+    <div className="min-h-dvh bg-white">
       <header className="bg-forest">
         <div className="mx-auto flex h-20 max-w-3xl items-center px-4 sm:px-6">
           <Logo light />

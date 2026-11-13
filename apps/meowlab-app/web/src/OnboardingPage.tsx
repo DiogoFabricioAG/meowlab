@@ -12,7 +12,7 @@ export function OnboardingPage({ me, onDone, onInvitation }: { me: Me; onDone: (
   const [leaving, setLeaving] = useState(false);
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
   return (
-    <div className="min-h-dvh bg-mint-light">
+    <div className="min-h-dvh bg-white">
       <header className="bg-forest">
         <div className="mx-auto flex h-20 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Logo light />

@@ -135,7 +135,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     ) : null;
 
   return (
-    <div className="min-h-dvh bg-mint-light lg:pl-72">
+    <div className="min-h-dvh bg-white lg:pl-72">
       <a href="#contenido" className="sr-only z-50 rounded-lg bg-forest px-4 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Saltar al contenido
       </a>
