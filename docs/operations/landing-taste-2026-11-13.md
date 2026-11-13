@@ -47,3 +47,20 @@ docker rm -f meowlab-web && docker rename meowlab-web-prev-cf06e204412f meowlab-
 - Verificación: candidata y público con `/`, `www`, `/privacidad/`, `/terminos/`,
   `/contacto/`, `/meowlab-bimi.svg` y `app.meowlab.tech` 200; el HTML servido trae el peso 700.
 - Rollback: `docker rm -f meowlab-web && docker rename meowlab-web-prev-d08578ba8df8 meowlab-web && docker update --restart=unless-stopped meowlab-web && docker start meowlab-web`.
+
+## Logos de los agentes en la landing y el portal (13/11/2026, autorizado: «Sí, despliega ambos»)
+
+Los 7 logos de `feat/agent-logos-webp` (`27940`), sin cambios.
+
+- **Landing:** commit publicado `18a507764f75ad1b73d0fd577db28e39b3626fb8` (`feat/landing-logos`), imagen
+  `meowlab-web:18a507764f75` (antes `meowlab-web:ff6a51284b91`, detenido como
+  `meowlab-web-prev-ff6a51284b91`). Logos en «un solo chat», la lista de precios (sin logos
+  bajo 480 px para que no invada la sección siguiente) y la tarjeta del plan. Gate de
+  taste-skill en PASS. Candidata y público: inicio, www, legales, contacto, BIMI y logos 200.
+  Rollback: `docker rm -f meowlab-web && docker rename meowlab-web-prev-ff6a51284b91 meowlab-web && docker update --restart=unless-stopped meowlab-web && docker start meowlab-web`.
+- **Portal:** commit publicado `05019f9bc85422fcfcbe24482e617c77573d52da` (`feat/agent-logos-app`), imagen
+  `meowlab-app:05019f9bc854` (antes `meowlab-app:395204fb1cc5`). Logos en las fichas, el Hoy de
+  Inicio y los encabezados de Invoice Cat y Tender Cat. `healthy`; `/`, `/inicio`, `/agentes` y
+  `/agents/*.webp` 200; `/api/me` sin sesión 401. Vitest 31/31.
+  Rollback: `cd /opt/meowlab-app/deploy && MEOWLAB_APP_TAG=395204fb1cc5 docker compose up -d`.
+

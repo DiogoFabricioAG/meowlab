@@ -1658,6 +1658,17 @@
       "updated": "2026-11-13",
       "notes": "El enlace anterior llevaba a /contacto y se quitó.",
       "evidence": ""
+    },
+    {
+      "id": "agent-logos-20261113",
+      "title": "Logos de los 7 agentes en la landing y el portal",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-13",
+      "notes": "Logos de feat/agent-logos-webp. Acta: docs/operations/landing-taste-2026-11-13.md (sección de logos).",
+      "evidence": "Producción: meowlab-web:18a507764f75 y meowlab-app:05019f9bc854; páginas y logos 200; gate de taste-skill PASS; portal 31/31."
     }
   ]
 }
