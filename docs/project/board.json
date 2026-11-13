@@ -1669,6 +1669,61 @@
       "updated": "2026-11-13",
       "notes": "Logos de feat/agent-logos-webp. Acta: docs/operations/landing-taste-2026-11-13.md (sección de logos).",
       "evidence": "Producción: meowlab-web:18a507764f75 y meowlab-app:05019f9bc854; páginas y logos 200; gate de taste-skill PASS; portal 31/31."
+    },
+    {
+      "id": "docs-formato-1-kit-20261113",
+      "title": "Formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012.",
+      "evidence": ""
+    },
+    {
+      "id": "docs-formato-2-facturaya-20261113",
+      "title": "Formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (FacturaYa)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012.",
+      "evidence": ""
+    },
+    {
+      "id": "docs-formato-3-gre-cotizacion-20261113",
+      "title": "Formato de documentos 3: kit en la GRE y en el PDF de cotizaciones",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012.",
+      "evidence": ""
+    },
+    {
+      "id": "docs-formato-4-plantillas-20261113",
+      "title": "Formato de documentos 4: plantillas Clásica, Moderna y Ticket 80 mm con vista previa",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012.",
+      "evidence": ""
+    },
+    {
+      "id": "docs-formato-5-chat-20261113",
+      "title": "Formato de documentos 5: cambiar logo, pagos y pie desde el chat de Manolo",
+      "area": "Portal",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0012.",
+      "evidence": ""
     }
   ]
 }

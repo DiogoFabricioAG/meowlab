@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0012 — Formato de los documentos](0012-formato-de-documentos.md): kit de marca por empresa y
+  plantillas cerradas que cumplen SUNAT; sin editor libre por ahora.
+
 - [0011 — Sales Cat](0011-sales-cat.md): el vendedor del negocio en su propio WhatsApp;
   la titular lo consulta y toma conversaciones desde Manolo.
 

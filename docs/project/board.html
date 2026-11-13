@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 66 · Total: 161</span>
+      <span class="summary">Abiertas: 71 · Total: 166</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">62</span>
+          <span class="count">67</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -468,6 +468,28 @@
           <p class="card-notes">ADR-0011, fase 1 recién desplegada.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública portal adr-0012. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 1: kit de marca por empresa, editor en el portal y cotización pública</h3>
+          
+          <p class="card-notes">ADR-0012.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-1-kit-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (facturaya) portal adr-0012. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 2: logo, color, contacto, pagos y pie en facturas y boletas (FacturaYa)</h3>
+          
+          <p class="card-notes">ADR-0012.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-2-facturaya-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -799,6 +821,28 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-libro-reclamaciones-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 3: kit en la gre y en el pdf de cotizaciones portal adr-0012. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 3: kit en la GRE y en el PDF de cotizaciones</h3>
+          
+          <p class="card-notes">ADR-0012.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-3-gre-cotizacion-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="formato de documentos 4: plantillas clásica, moderna y ticket 80 mm con vista previa portal adr-0012. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 4: plantillas Clásica, Moderna y Ticket 80 mm con vista previa</h3>
+          
+          <p class="card-notes">ADR-0012.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-4-plantillas-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -897,6 +941,17 @@
           <p class="card-notes">WARN de perf.mjs.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">landing-fuentes-woff2-20261113</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="formato de documentos 5: cambiar logo, pagos y pie desde el chat de manolo portal adr-0012. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Formato de documentos 5: cambiar logo, pagos y pie desde el chat de Manolo</h3>
+          
+          <p class="card-notes">ADR-0012.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">docs-formato-5-chat-20261113</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
