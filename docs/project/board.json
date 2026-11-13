@@ -1614,6 +1614,50 @@
       "updated": "2026-11-13",
       "notes": "ADR-0011, fase 1 recién desplegada.",
       "evidence": ""
+    },
+    {
+      "id": "landing-taste-20261113",
+      "title": "Landing rediseñada con taste-skill",
+      "area": "Landing",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-13",
+      "notes": "Desplegada el 13/11/2026. Acta: docs/operations/landing-taste-2026-11-13.md.",
+      "evidence": "Imagen meowlab-web:d08578ba8df8; GATE: PASS sobre la versión unida; meowlab.tech, www, legales, contacto, BIMI y share.jpg 200."
+    },
+    {
+      "id": "landing-tablet-revision-20261113",
+      "title": "Landing: revisar a mano los anchos de tablet (768-1024 px)",
+      "area": "Landing",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "El gate de taste-skill sólo mide 1440 y 390.",
+      "evidence": ""
+    },
+    {
+      "id": "landing-fuentes-woff2-20261113",
+      "title": "Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)",
+      "area": "Landing",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "WARN de perf.mjs.",
+      "evidence": ""
+    },
+    {
+      "id": "landing-libro-reclamaciones-20261113",
+      "title": "Landing: Libro de Reclamaciones con destino real",
+      "area": "Landing",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "El enlace anterior llevaba a /contacto y se quitó.",
+      "evidence": ""
     }
   ]
 }

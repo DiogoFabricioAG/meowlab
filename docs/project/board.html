@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 63 · Total: 156</span>
+      <span class="summary">Abiertas: 66 · Total: 160</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">59</span>
+          <span class="count">62</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -777,6 +777,28 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">sales-cat-3-extras-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: revisar a mano los anchos de tablet (768-1024 px) landing el gate de taste-skill sólo mide 1440 y 390. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: revisar a mano los anchos de tablet (768-1024 px)</h3>
+          
+          <p class="card-notes">El gate de taste-skill sólo mide 1440 y 390.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">landing-tablet-revision-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: libro de reclamaciones con destino real landing el enlace anterior llevaba a /contacto y se quitó. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: Libro de Reclamaciones con destino real</h3>
+          
+          <p class="card-notes">El enlace anterior llevaba a /contacto y se quitó.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">landing-libro-reclamaciones-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -865,6 +887,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-leads-20261113</code>
         </article>
+        <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)</h3>
+          
+          <p class="card-notes">WARN de perf.mjs.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">landing-fuentes-woff2-20261113</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -933,7 +966,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">93</span>
+          <span class="count">94</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1727,6 +1760,17 @@
           <p class="card-notes">Desplegado el 13/11/2026 y activo para CREACIONES J&amp;D. Acta: docs/operations/sales-cat-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">sales-cat-1-interno-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Landing" data-text="landing rediseñada con taste-skill landing desplegada el 13/11/2026. acta: docs/operations/landing-taste-2026-11-13.md. imagen meowlab-web:d08578ba8df8; gate: pass sobre la versión unida; meowlab.tech, www, legales, contacto, bimi y share.jpg 200.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Landing rediseñada con taste-skill</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Imagen meowlab-web:d08578ba8df8; GATE: PASS sobre la versión unida; meowlab.tech, www, legales, contacto, BIMI y share.jpg 200.</p>
+          <p class="card-notes">Desplegada el 13/11/2026. Acta: docs/operations/landing-taste-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">landing-taste-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">
