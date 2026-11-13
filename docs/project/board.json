@@ -1808,10 +1808,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Código listo, sin desplegar. meowlab feat/stock-cat (Worker, bridge, migración 018, portal); facturaya-ai feat/stock-items (065c4, productos de cada comprobante con with_items=1). Orden: FacturaYa, migración 018, bridge, Worker, portal; luego activar CREACIONES J&D como cortesía (INSERT INTO stock.settings). Límite: los comprobantes emitidos desde la web de FacturaYa se leen al abrir /stock o el portal, no al instante.",
-      "evidence": "2026-11-13: Worker 668/668 (stock-role.test.ts 8/8); tools/stock-pg-check.ts 39/39 contra PostgreSQL 16; FacturaYa 192 pruebas con la falla previa conocida; portal 33/33 y build; revisión local con bridge simulado en 1100 px y 375 px."
+      "notes": "Desplegado el 13/11/2026 y activo para CREACIONES J&D como cortesía. Acta: docs/operations/stock-cat-2026-11-13.md.",
+      "evidence": "Producción: FacturaYa stock-items-20261113T222135Z, migración 018, bridge stock-cat-20261113T222237Z, Worker 0e82850a, portal meowlab-app:76719df88767; /v1/stock/execute firmado reconoce a …0280 como titular tras el traspaso."
     },
     {
       "id": "stock-cat-2-digitalizar-20261113",
@@ -1833,6 +1833,17 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa).",
+      "evidence": ""
+    },
+    {
+      "id": "stock-cat-prueba-whatsapp-20261113",
+      "title": "Probar Stock Cat por WhatsApp con CREACIONES J&D (/stock desde …0280)",
+      "area": "Manolo",
+      "owner": "operador",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014 fase 1 recién desplegada.",
       "evidence": ""
     }
   ]
