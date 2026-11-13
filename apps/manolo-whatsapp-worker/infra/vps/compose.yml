@@ -53,6 +53,11 @@ services:
       PRINT_ADVISOR_DB_PASSWORD_FILE: /run/secrets/print_advisor_db_password
       FACTURAYA_BASE_URL: ${FACTURAYA_BASE_URL:-https://facturas.meowlab.tech}
       PRINT_ADVISOR_MODEL: ${PRINT_ADVISOR_MODEL:-openai/gpt-oss-120b}
+      # Portal app.meowlab.tech (ADR-0006): vincular el WhatsApp con un código. El bridge
+      # pide a Manolo enviar la plantilla de autenticación por la ruta firmada.
+      PORTAL_BRIDGE_HMAC_SECRET_FILE: /run/secrets/portal_bridge_hmac_secret
+      AUTH_CODE_HMAC_SECRET_FILE: /run/secrets/auth_code_hmac_secret
+      MANOLO_WORKER_URL: ${MANOLO_WORKER_URL:-https://whatsapp-webhook-meta-production.diogofabricio17.workers.dev}
       PORT: 3000
       TZ: UTC
     expose:
@@ -62,6 +67,8 @@ services:
       - vps_bridge_hmac_secret
       - credentials_encryption_key
       - print_advisor_db_password
+      - portal_bridge_hmac_secret
+      - auth_code_hmac_secret
     healthcheck:
       test:
         - CMD
@@ -110,6 +117,10 @@ secrets:
     file: ./secrets/credentials_encryption_key
   print_advisor_db_password:
     file: ./secrets/print_advisor_db_password
+  portal_bridge_hmac_secret:
+    file: ./secrets/portal_bridge_hmac_secret
+  auth_code_hmac_secret:
+    file: ./secrets/auth_code_hmac_secret
 
 networks:
   manolo_internal:
