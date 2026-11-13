@@ -4,6 +4,7 @@ import { Logo } from "./App";
 import { WhatsAppLink } from "./WhatsAppLink";
 import { AdminPanel } from "./AdminPanel";
 import { PlanPanel } from "./PlanPanel";
+import { InvoicingPanel } from "./InvoicingPanel";
 
 const BILLING_FEATURES = [
   "Facturas, boletas y notas con su estado en SUNAT",
@@ -14,7 +15,8 @@ const BILLING_FEATURES = [
 
 export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
-  const [tab, setTab] = useState<"panel" | "plan" | "business">(
+  const invoicingAvailable = me.modules.some((module) => module.key === "billing" && module.status === "available");
+  const [tab, setTab] = useState<"panel" | "invoicing" | "plan" | "business">(
     new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : "panel",
   );
   const firstName = me.user.name.trim().split(/\s+/)[0] || "hola";
@@ -44,7 +46,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
 
       <nav className="border-b border-line bg-white" aria-label="Secciones">
         <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6 lg:px-8">
-          {([["panel", "Mi panel"], ["plan", "Plan"], ...(me.isAdmin ? [["business", "Negocio"]] : [])] as Array<[typeof tab, string]>).map(
+          {([["panel", "Mi panel"], ...(invoicingAvailable ? [["invoicing", "Facturación"]] : []), ["plan", "Plan"], ...(me.isAdmin ? [["business", "Negocio"]] : [])] as Array<[typeof tab, string]>).map(
             ([key, label]) => (
               <button
                 key={key}
@@ -62,7 +64,11 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         </div>
       </nav>
 
-      {tab === "plan" ? (
+      {tab === "invoicing" && invoicingAvailable ? (
+        <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          <InvoicingPanel />
+        </main>
+      ) : tab === "plan" ? (
         <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <PlanPanel email={me.user.email} />
         </main>
@@ -117,6 +123,17 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
                     </li>
                   ))}
                 </ul>
+                {module.status === "available" && (
+                  <button type="button" onClick={() => setTab("invoicing")} className="btn-primary w-fit">
+                    Ver mis comprobantes
+                  </button>
+                )}
+                {module.status === "no_company" && (
+                  <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
+                    Tu WhatsApp está vinculado, pero todavía no es miembro de ninguna empresa con facturación electrónica. Pídele al
+                    equipo de MeowLab que agregue tu número a tu empresa.
+                  </p>
+                )}
                 {module.status === "coming_soon" && (
                   <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">
                     Tu WhatsApp ya está vinculado. Tus comprobantes aparecerán aquí en la próxima entrega del panel.
@@ -149,6 +166,9 @@ function StatusChip({ status }: { status: Me["modules"][number]["status"] }) {
   }
   if (status === "coming_soon") {
     return <span className="chip border border-line bg-surface-subtle text-ink-muted">Próximamente</span>;
+  }
+  if (status === "no_company") {
+    return <span className="chip border border-amber-200 bg-amber-50 text-amber-800">Sin empresa</span>;
   }
   return <span className="chip border border-amber-200 bg-amber-50 text-amber-800">Falta WhatsApp</span>;
 }

@@ -1,13 +1,13 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { PortalBridge, PortalLinkAction } from "./bridge";
+import type { PortalBillingAction, PortalBridge, PortalLinkAction } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
 export type PortalModule = {
   key: string;
   title: string;
-  status: "needs_whatsapp" | "available" | "coming_soon";
+  status: "needs_whatsapp" | "available" | "no_company" | "coming_soon";
 };
 
 export type AppDeps = {
@@ -89,9 +89,15 @@ export function createApp(deps: AppDeps) {
     const { user } = c.get("session");
     const link = deps.bridge ? await deps.bridge.link(user.id, { action: "status" }) : null;
     const linked = link?.status === "linked";
+    // Phase 3: the module opens when the linked number belongs to a company with FacturaYa.
+    const companies = linked && deps.bridge ? await deps.bridge.billing(user.id, { action: "companies" }) : null;
+    const companyCount = companies?.status === "ok" && "companies" in companies ? companies.companies.length : 0;
     const modules: PortalModule[] = [
-      // Billing data arrives in phase 3; until then a linked number shows it as coming soon.
-      { key: "billing", title: "Facturación electrónica", status: linked ? "coming_soon" : "needs_whatsapp" },
+      {
+        key: "billing",
+        title: "Facturación electrónica",
+        status: !linked ? "needs_whatsapp" : companies === null ? "coming_soon" : companyCount > 0 ? "available" : "no_company",
+      },
     ];
     return c.json({
       user: { id: user.id, name: user.name, email: user.email, image: user.image ?? null },
@@ -156,6 +162,82 @@ export function createApp(deps: AppDeps) {
     } catch {
       return c.json({ error: "provider_unavailable" }, 503);
     }
+  });
+
+  // Phase 3 (ADR-0006): read-only billing data. The bridge decides which companies this
+  // account may see from its linked WhatsApp number; the portal only relays.
+  const invoicing = async (c: Context<{ Variables: { session: Session } }>, request: PortalBillingAction) => {
+    if (!deps.bridge) return c.json({ error: "invoicing_unavailable" }, 503);
+    const result = await deps.bridge.billing(c.get("session").user.id, request);
+    if (!result) return c.json({ error: "invoicing_unavailable" }, 503);
+    const codes = { not_linked: 409, forbidden: 403, not_found: 404, unavailable: 503 } as const;
+    if (result.status !== "ok") return c.json({ error: result.status }, codes[result.status]);
+    return c.json(result);
+  };
+  const tenantOf = (c: Context) => {
+    const tenantId = c.req.param("tenantId") ?? "";
+    return /^[A-Za-z0-9_.:-]{1,128}$/.test(tenantId) ? tenantId : null;
+  };
+  const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+  app.get("/api/invoicing/companies", (c) => invoicing(c, { action: "companies" }));
+
+  app.get("/api/invoicing/:tenantId/documents", async (c) => {
+    const tenantId = tenantOf(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    const from = c.req.query("from");
+    const to = c.req.query("to");
+    const type = c.req.query("type");
+    const page = Number(c.req.query("page") ?? "1");
+    if ((from && !DATE.test(from)) || (to && !DATE.test(to)) || (type && !["01", "03", "07"].includes(type))
+      || !Number.isInteger(page) || page < 1 || page > 1000) return c.json({ error: "invalid_request" }, 400);
+    return invoicing(c, { action: "documents", tenantId, from: from || undefined, to: to || undefined,
+      type: (type || undefined) as "01" | "03" | "07" | undefined, page });
+  });
+
+  app.get("/api/invoicing/:tenantId/summary", async (c) => {
+    const tenantId = tenantOf(c);
+    const year = Number(c.req.query("year"));
+    if (!tenantId || !Number.isInteger(year) || year < 2020 || year > 2100) return c.json({ error: "invalid_request" }, 400);
+    return invoicing(c, { action: "summary", tenantId, year });
+  });
+
+  app.get("/api/invoicing/:tenantId/despatches", async (c) => {
+    const tenantId = tenantOf(c);
+    const page = Number(c.req.query("page") ?? "1");
+    if (!tenantId || !Number.isInteger(page) || page < 1 || page > 1000) return c.json({ error: "invalid_request" }, 400);
+    return invoicing(c, { action: "despatches", tenantId, page });
+  });
+
+  // Downloads stream the file to the browser; the type comes from an allow-list, never from upstream.
+  app.get("/api/invoicing/:tenantId/files/:kind/:id/:fileType", async (c) => {
+    const tenantId = tenantOf(c);
+    const kind = c.req.param("kind");
+    const id = c.req.param("id");
+    const fileType = c.req.param("fileType");
+    if (!tenantId || !["invoice", "credit_note", "despatch"].includes(kind) || !/^[0-9A-Za-z]{26}$/.test(id)
+      || !["pdf", "xml", "cdr"].includes(fileType) || (fileType === "pdf" && kind !== "invoice")) {
+      return c.json({ error: "invalid_request" }, 400);
+    }
+    if (!deps.bridge) return c.json({ error: "invoicing_unavailable" }, 503);
+    const result = await deps.bridge.billing(c.get("session").user.id, {
+      action: "file", tenantId, kind: kind as "invoice", id, fileType: fileType as "pdf",
+    });
+    if (!result || result.status !== "ok" || !("file" in result)) {
+      const status = result?.status === "forbidden" ? 403 : result?.status === "not_found" ? 404 : 503;
+      return c.json({ error: "file_unavailable" }, status);
+    }
+    const bytes = Uint8Array.from(atob(result.file.base64), (char) => char.charCodeAt(0));
+    const contentType = fileType === "pdf" ? "application/pdf" : fileType === "xml" ? "application/xml" : "application/zip";
+    const filename = result.file.filename.replace(/[^A-Za-z0-9._-]/g, "_");
+    return new Response(bytes, {
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": `${fileType === "pdf" ? "inline" : "attachment"}; filename="${filename}"`,
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   });
 
   // The role comes from the database on every request (getSession reads the user row),

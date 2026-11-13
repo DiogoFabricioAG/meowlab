@@ -4,6 +4,22 @@
  * portal route. Uses WebCrypto, so it runs on Cloudflare and on Node alike.
  */
 export const PORTAL_LINK_BRIDGE_PATH = "/v1/portal/whatsapp-link";
+export const PORTAL_BILLING_BRIDGE_PATH = "/v1/portal/billing";
+
+export type PortalCompany = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
+
+export type PortalBillingAction =
+  | { action: "companies" }
+  | { action: "documents"; tenantId: string; from?: string; to?: string; type?: "01" | "03" | "07"; page?: number }
+  | { action: "summary"; tenantId: string; year: number }
+  | { action: "despatches"; tenantId: string; page?: number }
+  | { action: "file"; tenantId: string; kind: "invoice" | "credit_note" | "despatch"; id: string; fileType: "pdf" | "xml" | "cdr" };
+
+export type PortalBillingResponse =
+  | { status: "ok"; companies: PortalCompany[] }
+  | { status: "ok"; data: unknown; meta?: unknown }
+  | { status: "ok"; file: { base64: string; mimeType: string; filename: string } }
+  | { status: "not_linked" | "forbidden" | "not_found" | "unavailable" };
 
 export type PortalLinkResponse =
   | { status: "code_sent"; challengeId: string; expiresAt: string; resendAfterSeconds: number; maskedPhone: string }
@@ -24,6 +40,7 @@ export type PortalLinkAction =
 
 export interface PortalBridge {
   link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null>;
+  billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null>;
 }
 
 const encoder = new TextEncoder();
@@ -42,12 +59,20 @@ export class SignedPortalBridge implements PortalBridge {
     private readonly fetchImpl: typeof fetch = (input, init) => fetch(input, init),
   ) {}
 
-  async link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null> {
+  link(portalUserId: string, request: PortalLinkAction): Promise<PortalLinkResponse | null> {
+    return this.call<PortalLinkResponse>(PORTAL_LINK_BRIDGE_PATH, portalUserId, request);
+  }
+
+  billing(portalUserId: string, request: PortalBillingAction): Promise<PortalBillingResponse | null> {
+    return this.call<PortalBillingResponse>(PORTAL_BILLING_BRIDGE_PATH, portalUserId, request);
+  }
+
+  private async call<T>(path: string, portalUserId: string, request: Record<string, unknown>): Promise<T | null> {
     const requestId = crypto.randomUUID();
     const body = JSON.stringify({ version: 1, requestId, portalUserId, ...request });
     const timestamp = String(Math.floor(Date.now() / 1_000));
     try {
-      const response = await this.fetchImpl(`${this.baseUrl}${PORTAL_LINK_BRIDGE_PATH}`, {
+      const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method: "POST",
         signal: AbortSignal.timeout(15_000),
         headers: {
@@ -59,7 +84,7 @@ export class SignedPortalBridge implements PortalBridge {
         body,
       });
       if (!response.ok) return null;
-      return (await response.json()) as PortalLinkResponse;
+      return (await response.json()) as T;
     } catch {
       return null;
     }

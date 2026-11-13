@@ -76,6 +76,18 @@ registros por día de los últimos 30 días (hora de Lima), activas en 7 días y
 entran. Sólo totales, sin datos personales. El rol se lee de la base en cada
 petición, así que revocarlo tiene efecto inmediato.
 
+## Facturación (ADR-0006, fase 3)
+
+Pestaña **Facturación**, visible cuando el WhatsApp vinculado es miembro activo (con
+`view_invoice`) de una empresa con FacturaYa. Sólo lectura:
+
+- `GET /api/invoicing/companies`, `/api/invoicing/:empresa/documents?from&to&type&page`,
+  `/summary?year`, `/despatches?page` y `/files/:tipo/:id/:pdf|xml|cdr`.
+- El portal sólo reenvía al bridge (`/v1/portal/billing`, firmado con
+  `PORTAL_BRIDGE_HMAC_SECRET`). El bridge decide qué empresas ve la cuenta y consulta
+  FacturaYa con el token de esa empresa; el portal nunca ve tokens.
+- Las descargas usan un tipo de contenido de una lista cerrada y un nombre saneado.
+
 ## Cobros (ADR-0007, fase 1)
 
 Pestaña **Plan**: catálogo de `billing_agents` (precios con IGV), descuento por

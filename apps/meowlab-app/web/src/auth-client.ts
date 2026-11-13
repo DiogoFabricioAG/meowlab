@@ -7,7 +7,7 @@ export type PortalConfig = { google: boolean; passwordReset: boolean; whatsappLi
 export type PortalModule = {
   key: string;
   title: string;
-  status: "needs_whatsapp" | "available" | "coming_soon";
+  status: "needs_whatsapp" | "available" | "no_company" | "coming_soon";
 };
 
 export type Me = {
