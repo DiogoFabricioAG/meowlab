@@ -1764,10 +1764,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Código listo, sin desplegar: FacturaYa feat/cotizacion-pdf (cd7fb, endpoint interno), bridge y Worker feat/cotizacion-pdf (ce50c, migración 016, sales.quote_files, operación quote_pdf, documento en el chat), portal feat/cotizacion-pdf-app (4b5c5, /cotizacion/<código> devuelve el PDF). Orden de despliegue: FacturaYa, migración 016, bridge, Worker, portal.",
-      "evidence": "2026-11-13: FacturaYa PHPUnit 190/191 (falla previa conocida); Worker 660/660; sales-pg-check en verde contra PostgreSQL 16; portal 31/31."
+      "notes": "Desplegado el 13/11/2026. Acta: docs/operations/cotizacion-pdf-2026-11-13.md.",
+      "evidence": "Producción: FacturaYa cotizacion-pdf-20261113T204757Z, bridge cotizacion-pdf-20261113T204859Z, migración 016, Worker c7d865b2, portal meowlab-app:4b5c5097a1ce; quote_pdf de la cotización N.° 1 de CREACIONES J&D devuelve el PDF y lo guarda una sola vez."
     },
     {
       "id": "blob-storage-evaluacion-20261113",
@@ -1778,6 +1778,17 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "Según ADR-0013: pasar a R2 si sales.quote_files supera ~1 GB o un cuarto de la base, si llegan archivos que no son PDF pequeños (fotos, catálogos, escaneos) o si hace falta servir sin el bridge. Consulta: SELECT pg_size_pretty(sum(octet_length(content))), count(*) FROM sales.quote_files;",
+      "evidence": ""
+    },
+    {
+      "id": "cotizacion-pdf-prueba-whatsapp-20261113",
+      "title": "Probar por WhatsApp una cotización con /sales: enlace al PDF y PDF adjunto",
+      "area": "Manolo",
+      "owner": "operador",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0013 recién desplegado.",
       "evidence": ""
     }
   ]
