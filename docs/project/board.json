@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "app-portal-auth-transition-20261112",
+      "title": "Portal: transición suave en el toggle y formulario de Iniciar sesión y Crear cuenta",
+      "area": "Portal",
+      "owner": "Antigravity",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-12",
+      "notes": "Transición fluida y animada entre Iniciar sesión y Crear cuenta en AuthPage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario.",
+      "evidence": "Desplegado en el VPS: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo HTTP/2 200 con el nuevo bundle index-Dhgs6wmB.js y contenedor en estado healthy. Tests vitest 16/16, typecheck y build limpios. Acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md"
+    },
+    {
       "id": "landing-conectar-plataforma-web-20261112",
       "title": "Conectar la landing con la plataforma web (app.meowlab.tech)",
       "area": "Landing",

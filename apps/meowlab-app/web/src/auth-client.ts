@@ -7,7 +7,17 @@ export type PortalConfig = { google: boolean; passwordReset: boolean; whatsappLi
 export type PortalModule = {
   key: string;
   title: string;
-  status: "needs_whatsapp" | "available" | "coming_soon";
+  status: "needs_whatsapp" | "available" | "no_company" | "coming_soon";
+};
+
+/** A company this account belongs to (ADR-0010). */
+export type Membership = {
+  id: string;
+  name: string;
+  legalName: string | null;
+  ruc: string | null;
+  role: "owner" | "member";
+  invoicing: "active" | "needs_sol";
 };
 
 export type Me = {
@@ -17,6 +27,8 @@ export type Me = {
     | { linked: true; maskedPhone: string; linkedAt: string; available: true }
     | { linked: false; available: boolean };
   modules: PortalModule[];
+  /** Null when the bridge cannot answer. */
+  companies: Membership[] | null;
 };
 
 export async function postJson<T>(path: string, body: Record<string, unknown> = {}): Promise<T | null> {

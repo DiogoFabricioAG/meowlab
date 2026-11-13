@@ -7,10 +7,10 @@ type Mode = "sign-in" | "sign-up";
 const HIGHLIGHTS = [
   { n: "1", title: "Tus comprobantes en un lugar", text: "Facturas, boletas, notas y guías que emitiste con Manolo, con su estado en SUNAT." },
   { n: "2", title: "Descargas al instante", text: "PDF, XML y CDR de cada comprobante, sin pedirlos por el chat." },
-  { n: "3", title: "Vinculado a tu WhatsApp", text: "Sólo ves los datos del número que tú confirmas desde tu propio WhatsApp." },
+  { n: "3", title: "Vinculado a tu WhatsApp", text: "Solo ves los datos del número que tú confirmas desde tu propio WhatsApp." },
 ];
 
-export function AuthPage({ config }: { config: PortalConfig }) {
+export function AuthPage({ config, invited = false }: { config: PortalConfig; invited?: boolean }) {
   const [mode, setMode] = useState<Mode>("sign-in");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,6 +40,7 @@ export function AuthPage({ config }: { config: PortalConfig }) {
   }
 
   function switchMode(next: Mode) {
+    if (next === mode) return;
     setMode(next);
     setError(null);
   }
@@ -52,7 +53,7 @@ export function AuthPage({ config }: { config: PortalConfig }) {
         </a>
         <div className="space-y-8">
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight xl:text-5xl">Lo que hacen tus agentes, a la vista</h1>
+            <p className="font-title text-4xl font-bold tracking-tight xl:text-5xl">Lo que hacen tus agentes, a la vista</p>
             <p className="max-w-[46ch] text-lg leading-relaxed text-mint">
               Manolo trabaja por WhatsApp. Aquí revisas con calma lo que emitió y descargas tus documentos.
             </p>
@@ -83,18 +84,34 @@ export function AuthPage({ config }: { config: PortalConfig }) {
           <Logo />
         </div>
         <div className="mx-auto w-full max-w-md space-y-8">
+          {invited && (
+            <p role="status" className="rounded-xl border border-line-mint bg-mint-light px-4 py-3 text-sm text-ink-2">
+              Tienes una invitación para unirte a una empresa. Entra o crea tu cuenta y la verás enseguida.
+            </p>
+          )}
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl transition-colors duration-200">
               {mode === "sign-in" ? "Entra a tu panel" : "Crea tu cuenta"}
-            </h2>
-            <p className="text-ink-muted">
+            </h1>
+            <p className="text-ink-muted transition-colors duration-200">
               {mode === "sign-in"
                 ? "Usa el correo con el que te registraste."
                 : "Luego vincularás el número de WhatsApp con el que hablas con Manolo."}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 rounded-[12px] bg-surface-subtle p-1" role="tablist">
+          <div
+            className="relative grid grid-cols-2 p-1 rounded-[12px] bg-surface-subtle select-none isolate"
+            role="tablist"
+            aria-label="Tipo de acceso"
+          >
+            {/* Sliding animated indicator pill */}
+            <span
+              aria-hidden="true"
+              className={`absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-[10px] bg-white shadow-soft transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none pointer-events-none ${
+                mode === "sign-in" ? "translate-x-0" : "translate-x-full"
+              }`}
+            />
             {(["sign-in", "sign-up"] as const).map((value) => (
               <button
                 key={value}
@@ -102,8 +119,8 @@ export function AuthPage({ config }: { config: PortalConfig }) {
                 role="tab"
                 aria-selected={mode === value}
                 onClick={() => switchMode(value)}
-                className={`rounded-[10px] px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  mode === value ? "bg-white text-forest shadow-soft" : "text-ink-muted hover:text-ink"
+                className={`relative z-10 min-h-11 rounded-[10px] px-4 py-2.5 text-center text-sm font-semibold transition-colors duration-200 cursor-pointer ${
+                  mode === value ? "text-forest" : "text-ink-muted hover:text-ink"
                 }`}
               >
                 {value === "sign-in" ? "Iniciar sesión" : "Crear cuenta"}
@@ -123,78 +140,125 @@ export function AuthPage({ config }: { config: PortalConfig }) {
             </>
           )}
 
-          <form onSubmit={submit} className="space-y-4" noValidate={false}>
-            {mode === "sign-up" && (
+          <form onSubmit={submit} noValidate={false}>
+            {/* Animated field for Name in Sign-up */}
+            <div
+              className={`grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                mode === "sign-up"
+                  ? "grid-rows-[1fr] opacity-100 mb-4"
+                  : "grid-rows-[0fr] opacity-0 pointer-events-none mb-0"
+              }`}
+              inert={mode !== "sign-up"}
+            >
+              <div className="overflow-hidden">
+                <label className="block space-y-1.5 pb-0.5">
+                  <span className="text-sm font-semibold text-ink-2">Nombre</span>
+                  <input
+                    className="field"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoComplete="name"
+                    required={mode === "sign-up"}
+                    maxLength={80}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <label className="block space-y-1.5">
-                <span className="text-sm font-semibold text-ink-2">Nombre</span>
+                <span className="text-sm font-semibold text-ink-2">Correo</span>
                 <input
                   className="field"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="name"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   required
-                  maxLength={80}
                 />
               </label>
-            )}
-            <label className="block space-y-1.5">
-              <span className="text-sm font-semibold text-ink-2">Correo</span>
-              <input
-                className="field"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
-            </label>
-            <label className="block space-y-1.5">
-              <span className="text-sm font-semibold text-ink-2">Contraseña</span>
-              <input
-                className="field"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-                minLength={10}
-                maxLength={128}
-                required
-              />
-              {mode === "sign-up" && <span className="block text-sm text-ink-muted">Mínimo 10 caracteres.</span>}
-            </label>
 
-            {error && (
-              <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                {error}
-              </p>
-            )}
+              <label className="block space-y-1.5">
+                <span className="text-sm font-semibold text-ink-2">Contraseña</span>
+                <input
+                  className="field"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+                  minLength={10}
+                  maxLength={128}
+                  required
+                />
+                <div
+                  className={`grid transition-all duration-200 ease-out motion-reduce:transition-none ${
+                    mode === "sign-up"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0 pointer-events-none"
+                  }`}
+                  inert={mode !== "sign-up"}
+                  aria-hidden={mode !== "sign-up"}
+                >
+                  <div className="overflow-hidden">
+                    <span className="block pt-1 text-sm text-ink-muted">{mode === "sign-up" ? "Mínimo 10 caracteres." : ""}</span>
+                  </div>
+                </div>
+              </label>
 
-            <button type="submit" disabled={busy} className="btn-primary w-full">
-              {busy ? "Un momento…" : mode === "sign-in" ? "Entrar" : "Crear cuenta"}
-            </button>
-            {mode === "sign-up" && (
-              <p className="text-center text-sm text-ink-muted">
-                Al crear tu cuenta aceptas los{" "}
-                <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/terminos">
-                  términos y condiciones
-                </a>{" "}
-                y la{" "}
-                <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/privacidad">
-                  política de privacidad
-                </a>
-                .
-              </p>
-            )}
-            {mode === "sign-in" && !config.passwordReset && (
-              <p className="text-center text-sm text-ink-muted">
-                ¿Olvidaste tu contraseña? Por ahora pídele ayuda al equipo de MeowLab.
-              </p>
-            )}
+              {error && (
+                <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  {error}
+                </p>
+              )}
+
+              <button type="submit" disabled={busy} className="btn-primary w-full cursor-pointer">
+                <span className="inline-block transition-opacity duration-200">
+                  {busy ? "Un momento…" : mode === "sign-in" ? "Entrar" : "Crear cuenta"}
+                </span>
+              </button>
+
+              <div className="relative min-h-[44px]">
+                <div
+                  className={`transition-all duration-300 ease-out motion-reduce:transition-none ${
+                    mode === "sign-up"
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-1 pointer-events-none absolute inset-x-0 top-0"
+                  }`}
+                  inert={mode !== "sign-up"}
+                >
+                  <p className="text-center text-sm text-ink-muted">
+                    Al crear tu cuenta aceptas los{" "}
+                    <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/terminos">
+                      términos y condiciones
+                    </a>{" "}
+                    y la{" "}
+                    <a className="font-semibold text-forest underline-offset-4 hover:underline" href="https://meowlab.tech/privacidad">
+                      política de privacidad
+                    </a>
+                    .
+                  </p>
+                </div>
+                {!config.passwordReset && (
+                  <div
+                    className={`transition-all duration-300 ease-out motion-reduce:transition-none ${
+                      mode === "sign-in"
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 -translate-y-1 pointer-events-none absolute inset-x-0 top-0"
+                    }`}
+                    inert={mode !== "sign-in"}
+                  >
+                    <p className="text-center text-sm text-ink-muted">
+                      ¿Olvidaste tu contraseña? Por ahora pídele ayuda al equipo de MeowLab.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </form>
         </div>
-        <p className="mx-auto mt-10 flex w-full max-w-md gap-4 text-sm text-ink-muted lg:hidden">
-          <a className="hover:text-forest" href="https://meowlab.tech/terminos">Términos</a>
-          <a className="hover:text-forest" href="https://meowlab.tech/privacidad">Privacidad</a>
+        <p className="mx-auto mt-10 flex w-full max-w-md gap-2 text-sm text-ink-muted lg:hidden">
+          <a className="inline-flex min-h-11 items-center px-1 hover:text-forest" href="https://meowlab.tech/terminos">Términos</a>
+          <a className="inline-flex min-h-11 items-center px-1 hover:text-forest" href="https://meowlab.tech/privacidad">Privacidad</a>
         </p>
       </main>
     </div>

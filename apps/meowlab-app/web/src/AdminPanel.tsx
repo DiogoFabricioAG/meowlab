@@ -50,9 +50,9 @@ export function AdminPanel() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold tracking-tight text-ink">Negocio</h2>
+        <h1 className="text-3xl font-bold tracking-tight text-ink">Negocio</h1>
         <p className="text-ink-muted">
-          Cuentas del portal. Sólo totales, sin datos personales · Actualizado el{" "}
+          Cuentas del portal. Solo totales, sin datos personales · Actualizado el{" "}
           {new Date(metrics.generatedAt).toLocaleString("es-PE", { dateStyle: "medium", timeStyle: "short" })}
         </p>
       </div>

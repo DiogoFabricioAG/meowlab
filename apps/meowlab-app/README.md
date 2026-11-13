@@ -76,6 +76,74 @@ registros por día de los últimos 30 días (hora de Lima), activas en 7 días y
 entran. Sólo totales, sin datos personales. El rol se lee de la base en cada
 petición, así que revocarlo tiene efecto inmediato.
 
+## Facturación (ADR-0006, fase 3)
+
+Pestaña **Facturación**, visible cuando el WhatsApp vinculado es miembro activo (con
+`view_invoice`) de una empresa con FacturaYa. Sólo lectura:
+
+- `GET /api/invoicing/companies`, `/api/invoicing/:empresa/documents?from&to&type&page`,
+  `/summary?year`, `/despatches?page` y `/files/:tipo/:id/:pdf|xml|cdr`.
+- El portal sólo reenvía al bridge (`/v1/portal/billing`, firmado con
+  `PORTAL_BRIDGE_HMAC_SECRET`). El bridge decide qué empresas ve la cuenta y consulta
+  FacturaYa con el token de esa empresa; el portal nunca ve tokens.
+- Las descargas usan un tipo de contenido de una lista cerrada y un nombre saneado.
+
+## Estructura del panel
+
+Pensado para la titular de una MYPE (equipos de 2 o 3 personas). Todos los agentes
+trabajan dentro del mismo chat de WhatsApp con Manolo; el portal muestra qué hizo cada
+uno y qué le falta.
+
+- **Onboarding:** al iniciar sesión sin empresa se abre una pantalla completa para
+  crear la empresa con el RUC o entrar con una invitación. El panel se abre después.
+- **Rutas:** `/inicio`, `/agentes`, `/agentes/facturas` (Invoice Cat),
+  `/agentes/licitaciones` (Tender Cat), `/plan`, `/ajustes`, `/ajustes/equipo` y
+  `/negocio` (administradores). El botón Atrás funciona, el título cambia por sección y
+  el foco pasa al encabezado al navegar. Hay un enlace «Saltar al contenido».
+- **Menú fijo:** lateral en escritorio y barra inferior en el celular, con los mismos
+  nombres: Inicio, Tus agentes, Plan y Configuración. Con varias empresas se elige cuál
+  ver, y todo el panel (incluido Invoice Cat) sigue esa elección.
+- **Inicio:** el día en frases («Invoice Cat emitió 3 comprobantes por S/ 820…»), lo que
+  hay que atender (rechazos de SUNAT, licitaciones marcadas) y una línea con la semana.
+  Datos reales de `GET /api/companies/:empresa/weekly`, sólo para miembros.
+- **Tus agentes:** una ficha por agente con su estado: activo (con lo de hoy), falta un
+  paso, disponible (precio del catálogo y «Sumar a mi chat») o próximamente.
+- **Configuración:** WhatsApp vinculado, la empresa y su equipo e invitaciones.
+
+## Empresas (ADR-0010, fase 1)
+
+Después de crear la cuenta, «Mi panel» muestra el paso **Tu empresa**: crear la
+empresa con el RUC, unirse con una invitación (fase 2) o hacerlo después («Lo hago
+después» sólo se recuerda en ese navegador).
+
+- `GET /api/companies/lookup?ruc=` consulta el padrón y `POST /api/companies {ruc, name?}`
+  crea la empresa con la cuenta como dueña. Entre las dos, 20 consultas por cuenta cada
+  10 minutos. `/api/me` incluye `companies` (o `null` si el bridge no responde).
+- El portal sólo reenvía al bridge (`/v1/portal/companies`). El bridge vuelve a leer
+  el RUC en el padrón de FacturaYa al crear, no dice de quién es un RUC ya registrado,
+  rechaza contribuyentes no activos y limita a 3 empresas por cuenta.
+- Invoice Cat queda pendiente de las credenciales SOL (fase 3).
+
+## Invitaciones (ADR-0010, fase 2)
+
+El dueño abre **Equipo e invitaciones** en su empresa, elige el acceso («Ver
+comprobantes» o «Emitir y ver») y, si quiere, el WhatsApp de la persona. El portal
+muestra el enlace `https://app.meowlab.tech/invitacion/<código>` una sola vez, con
+«Enviar por WhatsApp» (`wa.me`) y «Copiar enlace».
+
+- Rutas del dueño: `GET /api/companies/:empresa/team`,
+  `POST /api/companies/:empresa/invitations`, `…/invitations/:id/revoke` y
+  `…/members/:cuenta/remove`. El bridge comprueba que la cuenta sea la dueña.
+- Quien abre el enlace: el código sale de la barra de direcciones y espera en
+  `sessionStorage` hasta que inicie sesión (también con Google). Luego
+  `GET /api/invitations/:código` muestra la empresa y quién invita, y
+  `POST /api/invitations/:código/accept` la une como miembro (30 usos por cuenta cada 10
+  minutos).
+- El código es de 128 bits; el bridge guarda sólo su SHA-256. Vale una vez y 7 días, el
+  dueño puede anularlo y, con número, sólo lo acepta una cuenta con ese WhatsApp
+  vinculado. Al aceptar, el número vinculado entra a la empresa para los agentes con el
+  acceso elegido; al quitar a alguien, deja de actuar por la empresa.
+
 ## Cobros (ADR-0007, fase 1)
 
 Pestaña **Plan**: catálogo de `billing_agents` (precios con IGV), descuento por

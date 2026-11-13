@@ -230,7 +230,7 @@ function LinkedCard({ maskedPhone, onChange }: { maskedPhone: string; onChange: 
       {confirming ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-ink-2">¿Desvincular este número?</span>
-          <button type="button" onClick={unlink} disabled={busy} className="btn-primary px-4 py-2.5 text-sm">
+          <button type="button" onClick={unlink} disabled={busy} className="btn-danger px-4 py-2.5 text-sm">
             Sí, desvincular
           </button>
           <button type="button" onClick={() => setConfirming(false)} className="btn-secondary px-4 py-2.5 text-sm">

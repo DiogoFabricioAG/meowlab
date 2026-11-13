@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { authClient, fetchJson, type Me, type PortalConfig } from "./auth-client";
 import { AuthPage } from "./AuthPage";
 import { Panel } from "./Panel";
+import { OnboardingPage } from "./OnboardingPage";
+import { InvitationPage, captureInvitationFromUrl, clearPendingInvitation, readPendingInvitation, storePendingInvitation } from "./InvitationPage";
+
+// Before anything renders: /invitacion/<code> leaves the address bar and waits for the sign-in.
+const invitedWith = captureInvitationFromUrl();
 
 export function App() {
   const { data: session, isPending } = authClient.useSession();
   const [config, setConfig] = useState<PortalConfig>({ google: false, passwordReset: false });
   const [me, setMe] = useState<Me | null>(null);
+  const [invitation, setInvitation] = useState<string | null>(() => invitedWith ?? readPendingInvitation());
 
   useEffect(() => {
     void fetchJson<PortalConfig>("/api/config").then((value) => value && setConfig(value));
@@ -22,20 +28,47 @@ export function App() {
 
   if (isPending || (session && !me)) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true">
+      <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true" role="status" aria-label="Cargando MeowLab">
         <img
           src="/meowlab-black.webp"
           alt=""
           width={48}
           height={48}
-          className="h-12 w-12 animate-pulse object-contain mix-blend-multiply"
+          className="h-12 w-12 animate-pulse object-contain mix-blend-multiply motion-reduce:animate-none"
           decoding="async"
         />
       </div>
     );
   }
-  if (!session || !me) return <AuthPage config={config} />;
-  return <Panel me={me} onChange={() => void fetchJson<Me>("/api/me").then(setMe)} />;
+  const refresh = () => void fetchJson<Me>("/api/me").then(setMe);
+  if (!session || !me) return <AuthPage config={config} invited={invitation !== null} />;
+  if (invitation) {
+    return (
+      <InvitationPage
+        code={invitation}
+        me={me}
+        onDone={(joined) => {
+          clearPendingInvitation();
+          setInvitation(null);
+          if (joined) refresh();
+        }}
+      />
+    );
+  }
+  // Without a company there is no panel yet: create one or join by invitation first.
+  if (me.companies !== null && me.companies.length === 0) {
+    return (
+      <OnboardingPage
+        me={me}
+        onDone={refresh}
+        onInvitation={(code) => {
+          storePendingInvitation(code);
+          setInvitation(code);
+        }}
+      />
+    );
+  }
+  return <Panel me={me} onChange={refresh} />;
 }
 
 export function Logo({ light = false }: { light?: boolean }) {
@@ -46,7 +79,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         alt=""
         width={36}
         height={36}
-        className={`h-9 w-9 shrink-0 object-contain ${light ? "" : "mix-blend-multiply"}`}
+        className={`h-9 w-9 shrink-0 object-contain ${light ? "mix-blend-screen" : "mix-blend-multiply"}`}
         decoding="async"
       />
       <span className={`font-title text-xl font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>
