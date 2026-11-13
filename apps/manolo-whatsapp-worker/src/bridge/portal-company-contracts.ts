@@ -24,11 +24,15 @@ export type PortalCompanyRequest =
   | (Base & { action: "weekly"; tenantId: string });
 
 export type WeeklySummary = {
-  /** Monday to Sunday, Lima dates. */
+  /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
   week: { start: string; end: string };
-  team: { members: number; messages: number; activePeople: number; previousMessages: number };
+  today: string;
+  team: { members: number; messages: number; activePeople: number; previousMessages: number; messagesToday: number };
   tender: {
+    /** Someone in the company has Tender Cat in the Manolo chat. */
+    enabled: boolean;
     found: number;
+    foundToday: number;
     interesting: number;
     highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
@@ -44,6 +48,7 @@ export type WeeklySummary = {
       previousTotalPen: string;
       partial: boolean;
       rejected: Array<{ number: string; customer: string; message: string | null }>;
+      today: { documents: number; totalPen: string; rejected: number };
     };
 };
 

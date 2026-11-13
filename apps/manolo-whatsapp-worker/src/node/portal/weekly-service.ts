@@ -17,12 +17,18 @@ export function limaWeekStart(now: Date): Date {
   return new Date(midnight + LIMA_OFFSET_MS);
 }
 
+/** 00:00 in Lima of the day containing `now`, as a UTC instant. */
+export function limaDayStart(now: Date): Date {
+  const lima = new Date(now.getTime() - LIMA_OFFSET_MS);
+  return new Date(Date.UTC(lima.getUTCFullYear(), lima.getUTCMonth(), lima.getUTCDate()) + LIMA_OFFSET_MS);
+}
+
 const limaDate = (instant: Date) => new Date(instant.getTime() - LIMA_OFFSET_MS).toISOString().slice(0, 10);
 const cents = (value: unknown) => Math.round(Number(value ?? 0) * 100) || 0;
 const money = (value: number) => (value / 100).toFixed(2);
 
 type Document = { kind?: string; status?: string; currency?: string; total?: string; number?: string; customer?: { name?: string };
-  sunat_message?: string | null };
+  sunat_message?: string | null; issue_date?: string };
 
 /**
  * What the company's agents did this week (ADR-0010 follow-up, «Inicio»). Only real
@@ -53,16 +59,19 @@ export class PortalWeeklyService {
     );
     if (!member.rows.length) return { status: "forbidden" };
 
-    const start = limaWeekStart(this.now());
+    const now = this.now();
+    const start = limaWeekStart(now);
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
+    const day = limaDayStart(now);
     const [team, tender, invoicing] = await Promise.all([
-      this.team(tenantId, previous, start, end),
-      this.tender(tenantId, start, end),
-      this.invoicing(tenantId, previous, start, end),
+      this.team(tenantId, previous, start, end, day),
+      this.tender(tenantId, start, end, day),
+      this.invoicing(tenantId, previous, start, end, limaDate(day)),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
+      today: limaDate(day),
       team,
       tender,
       invoicing,
@@ -70,7 +79,7 @@ export class PortalWeeklyService {
     return { status: "ok", weekly: summary };
   }
 
-  private async team(tenantId: string, previous: Date, start: Date, end: Date): Promise<WeeklySummary["team"]> {
+  private async team(tenantId: string, previous: Date, start: Date, end: Date, day: Date): Promise<WeeklySummary["team"]> {
     const { rows } = await this.query(
       `WITH people AS (
          SELECT contact.id FROM whatsapp.tenant_members AS member
@@ -80,13 +89,14 @@ export class PortalWeeklyService {
        SELECT (SELECT count(*)::int FROM people) AS members,
               count(*) FILTER (WHERE message.created_at >= $3)::int AS messages,
               count(DISTINCT conversation.contact_id) FILTER (WHERE message.created_at >= $3)::int AS active,
-              count(*) FILTER (WHERE message.created_at < $3)::int AS previous_messages
+              count(*) FILTER (WHERE message.created_at < $3)::int AS previous_messages,
+              count(*) FILTER (WHERE message.created_at >= $5)::int AS messages_today
          FROM whatsapp.messages AS message
          JOIN whatsapp.conversations AS conversation ON conversation.id = message.conversation_id
         WHERE conversation.contact_id IN (SELECT id FROM people)
           AND message.direction = 'inbound'
           AND message.created_at >= $2 AND message.created_at < $4`,
-      [tenantId, previous, start, end],
+      [tenantId, previous, start, end, day],
     );
     const row = rows[0] ?? {};
     return {
@@ -94,10 +104,18 @@ export class PortalWeeklyService {
       messages: Number(row.messages ?? 0),
       activePeople: Number(row.active ?? 0),
       previousMessages: Number(row.previous_messages ?? 0),
+      messagesToday: Number(row.messages_today ?? 0),
     };
   }
 
-  private async tender(tenantId: string, start: Date, end: Date): Promise<WeeklySummary["tender"]> {
+  private async tender(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["tender"]> {
+    const enabled = await this.query(
+      `SELECT 1 FROM whatsapp.tenant_members AS member
+         JOIN whatsapp.contacts AS contact ON contact.id = member.contact_id
+        WHERE member.tenant_id = $1 AND member.status = 'active' AND contact.active_role_key = 'radar'
+        LIMIT 1`,
+      [tenantId],
+    );
     const { rows } = await this.query(
       `WITH people AS (
          SELECT member.contact_id FROM whatsapp.tenant_members AS member
@@ -117,7 +135,9 @@ export class PortalWeeklyService {
     );
     const text = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
     return {
+      enabled: enabled.rows.length > 0,
       found: rows.length,
+      foundToday: rows.filter((row) => new Date(row.published_at as string | Date).getTime() >= day.getTime()).length,
       interesting: rows.filter((row) => row.state === "interesting").length,
       highlights: rows.slice(0, 5).map((row) => {
         const alert = (row.alert ?? {}) as Record<string, unknown>;
@@ -135,7 +155,7 @@ export class PortalWeeklyService {
     };
   }
 
-  private async invoicing(tenantId: string, previous: Date, start: Date, end: Date): Promise<WeeklySummary["invoicing"]> {
+  private async invoicing(tenantId: string, previous: Date, start: Date, end: Date, today: string): Promise<WeeklySummary["invoicing"]> {
     const { rows } = await this.query(
       `SELECT encrypted_token FROM whatsapp.tenant_integrations
         WHERE tenant_id = $1 AND provider = 'facturaya' AND status = 'active' LIMIT 1`,
@@ -159,6 +179,7 @@ export class PortalWeeklyService {
       .filter((doc) => doc.status === "accepted" && (doc.currency ?? "PEN") === "PEN")
       .reduce((sum, doc) => sum + (doc.kind === "credit_note" ? -cents(doc.total) : cents(doc.total)), 0);
     const rejected = current.documents.filter((doc) => doc.status === "rejected");
+    const ofToday = current.documents.filter((doc) => doc.issue_date === today);
     return {
       status: "ok",
       documents: current.count,
@@ -171,6 +192,11 @@ export class PortalWeeklyService {
         customer: String(doc.customer?.name ?? "").slice(0, 160),
         message: doc.sunat_message ? String(doc.sunat_message).slice(0, 240) : null,
       })),
+      today: {
+        documents: ofToday.length,
+        totalPen: money(total(ofToday)),
+        rejected: ofToday.filter((doc) => doc.status === "rejected").length,
+      },
     };
   }
 
