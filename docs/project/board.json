@@ -1566,10 +1566,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0011. Código y pruebas listos, sin desplegar. Ramas: feat/sales-cat-fase1 (Manolo: rol, bridge, migración 014) y feat/sales-cat-app (portal: cotización pública y ficha). Para desplegar: migración 014, release del bridge, Worker (variables SALES_AI_MODEL y PORTAL_PUBLIC_URL) e imagen del portal; activar CREACIONES J&D en sales.settings.",
-      "evidence": "Manolo: tsc limpio, vitest 654/654 (13 de Sales Cat), tools/sales-pg-check.ts en PostgreSQL 17 desechable 25/25 (numeración concurrente, idempotencia, permisos, enlace público, anulación auditada, resumen por periodo). Portal: typecheck limpio, vitest 31/31, cotización pública revisada en escritorio y celular."
+      "notes": "Desplegado el 13/11/2026 y activo para CREACIONES J&D. Acta: docs/operations/sales-cat-2026-11-13.md.",
+      "evidence": "Producción: migración 014, bridge sales-cat-20261113T174650Z, Worker 404f87d3, portal meowlab-app:395204fb1cc5; /v1/sales/execute firmado devuelve CREACIONES J&D para …0280. Antes: Manolo 654/654, sales-pg-check 25/25, portal 31/31."
     },
     {
       "id": "sales-cat-2-clientes-20261113",
@@ -1602,6 +1602,17 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "ADR-0011.",
+      "evidence": ""
+    },
+    {
+      "id": "sales-cat-prueba-whatsapp-20261113",
+      "title": "Probar Sales Cat por WhatsApp con CREACIONES J&D (/sales desde …0280)",
+      "area": "Manolo",
+      "owner": "operador",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0011, fase 1 recién desplegada.",
       "evidence": ""
     }
   ]

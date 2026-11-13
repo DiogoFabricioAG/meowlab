@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 63 · Total: 155</span>
+      <span class="summary">Abiertas: 63 · Total: 156</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">58</span>
+          <span class="count">59</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -457,6 +457,17 @@
           <p class="card-notes">ADR-0011.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">sales-cat-numero-jd-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="probar sales cat por whatsapp con creaciones j&amp;d (/sales desde …0280) manolo adr-0011, fase 1 recién desplegada. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Probar Sales Cat por WhatsApp con CREACIONES J&amp;D (/sales desde …0280)</h3>
+          
+          <p class="card-notes">ADR-0011, fase 1 recién desplegada.</p>
+          <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
+          <code class="card-id">sales-cat-prueba-whatsapp-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -870,7 +881,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -906,17 +917,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat fase 1: ventas y cotizaciones de la titular por el chat de manolo (/sales) manolo adr-0011. código y pruebas listos, sin desplegar. ramas: feat/sales-cat-fase1 (manolo: rol, bridge, migración 014) y feat/sales-cat-app (portal: cotización pública y ficha). para desplegar: migración 014, release del bridge, worker (variables sales_ai_model y portal_public_url) e imagen del portal; activar creaciones j&amp;d en sales.settings. manolo: tsc limpio, vitest 654/654 (13 de sales cat), tools/sales-pg-check.ts en postgresql 17 desechable 25/25 (numeración concurrente, idempotencia, permisos, enlace público, anulación auditada, resumen por periodo). portal: typecheck limpio, vitest 31/31, cotización pública revisada en escritorio y celular.">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Sales Cat fase 1: ventas y cotizaciones de la titular por el chat de Manolo (/sales)</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Manolo: tsc limpio, vitest 654/654 (13 de Sales Cat), tools/sales-pg-check.ts en PostgreSQL 17 desechable 25/25 (numeración concurrente, idempotencia, permisos, enlace público, anulación auditada, resumen por periodo). Portal: typecheck limpio, vitest 31/31, cotización pública revisada en escritorio y celular.</p>
-          <p class="card-notes">ADR-0011. Código y pruebas listos, sin desplegar. Ramas: feat/sales-cat-fase1 (Manolo: rol, bridge, migración 014) y feat/sales-cat-app (portal: cotización pública y ficha). Para desplegar: migración 014, release del bridge, Worker (variables SALES_AI_MODEL y PORTAL_PUBLIC_URL) e imagen del portal; activar CREACIONES J&amp;D en sales.settings.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">sales-cat-1-interno-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -933,7 +933,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">92</span>
+          <span class="count">93</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1716,6 +1716,17 @@
           <p class="card-notes">Desplegado el 13/11/2026. Acta: docs/operations/portal-agentes-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-agentes-critica-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat fase 1: ventas y cotizaciones de la titular por el chat de manolo (/sales) manolo desplegado el 13/11/2026 y activo para creaciones j&amp;d. acta: docs/operations/sales-cat-2026-11-13.md. producción: migración 014, bridge sales-cat-20261113t174650z, worker 404f87d3, portal meowlab-app:395204fb1cc5; /v1/sales/execute firmado devuelve creaciones j&amp;d para …0280. antes: manolo 654/654, sales-pg-check 25/25, portal 31/31.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Sales Cat fase 1: ventas y cotizaciones de la titular por el chat de Manolo (/sales)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 014, bridge sales-cat-20261113T174650Z, Worker 404f87d3, portal meowlab-app:395204fb1cc5; /v1/sales/execute firmado devuelve CREACIONES J&amp;D para …0280. Antes: Manolo 654/654, sales-pg-check 25/25, portal 31/31.</p>
+          <p class="card-notes">Desplegado el 13/11/2026 y activo para CREACIONES J&amp;D. Acta: docs/operations/sales-cat-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-1-interno-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">
