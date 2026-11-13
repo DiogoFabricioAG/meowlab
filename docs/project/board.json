@@ -1742,10 +1742,21 @@
       "area": "FacturaYa",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Obligatorio desde el 1/1/2020 (RS 309-2018; contenido en RS 097-2012 anexo 6, 6.4). Código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del XML firmado, codificador propio nivel Q, QR abajo en la última página. Falta desplegar FacturaYa. Los PDF ya guardados no se regeneran. Pendiente aparte: revisar si la GRE de Manolo cumple su propio QR.",
-      "evidence": "2026-11-13: PHPUnit 188/189 (la falla es la previa de FiscalSetupProbeEndpointTest); SunatQrTest 9/9 junto con la paginación; QR decodificados con OpenCV (factura, boleta, nota, 120 bytes y versión 10); 48 XML de producción leídos en solo lectura con 10 campos válidos."
+      "notes": "Desplegado el 13/11/2026 en FacturaYa (release sunat-qr-20261113T200717Z, commit 8c343, rama feat/sunat-qr). Acta: docs/deployment-2026-11-13-sunat-qr.md en facturaya-ai. Los PDF ya guardados no se regeneran.",
+      "evidence": "Producción: PDF reales de F001-00000026, una boleta B001 y una nota de crédito con QR legible y 10 campos correctos; salud 200; API sin token 401."
+    },
+    {
+      "id": "gre-qr-revision-20261113",
+      "title": "Revisar el QR de la representación impresa de la GRE (Manolo)",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "El QR de facturas, boletas y notas ya está en FacturaYa; la GRE se genera en Manolo y no se revisó contra su propia norma.",
+      "evidence": ""
     }
   ]
 }

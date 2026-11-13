@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 72 · Total: 168</span>
+      <span class="summary">Abiertas: 72 · Total: 169</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">67</span>
+          <span class="count">68</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -843,6 +843,17 @@
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">docs-formato-1-prueba-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Manolo" data-text="revisar el qr de la representación impresa de la gre (manolo) manolo el qr de facturas, boletas y notas ya está en facturaya; la gre se genera en manolo y no se revisó contra su propia norma. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Revisar el QR de la representación impresa de la GRE (Manolo)</h3>
+          
+          <p class="card-notes">El QR de facturas, boletas y notas ya está en FacturaYa; la GRE se genera en Manolo y no se revisó contra su propia norma.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">gre-qr-revision-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -969,7 +980,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1005,17 +1016,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="FacturaYa" data-text="código qr de sunat en facturas, boletas y notas de crédito (facturaya) facturaya obligatorio desde el 1/1/2020 (rs 309-2018; contenido en rs 097-2012 anexo 6, 6.4). código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del xml firmado, codificador propio nivel q, qr abajo en la última página. falta desplegar facturaya. los pdf ya guardados no se regeneran. pendiente aparte: revisar si la gre de manolo cumple su propio qr. 2026-11-13: phpunit 188/189 (la falla es la previa de fiscalsetupprobeendpointtest); sunatqrtest 9/9 junto con la paginación; qr decodificados con opencv (factura, boleta, nota, 120 bytes y versión 10); 48 xml de producción leídos en solo lectura con 10 campos válidos.">
-          <div class="card-top">
-            <span class="badge area-other">FacturaYa</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Código QR de SUNAT en facturas, boletas y notas de crédito (FacturaYa)</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: PHPUnit 188/189 (la falla es la previa de FiscalSetupProbeEndpointTest); SunatQrTest 9/9 junto con la paginación; QR decodificados con OpenCV (factura, boleta, nota, 120 bytes y versión 10); 48 XML de producción leídos en solo lectura con 10 campos válidos.</p>
-          <p class="card-notes">Obligatorio desde el 1/1/2020 (RS 309-2018; contenido en RS 097-2012 anexo 6, 6.4). Código listo en facturaya-ai, rama feat/sunat-qr (commit 8c343): contenido leído del XML firmado, codificador propio nivel Q, QR abajo en la última página. Falta desplegar FacturaYa. Los PDF ya guardados no se regeneran. Pendiente aparte: revisar si la GRE de Manolo cumple su propio QR.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">sunat-qr-representacion-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1032,7 +1032,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">96</span>
+          <span class="count">97</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1848,6 +1848,17 @@
           <p class="card-notes">Desplegado el 13/11/2026: Configuración → Documentos en el portal y kit en la cotización pública de Sales Cat. Acta: docs/operations/brand-kit-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">docs-formato-1-kit-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="FacturaYa" data-text="código qr de sunat en facturas, boletas y notas de crédito (facturaya) facturaya desplegado el 13/11/2026 en facturaya (release sunat-qr-20261113t200717z, commit 8c343, rama feat/sunat-qr). acta: docs/deployment-2026-11-13-sunat-qr.md en facturaya-ai. los pdf ya guardados no se regeneran. producción: pdf reales de f001-00000026, una boleta b001 y una nota de crédito con qr legible y 10 campos correctos; salud 200; api sin token 401.">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Código QR de SUNAT en facturas, boletas y notas de crédito (FacturaYa)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: PDF reales de F001-00000026, una boleta B001 y una nota de crédito con QR legible y 10 campos correctos; salud 200; API sin token 401.</p>
+          <p class="card-notes">Desplegado el 13/11/2026 en FacturaYa (release sunat-qr-20261113T200717Z, commit 8c343, rama feat/sunat-qr). Acta: docs/deployment-2026-11-13-sunat-qr.md en facturaya-ai. Los PDF ya guardados no se regeneran.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sunat-qr-representacion-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">
