@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 54 · Total: 141</span>
+      <span class="summary">Abiertas: 53 · Total: 141</span>
     </div>
   </div>
 </header>
@@ -770,7 +770,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -806,17 +806,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: crear empresa con ruc y paso «tu empresa» portal adr-0010. código y pruebas listos, sin desplegar. ramas: facturaya-ai feat/portal-empresas (consulta interna de ruc), meowlab feat/portal-empresas (bridge, migración 012) y feat/portal-empresas-app (portal). para desplegar: release de facturaya, migración 012 en postgresql, secreto facturaya_internal_token del bridge (mismo valor que fiscal_profile_bridge_token de facturaya), release del bridge e imagen del portal. facturaya: internaltaxpayerlookuptest 4/4, suite 179 pasan y 2 fallas previas (companyadministrationtest, fiscalsetupprobeendpointtest, iguales en 9039d). bridge: tsc limpio, vitest 630/632 (2 radar por reloj, radar-tests-clock-20261112), tools/portal-company-pg-check.ts contra postgresql 17 desechable: todo pasa (carrera de ruc, límite de 3, un solo dueño). portal: typecheck limpio, vitest 24/24, flujo probado en local con bridge falso.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: crear empresa con RUC y paso «Tu empresa»</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> FacturaYa: InternalTaxpayerLookupTest 4/4, suite 179 pasan y 2 fallas previas (CompanyAdministrationTest, FiscalSetupProbeEndpointTest, iguales en 9039d). Bridge: tsc limpio, vitest 630/632 (2 RADAR por reloj, radar-tests-clock-20261112), tools/portal-company-pg-check.ts contra PostgreSQL 17 desechable: todo pasa (carrera de RUC, límite de 3, un solo dueño). Portal: typecheck limpio, vitest 24/24, flujo probado en local con bridge falso.</p>
-          <p class="card-notes">ADR-0010. Código y pruebas listos, sin desplegar. Ramas: facturaya-ai feat/portal-empresas (consulta interna de RUC), meowlab feat/portal-empresas (bridge, migración 012) y feat/portal-empresas-app (portal). Para desplegar: release de FacturaYa, migración 012 en PostgreSQL, secreto facturaya_internal_token del bridge (mismo valor que FISCAL_PROFILE_BRIDGE_TOKEN de FacturaYa), release del bridge e imagen del portal.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-org-1-crear-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -833,7 +822,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">87</span>
+          <span class="count">88</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1572,6 +1561,17 @@
           <p class="card-notes">Pedido del operador: diogo.abregu.g@uni.pe como cuenta principal de administración. Rol user/admin en Better Auth (input:false), asignado sólo con deploy/grant-admin.sh a cuentas de Google verificadas. Pestaña Negocio con métricas del portal (el operador eligió sólo Portal; uso de Manolo, facturación y clientes quedan para después).</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">app-portal-admin-metrics-20261111</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: crear empresa con ruc y paso «tu empresa» portal adr-0010, fase 1 desplegada el 13/11/2026. acta: docs/operations/portal-empresas-2026-11-13.md. producción: release del bridge portal-empresas-20261113t040256z (consulta firmada mine/lookup 200), migración 012 aplicada, portal meowlab-app:e22795828172 healthy, facturaya /api/internal/taxpayers 401 sin token y 200 con él. antes: facturaya 4/4 pruebas nuevas, bridge vitest 630/632 (2 radar por reloj) y tools/portal-company-pg-check.ts en postgresql desechable, portal 24/24.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: crear empresa con RUC y paso «Tu empresa»</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: release del bridge portal-empresas-20261113T040256Z (consulta firmada mine/lookup 200), migración 012 aplicada, portal meowlab-app:e22795828172 healthy, FacturaYa /api/internal/taxpayers 401 sin token y 200 con él. Antes: FacturaYa 4/4 pruebas nuevas, bridge vitest 630/632 (2 RADAR por reloj) y tools/portal-company-pg-check.ts en PostgreSQL desechable, portal 24/24.</p>
+          <p class="card-notes">ADR-0010, fase 1 desplegada el 13/11/2026. Acta: docs/operations/portal-empresas-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-1-crear-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">

@@ -1423,10 +1423,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "ADR-0010. Código y pruebas listos, sin desplegar. Ramas: facturaya-ai feat/portal-empresas (consulta interna de RUC), meowlab feat/portal-empresas (bridge, migración 012) y feat/portal-empresas-app (portal). Para desplegar: release de FacturaYa, migración 012 en PostgreSQL, secreto facturaya_internal_token del bridge (mismo valor que FISCAL_PROFILE_BRIDGE_TOKEN de FacturaYa), release del bridge e imagen del portal.",
-      "evidence": "FacturaYa: InternalTaxpayerLookupTest 4/4, suite 179 pasan y 2 fallas previas (CompanyAdministrationTest, FiscalSetupProbeEndpointTest, iguales en 9039d). Bridge: tsc limpio, vitest 630/632 (2 RADAR por reloj, radar-tests-clock-20261112), tools/portal-company-pg-check.ts contra PostgreSQL 17 desechable: todo pasa (carrera de RUC, límite de 3, un solo dueño). Portal: typecheck limpio, vitest 24/24, flujo probado en local con bridge falso."
+      "notes": "ADR-0010, fase 1 desplegada el 13/11/2026. Acta: docs/operations/portal-empresas-2026-11-13.md.",
+      "evidence": "Producción: release del bridge portal-empresas-20261113T040256Z (consulta firmada mine/lookup 200), migración 012 aplicada, portal meowlab-app:e22795828172 healthy, FacturaYa /api/internal/taxpayers 401 sin token y 200 con él. Antes: FacturaYa 4/4 pruebas nuevas, bridge vitest 630/632 (2 RADAR por reloj) y tools/portal-company-pg-check.ts en PostgreSQL desechable, portal 24/24."
     },
     {
       "id": "portal-org-2-invitaciones-20261113",
