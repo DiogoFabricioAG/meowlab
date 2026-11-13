@@ -30,6 +30,18 @@ FacturaYa no cambia. El compose del bridge no cambia.
   `/api/invitations/<código>`, `/api/companies/<id>/team` y la aceptación sin sesión 401.
 - No se crearon invitaciones en producción durante la verificación.
 
+## Dueño de CREACIONES J&D (decisión del operador, 13/11/2026 04:51 UTC)
+
+Las empresas creadas por el operador no tenían dueño en el portal, así que nadie podía
+invitar a ellas. Por decisión del operador, la cuenta administradora del portal quedó
+como dueña de CREACIONES J&D (`01m048fqcze7628368f321xytj`) en
+`portal_company_members`. Verificado con una consulta firmada al bridge: la empresa
+aparece como propia con Invoice Cat activo y el equipo responde `ok`. KROMATA, Home
+Finance y Manolo siguen sin dueño en el portal.
+
+Para deshacerlo:
+`DELETE FROM whatsapp.portal_company_members WHERE tenant_id = '01m048fqcze7628368f321xytj' AND role = 'owner';`
+
 ## Rollback
 
 ```bash

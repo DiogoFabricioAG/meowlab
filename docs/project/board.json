@@ -1477,10 +1477,10 @@
       "title": "Asignar dueño en el portal a las empresas creadas por el operador (p. ej. CREACIONES J&D)",
       "area": "Portal",
       "owner": "",
-      "priority": "high",
+      "priority": "medium",
       "status": "todo",
       "updated": "2026-11-13",
-      "notes": "Sin dueño en portal_company_members nadie puede invitar a esas empresas.",
+      "notes": "CREACIONES J&D ya tiene dueño (cuenta admin del portal, 13/11/2026; acta portal-invitaciones-2026-11-13). Faltan KROMATA, Home Finance y Manolo si llegan a necesitar invitaciones.",
       "evidence": ""
     }
   ]
