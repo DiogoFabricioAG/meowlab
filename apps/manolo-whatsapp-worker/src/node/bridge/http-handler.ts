@@ -26,6 +26,8 @@ import { verifyBridgeSignature } from "./signature-verifier";
 import { PORTAL_LINK_BRIDGE_PATH, isPortalLinkRequest } from "../../bridge/portal-link-contracts";
 import { PORTAL_BILLING_BRIDGE_PATH, isPortalBillingRequest } from "../../bridge/portal-billing-contracts";
 import type { PortalBillingService } from "../portal/billing-service";
+import { PORTAL_COMPANY_BRIDGE_PATH, isPortalCompanyRequest } from "../../bridge/portal-company-contracts";
+import type { PortalCompanyService } from "../portal/company-service";
 import type { PortalLinkService } from "../portal/link-service";
 import { RADAR_SYNC_BRIDGE_PATH, isRadarSyncRequest } from "../../radar/sync-contracts";
 import type { PgRadarSelectionService } from "../radar/selection-service";
@@ -54,6 +56,7 @@ export type BridgeHttpHandlerDependencies = {
   portalSecret?: string;
   portalLinkService?: Pick<PortalLinkService, "handle">;
   portalBillingService?: Pick<PortalBillingService, "handle">;
+  portalCompanyService?: Pick<PortalCompanyService, "handle">;
   healthCheck: () => Promise<boolean>;
   log: RoleLog;
   nowSeconds?: () => number;
@@ -91,6 +94,9 @@ export function createBridgeHttpHandler(
     }
     if (request.path === PORTAL_BILLING_BRIDGE_PATH) {
       return handlePortalRoute(request, dependencies, "billing");
+    }
+    if (request.path === PORTAL_COMPANY_BRIDGE_PATH) {
+      return handlePortalRoute(request, dependencies, "companies");
     }
     if (
       request.path !== PRINT_ADVISOR_BRIDGE_PATH
@@ -270,14 +276,16 @@ function isObjectWithRequestId(
     && typeof value.requestId === "string";
 }
 
-/** Both portal routes share the portal's own secret, signature check and request-id rule. */
+/** Every portal route shares the portal's own secret, signature check and request-id rule. */
 async function handlePortalRoute(
   request: BridgeHttpRequest,
   dependencies: BridgeHttpHandlerDependencies,
-  route: "link" | "billing",
+  route: "link" | "billing" | "companies",
 ): Promise<BridgeHttpResponse> {
   if (request.method !== "POST") return jsonResponse(405, { error: "method_not_allowed" });
-  const service = route === "link" ? dependencies.portalLinkService : dependencies.portalBillingService;
+  const service = route === "link" ? dependencies.portalLinkService
+    : route === "billing" ? dependencies.portalBillingService
+    : dependencies.portalCompanyService;
   if (!dependencies.portalSecret || !service) {
     return jsonResponse(503, { error: "portal_unavailable" });
   }
@@ -298,7 +306,9 @@ async function handlePortalRoute(
   } catch {
     return jsonResponse(400, { error: "invalid_json" });
   }
-  const valid = route === "link" ? isPortalLinkRequest(payload) : isPortalBillingRequest(payload);
+  const valid = route === "link" ? isPortalLinkRequest(payload)
+    : route === "billing" ? isPortalBillingRequest(payload)
+    : isPortalCompanyRequest(payload);
   if (!valid || request.headers["x-manolo-request-id"] !== (payload as { requestId?: unknown }).requestId) {
     return jsonResponse(400, { error: "invalid_request" });
   }
@@ -306,10 +316,12 @@ async function handlePortalRoute(
   try {
     const result = route === "link"
       ? await dependencies.portalLinkService!.handle(payload as Parameters<PortalLinkService["handle"]>[0])
-      : await dependencies.portalBillingService!.handle(payload as Parameters<PortalBillingService["handle"]>[0]);
+      : route === "billing"
+        ? await dependencies.portalBillingService!.handle(payload as Parameters<PortalBillingService["handle"]>[0])
+        : await dependencies.portalCompanyService!.handle(payload as Parameters<PortalCompanyService["handle"]>[0]);
     return jsonResponse(200, result as Record<string, unknown>);
   } catch {
-    dependencies.log(route === "link" ? "vps_portal_link_failed" : "vps_portal_billing_failed", { action });
+    dependencies.log(`vps_portal_${route}_failed`, { action });
     return jsonResponse(503, { error: "portal_unavailable" });
   }
 }

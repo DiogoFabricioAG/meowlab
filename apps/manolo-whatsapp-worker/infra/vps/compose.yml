@@ -57,6 +57,8 @@ services:
       # pide a Manolo enviar la plantilla de autenticación por la ruta firmada.
       PORTAL_BRIDGE_HMAC_SECRET_FILE: /run/secrets/portal_bridge_hmac_secret
       AUTH_CODE_HMAC_SECRET_FILE: /run/secrets/auth_code_hmac_secret
+      # ADR-0010: consulta de RUC en el padrón de FacturaYa (bearer interno de FacturaYa).
+      FACTURAYA_INTERNAL_TOKEN_FILE: /run/secrets/facturaya_internal_token
       MANOLO_WORKER_URL: ${MANOLO_WORKER_URL:-https://whatsapp-webhook-meta-production.diogofabricio17.workers.dev}
       PORT: 3000
       TZ: UTC
@@ -69,6 +71,7 @@ services:
       - print_advisor_db_password
       - portal_bridge_hmac_secret
       - auth_code_hmac_secret
+      - facturaya_internal_token
     healthcheck:
       test:
         - CMD
@@ -121,6 +124,8 @@ secrets:
     file: ./secrets/portal_bridge_hmac_secret
   auth_code_hmac_secret:
     file: ./secrets/auth_code_hmac_secret
+  facturaya_internal_token:
+    file: ./secrets/facturaya_internal_token
 
 networks:
   manolo_internal:

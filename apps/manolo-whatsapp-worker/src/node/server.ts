@@ -1,6 +1,7 @@
 import { PgPortalLinkStore, PortalLinkService, type PortalLinkPool } from "./portal/link-service";
 import { WorkerAuthCodeSender } from "./portal/auth-code-sender";
 import { PortalBillingService, type BillingPool } from "./portal/billing-service";
+import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -104,6 +105,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
     portalSecret,
     // Phase 3: read-only billing data through FacturaYa, authorized per linked number.
     portalBillingService: new PortalBillingService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+    // ADR-0010: companies created from the portal; RUC read from FacturaYa's registry.
+    portalCompanyService: new PortalCompanyService(pool, taxpayerDirectory(facturayaBaseUrl), logSafeEvent),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
       new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),
@@ -111,6 +114,16 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       logSafeEvent,
     ),
   };
+}
+
+/** Without the internal token the portal can list companies but not look up or create them. */
+function taxpayerDirectory(facturayaBaseUrl: string): FacturayaTaxpayerDirectory | null {
+  const token = optionalSecret("FACTURAYA_INTERNAL_TOKEN", "FACTURAYA_INTERNAL_TOKEN_FILE");
+  if (!token) {
+    logSafeEvent("vps_portal_taxpayer_lookup_disabled");
+    return null;
+  }
+  return new FacturayaTaxpayerDirectory(facturayaBaseUrl, token);
 }
 
 function optionalSecret(name: string, fileName: string): string | null {
