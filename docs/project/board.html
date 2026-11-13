@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 57 · Total: 147</span>
+      <span class="summary">Abiertas: 60 · Total: 150</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">53</span>
+          <span class="count">55</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -710,6 +710,28 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-inicio-resumen-ia-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="agregar tender cat (s/ 35) al catálogo de cobros para que se pueda sumar desde plan portal hoy la ficha muestra «pídeselo a manolo» porque no está en el catálogo (adr-0008 fija s/ 35). ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros para que se pueda sumar desde Plan</h3>
+          
+          <p class="card-notes">Hoy la ficha muestra «Pídeselo a Manolo» porque no está en el catálogo (ADR-0008 fija S/ 35).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-tender-catalogo-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: canal de ayuda y contacto (olvido de contraseña, dudas) portal la crítica marcó ayuda 1/4: «pídele ayuda al equipo de meowlab» no dice cómo. depende del proveedor de correo o de un número de soporte. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: canal de ayuda y contacto (olvido de contraseña, dudas)</h3>
+          
+          <p class="card-notes">La crítica marcó Ayuda 1/4: «pídele ayuda al equipo de MeowLab» no dice cómo. Depende del proveedor de correo o de un número de soporte.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-ayuda-contacto-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -814,7 +836,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -849,6 +871,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: fichas de agentes, inicio del día, rutas y arreglos de la crítica de diseño (impeccable) portal pedido del operador tras la crítica (22/40). foco: titular de mype; todos los agentes en el mismo chat de manolo. código y pruebas listos, sin desplegar. ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). para desplegar: release del bridge e imagen del portal. bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. portal: typecheck limpio, vitest 29/29; inicio, tus agentes, invoice cat (tarjetas en celular), tender cat, atrás y foco revisados en local con bridge falso.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: fichas de agentes, Inicio del día, rutas y arreglos de la crítica de diseño (impeccable)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. Portal: typecheck limpio, vitest 29/29; Inicio, Tus agentes, Invoice Cat (tarjetas en celular), Tender Cat, Atrás y foco revisados en local con bridge falso.</p>
+          <p class="card-notes">Pedido del operador tras la crítica (22/40). Foco: titular de MYPE; todos los agentes en el mismo chat de Manolo. Código y pruebas listos, sin desplegar. Ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). Para desplegar: release del bridge e imagen del portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-agentes-critica-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

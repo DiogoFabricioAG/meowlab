@@ -1515,6 +1515,39 @@
       "updated": "2026-11-13",
       "notes": "Ningún agente registra prospectos todavía; llega con los agentes de ventas (Sales Cat).",
       "evidence": ""
+    },
+    {
+      "id": "portal-agentes-critica-20261113",
+      "title": "Portal: fichas de agentes, Inicio del día, rutas y arreglos de la crítica de diseño (impeccable)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-13",
+      "notes": "Pedido del operador tras la crítica (22/40). Foco: titular de MYPE; todos los agentes en el mismo chat de Manolo. Código y pruebas listos, sin desplegar. Ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). Para desplegar: release del bridge e imagen del portal.",
+      "evidence": "Bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. Portal: typecheck limpio, vitest 29/29; Inicio, Tus agentes, Invoice Cat (tarjetas en celular), Tender Cat, Atrás y foco revisados en local con bridge falso."
+    },
+    {
+      "id": "portal-tender-catalogo-20261113",
+      "title": "Agregar Tender Cat (S/ 35) al catálogo de cobros para que se pueda sumar desde Plan",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Hoy la ficha muestra «Pídeselo a Manolo» porque no está en el catálogo (ADR-0008 fija S/ 35).",
+      "evidence": ""
+    },
+    {
+      "id": "portal-ayuda-contacto-20261113",
+      "title": "Portal: canal de ayuda y contacto (olvido de contraseña, dudas)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "La crítica marcó Ayuda 1/4: «pídele ayuda al equipo de MeowLab» no dice cómo. Depende del proveedor de correo o de un número de soporte.",
+      "evidence": ""
     }
   ]
 }
