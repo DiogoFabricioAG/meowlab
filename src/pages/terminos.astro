@@ -1,0 +1,115 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { legal, titular } from '../data/legal';
+---
+
+<LegalPage
+  title="Términos y condiciones | MeowLab"
+  description="Condiciones de uso de los agentes de MeowLab por WhatsApp y del panel app.meowlab.tech."
+  heading="Términos y condiciones"
+>
+  <p>
+    Estos términos regulan el uso de los agentes de MeowLab por WhatsApp (entre ellos, Manolo) y del panel
+    <a href="https://app.meowlab.tech">app.meowlab.tech</a> (en conjunto, el «servicio»), prestado por
+    <strong>{titular()}</strong>. Al usar el servicio aceptas estos
+    términos y la <a href="/privacidad">política de privacidad</a>.
+  </p>
+
+  <h2>1. El servicio</h2>
+  <p>
+    MeowLab ofrece agentes que atienden por WhatsApp y ayudan a realizar tareas de tu negocio, como preparar y
+    emitir comprobantes electrónicos y guías de remisión, preparar cotizaciones o consultar información. El panel
+    te permite revisar los datos asociados a tu número de WhatsApp. Las funciones disponibles dependen de los
+    agentes que tengas activos.
+  </p>
+
+  <h2>2. Tu cuenta</h2>
+  <ul>
+    <li>Debes ser mayor de 18 años y dar datos verdaderos al registrarte.</li>
+    <li>Eres responsable de mantener seguras tu contraseña y tu cuenta de WhatsApp.</li>
+    <li>
+      Sólo puedes vincular un número de WhatsApp que controles; lo verificamos con un código enviado a ese número.
+      Si un número se verifica desde otra cuenta, deja de estar vinculado a la anterior.
+    </li>
+    <li>Avísanos de inmediato si sospechas que alguien usa tu cuenta sin autorización.</li>
+  </ul>
+
+  <h2>3. Documentos tributarios</h2>
+  <ul>
+    <li>
+      Los agentes preparan los comprobantes y guías con la información que tú das. Ningún documento se emite sin
+      que lo confirmes expresamente con el botón correspondiente.
+    </li>
+    <li>
+      Antes de confirmar, eres responsable de revisar que los datos sean correctos y completos. La emisión ante la
+      SUNAT se hace a nombre de tu empresa y con tus credenciales, y las obligaciones tributarias que derivan de
+      ella son tuyas.
+    </li>
+    <li>
+      Los resultados dependen también de la SUNAT y de servicios de terceros; si la SUNAT rechaza un documento, te
+      mostraremos el motivo que informe.
+    </li>
+  </ul>
+
+  <h2>4. Inteligencia artificial</h2>
+  <p>
+    Los agentes usan inteligencia artificial para entender tus mensajes, audios e imágenes. Puede equivocarse al
+    interpretar: revisa siempre los resúmenes antes de confirmar una operación. Las respuestas informativas no
+    sustituyen el consejo de un profesional contable, tributario o legal.
+  </p>
+
+  <h2>5. Uso aceptable</h2>
+  <p>No está permitido:</p>
+  <ul>
+    <li>Usar el servicio para fines ilícitos o para emitir documentos falsos o sin sustento.</li>
+    <li>Intentar acceder a datos de otras personas o empresas, o vincular números que no controlas.</li>
+    <li>Sobrecargar, atacar o intentar vulnerar el servicio, o eludir sus límites de seguridad.</li>
+    <li>Enviar contenido que infrinja derechos de terceros.</li>
+  </ul>
+  <p>Podemos suspender el acceso si detectamos un uso contrario a estos términos.</p>
+
+  <h2>6. Servicios de terceros</h2>
+  <p>
+    El servicio depende de WhatsApp, de la SUNAT y de otros proveedores. Sus interrupciones, cambios o políticas
+    pueden afectar el servicio y no están bajo nuestro control.
+  </p>
+
+  <h2>7. Precio</h2>
+  <p>
+    Las condiciones económicas de cada agente son las acordadas contigo al activarlo. Te avisaremos con
+    anticipación de cualquier cambio.
+  </p>
+
+  <h2>8. Disponibilidad y responsabilidad</h2>
+  <p>
+    Trabajamos para que el servicio esté disponible y funcione correctamente, pero puede tener interrupciones o
+    errores. En la medida que permita la ley, MeowLab no responde por daños indirectos ni por decisiones tomadas
+    sin revisar la información presentada. Nada de esto limita los derechos que te reconoce la normativa de
+    protección al consumidor cuando corresponda.
+  </p>
+
+  <h2>9. Propiedad intelectual</h2>
+  <p>
+    El software, la marca y los contenidos de MeowLab le pertenecen. Los datos y documentos de tu negocio son
+    tuyos; nos das permiso para tratarlos sólo para prestarte el servicio.
+  </p>
+
+  <h2>10. Fin del servicio</h2>
+  <p>
+    Puedes dejar de usar el servicio cuando quieras y pedir el cierre de tu cuenta. Conservaremos sólo la
+    información que la ley nos obligue a guardar.
+  </p>
+
+  <h2>11. Cambios en estos términos</h2>
+  <p>
+    Si los modificamos, publicaremos la nueva versión en esta página con su fecha de vigencia. Si el cambio es
+    relevante, te avisaremos antes de que se aplique.
+  </p>
+
+  <h2>12. Ley aplicable y contacto</h2>
+  <p>
+    Estos términos se rigen por las leyes del Perú. Para cualquier consulta escríbenos a
+    <a href={`mailto:${legal.correoPrivacidad}`}>{legal.correoPrivacidad}</a> o por WhatsApp al
+    <a href={legal.whatsappUrl}>{legal.whatsapp}</a>.
+  </p>
+</LegalPage>

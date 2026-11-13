@@ -21,3 +21,7 @@ apps/manolo-whatsapp-worker/output/
 apps/manolo-whatsapp-worker/tmp/
 apps/manolo-whatsapp-worker/worker-startup.cpuprofile
 .tmp-meowlab-assets/
+
+# taste-skill: working files (Chrome profiles, shots, gate state); only the waivers are versioned
+.taste-skill/*
+!.taste-skill/waivers.json

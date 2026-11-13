@@ -1,168 +1,41 @@
 ---
-import MeowLogo from './ui/MeowLogo.astro';
-import TablerIcon from './ui/TablerIcon.astro';
+// Footer of the inner pages. Same columns and legal row as the home page's footer
+// (src/components/landing/LandingFooter.astro).
+const year = new Date().getFullYear();
 
-const currentYear = new Date().getFullYear();
-
-const assistantLinks = [
-  { name: 'Buscador de Licitaciones', href: '/#agentes' },
-  { name: 'Facturación Electrónica SUNAT', href: '/#agentes' },
-  { name: 'Creador de Cotizaciones en PDF', href: '/#agentes' },
-  { name: 'Consultas de Almacén y Stock', href: '/#agentes' },
-  { name: 'Gestor de Cobranzas', href: '/#agentes' },
-  { name: 'Atención a Clientes 24/7', href: '/#agentes' },
-];
-
-const platformLinks = [
-  { name: 'Equipo de agentes', href: '/#equipo' },
-  { name: 'Casos de uso', href: '/#agentes' },
-  { name: 'Asistente personalizado', href: '/contacto' },
-  { name: 'Conexión a Excel y Sheets', href: '/#agentes' },
-  { name: 'Seguridad y Privacidad', href: '/contacto' },
-];
-
-const companyLinks = [
-  { name: 'Iniciar sesión', href: '/contacto' },
-  { name: 'Configurar mi primer agente', href: 'https://wa.me/51923790280?text=Hola%20MeowLab%2C%20quiero%20configurar%20mi%20primer%20agente' },
-  { name: 'Preguntas frecuentes', href: '/contacto' },
-  { name: 'Contacto directo', href: '/contacto' },
+const columns = [
+  { title: 'Agentes', links: [{ name: 'Invoice Cat', href: '/#facturas' }, { name: 'Tender Cat', href: '/#licitaciones' }, { name: 'Agentes', href: '/#agentes' }] },
+  { title: 'Portal', links: [{ name: 'Portal', href: '/#portal' }, { name: 'Equipo', href: '/#equipo' }] },
+  { title: 'Ayuda', links: [{ name: 'Preguntas', href: '/#preguntas' }, { name: 'Contacto', href: '/contacto' }] },
+  { title: 'Legal', links: [{ name: 'Privacidad', href: '/privacidad' }, { name: 'Términos', href: '/terminos' }] },
 ];
 ---
 
-<footer class="bg-[#EBF1EE] pt-16 pb-12 md:pt-20 md:pb-16 text-[#2D3A35]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <!-- Main Multi-Column Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12">
-      
-      <!-- Column 1: Brand, Value Proposition & WhatsApp Status (Span 5) -->
-      <div class="lg:col-span-5 space-y-5">
-        <a href="/" class="inline-block focus:outline-none focus:ring-2 focus:ring-brand-forest rounded-xl">
-          <MeowLogo size="md" />
+<footer class="bg-white border-t border-[#111816]/10 text-[#111816]">
+  <div class="max-w-[1280px] mx-auto px-6 md:px-12 lg:px-0 lg:w-[calc(100%-160px)] py-16">
+    <div class="grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-10">
+      <div class="col-span-2 lg:col-span-4 space-y-4">
+        <a href="/" class="inline-flex items-center gap-2">
+          <img src="/assets/landing/meowlab-mark.png" alt="" width="26" height="26" class="w-[26px] h-[26px]" />
+          <span class="font-title text-[22px] font-semibold tracking-tight">meow<span class="text-brand-forest">lab</span></span>
         </a>
-
-        <p class="text-sm text-[#2D3A35] leading-relaxed max-w-sm">
-          Tus agentes inteligentes en WhatsApp para hacer avanzar tu negocio. Diseñado para pymes y operaciones reales: ventas, comprobantes SUNAT y compras públicas sin enredos técnicos.
-        </p>
-
-        <!-- Live Status Indicator (Static Dot) -->
-        <div class="inline-flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl text-sm font-semibold text-[#111816]">
-          <span class="w-2 h-2 rounded-full bg-[#25D366]"></span>
-          <span>Sistemas operativos en WhatsApp</span>
+        <p class="font-title text-xl leading-snug max-w-[30ch]">Agentes de IA en WhatsApp para mypes del Perú.</p>
+      </div>
+      {columns.map((col) => (
+        <div class="lg:col-span-2">
+          <h3 class="text-sm text-[#46544F] mb-3 font-sans">{col.title}</h3>
+          <ul class="space-y-3 text-sm">
+            {col.links.map((link) => (
+              <li><a href={link.href} class="hover:text-brand-forest hover:underline underline-offset-4">{link.name}</a></li>
+            ))}
+          </ul>
         </div>
-
-      </div>
-
-      <!-- Column 2: Agentes (Span 3) -->
-      <div class="lg:col-span-3 space-y-4">
-        <h3 class="text-base font-bold text-[#111816] font-title">
-          Agentes para tu negocio
-        </h3>
-        <ul class="space-y-2.5 text-sm">
-          {assistantLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="hover:text-brand-forest transition-colors inline-block"
-              >
-                {link.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <!-- Column 3: Plataforma (Span 2) -->
-      <div class="lg:col-span-2 space-y-4">
-        <h3 class="text-base font-bold text-[#111816] font-title">
-          Plataforma
-        </h3>
-        <ul class="space-y-2.5 text-sm">
-          {platformLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="hover:text-brand-forest transition-colors inline-block"
-              >
-                {link.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <!-- Column 4: Contacto & Acceso (Span 2) -->
-      <div class="lg:col-span-2 space-y-4">
-        <h3 class="text-base font-bold text-[#111816] font-title">
-          Contacto
-        </h3>
-        <ul class="space-y-2.5 text-sm">
-          {companyLinks.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="hover:text-brand-forest transition-colors inline-block"
-              >
-                {link.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div class="pt-2 text-sm text-[#46544F]">
-          <p class="font-medium text-[#111816]">Lima, Perú</p>
-          <p class="text-sm mt-0.5">Operaciones para todo el país</p>
-        </div>
-      </div>
-
+      ))}
     </div>
-
-    <!-- Trust & Security Ribbon -->
-    <div class="py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm text-[#2D3A35]">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
-          <TablerIcon name="brand-whatsapp" size={17} className="text-[#25D366]" strokeWidth={2} />
-        </div>
-        <div>
-          <span class="font-bold text-[#111816] block">100% en WhatsApp</span>
-          <span class="text-[#46544F]">Sin instalar apps ni programas nuevos</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
-          <TablerIcon name="receipt-tax" size={17} strokeWidth={2} />
-        </div>
-        <div>
-          <span class="font-bold text-[#111816] block">Validez oficial SUNAT</span>
-          <span class="text-[#46544F]">Comprobantes legales con XML y PDF</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-brand-forest shrink-0">
-          <TablerIcon name="check" size={17} strokeWidth={2.2} />
-        </div>
-        <div>
-          <span class="font-bold text-[#111816] block">Privacidad garantizada</span>
-          <span class="text-[#46544F]">Tus datos seguros y cifrados de extremo a extremo</span>
-        </div>
-      </div>
+    <div class="mt-12 pt-6 border-t border-[#111816]/10 text-sm text-[#46544F] flex flex-wrap gap-x-4 gap-y-2">
+      <span>© {year} MeowLab</span>
+      <a href="/privacidad" class="hover:text-brand-forest">Privacidad</a>
+      <a href="/terminos" class="hover:text-brand-forest">Términos</a>
     </div>
-
-    <!-- Bottom Copyright & Legal Links -->
-    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#46544F]">
-      <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
-        <p>© {currentYear} MeowLab. Todos los derechos reservados.</p>
-        <span class="hidden sm:inline text-[#46544F]">•</span>
-        <p>Hecho en Perú para hacer avanzar a tu empresa.</p>
-      </div>
-
-      <div class="flex items-center gap-6">
-        <a href="/contacto" class="hover:text-brand-forest transition-colors">Términos</a>
-        <a href="/contacto" class="hover:text-brand-forest transition-colors">Privacidad</a>
-        <a href="/contacto" class="hover:text-brand-forest transition-colors">Libro de Reclamaciones</a>
-      </div>
-    </div>
-
   </div>
 </footer>
