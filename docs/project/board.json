@@ -1522,10 +1522,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-13",
-      "notes": "Pedido del operador tras la crítica (22/40). Foco: titular de MYPE; todos los agentes en el mismo chat de Manolo. Código y pruebas listos, sin desplegar. Ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). Para desplegar: release del bridge e imagen del portal.",
-      "evidence": "Bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. Portal: typecheck limpio, vitest 29/29; Inicio, Tus agentes, Invoice Cat (tarjetas en celular), Tender Cat, Atrás y foco revisados en local con bridge falso."
+      "notes": "Desplegado el 13/11/2026. Acta: docs/operations/portal-agentes-2026-11-13.md.",
+      "evidence": "Producción: bridge portal-agentes-20261113T161923Z (datos de hoy reales de CREACIONES J&D), portal meowlab-app:b087f59e78d4 healthy, rutas /inicio /agentes /agentes/facturas /agentes/licitaciones /plan /ajustes/equipo 200. Antes: bridge 641/641, weekly pg-check 5/5, portal 29/29."
     },
     {
       "id": "portal-tender-catalogo-20261113",

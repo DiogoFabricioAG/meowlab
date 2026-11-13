@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 60 · Total: 150</span>
+      <span class="summary">Abiertas: 59 · Total: 150</span>
     </div>
   </div>
 </header>
@@ -836,7 +836,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -872,17 +872,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: fichas de agentes, inicio del día, rutas y arreglos de la crítica de diseño (impeccable) portal pedido del operador tras la crítica (22/40). foco: titular de mype; todos los agentes en el mismo chat de manolo. código y pruebas listos, sin desplegar. ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). para desplegar: release del bridge e imagen del portal. bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. portal: typecheck limpio, vitest 29/29; inicio, tus agentes, invoice cat (tarjetas en celular), tender cat, atrás y foco revisados en local con bridge falso.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Portal: fichas de agentes, Inicio del día, rutas y arreglos de la crítica de diseño (impeccable)</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 641/641, weekly pg-check 5/5. Portal: typecheck limpio, vitest 29/29; Inicio, Tus agentes, Invoice Cat (tarjetas en celular), Tender Cat, Atrás y foco revisados en local con bridge falso.</p>
-          <p class="card-notes">Pedido del operador tras la crítica (22/40). Foco: titular de MYPE; todos los agentes en el mismo chat de Manolo. Código y pruebas listos, sin desplegar. Ramas: feat/portal-agentes (bridge: hoy y tender.enabled) y feat/portal-agentes-app (portal). Para desplegar: release del bridge e imagen del portal.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-agentes-critica-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -899,7 +888,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">90</span>
+          <span class="count">91</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1671,6 +1660,17 @@
           <p class="card-notes">Desplegado el 13/11/2026. Acta: docs/operations/portal-inicio-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-estructura-inicio-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: fichas de agentes, inicio del día, rutas y arreglos de la crítica de diseño (impeccable) portal desplegado el 13/11/2026. acta: docs/operations/portal-agentes-2026-11-13.md. producción: bridge portal-agentes-20261113t161923z (datos de hoy reales de creaciones j&amp;d), portal meowlab-app:b087f59e78d4 healthy, rutas /inicio /agentes /agentes/facturas /agentes/licitaciones /plan /ajustes/equipo 200. antes: bridge 641/641, weekly pg-check 5/5, portal 29/29.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: fichas de agentes, Inicio del día, rutas y arreglos de la crítica de diseño (impeccable)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: bridge portal-agentes-20261113T161923Z (datos de hoy reales de CREACIONES J&amp;D), portal meowlab-app:b087f59e78d4 healthy, rutas /inicio /agentes /agentes/facturas /agentes/licitaciones /plan /ajustes/equipo 200. Antes: bridge 641/641, weekly pg-check 5/5, portal 29/29.</p>
+          <p class="card-notes">Desplegado el 13/11/2026. Acta: docs/operations/portal-agentes-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-agentes-critica-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="comprimir y optimizar imágenes de la landing en formato webp landing 14 imágenes raster de la landing convertidas a webp (calidad 88) y 3 variantes light de agentes convertidas a webp transparente invertido, eliminando el envoltorio svg de 600kb con filtro fecomponenttransfer. pngs originales optimizados in situ como respaldo. reducción de payload de imágenes en la home de 3.79 mb a 0.40 mb (89.4% de ahorro). desplegado en el vps: meowlab-web:d7cf736da0ea desde d7cf736. meowlab.tech, /contacto, /privacidad, /terminos y assets .webp respondiendo http/2 200. payload de imágenes en la home reducido en 89.4% (3.79 mb a 0.40 mb). acta: docs/operations/landing-webp-despliegue-2026-11-12.md">
           <div class="card-top">
