@@ -1559,6 +1559,50 @@
       "updated": "2026-11-13",
       "notes": "Pedido del operador. Acta: docs/operations/portal-agentes-2026-11-13.md (sección «Más verde de la marca»).",
       "evidence": "Producción: meowlab-app:b81c604327c7 healthy; rutas 200; CSS servido con las clases nuevas. Antes: portal vitest 29/29 y revisión local."
+    },
+    {
+      "id": "sales-cat-1-interno-20261113",
+      "title": "Sales Cat fase 1: ventas y cotizaciones de la titular por el chat de Manolo (/sales)",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0011.",
+      "evidence": ""
+    },
+    {
+      "id": "sales-cat-2-clientes-20261113",
+      "title": "Sales Cat fase 2: atender a los clientes en el número de la empresa y tomar conversaciones",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0011.",
+      "evidence": ""
+    },
+    {
+      "id": "sales-cat-3-extras-20261113",
+      "title": "Sales Cat fase 3: metas, nombre propio del gato, stock y deudas",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0011.",
+      "evidence": ""
+    },
+    {
+      "id": "sales-cat-numero-jd-20261113",
+      "title": "Definir el número de WhatsApp de CREACIONES J&D para el piloto de Sales Cat",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0011.",
+      "evidence": ""
     }
   ]
 }

@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0011 — Sales Cat](0011-sales-cat.md): el vendedor del negocio en su propio WhatsApp;
+  la titular lo consulta y toma conversaciones desde Manolo.
+
 - [0010 — Empresas e invitaciones en el portal](0010-empresas-e-invitaciones-en-el-portal.md):
   crear empresa con RUC, unirse sólo con enlace del dueño y credenciales SOL sólo para Invoice Cat.
 

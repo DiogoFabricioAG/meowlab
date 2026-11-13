@@ -198,6 +198,7 @@
           <option value="FacturaYa">FacturaYa</option>
           <option value="IA">IA</option>
           <option value="Landing">Landing</option>
+          <option value="Manolo">Manolo</option>
           <option value="Ops">Ops</option>
           <option value="Plataforma">Plataforma</option>
           <option value="Portal">Portal</option>
@@ -214,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 59 · Total: 151</span>
+      <span class="summary">Abiertas: 63 · Total: 155</span>
     </div>
   </div>
 </header>
@@ -223,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">55</span>
+          <span class="count">59</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -434,6 +435,39 @@
           <p class="card-notes">Fase 1 del ADR-0008: esquemas core y agents (personas, identidades, membresías, activaciones, sesiones). Desbloquea el bloqueo por impago (ADR-0007) y la fase 3 del portal.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">erp-phase-1-core-agents-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat fase 1: ventas y cotizaciones de la titular por el chat de manolo (/sales) manolo adr-0011. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Sales Cat fase 1: ventas y cotizaciones de la titular por el chat de Manolo (/sales)</h3>
+          
+          <p class="card-notes">ADR-0011.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-1-interno-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat fase 2: atender a los clientes en el número de la empresa y tomar conversaciones manolo adr-0011. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Sales Cat fase 2: atender a los clientes en el número de la empresa y tomar conversaciones</h3>
+          
+          <p class="card-notes">ADR-0011.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-2-clientes-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="definir el número de whatsapp de creaciones j&amp;d para el piloto de sales cat manolo adr-0011. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Definir el número de WhatsApp de CREACIONES J&amp;D para el piloto de Sales Cat</h3>
+          
+          <p class="card-notes">ADR-0011.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-numero-jd-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -731,6 +765,17 @@
           <p class="card-notes">La crítica marcó Ayuda 1/4: «pídele ayuda al equipo de MeowLab» no dice cómo. Depende del proveedor de correo o de un número de soporte.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-ayuda-contacto-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Manolo" data-text="sales cat fase 3: metas, nombre propio del gato, stock y deudas manolo adr-0011. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Sales Cat fase 3: metas, nombre propio del gato, stock y deudas</h3>
+          
+          <p class="card-notes">ADR-0011.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-3-extras-20261113</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
