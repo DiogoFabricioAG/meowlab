@@ -26,8 +26,8 @@ export function QuotePage({ code }: { code: string }) {
 
   if (state !== "ok" || !quote) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-mint-light px-4">
-        <div className="max-w-md space-y-2 rounded-3xl bg-white p-8 text-center shadow-card" aria-busy={state === "loading"}>
+      <main className="grid min-h-dvh place-items-center bg-white px-4">
+        <div className="max-w-md space-y-2 rounded-3xl border border-line bg-white p-8 text-center shadow-card" aria-busy={state === "loading"}>
           <h1 className="text-2xl font-bold text-ink">
             {state === "loading" ? "Abriendo la cotización…" : state === "missing" ? "Esta cotización no existe" : "No pudimos abrir la cotización"}
           </h1>
@@ -40,7 +40,7 @@ export function QuotePage({ code }: { code: string }) {
 
   const expired = new Date(`${quote.validUntil}T23:59:59-05:00`).getTime() < Date.now();
   return (
-    <div className="min-h-dvh bg-mint-light print:bg-white">
+    <div className="min-h-dvh bg-white">
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 print:p-0">
         <QuoteDocument quote={quote} brand={quote.brand ?? null} expired={expired}
           logoUrl={quote.brand?.logo ? `/api/public/quotes/${code}/logo?v=${quote.brand.logo.version}` : null} />

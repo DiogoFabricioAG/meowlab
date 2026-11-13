@@ -75,7 +75,7 @@ export function QuoteDocument({ quote, brand, logoUrl, expired = false }: {
   const methods = brand?.paymentMethods ?? [];
   return (
     <div className="@container">
-    <article className="overflow-hidden rounded-3xl bg-white shadow-card print:rounded-none print:shadow-none"
+    <article className="overflow-hidden rounded-3xl border border-line bg-white shadow-card print:rounded-none print:border-0 print:shadow-none"
       style={{ "--brand": color } as CSSProperties}>
       <header className="flex flex-col gap-5 bg-[var(--brand)] px-6 py-7 text-white @xl:px-10 print:bg-white print:text-ink">
         <div className="flex min-w-0 flex-col items-start gap-4 @md:flex-row">
