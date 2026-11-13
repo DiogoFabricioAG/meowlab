@@ -1434,10 +1434,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-13",
-      "notes": "ADR-0010.",
-      "evidence": ""
+      "notes": "ADR-0010. Código y pruebas listos, sin desplegar. Ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). Para desplegar: migración 013, release del bridge e imagen del portal; FacturaYa no cambia.",
+      "evidence": "Bridge: tsc limpio, vitest 634/636 (2 RADAR por reloj), tools/portal-invitation-pg-check.ts en PostgreSQL 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). Portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso."
     },
     {
       "id": "portal-org-3-invoice-sol-20261113",
@@ -1448,6 +1448,39 @@
       "status": "todo",
       "updated": "2026-11-13",
       "notes": "ADR-0010.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-org-transferir-20261113",
+      "title": "Portal: transferir la propiedad y salir de una empresa",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-org-vincular-despues-20261113",
+      "title": "Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación.",
+      "evidence": ""
+    },
+    {
+      "id": "portal-org-duenos-operador-20261113",
+      "title": "Asignar dueño en el portal a las empresas creadas por el operador (p. ej. CREACIONES J&D)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "Sin dueño en portal_company_members nadie puede invitar a esas empresas.",
       "evidence": ""
     }
   ]

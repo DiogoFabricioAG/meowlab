@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 53 · Total: 141</span>
+      <span class="summary">Abiertas: 56 · Total: 144</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">49</span>
+          <span class="count">51</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -435,16 +435,16 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">erp-phase-1-core-agents-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="portal: invitaciones del dueño con enlace seguro y panel de equipo portal adr-0010. ">
+        <article class="card" data-priority="high" data-area="Portal" data-text="asignar dueño en el portal a las empresas creadas por el operador (p. ej. creaciones j&amp;d) portal sin dueño en portal_company_members nadie puede invitar a esas empresas. ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
             <span class="priority priority-high">Alta</span>
           </div>
-          <h3 class="card-title">Portal: invitaciones del dueño con enlace seguro y panel de equipo</h3>
+          <h3 class="card-title">Asignar dueño en el portal a las empresas creadas por el operador (p. ej. CREACIONES J&amp;D)</h3>
           
-          <p class="card-notes">ADR-0010.</p>
+          <p class="card-notes">Sin dueño en portal_company_members nadie puede invitar a esas empresas.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-org-2-invitaciones-20261113</code>
+          <code class="card-id">portal-org-duenos-operador-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -677,6 +677,28 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-3-invoice-sol-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transferir la propiedad y salir de una empresa portal adr-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: transferir la propiedad y salir de una empresa</h3>
+          
+          <p class="card-notes">ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-transferir-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: dar acceso a los agentes cuando el miembro vincula su whatsapp después de unirse portal hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse</h3>
+          
+          <p class="card-notes">Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-vincular-despues-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -770,7 +792,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -805,6 +827,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="portal: invitaciones del dueño con enlace seguro y panel de equipo portal adr-0010. código y pruebas listos, sin desplegar. ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). para desplegar: migración 013, release del bridge e imagen del portal; facturaya no cambia. bridge: tsc limpio, vitest 634/636 (2 radar por reloj), tools/portal-invitation-pg-check.ts en postgresql 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Portal: invitaciones del dueño con enlace seguro y panel de equipo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Bridge: tsc limpio, vitest 634/636 (2 RADAR por reloj), tools/portal-invitation-pg-check.ts en PostgreSQL 17 desechable: 28/28 (un solo uso, vencimiento, anulación, número atado, aceptación simultánea, quitar miembro). Portal: typecheck limpio, vitest 28/28, flujo dueño e invitado probado en local con bridge falso.</p>
+          <p class="card-notes">ADR-0010. Código y pruebas listos, sin desplegar. Ramas: feat/portal-invitaciones (bridge, migración 013) y feat/portal-invitaciones-app (portal). Para desplegar: migración 013, release del bridge e imagen del portal; FacturaYa no cambia.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-org-2-invitaciones-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
