@@ -38,10 +38,14 @@ export function AgentsPage({ company, weekly, catalog, go }: {
           const muted = state.kind === "soon";
           return (
             <li key={card.key}
-              className={`flex flex-col gap-4 rounded-2xl border p-5 ${muted ? "border-dashed border-line bg-surface-subtle/50" : "border-line bg-white"}`}>
+              className={`flex flex-col gap-4 rounded-2xl border p-5 ${
+                muted ? "border-dashed border-line-mint bg-white/60" : state.kind === "active" ? "border-line-mint bg-white shadow-card" : "border-line bg-white"
+              }`}>
               <div className="flex items-start justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
-                  <span className={muted ? "text-ink-muted" : "text-forest"}><Icon name={card.icon} /></span>
+                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
+                    state.kind === "active" ? "bg-forest text-mint" : muted ? "bg-surface-subtle text-ink-muted" : "bg-mint text-forest"
+                  }`}><Icon name={card.icon} /></span>
                   {card.name}
                 </h2>
                 <span className={`chip shrink-0 border ${BADGE[state.kind].tone}`}>{BADGE[state.kind].text}</span>

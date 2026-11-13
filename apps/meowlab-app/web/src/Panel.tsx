@@ -133,14 +133,14 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     ) : null;
 
   return (
-    <div className="min-h-dvh bg-white lg:pl-72">
+    <div className="min-h-dvh bg-mint-light lg:pl-72">
       <a href="#contenido" className="sr-only z-50 rounded-lg bg-forest px-4 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Saltar al contenido
       </a>
 
       {/* Desktop: fixed side menu. */}
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col border-r border-line bg-white px-4 py-6 lg:flex" aria-label="Menú">
-        <div className="px-3 pb-6"><Logo /></div>
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col bg-forest px-4 py-6 text-mint-text lg:flex" aria-label="Menú">
+        <div className="px-3 pb-8"><Logo light /></div>
         <nav className="flex flex-1 flex-col gap-1" aria-label="Secciones">
           {[...nav, ...adminNav].map((item) => {
             const current = item.matches.includes(section);
@@ -150,8 +150,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
                   event.preventDefault();
                   go(item.path);
                 }}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors ${
-                  current ? "bg-mint-light text-forest" : "text-ink-2 hover:bg-surface-subtle hover:text-ink"
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors focus-visible:outline-mint ${
+                  current ? "bg-mint text-forest" : "text-mint-text hover:bg-forest-card hover:text-white"
                 }`}>
                 <Icon name={item.icon} />
                 {item.label}
@@ -159,21 +159,21 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
             );
           })}
         </nav>
-        <div className="mt-4 space-y-3 border-t border-line pt-4">
+        <div className="mt-4 space-y-3 border-t border-forest-card pt-4">
           {company && (
-            <div className="space-y-1 px-1">
-              <span className="block text-xs font-semibold text-ink-muted">Empresa</span>
-              {companyPicker("") ?? <span className="block text-sm font-semibold text-ink">{company.name}</span>}
+            <div className="space-y-1 rounded-xl bg-forest-card px-3 py-3">
+              <span className="block text-xs font-semibold text-mint">Empresa</span>
+              {companyPicker("") ?? <span className="block text-sm font-semibold text-white">{company.name}</span>}
             </div>
           )}
           <div className="flex items-center gap-3 px-1">
             <Avatar name={me.user.name} image={me.user.image} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold text-ink">{me.user.name}</div>
-              <div className="truncate text-xs text-ink-muted">{me.user.email}</div>
+              <div className="truncate text-sm font-semibold text-white">{me.user.name}</div>
+              <div className="truncate text-xs text-mint">{me.user.email}</div>
             </div>
             <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
-              className="grid h-11 w-11 place-items-center rounded-lg text-ink-muted hover:bg-surface-subtle hover:text-ink">
+              className="grid h-11 w-11 place-items-center rounded-lg text-mint hover:bg-forest-card hover:text-white focus-visible:outline-mint">
               <Icon name="logout" />
             </button>
           </div>
@@ -181,12 +181,12 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
       </aside>
 
       {/* Phones: slim top bar; the menu sits at the bottom, after the content. */}
-      <header className="flex h-16 items-center justify-between gap-2 border-b border-line px-4 lg:hidden">
-        <Logo />
+      <header className="flex h-16 items-center justify-between gap-2 bg-forest px-4 lg:hidden">
+        <Logo light />
         <div className="flex items-center gap-1">
           {companyPicker("max-w-[9rem]")}
           <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
-            className="grid h-11 w-11 place-items-center rounded-lg text-ink-muted">
+            className="grid h-11 w-11 place-items-center rounded-lg text-mint focus-visible:outline-mint">
             <Icon name="logout" />
           </button>
         </div>
@@ -227,7 +227,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
                 event.preventDefault();
                 go(item.path);
               }}
-              className={`flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${current ? "text-forest" : "text-ink-muted"}`}>
+              className={`relative flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${current ? "text-forest" : "text-ink-muted"}`}>
+              {current && <span aria-hidden="true" className="absolute inset-x-6 top-0 h-[3px] rounded-b-full bg-forest" />}
               <Icon name={item.icon} />
               {item.label}
             </a>

@@ -79,7 +79,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         alt=""
         width={36}
         height={36}
-        className={`h-9 w-9 shrink-0 object-contain ${light ? "" : "mix-blend-multiply"}`}
+        className={`h-9 w-9 shrink-0 object-contain ${light ? "mix-blend-screen" : "mix-blend-multiply"}`}
         decoding="async"
       />
       <span className={`font-title text-xl font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>

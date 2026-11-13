@@ -55,53 +55,40 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-1">
-        <p className="text-sm font-semibold text-ink-muted">{weekly ? longDay(weekly.today) : "Hoy"}</p>
-        <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Hola, {firstName}</h1>
-        <p className="text-lg text-ink-muted">Esto hicieron hoy tus agentes en el chat de Manolo para {company.name}</p>
-      </header>
-
-      {!me.whatsapp.linked && (
-        <button type="button" onClick={() => go("/ajustes")}
-          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-line-mint bg-mint-light px-5 py-4 text-left">
-          <span>
-            <span className="block font-semibold text-ink">Vincula tu WhatsApp</span>
-            <span className="block text-sm text-ink-2">Así Manolo te reconoce y lo que hagas en el chat aparece aquí.</span>
-          </span>
-          <span className="shrink-0 text-sm font-semibold text-forest">Ir a Configuración</span>
-        </button>
-      )}
-
-      {failed && <p className="rounded-2xl bg-surface-subtle px-5 py-4 text-ink-muted">No pudimos cargar lo de hoy. Vuelve a intentarlo en unos minutos.</p>}
-
-      <section className="space-y-3" aria-labelledby="today-title">
-        <h2 id="today-title" className="text-xl font-bold tracking-tight text-ink">Hoy</h2>
-        {!weekly && !failed && <div className="h-32 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />}
+      <section className="space-y-6 rounded-3xl bg-forest p-6 text-white sm:p-8" aria-labelledby="today-title">
+        <header className="space-y-1">
+          <p className="text-sm font-semibold text-mint">{weekly ? longDay(weekly.today) : "Hoy"}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Hola, {firstName}</h1>
+          <p id="today-title" className="text-lg text-mint-text">Esto hicieron hoy tus agentes en el chat de Manolo para {company.name}</p>
+        </header>
+        {!weekly && !failed && <div className="h-32 animate-pulse rounded-2xl bg-forest-card motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />}
+        {failed && <p className="rounded-2xl bg-forest-card px-5 py-4 text-mint-text">No pudimos cargar lo de hoy. Vuelve a intentarlo en unos minutos.</p>}
         {weekly && (
           active.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-line px-5 py-4">
-              <p className="text-ink-2">Todavía ningún agente trabaja para {company.name}.</p>
-              <button type="button" onClick={() => go("/agentes")} className="mt-3 min-h-11 font-semibold text-forest underline-offset-4 hover:underline">
+            <div className="rounded-2xl bg-forest-card px-5 py-4">
+              <p className="text-mint-text">Todavía ningún agente trabaja para {company.name}.</p>
+              <button type="button" onClick={() => go("/agentes")}
+                className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-mint px-4 font-semibold text-forest focus-visible:outline-mint">
                 Ver los agentes que puedes sumar
               </button>
             </div>
           ) : (
-            <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
+            <ul className="grid gap-3 md:grid-cols-2">
               {active.map(({ agent, state }) => (
                 <li key={agent.key}>
                   <button type="button" onClick={() => go(agent.detail ?? "/agentes")}
-                    className="flex w-full items-start gap-3 px-5 py-4 text-left hover:bg-surface-subtle/60">
-                    <span className="mt-0.5 text-forest"><Icon name={agent.icon} /></span>
+                    className="flex h-full w-full items-start gap-3 rounded-2xl bg-forest-card px-5 py-4 text-left transition-colors hover:bg-[#166553] focus-visible:outline-mint">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mint text-forest"><Icon name={agent.icon} /></span>
                     <span className="min-w-0">
-                      <span className="block font-semibold text-ink">{agent.name}</span>
-                      <span className="block text-ink-2">{state.kind === "active" ? state.today : ""}</span>
+                      <span className="block font-semibold text-white">{agent.name}</span>
+                      <span className="block text-mint-text">{state.kind === "active" ? state.today : ""}</span>
                     </span>
                   </button>
                 </li>
               ))}
-              <li className="flex items-start gap-3 px-5 py-4">
-                <span className="mt-0.5 text-ink-muted"><Icon name="message" /></span>
-                <span className="text-ink-2">
+              <li className="flex items-start gap-3 rounded-2xl border border-forest-card px-5 py-4 md:col-span-2">
+                <span className="mt-0.5 text-mint"><Icon name="message" /></span>
+                <span className="text-mint-text">
                   {weekly.team.messagesToday
                     ? `Tu equipo le escribió ${weekly.team.messagesToday} ${weekly.team.messagesToday === 1 ? "mensaje" : "mensajes"} a Manolo.`
                     : "Hoy nadie de tu equipo le escribió a Manolo."}
@@ -112,11 +99,23 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
         )}
       </section>
 
+      {!me.whatsapp.linked && (
+        <button type="button" onClick={() => go("/ajustes")}
+          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-line-mint bg-white px-5 py-4 text-left">
+          <span>
+            <span className="block font-semibold text-ink">Vincula tu WhatsApp</span>
+            <span className="block text-sm text-ink-2">Así Manolo te reconoce y lo que hagas en el chat aparece aquí.</span>
+          </span>
+          <span className="shrink-0 text-sm font-semibold text-forest">Ir a Configuración</span>
+        </button>
+      )}
+
+
       {weekly && (
         <section className="space-y-3" aria-labelledby="attention-title">
           <h2 id="attention-title" className="text-xl font-bold tracking-tight text-ink">Para atender</h2>
           {attention.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-line px-5 py-4 text-ink-muted">
+            <p className="rounded-2xl border border-dashed border-line-mint bg-white px-5 py-4 text-ink-muted">
               Nada pendiente: esta semana no hay comprobantes rechazados ni licitaciones marcadas como interesantes.
             </p>
           ) : (
@@ -151,7 +150,7 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
       {weekly && (
         <section className="space-y-3" aria-labelledby="week-title">
           <h2 id="week-title" className="text-xl font-bold tracking-tight text-ink">Esta semana</h2>
-          <dl className="grid gap-3 rounded-2xl bg-surface-subtle p-5 sm:grid-cols-3">
+          <dl className="grid gap-3 rounded-2xl border border-line-mint bg-white p-5 sm:grid-cols-3">
             <div>
               <dt className="text-sm text-ink-muted">Facturado (aceptado por SUNAT)</dt>
               <dd className="text-xl font-bold text-ink tabular-nums">{invoicing ? soles(invoicing.totalPen) : "—"}</dd>
@@ -172,8 +171,8 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
 
       {company.role === "owner" && (
         <button type="button" onClick={() => go("/ajustes/equipo")}
-          className="flex w-full items-center gap-3 rounded-2xl border border-line px-5 py-4 text-left hover:border-forest">
-          <span className="text-forest"><Icon name="users" /></span>
+          className="flex w-full items-center gap-3 rounded-2xl border border-line-mint bg-mint-subtle px-5 py-4 text-left hover:border-forest">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-forest text-mint"><Icon name="users" /></span>
           <span>
             <span className="block font-semibold text-ink">Invita a tu equipo</span>
             <span className="block text-sm text-ink-muted">Quien venda contigo puede usar a tus agentes desde su propio WhatsApp.</span>
