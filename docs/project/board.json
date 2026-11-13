@@ -1801,6 +1801,39 @@
       "updated": "2026-11-13",
       "notes": "ADR-0013 recién desplegado.",
       "evidence": ""
+    },
+    {
+      "id": "stock-cat-1-nucleo-20261113",
+      "title": "Stock Cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014. Requiere que FacturaYa exponga los productos de cada comprobante emitido. Piloto: CREACIONES J&D como cortesía.",
+      "evidence": ""
+    },
+    {
+      "id": "stock-cat-2-digitalizar-20261113",
+      "title": "Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014.",
+      "evidence": ""
+    },
+    {
+      "id": "stock-cat-3-venta-20261113",
+      "title": "Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa).",
+      "evidence": ""
     }
   ]
 }

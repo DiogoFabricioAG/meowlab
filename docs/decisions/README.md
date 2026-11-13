@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0014 — Stock Cat](0014-stock-cat.md): alertas para que nada se acabe; el stock baja con los
+  comprobantes de Invoice Cat y se carga por chat, Excel o imagen.
+
 - [0013 — Plantilla única y cotización en PDF](0013-plantilla-unica-y-cotizacion-en-pdf.md): un
   solo formato para todos los documentos, la cotización de Sales Cat como PDF y sin blob
   storage hasta que el volumen lo pida.

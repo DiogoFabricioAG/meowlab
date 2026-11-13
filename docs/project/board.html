@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 69 · Total: 173</span>
+      <span class="summary">Abiertas: 72 · Total: 176</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">65</span>
+          <span class="count">68</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -468,6 +468,28 @@
           <p class="card-notes">ADR-0011, fase 1 recién desplegada.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal manolo adr-0014. requiere que facturaya exponga los productos de cada comprobante emitido. piloto: creaciones j&amp;d como cortesía. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal</h3>
+          
+          <p class="card-notes">ADR-0014. Requiere que FacturaYa exponga los productos de cada comprobante emitido. Piloto: CREACIONES J&amp;D como cortesía.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-1-nucleo-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 2: carga desde excel e imagen y entradas desde la foto de la factura del proveedor manolo adr-0014. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor</h3>
+          
+          <p class="card-notes">ADR-0014.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-2-digitalizar-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -820,6 +842,17 @@
           <p class="card-notes">ADR-0013 recién desplegado.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">cotizacion-pdf-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="stock cat fase 3: a la venta en el plan a s/ 29, por empresa portal adr-0014; reutiliza la activación por empresa de sales cat (feat/billing-por-empresa). ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa</h3>
+          
+          <p class="card-notes">ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-3-venta-20261113</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
