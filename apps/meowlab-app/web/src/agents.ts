@@ -41,6 +41,9 @@ export const AGENTS: Array<{ key: AgentKey; name: string; does: string; icon: Ic
   { key: "collections", name: "Collections Cat", does: "Cobra por Yape y confirma los pagos de tus clientes.", icon: "cash" },
 ];
 
+/** The agent's logo (public/agents): black line art on white, shown on mint tiles. */
+export const agentLogo = (key: AgentKey) => `/agents/${key}-cat.webp`;
+
 export type AgentState =
   | { kind: "active"; today: string }
   | { kind: "setup"; step: string }

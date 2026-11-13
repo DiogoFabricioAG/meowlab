@@ -1,5 +1,5 @@
 import type { Me, Membership } from "./auth-client";
-import { AGENTS, agentState, type CatalogAgent, type Weekly } from "./agents";
+import { AGENTS, agentLogo, agentState, type CatalogAgent, type Weekly } from "./agents";
 import { Icon } from "./icons";
 
 const soles = (value: string) =>
@@ -78,7 +78,9 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
                 <li key={agent.key}>
                   <button type="button" onClick={() => go(agent.detail ?? "/agentes")}
                     className="flex h-full w-full items-start gap-3 rounded-2xl bg-forest-card px-5 py-4 text-left transition-colors hover:bg-[#166553] focus-visible:outline-mint">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mint text-forest"><Icon name={agent.icon} /></span>
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-mint">
+                      <img src={agentLogo(agent.key)} alt="" width={36} height={36} className="h-9 w-9 mix-blend-multiply" decoding="async" />
+                    </span>
                     <span className="min-w-0">
                       <span className="block font-semibold text-white">{agent.name}</span>
                       <span className="block text-mint-text">{state.kind === "active" ? state.today : ""}</span>

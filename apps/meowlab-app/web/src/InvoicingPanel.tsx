@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchJson, type Membership } from "./auth-client";
 import { Icon } from "./icons";
+import { agentLogo } from "./agents";
 
 type Company = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 type Document = {
@@ -100,7 +101,12 @@ export function InvoicingPanel({ company: selected, onBack }: { company: Members
         <span aria-hidden="true">←</span> Tus agentes
       </button>
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Invoice Cat</h1>
+        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
+            <img src={agentLogo("invoice")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
+          </span>
+          Invoice Cat
+        </h1>
         <p className="text-lg text-ink-muted">
           Comprobantes de {selected.legalName ?? selected.name}
           {selected.ruc ? ` · RUC ${selected.ruc}` : ""}

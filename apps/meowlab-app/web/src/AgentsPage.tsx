@@ -1,5 +1,5 @@
 import type { Membership } from "./auth-client";
-import { AGENTS, agentState, monthlyPrice, type AgentState, type CatalogAgent, type Weekly } from "./agents";
+import { AGENTS, agentLogo, agentState, monthlyPrice, type AgentState, type CatalogAgent, type Weekly } from "./agents";
 import { Icon } from "./icons";
 
 const BADGE: Record<AgentState["kind"], { text: string; tone: string }> = {
@@ -43,9 +43,10 @@ export function AgentsPage({ company, weekly, catalog, go }: {
               }`}>
               <div className="flex items-start justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
-                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
-                    state.kind === "active" ? "bg-forest text-mint" : muted ? "bg-surface-subtle text-ink-muted" : "bg-mint text-forest"
-                  }`}><Icon name={card.icon} /></span>
+                  <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${muted ? "bg-surface-subtle" : "bg-mint"}`}>
+                    <img src={agentLogo(card.key)} alt="" width={40} height={40}
+                      className={`h-10 w-10 mix-blend-multiply ${muted ? "opacity-50 grayscale" : ""}`} decoding="async" />
+                  </span>
                   {card.name}
                 </h2>
                 <span className={`chip shrink-0 border ${BADGE[state.kind].tone}`}>{BADGE[state.kind].text}</span>
@@ -91,7 +92,12 @@ export function TenderPanel({ weekly, onBack }: { weekly: Weekly | null; onBack:
         <span aria-hidden="true">←</span> Tus agentes
       </button>
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Tender Cat</h1>
+        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
+            <img src={agentLogo("tender")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
+          </span>
+          Tender Cat
+        </h1>
         <p className="text-lg text-ink-muted">
           {weekly
             ? `Esta semana encontró ${weekly.tender.found} ${weekly.tender.found === 1 ? "licitación" : "licitaciones"}; tu equipo marcó ${weekly.tender.interesting} como interesantes.`
