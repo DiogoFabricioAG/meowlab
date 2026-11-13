@@ -27,7 +27,7 @@ export function OnboardingPage({ me, onDone, onInvitation }: { me: Me; onDone: (
       </header>
       <main className="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6 lg:py-16">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Bienvenido, {firstName}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Te damos la bienvenida, {firstName}</h1>
           <p className="max-w-[60ch] text-lg text-ink-muted">
             Un paso antes de entrar a tu panel.
           </p>

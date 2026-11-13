@@ -28,13 +28,13 @@ export function App() {
 
   if (isPending || (session && !me)) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true">
+      <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true" role="status" aria-label="Cargando MeowLab">
         <img
           src="/meowlab-black.webp"
           alt=""
           width={48}
           height={48}
-          className="h-12 w-12 animate-pulse object-contain mix-blend-multiply"
+          className="h-12 w-12 animate-pulse object-contain mix-blend-multiply motion-reduce:animate-none"
           decoding="async"
         />
       </div>

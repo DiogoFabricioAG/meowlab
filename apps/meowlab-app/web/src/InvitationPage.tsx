@@ -56,9 +56,9 @@ type Preview =
 type AcceptResult = { status: "joined" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" | "rate_limited" };
 
 const PROBLEMS: Record<string, { title: string; text: string }> = {
-  invalid: { title: "Este enlace no es válido", text: "Puede que el dueño lo haya anulado o que se haya copiado incompleto. Pídele uno nuevo." },
-  expired: { title: "Este enlace venció", text: "Las invitaciones duran 7 días. Pídele al dueño de la empresa que te envíe una nueva." },
-  used: { title: "Este enlace ya se usó", text: "Cada invitación sirve para una sola persona. Pídele al dueño una invitación para ti." },
+  invalid: { title: "Este enlace no es válido", text: "Puede que lo hayan anulado o que se haya copiado incompleto. Pídele uno nuevo." },
+  expired: { title: "Este enlace venció", text: "Las invitaciones duran 7 días. Pide a quien administra la empresa que te envíe una nueva." },
+  used: { title: "Este enlace ya se usó", text: "Cada invitación sirve para una sola persona. Pide a quien administra la empresa una invitación para ti." },
   rate_limited: { title: "Demasiados intentos", text: "Espera unos minutos y vuelve a abrir el enlace." },
   unavailable: { title: "No pudimos abrir la invitación", text: "Inténtalo otra vez en unos minutos." },
 };
@@ -113,7 +113,7 @@ export function InvitationPage({ code, me, onDone }: { code: string; me: Me; onD
     return shell(
       <section className="space-y-4 rounded-3xl border border-line bg-white p-6 shadow-card sm:p-8">
         <h1 className="text-2xl font-bold tracking-tight text-ink">Ya eres parte de {invitation.companyName}</h1>
-        <p className="text-ink-2">No necesitas este enlace. Puedes pasárselo de vuelta al dueño para que invite a otra persona.</p>
+        <p className="text-ink-2">No necesitas este enlace. Puedes devolvérselo a quien te invitó para que lo use con otra persona.</p>
         <button type="button" className="btn-primary" onClick={() => onDone(false)}>Ir a mi panel</button>
       </section>,
     );
@@ -129,7 +129,7 @@ export function InvitationPage({ code, me, onDone }: { code: string; me: Me; onD
         </h1>
         <p className="max-w-[60ch] text-ink-2">
           Al unirte verás la empresa en tu panel y, con tu WhatsApp vinculado, podrás trabajar con sus agentes según el acceso
-          que te dio el dueño.
+          que te dieron.
         </p>
         {invitation.maskedPhone && (
           <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-2">
@@ -139,7 +139,7 @@ export function InvitationPage({ code, me, onDone }: { code: string; me: Me; onD
         )}
         {problem === "phone_mismatch" && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            Tu cuenta tiene vinculado otro número. Pídele al dueño una invitación para tu número o vincula el correcto.
+            Tu cuenta tiene vinculado otro número. Pide una invitación para tu número o vincula el correcto.
           </p>
         )}
         {problem && problem !== "phone_mismatch" && problem !== "needs_whatsapp" && (

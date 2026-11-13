@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { authClient, type Me } from "./auth-client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { authClient, fetchJson, type Me } from "./auth-client";
 import { Logo } from "./App";
 import { WhatsAppLink } from "./WhatsAppLink";
 import { AdminPanel } from "./AdminPanel";
@@ -7,11 +7,31 @@ import { PlanPanel } from "./PlanPanel";
 import { InvoicingPanel } from "./InvoicingPanel";
 import { CompanyCards } from "./CompanyStep";
 import { WeeklyHome } from "./WeeklyHome";
+import { AgentsPage, TenderPanel } from "./AgentsPage";
+import type { CatalogAgent, Weekly } from "./agents";
 import { Icon, type IconName } from "./icons";
 
-type Section = "home" | "invoice" | "plan" | "settings" | "business";
+type Section = "home" | "agents" | "invoice" | "tender" | "plan" | "settings" | "team" | "business";
 
-// The company the person is looking at, remembered per browser.
+/** Each section has its own address, so Back works and a link can point at it. */
+const ROUTES: Record<string, Section> = {
+  "/": "home",
+  "/inicio": "home",
+  "/agentes": "agents",
+  "/agentes/facturas": "invoice",
+  "/agentes/licitaciones": "tender",
+  "/plan": "plan",
+  "/ajustes": "settings",
+  "/ajustes/equipo": "team",
+  "/negocio": "business",
+};
+const TITLES: Record<Section, string> = {
+  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", plan: "Plan",
+  settings: "Configuración", team: "Equipo", business: "Negocio",
+};
+const sectionOf = (path: string): Section => ROUTES[path.replace(/\/+$/, "") || "/"] ?? "home";
+
+// The company being looked at, remembered per browser.
 const COMPANY_KEY = "meowlab.company";
 const readCompany = () => {
   try {
@@ -28,12 +48,12 @@ const writeCompany = (id: string) => {
   }
 };
 
-type NavItem = { key: Section; label: string; short: string; icon: IconName };
+type NavItem = { path: string; label: string; icon: IconName; matches: Section[] };
 
 /**
  * The signed-in portal: a fixed menu (side on desktop, bottom on phones) with Inicio,
- * one entry per agent the company has, Plan and Configuración. Agents appear as the
- * company activates them.
+ * Tus agentes, Plan and Configuración. Every agent lives in the same Manolo chat; the
+ * portal shows what each one did and what it still needs.
  */
 export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
@@ -43,139 +63,177 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     return companies.find((company) => company.id === saved)?.id ?? companies[0]?.id ?? null;
   });
   const company = companies.find((item) => item.id === companyId) ?? companies[0] ?? null;
-  const invoicingAvailable = me.modules.some((module) => module.key === "billing" && module.status === "available");
-  const [section, setSection] = useState<Section>(
-    new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : "home",
-  );
+  const [section, setSection] = useState<Section>(() =>
+    new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : sectionOf(window.location.pathname));
+  const navigated = useRef(false);
 
-  const agents: NavItem[] = invoicingAvailable ? [{ key: "invoice", label: "Invoice Cat", short: "Facturas", icon: "invoice" }] : [];
-  const account: NavItem[] = [
-    { key: "plan", label: "Plan", short: "Plan", icon: "card" },
-    { key: "settings", label: "Configuración", short: "Ajustes", icon: "settings" },
-    ...(me.isAdmin ? [{ key: "business" as const, label: "Negocio", short: "Negocio", icon: "chart" as const }] : []),
-  ];
-  const home: NavItem = { key: "home", label: "Inicio", short: "Inicio", icon: "home" };
-  const go = (next: Section) => {
-    setSection(next);
+  // Data shared by Inicio and Tus agentes, loaded once per company.
+  const [weekly, setWeekly] = useState<Weekly | null>(null);
+  const [weeklyFailed, setWeeklyFailed] = useState(false);
+  const [catalog, setCatalog] = useState<CatalogAgent[] | null>(null);
+  useEffect(() => {
+    if (!company) return;
+    setWeekly(null);
+    setWeeklyFailed(false);
+    void fetchJson<Weekly>(`/api/companies/${encodeURIComponent(company.id)}/weekly`)
+      .then((value) => (value ? setWeekly(value) : setWeeklyFailed(true)))
+      .catch(() => setWeeklyFailed(true));
+  }, [company?.id]);
+  useEffect(() => {
+    void fetchJson<{ agents: CatalogAgent[] }>("/api/billing").then((value) => setCatalog(value?.agents ?? null)).catch(() => setCatalog(null));
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => setSection(sectionOf(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    document.title = `${TITLES[section]} · MeowLab`;
+    // After a navigation (not the first load), move focus to the new page's heading.
+    if (!navigated.current) return;
+    const heading = document.querySelector<HTMLElement>("main h1");
+    if (heading) {
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    }
+  }, [section]);
+
+  const go = useCallback((path: string) => {
+    navigated.current = true;
+    if (window.location.pathname !== path) window.history.pushState(null, "", path);
+    setSection(sectionOf(path));
     window.scrollTo({ top: 0 });
-  };
-  const current = section === "invoice" && !invoicingAvailable ? "home" : section;
+  }, []);
+
+  const nav: NavItem[] = [
+    { path: "/inicio", label: "Inicio", icon: "home", matches: ["home"] },
+    { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender"] },
+    { path: "/plan", label: "Plan", icon: "card", matches: ["plan"] },
+    { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team"] },
+  ];
+  const adminNav: NavItem[] = me.isAdmin ? [{ path: "/negocio", label: "Negocio", icon: "chart", matches: ["business"] }] : [];
 
   async function signOut() {
     setLeaving(true);
     await authClient.signOut();
   }
 
-  const navButton = (item: NavItem) => (
-    <button
-      key={item.key}
-      type="button"
-      onClick={() => go(item.key)}
-      aria-current={current === item.key ? "page" : undefined}
-      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] font-semibold transition-colors ${
-        current === item.key ? "bg-mint-light text-forest" : "text-ink-2 hover:bg-surface-subtle hover:text-ink"
-      }`}
-    >
-      <Icon name={item.icon} />
-      {item.label}
-    </button>
-  );
+  const chooseCompany = (id: string) => {
+    setCompanyId(id);
+    writeCompany(id);
+  };
+
+  const companyPicker = (className: string) =>
+    companies.length > 1 && company ? (
+      <select className={`field py-2 text-sm ${className}`} value={company.id} aria-label="Empresa" onChange={(event) => chooseCompany(event.target.value)}>
+        {companies.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+      </select>
+    ) : null;
 
   return (
     <div className="min-h-dvh bg-white lg:pl-72">
+      <a href="#contenido" className="sr-only z-50 rounded-lg bg-forest px-4 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        Saltar al contenido
+      </a>
+
       {/* Desktop: fixed side menu. */}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col border-r border-line bg-white px-4 py-6 lg:flex" aria-label="Menú">
         <div className="px-3 pb-6"><Logo /></div>
         <nav className="flex flex-1 flex-col gap-1" aria-label="Secciones">
-          {navButton(home)}
-          <div className="px-3 pb-1 pt-5 text-xs font-semibold text-ink-muted">Tus agentes</div>
-          {agents.map(navButton)}
-          <button type="button" onClick={() => go("plan")}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] font-semibold text-ink-muted hover:bg-surface-subtle hover:text-ink">
-            <Icon name="plus" />
-            Sumar agente
-          </button>
-          <div className="flex-1" />
-          {account.map(navButton)}
+          {[...nav, ...adminNav].map((item) => {
+            const current = item.matches.includes(section);
+            return (
+              <a key={item.path} href={item.path} aria-current={current ? "page" : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  go(item.path);
+                }}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors ${
+                  current ? "bg-mint-light text-forest" : "text-ink-2 hover:bg-surface-subtle hover:text-ink"
+                }`}>
+                <Icon name={item.icon} />
+                {item.label}
+              </a>
+            );
+          })}
         </nav>
         <div className="mt-4 space-y-3 border-t border-line pt-4">
-          {companies.length > 1 && company ? (
-            <label className="block space-y-1 px-1">
-              <span className="text-xs font-semibold text-ink-muted">Empresa</span>
-              <select className="field py-2 text-sm" value={company.id}
-                onChange={(event) => {
-                  setCompanyId(event.target.value);
-                  writeCompany(event.target.value);
-                }}>
-                {companies.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-              </select>
-            </label>
-          ) : company ? (
-            <div className="px-1 text-sm"><span className="block text-xs font-semibold text-ink-muted">Empresa</span>
-              <span className="font-semibold text-ink">{company.name}</span></div>
-          ) : null}
+          {company && (
+            <div className="space-y-1 px-1">
+              <span className="block text-xs font-semibold text-ink-muted">Empresa</span>
+              {companyPicker("") ?? <span className="block text-sm font-semibold text-ink">{company.name}</span>}
+            </div>
+          )}
           <div className="flex items-center gap-3 px-1">
             <Avatar name={me.user.name} image={me.user.image} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold text-ink">{me.user.name}</div>
               <div className="truncate text-xs text-ink-muted">{me.user.email}</div>
             </div>
-            <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir"
-              className="rounded-lg p-2 text-ink-muted hover:bg-surface-subtle hover:text-ink">
+            <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
+              className="grid h-11 w-11 place-items-center rounded-lg text-ink-muted hover:bg-surface-subtle hover:text-ink">
               <Icon name="logout" />
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Phones: slim top bar plus a fixed bottom menu. */}
-      <header className="flex h-16 items-center justify-between border-b border-line px-4 lg:hidden">
+      {/* Phones: slim top bar; the menu sits at the bottom, after the content. */}
+      <header className="flex h-16 items-center justify-between gap-2 border-b border-line px-4 lg:hidden">
         <Logo />
-        <div className="flex items-center gap-2">
-          {companies.length > 1 && company && (
-            <select className="field max-w-[9rem] py-1.5 text-sm" value={company.id} aria-label="Empresa"
-              onChange={(event) => {
-                setCompanyId(event.target.value);
-                writeCompany(event.target.value);
-              }}>
-              {companies.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
-          )}
-          <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir" className="rounded-lg p-2 text-ink-muted">
+        <div className="flex items-center gap-1">
+          {companyPicker("max-w-[9rem]")}
+          <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
+            className="grid h-11 w-11 place-items-center rounded-lg text-ink-muted">
             <Icon name="logout" />
           </button>
         </div>
       </header>
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-        style={{ gridTemplateColumns: `repeat(${1 + agents.length + 2}, minmax(0, 1fr))` }} aria-label="Secciones">
-        {[home, ...agents, account[0], account[1]].map((item) => (
-          <button key={item.key} type="button" onClick={() => go(item.key)} aria-current={current === item.key ? "page" : undefined}
-            className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold ${current === item.key ? "text-forest" : "text-ink-muted"}`}>
-            <Icon name={item.icon} />
-            {item.short}
-          </button>
-        ))}
-      </nav>
 
-      <main className="mx-auto max-w-5xl px-4 pb-28 pt-8 sm:px-6 lg:px-10 lg:pb-16 lg:pt-12">
-        {current === "home" && company && <WeeklyHome me={me} company={company} goTo={go} />}
-        {current === "invoice" && <InvoicingPanel />}
-        {current === "plan" && <PlanPanel email={me.user.email} />}
-        {current === "business" && me.isAdmin && <AdminPanel />}
-        {current === "settings" && (
+      <main id="contenido" className="mx-auto max-w-5xl px-4 pb-28 pt-8 sm:px-6 lg:px-10 lg:pb-16 lg:pt-12">
+        {company && section === "home" && (
+          <WeeklyHome me={me} company={company} weekly={weekly} failed={weeklyFailed} catalog={catalog} go={go} />
+        )}
+        {company && section === "agents" && <AgentsPage company={company} weekly={weekly} catalog={catalog} go={go} />}
+        {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
+        {section === "tender" && <TenderPanel weekly={weekly} onBack={() => go("/agentes")} />}
+        {section === "plan" && <PlanPanel email={me.user.email} />}
+        {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
+        {(section === "settings" || section === "team") && (
           <div className="space-y-10">
             <header className="space-y-1">
               <h1 className="text-3xl font-bold tracking-tight text-ink">Configuración</h1>
               <p className="text-lg text-ink-muted">Tu WhatsApp, tu empresa y tu equipo.</p>
             </header>
-            <section className="space-y-4" aria-labelledby="whatsapp-title">
-              <h2 id="whatsapp-title" className="text-xl font-bold tracking-tight text-ink">WhatsApp</h2>
+            <section className="space-y-4" aria-label="WhatsApp">
               <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
             </section>
-            {companies.length > 0 && <CompanyCards companies={companies} />}
+            {companies.length > 0 && (
+              <CompanyCards key={section} companies={companies} openTeamFor={section === "team" && company?.role === "owner" ? company.id : null} />
+            )}
           </div>
         )}
       </main>
+
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+        aria-label="Secciones">
+        {nav.map((item) => {
+          const current = item.matches.includes(section);
+          return (
+            <a key={item.path} href={item.path} aria-current={current ? "page" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                go(item.path);
+              }}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${current ? "text-forest" : "text-ink-muted"}`}>
+              <Icon name={item.icon} />
+              {item.label}
+            </a>
+          );
+        })}
+      </nav>
     </div>
   );
 }

@@ -90,16 +90,24 @@ Pestaña **Facturación**, visible cuando el WhatsApp vinculado es miembro activ
 
 ## Estructura del panel
 
+Pensado para la titular de una MYPE (equipos de 2 o 3 personas). Todos los agentes
+trabajan dentro del mismo chat de WhatsApp con Manolo; el portal muestra qué hizo cada
+uno y qué le falta.
+
 - **Onboarding:** al iniciar sesión sin empresa se abre una pantalla completa para
   crear la empresa con el RUC o entrar con una invitación. El panel se abre después.
-- **Menú fijo:** lateral en escritorio y barra inferior en el celular. Inicio, un
-  apartado por cada agente que tiene la empresa (hoy Invoice Cat, cuando el WhatsApp
-  vinculado puede ver sus comprobantes), «Sumar agente» (lleva al Plan), Plan,
-  Configuración y, para administradores, Negocio. Con varias empresas se elige cuál ver.
-- **Inicio:** la semana de la empresa (lunes a domingo en Lima) con datos reales:
-  facturado aceptado contra la semana anterior, comprobantes y rechazados, licitaciones
-  de Tender Cat (las interesantes van a «Para atender») y mensajes del equipo a sus
-  agentes. `GET /api/companies/:empresa/weekly`, sólo para miembros de la empresa.
+- **Rutas:** `/inicio`, `/agentes`, `/agentes/facturas` (Invoice Cat),
+  `/agentes/licitaciones` (Tender Cat), `/plan`, `/ajustes`, `/ajustes/equipo` y
+  `/negocio` (administradores). El botón Atrás funciona, el título cambia por sección y
+  el foco pasa al encabezado al navegar. Hay un enlace «Saltar al contenido».
+- **Menú fijo:** lateral en escritorio y barra inferior en el celular, con los mismos
+  nombres: Inicio, Tus agentes, Plan y Configuración. Con varias empresas se elige cuál
+  ver, y todo el panel (incluido Invoice Cat) sigue esa elección.
+- **Inicio:** el día en frases («Invoice Cat emitió 3 comprobantes por S/ 820…»), lo que
+  hay que atender (rechazos de SUNAT, licitaciones marcadas) y una línea con la semana.
+  Datos reales de `GET /api/companies/:empresa/weekly`, sólo para miembros.
+- **Tus agentes:** una ficha por agente con su estado: activo (con lo de hoy), falta un
+  paso, disponible (precio del catálogo y «Sumar a mi chat») o próximamente.
 - **Configuración:** WhatsApp vinculado, la empresa y su equipo e invitaciones.
 
 ## Empresas (ADR-0010, fase 1)

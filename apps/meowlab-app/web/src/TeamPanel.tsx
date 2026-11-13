@@ -32,6 +32,8 @@ export function TeamPanel({ company }: { company: Membership }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null);
+  const [listError, setListError] = useState<string | null>(null);
 
   const base = `/api/companies/${encodeURIComponent(company.id)}`;
   const load = useCallback(() => {
@@ -71,13 +73,18 @@ export function TeamPanel({ company }: { company: Membership }) {
   }
 
   async function revoke(id: string) {
-    await postJson(`${base}/invitations/${id}/revoke`).catch(() => null);
+    setConfirmRevoke(null);
+    setListError(null);
+    const result = await postJson<{ status: string }>(`${base}/invitations/${id}/revoke`).catch(() => null);
+    if (result?.status !== "revoked") setListError("No pudimos anular la invitación. Inténtalo otra vez.");
     load();
   }
 
   async function remove(id: string) {
     setConfirmRemove(null);
-    await postJson(`${base}/members/${encodeURIComponent(id)}/remove`).catch(() => null);
+    setListError(null);
+    const result = await postJson<{ status: string }>(`${base}/members/${encodeURIComponent(id)}/remove`).catch(() => null);
+    if (result?.status !== "removed") setListError("No pudimos quitar a esa persona del equipo. Inténtalo otra vez.");
     load();
   }
 
@@ -121,7 +128,7 @@ export function TeamPanel({ company }: { company: Membership }) {
           <button type="submit" disabled={busy} className="btn-primary">{busy ? "Creando…" : "Crear enlace"}</button>
         </div>
         <p id={`phone-help-${company.id}`} className="text-sm text-ink-muted">
-          Con número, sólo una cuenta con ese WhatsApp vinculado podrá aceptarla.
+          Con número, solo una cuenta con ese WhatsApp vinculado podrá aceptarla.
         </p>
         {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       </form>
@@ -138,6 +145,7 @@ export function TeamPanel({ company }: { company: Membership }) {
       )}
 
       {loadFailed && <p className="text-sm text-ink-muted">No pudimos cargar tu equipo. Vuelve a intentarlo en unos minutos.</p>}
+      {listError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{listError}</p>}
       {team && (
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-3">
@@ -150,15 +158,16 @@ export function TeamPanel({ company }: { company: Membership }) {
                     <div className="truncate text-sm text-ink-muted">{member.email ?? "—"}</div>
                   </div>
                   {member.role === "owner" ? (
-                    <span className="chip border border-line bg-surface-subtle text-ink-2">Dueño</span>
+                    <span className="chip border border-line bg-surface-subtle text-ink-2">Titular</span>
                   ) : confirmRemove === member.id ? (
                     <span className="flex items-center gap-2">
-                      <button type="button" onClick={() => void remove(member.id)} className="btn-primary px-3 py-2 text-sm">Quitar</button>
-                      <button type="button" onClick={() => setConfirmRemove(null)} className="btn-secondary px-3 py-2 text-sm">Cancelar</button>
+                      <button type="button" onClick={() => void remove(member.id)} className="btn-danger min-h-11 px-3 py-2 text-sm"
+                        aria-label={`Quitar a ${member.name} del equipo`}>Quitar</button>
+                      <button type="button" onClick={() => setConfirmRemove(null)} className="btn-secondary min-h-11 px-3 py-2 text-sm">Cancelar</button>
                     </span>
                   ) : (
-                    <button type="button" onClick={() => setConfirmRemove(member.id)}
-                      className="text-sm font-semibold text-forest underline-offset-4 hover:underline">Quitar del equipo</button>
+                    <button type="button" onClick={() => setConfirmRemove(member.id)} aria-label={`Quitar a ${member.name} del equipo`}
+                      className="min-h-11 text-sm font-semibold text-red-800 underline-offset-4 hover:underline">Quitar del equipo</button>
                   )}
                 </li>
               ))}
@@ -178,8 +187,16 @@ export function TeamPanel({ company }: { company: Membership }) {
                         {ACCESS[invitation.access].label} · vence el {shortDate(invitation.expiresAt)}
                       </div>
                     </div>
-                    <button type="button" onClick={() => void revoke(invitation.id)}
-                      className="text-sm font-semibold text-forest underline-offset-4 hover:underline">Anular</button>
+                    {confirmRevoke === invitation.id ? (
+                      <span className="flex items-center gap-2">
+                        <button type="button" onClick={() => void revoke(invitation.id)} className="btn-danger min-h-11 px-3 py-2 text-sm">Anular enlace</button>
+                        <button type="button" onClick={() => setConfirmRevoke(null)} className="btn-secondary min-h-11 px-3 py-2 text-sm">Cancelar</button>
+                      </span>
+                    ) : (
+                      <button type="button" onClick={() => setConfirmRevoke(invitation.id)}
+                        aria-label={`Anular la invitación ${invitation.maskedPhone ? `para ${invitation.maskedPhone}` : "abierta"}`}
+                        className="min-h-11 text-sm font-semibold text-red-800 underline-offset-4 hover:underline">Anular</button>
+                    )}
                   </li>
                 ))}
               </ul>

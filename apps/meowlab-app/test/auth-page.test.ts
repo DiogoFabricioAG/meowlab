@@ -22,7 +22,8 @@ describe("AuthPage - renderizado inicial y transiciones", () => {
     
     // Campo nombre colapsado para inicio de sesión
     expect(html).toContain("grid-rows-[0fr]");
-    expect(html).toContain("tabindex=\"-1\"");
+    // Hidden sign-up parts are inert: out of the tab order and the accessibility tree.
+    expect(html).toContain("inert=\"\"");
     
     // Botón de submit inicial
     expect(html).toContain("Entrar");

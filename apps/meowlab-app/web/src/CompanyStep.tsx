@@ -26,8 +26,8 @@ const MESSAGES: Record<string, string> = {
 };
 
 const OPTIONS = [
-  { key: "create", title: "Crear mi empresa", text: "Con tu RUC. Quedas como dueño y luego invitas a tu equipo." },
-  { key: "invite", title: "Tengo una invitación", text: "El dueño de tu empresa te envía un enlace por WhatsApp." },
+  { key: "create", title: "Crear mi empresa", text: "Con tu RUC. Quedas como titular y luego invitas a tu equipo." },
+  { key: "invite", title: "Tengo una invitación", text: "Quien administra tu empresa te envía un enlace por WhatsApp." },
 ] as const;
 
 /** «Tu empresa» (ADR-0010): create a company by RUC, join by invitation, or decide later. */
@@ -72,7 +72,7 @@ export function CompanyStep({ onDone, onInvitation }: {
           ¿Con qué empresa vas a usar MeowLab?
         </h2>
         <p className="max-w-[62ch] text-ink-2">
-          Tus agentes trabajan para una empresa. Créala con tu RUC o únete a la de tu equipo con la invitación del dueño.
+          Tus agentes trabajan para una empresa. Créala con tu RUC o únete a la de tu equipo con la invitación de quien la administra.
         </p>
       </div>
 
@@ -85,7 +85,10 @@ export function CompanyStep({ onDone, onInvitation }: {
               onClick={() => setMode(option.key)}
               className="group rounded-2xl border border-line bg-white p-5 text-left transition-colors hover:border-forest focus-visible:border-forest"
             >
-              <span className="block text-lg font-bold text-ink group-hover:text-forest">{option.title}</span>
+              <span className="flex items-center justify-between gap-3 text-lg font-bold text-ink group-hover:text-forest">
+                {option.title}
+                <span aria-hidden="true" className="text-forest transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+              </span>
               <span className="mt-1 block text-sm text-ink-muted">{option.text}</span>
             </button>
           ))}
@@ -144,7 +147,7 @@ export function CompanyStep({ onDone, onInvitation }: {
                 <button type="button" onClick={create} disabled={busy} className="btn-primary">
                   {busy ? "Creando…" : "Crear empresa"}
                 </button>
-                <span className="text-sm text-ink-muted">Quedarás como dueño de esta empresa.</span>
+                <span className="text-sm text-ink-muted">Quedarás como titular de esta empresa.</span>
               </div>
             </div>
           )}
@@ -158,11 +161,11 @@ export function CompanyStep({ onDone, onInvitation }: {
             event.preventDefault();
             const code = invitationCodeFrom(link);
             if (code) return onInvitation(code);
-            setError("Ese enlace no parece una invitación de MeowLab. Cópialo completo desde el mensaje del dueño.");
+            setError("Ese enlace no parece una invitación de MeowLab. Cópialo completo desde el mensaje que te enviaron.");
           }}
         >
           <p className="text-ink-2">
-            El dueño de tu empresa te envía un enlace por WhatsApp desde su panel. Ábrelo, o pégalo aquí:
+            Quien administra tu empresa te envía un enlace por WhatsApp desde su panel. Ábrelo, o pégalo aquí:
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <label className="block flex-1 space-y-1.5">
@@ -200,8 +203,8 @@ export function CompanyStep({ onDone, onInvitation }: {
 }
 
 /** Companies the account belongs to, with what Invoice Cat still needs. */
-export function CompanyCards({ companies }: { companies: Membership[] }) {
-  const [teamOf, setTeamOf] = useState<string | null>(null);
+export function CompanyCards({ companies, openTeamFor = null }: { companies: Membership[]; openTeamFor?: string | null }) {
+  const [teamOf, setTeamOf] = useState<string | null>(openTeamFor);
   const managed = companies.find((company) => company.id === teamOf && company.role === "owner");
   return (
     <section className="space-y-4" aria-labelledby="companies-title">
@@ -219,14 +222,15 @@ export function CompanyCards({ companies }: { companies: Membership[] }) {
                 </p>
               </div>
               <span className="chip shrink-0 border border-line bg-surface-subtle text-ink-2">
-                {company.role === "owner" ? "Dueño" : "Miembro"}
+                {company.role === "owner" ? "Titular" : "Miembro"}
               </span>
             </div>
             {company.invoicing === "active" ? (
               <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">Invoice Cat activo con FacturaYa.</p>
             ) : (
               <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
-                Para emitir comprobantes con Invoice Cat se piden las credenciales SOL de la empresa. Esa activación llega pronto.
+                Invoice Cat todavía no está conectado a SUNAT para esta empresa: falta registrar tu clave SOL (el usuario y clave con
+                los que entras a SUNAT Operaciones en Línea). Escríbele a Manolo por WhatsApp y lo conectamos contigo.
               </p>
             )}
             {company.role === "owner" && (

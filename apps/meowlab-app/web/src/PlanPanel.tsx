@@ -47,7 +47,7 @@ export function PlanPanel({ email }: { email: string }) {
     void load.then((value) => {
       if (!value) return setUnavailable(true);
       setBilling(value);
-      if (returning) window.history.replaceState(null, "", "/");
+      if (returning) window.history.replaceState(null, "", "/plan");
     });
   }, []);
 
@@ -60,9 +60,18 @@ export function PlanPanel({ email }: { email: string }) {
   }, [billing, selected]);
 
   if (unavailable) {
-    return <p className="rounded-xl bg-surface-subtle px-4 py-3 text-ink-muted">Los pagos todavía no están disponibles. Vuelve a intentarlo más tarde.</p>;
+    // Never a dead end: the heading and the way forward stay even without payments.
+    return (
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold tracking-tight text-ink">Tu plan</h1>
+        <p className="max-w-[60ch] rounded-2xl bg-surface-subtle px-5 py-4 text-ink-2">
+          Los pagos en línea no están disponibles en este momento. Para sumar un agente a tu chat, escríbele a Manolo por WhatsApp
+          y el equipo de MeowLab lo activa contigo.
+        </p>
+      </div>
+    );
   }
-  if (!billing || !price) return <p className="text-ink-muted" aria-busy="true">Cargando tu plan…</p>;
+  if (!billing || !price) return <div className="h-48 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando tu plan" />;
 
   const sub = billing.subscription;
   const live = sub && ["creating", "pending", "authorized", "paused"].includes(sub.status);
@@ -107,8 +116,8 @@ export function PlanPanel({ email }: { email: string }) {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold tracking-tight text-ink">Tu plan</h2>
-        <p className="text-ink-muted">Paga sólo por los agentes que usas. Precios mensuales con IGV incluido.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-ink">Tu plan</h1>
+        <p className="text-ink-muted">Paga solo por los agentes que usas. Precios mensuales con IGV incluido.</p>
       </div>
 
       {billing.testMode && (
@@ -157,7 +166,7 @@ export function PlanPanel({ email }: { email: string }) {
                 <span className="text-sm text-ink-2">
                   ¿Cancelar la renovación? {sub.active ? `Tu plan sigue vigente hasta el ${date(sub.paidUntil)}.` : ""}
                 </span>
-                <button type="button" onClick={cancel} disabled={busy} className="btn-primary px-4 py-2.5 text-sm">Sí, cancelar</button>
+                <button type="button" onClick={cancel} disabled={busy} className="btn-danger px-4 py-2.5 text-sm">Sí, cancelar</button>
                 <button type="button" onClick={() => setConfirmCancel(false)} className="btn-secondary px-4 py-2.5 text-sm">Volver</button>
               </>
             ) : (
