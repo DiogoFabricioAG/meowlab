@@ -1,5 +1,24 @@
 # Arquitectura actual
 
+Actualización 2026-11-06: [ADR-0004](../decisions/0004-rafagas-texto-imagen.md)
+extiende la bandeja DO activa a texto/fotos contiguos, con normalización de cada
+original y una entrada al rol. No hay cambio de autoridad D1/PG, nuevo webhook o
+autorización fiscal. Publicación: [acta multimodal](../operations/manolo-multimodal-2026-11-06.md).
+
+Actualización RADAR 2026-11-01: PostgreSQL conserva también la selección durable
+de oportunidades y sus cursores de sincronización. Es autoridad sólo de este
+dominio nuevo; no convierte el shadow sync de conversaciones en runtime principal.
+SEACE y el perfil del negocio siguen en la laptop. Contrato:
+[radar-selection-sync.md](../apps/radar-selection-sync.md).
+
+## Nota de implementación local — 2026-10-22
+
+El [ADR-0002](../decisions/0002-agrupar-rafagas-whatsapp.md) agrega una bandeja
+Durable Object por tenant/número/contacto antes del runtime D1: agrupa textos
+tras tres segundos de silencio y serializa botones/media como barreras.
+Está desactivada por defecto y no desplegada. No reemplaza las fuentes de
+verdad descritas debajo ni cambia el webhook único o la autorización del VPS.
+
 Fecha de corte: **2026-08-28**.
 
 ## Vista del sistema

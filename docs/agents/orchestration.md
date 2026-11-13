@@ -45,6 +45,7 @@ Decisiones tomadas:
 Contratos o migraciones afectadas:
 Pruebas ejecutadas y resultado:
 Riesgos o pendientes:
+Tablero: tarea <id> en <todo|in_progress|done>, HTML regenerado
 ¿Se desplegó?: no/sí + versión
 ```
 

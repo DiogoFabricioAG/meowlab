@@ -37,6 +37,7 @@ services:
         max-file: "5"
 
   bridge:
+    image: manolo-platform-bridge:latest
     build:
       context: ../..
       dockerfile: infra/vps/bridge.Dockerfile
@@ -49,8 +50,16 @@ services:
       GROQ_API_KEY_FILE: /run/secrets/groq_api_key
       VPS_BRIDGE_HMAC_SECRET_FILE: /run/secrets/vps_bridge_hmac_secret
       CREDENTIALS_ENCRYPTION_KEY_FILE: /run/secrets/credentials_encryption_key
+      PRINT_ADVISOR_DB_PASSWORD_FILE: /run/secrets/print_advisor_db_password
       FACTURAYA_BASE_URL: ${FACTURAYA_BASE_URL:-https://facturas.meowlab.tech}
       PRINT_ADVISOR_MODEL: ${PRINT_ADVISOR_MODEL:-openai/gpt-oss-120b}
+      # Portal app.meowlab.tech (ADR-0006): vincular el WhatsApp con un código. El bridge
+      # pide a Manolo enviar la plantilla de autenticación por la ruta firmada.
+      PORTAL_BRIDGE_HMAC_SECRET_FILE: /run/secrets/portal_bridge_hmac_secret
+      AUTH_CODE_HMAC_SECRET_FILE: /run/secrets/auth_code_hmac_secret
+      # ADR-0010: consulta de RUC en el padrón de FacturaYa (bearer interno de FacturaYa).
+      FACTURAYA_INTERNAL_TOKEN_FILE: /run/secrets/facturaya_internal_token
+      MANOLO_WORKER_URL: ${MANOLO_WORKER_URL:-https://whatsapp-webhook-meta-production.diogofabricio17.workers.dev}
       PORT: 3000
       TZ: UTC
     expose:
@@ -59,6 +68,10 @@ services:
       - groq_api_key
       - vps_bridge_hmac_secret
       - credentials_encryption_key
+      - print_advisor_db_password
+      - portal_bridge_hmac_secret
+      - auth_code_hmac_secret
+      - facturaya_internal_token
     healthcheck:
       test:
         - CMD
@@ -105,6 +118,14 @@ secrets:
     file: ./secrets/vps_bridge_hmac_secret
   credentials_encryption_key:
     file: ./secrets/credentials_encryption_key
+  print_advisor_db_password:
+    file: ./secrets/print_advisor_db_password
+  portal_bridge_hmac_secret:
+    file: ./secrets/portal_bridge_hmac_secret
+  auth_code_hmac_secret:
+    file: ./secrets/auth_code_hmac_secret
+  facturaya_internal_token:
+    file: ./secrets/facturaya_internal_token
 
 networks:
   manolo_internal:

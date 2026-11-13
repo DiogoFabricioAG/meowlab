@@ -19,6 +19,8 @@ Manolo.
 | `/` | `src/pages/index.astro` |
 | `/agentes` | `src/pages/agentes.astro` |
 | `/contacto` | `src/pages/contacto.astro` |
+| `/privacidad` | `src/pages/privacidad.astro` (datos del titular en `src/data/legal.ts`) |
+| `/terminos` | `src/pages/terminos.astro` |
 | `/dedicado` | `src/pages/dedicado.astro` |
 | `/servicios` | `src/pages/servicios.astro` |
 

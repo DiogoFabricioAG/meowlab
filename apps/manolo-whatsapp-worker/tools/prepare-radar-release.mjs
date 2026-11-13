@@ -1,0 +1,34 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createHash } from "node:crypto";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const backup = path.resolve(process.argv[2] ?? "");
+const version = process.argv[3];
+if (!version || !backup.startsWith(path.join(root, "backups") + path.sep)) throw Error("Expected private backup directory and deployed version ID");
+const snapshot = path.join(backup, "whatsapp-webhook-meta-production");
+const release = path.join(backup, "radar-release");
+const config = JSON.parse(await fs.readFile(path.join(snapshot, "wrangler.jsonc"), "utf8"));
+if (config.name !== "whatsapp-webhook-meta-production" || config.main !== "src/index.js") throw Error("Unexpected deployed Worker snapshot");
+const original = await fs.readFile(path.join(snapshot, config.main), "utf8");
+const imports = 'import { RADAR_API_PATH } from "./radar/contracts";\nimport { radarHttp } from "./radar/http";\nimport { radarVerifiedWebhook } from "./radar/webhook";\n';
+const inbound = '  const metadata = summarizeWebhook(payload, env.ENVIRONMENT);\n  ctx.waitUntil(Promise.resolve().then(() => logWebhookMetadata(metadata)));\n  ctx.waitUntil(processIncomingMessages(payload, env));';
+const newInbound = '  const metadata = summarizeWebhook(payload, env.ENVIRONMENT);\n  const routedPayload = await radarVerifiedWebhook(payload, env, undefined, task => ctx.waitUntil(task));\n  ctx.waitUntil(Promise.resolve().then(() => logWebhookMetadata(metadata)));\n  ctx.waitUntil(processIncomingMessages(routedPayload, env));';
+const dispatch = '  async fetch(request, env, ctx) {\n    const url = new URL(request.url);\n';
+const newDispatch = dispatch + '    if (url.pathname === RADAR_API_PATH || url.pathname.startsWith(`${RADAR_API_PATH}/`)) return radarHttp(request, env);\n';
+for (const anchor of [inbound, dispatch]) if (original.split(anchor).length !== 2) throw Error("Deployed source does not match the reviewed integration points");
+const patched = imports + original.replace(inbound, newInbound).replace(dispatch, newDispatch);
+const recovered = patched.slice(imports.length).replace(newInbound, inbound).replace(newDispatch, dispatch);
+if (recovered !== original) throw Error("Changes extend beyond RADAR integration points");
+await fs.mkdir(path.join(release, "src"), { recursive: true });
+await fs.writeFile(path.join(release, "wrangler.jsonc"), JSON.stringify(config, null, 2) + "\n");
+await fs.writeFile(path.join(release, config.main), patched);
+await fs.cp(path.join(root, "src/radar"), path.join(release, "src/radar"), { recursive: true });
+const sha = text => createHash("sha256").update(text).digest("hex");
+const modules = {};
+for (const name of await fs.readdir(path.join(root, "src/radar"))) modules[name] = sha(await fs.readFile(path.join(root, "src/radar", name)));
+const manifest = { baseVersion: version, deployedSourceSha256: sha(original), patchedSourceSha256: sha(patched),
+  preservedDeployedSource: recovered === original, preservedDeployedConfig: true, modules };
+await fs.writeFile(path.join(release, "release-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+console.log(JSON.stringify({ baseVersion: version, preservedDeployedSource: true, preservedDeployedConfig: true, sourceSha256: sha(original) }));

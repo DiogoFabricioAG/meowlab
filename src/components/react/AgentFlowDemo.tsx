@@ -551,19 +551,19 @@ const AGENT_METADATA: Record<string, { name: string; tag: string; image: string;
   ventas: {
     name: 'Agente de Ventas',
     tag: 'Comercial 24/7',
-    image: '/assets/gato-ventas-light.svg',
+    image: '/assets/gato-ventas-light.webp',
     defaultMsg: 'Coordinando pedido con cliente...',
   },
   facturas: {
     name: 'Agente de Facturas',
     tag: 'SUNAT Electrónica',
-    image: '/assets/gato-facturas-light.svg',
+    image: '/assets/gato-facturas-light.webp',
     defaultMsg: 'Listo para emitir comprobantes SUNAT...',
   },
   licitaciones: {
     name: 'Agente de Licitaciones',
     tag: 'SEACE / Gob.pe',
-    image: '/assets/gato-licitaciones-light.svg',
+    image: '/assets/gato-licitaciones-light.webp',
     defaultMsg: 'Monitoreando compras públicas...',
   },
 };
@@ -583,7 +583,7 @@ function getNodesForScenario(scenario: ScenarioConfig, isMobile: boolean = false
       const meta = AGENT_METADATA[agentId] || {
         name: `Agente ${agentId}`,
         tag: 'ASISTENTE',
-        image: '/assets/gato-ventas-light.svg',
+        image: '/assets/gato-ventas-light.webp',
         defaultMsg: 'Listo en línea',
       };
       const theme = AGENT_THEMES[agentId] || AGENT_THEMES.ventas;
@@ -662,7 +662,7 @@ function getNodesForScenario(scenario: ScenarioConfig, isMobile: boolean = false
     const meta = AGENT_METADATA[agentId] || {
       name: `Agente ${agentId}`,
       tag: 'ASISTENTE',
-      image: '/assets/gato-ventas-light.svg',
+      image: '/assets/gato-ventas-light.webp',
       defaultMsg: 'Listo en línea',
     };
     const theme = AGENT_THEMES[agentId] || AGENT_THEMES.ventas;

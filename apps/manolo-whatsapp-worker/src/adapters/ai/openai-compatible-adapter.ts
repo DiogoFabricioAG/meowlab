@@ -1,11 +1,14 @@
 import type {
   AiCompletionRequest,
   AiCompletionResult,
+  AiDecisionsRequest,
+  AiDecisionsResult,
   AiLogger,
   AiProvider,
   AiTool,
   AiToolCall,
   AiToolCompletionRequest,
+  DecisionAnswer,
 } from "../../ai/contracts";
 import { toOpenAiMessages } from "./openai-wire";
 
@@ -24,7 +27,7 @@ function isOfficialOpenAiApi(baseUrl: string): boolean {
 }
 
 function isOpenAiReasoningModel(model: string): boolean {
-  return /^(?:gpt-5(?:[.-]|$)|o\d(?:[.-]|$))/iu.test(model.trim());
+  return /^(?:gpt-[56](?:[.-]|$)|o\d(?:[.-]|$))/iu.test(model.trim());
 }
 
 function buildCompletionBody(
@@ -41,7 +44,7 @@ function buildCompletionBody(
 
   if (officialOpenAiApi) {
     body.max_completion_tokens = request.maxTokens;
-    if (!request.reasoningEffort || !isOpenAiReasoningModel(model)) {
+    if (!isOpenAiReasoningModel(model)) {
       body.temperature = request.temperature;
     }
   } else {
@@ -125,6 +128,117 @@ export class OpenAiCompatibleAdapter implements AiProvider {
       request.toolChoice ?? "auto",
       log,
     );
+  }
+
+  async decide(
+    request: AiDecisionsRequest,
+    log: AiLogger,
+  ): Promise<AiDecisionsResult | null> {
+    const apiKey = this.config.apiKey?.trim();
+    const baseUrl = this.config.baseUrl?.trim().replace(/\/$/, "");
+    const model = request.model?.trim() || "gpt-6-luna";
+
+    if (!apiKey || !baseUrl) {
+      log("whatsapp_ai_provider_failed", {
+        provider: this.key,
+        operation: "decisions",
+        reason: "missing_configuration",
+      });
+      return null;
+    }
+
+    const payload: JsonObject = {
+      model,
+      input: typeof request.input === "string" ? request.input : toOpenAiMessages(request.input),
+      questions: request.questions.map((question) => question.type === "choice" ? {
+        ...question, choices: question.choices.map((choice) => typeof choice === "string" ? { value: choice } : choice),
+      } : question),
+    };
+
+    try {
+      const response = await fetch(`${baseUrl}/decisions`, {
+        method: "POST",
+        signal: AbortSignal.timeout(8_000),
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        log("whatsapp_ai_provider_failed", {
+          provider: this.key,
+          operation: "decisions",
+          reason: "api_error",
+          ...(await apiErrorDetails(response)),
+        });
+        return null;
+      }
+
+      const data: unknown = await response.json();
+      if (!isRecord(data) || !Array.isArray(data.answers)) {
+        log("whatsapp_ai_provider_failed", {
+          provider: this.key,
+          operation: "decisions",
+          reason: "invalid_api_response",
+        });
+        return null;
+      }
+
+      const answers = data.answers.flatMap((item): DecisionAnswer[] => {
+        if (!isRecord(item) || typeof item.name !== "string" || typeof item.type !== "string") {
+          return [];
+        }
+        if (item.type === "predicate" && typeof item.probability === "number") {
+          return [{
+            type: "predicate",
+            name: item.name,
+            probability: item.probability,
+          }];
+        }
+        if (item.type === "choice" && typeof item.choice === "string") {
+          const probabilities = Array.isArray(item.probabilities)
+            ? Object.fromEntries(item.probabilities.filter((entry) => isRecord(entry) && typeof entry.value === "string"
+              && typeof entry.probability === "number" && Number.isFinite(entry.probability)
+              && entry.probability >= 0 && entry.probability <= 1).map((entry) => [entry.value, entry.probability]))
+            : isRecord(item.probabilities)
+            ? Object.fromEntries(
+                Object.entries(item.probabilities).filter(([, v]) => typeof v === "number"),
+              ) as Record<string, number>
+            : undefined;
+          return [{
+            type: "choice",
+            name: item.name,
+            choice: item.choice,
+            ...(probabilities ? { probabilities } : {}),
+            ...(typeof item.confidence === "number" ? { confidence: item.confidence } : {}),
+          }];
+        }
+        if (item.type === "score" && typeof item.score === "number") {
+          return [{
+            type: "score",
+            name: item.name,
+            score: item.score,
+            ...(typeof item.confidence === "number" ? { confidence: item.confidence } : {}),
+          }];
+        }
+        return [];
+      });
+
+      return {
+        ...(typeof data.id === "string" ? { id: data.id } : {}),
+        ...(typeof data.model === "string" ? { model: data.model } : {}),
+        answers,
+      };
+    } catch {
+      log("whatsapp_ai_provider_failed", {
+        provider: this.key,
+        operation: "decisions",
+        reason: "request_error",
+      });
+      return null;
+    }
   }
 
   private async requestCompletion(

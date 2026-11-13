@@ -23,6 +23,8 @@ D1 principal no pierda información.
 5. Crear la base con `docker compose --env-file .env up -d postgres`.
 6. Antes de iniciar el puente, crear `./secrets/groq_api_key`,
    `./secrets/vps_bridge_hmac_secret` y `./secrets/credentials_encryption_key`.
+   La clave de `./secrets/print_advisor_db_password` la crea
+   `apply-print-advisor-read-only-role.sh` (ver la sección del rol del asesor).
    El directorio `secrets` debe usar modo `700`
    y los archivos deben pertenecer al UID/GID `1000:1000` con modo `600`, para
    que solo el usuario no-root `node` pueda leer los montajes. El segundo
@@ -71,7 +73,71 @@ volverán a ejecutar estos archivos manualmente.
 
 ## Rollback
 
+### Release fiscal — 2026-11-05
+
+Bridge actual `manolo-platform-bridge:fiscal-20261105` (también `latest`), con
+crédito y GRE/categoría. Entrega aislada sobre la imagen RADAR activa, sin cambio
+de Compose, secretos ni redes. Release privada:
+`/opt/manolo-platform/releases/fiscal-20261105`. Antes de reconstruir o revertir,
+consultar [acta, evidencia y rollback coordinado con Worker](../../../../docs/operations/manolo-credit-gre-2026-11-05.md).
+No reconstruir la entrega DNI histórica para actualizar este servicio.
+
+### Release DNI — 2026-10-11
+
+La fuente activa de esta entrega está aislada en
+`/opt/manolo-platform/releases/dni-20261011`, con `source.tar` SHA-256
+`5c507cb4fa223ba23175a2ea0d9e8bbd8cca3ff4afe8ad200aee4f25487ce972`.
+Se construyó con `infra/vps/bridge.Dockerfile` de esa release y se etiquetó
+`manolo-platform-bridge:dni-20261011` y `manolo-platform-bridge:latest`.
+Compose/secrets originales permanecen en `/opt/manolo-platform/infra/vps`.
+No reconstruir con `up --build` desde el árbol anterior: volvería al código
+antiguo. Para reconstruir esta entrega, ejecutar desde la carpeta de release:
+
+```sh
+docker build -f infra/vps/bridge.Dockerfile -t manolo-platform-bridge:dni-20261011 .
+docker image tag manolo-platform-bridge:dni-20261011 manolo-platform-bridge:latest
+cd /opt/manolo-platform/infra/vps
+docker compose --env-file .env up -d --no-deps --no-build bridge
+```
+
+Rollback sin modificar PostgreSQL ni otros servicios:
+
+```sh
+docker image tag manolo-platform-bridge:rollback-dni-20261011 manolo-platform-bridge:latest
+cd /opt/manolo-platform/infra/vps
+docker compose --env-file .env up -d --no-deps --no-build bridge
+```
+
+Después verificar health y smoke multiempresa. Para verificar la nueva operación
+DNI en la release actual sin consultar identidades ni emitir comprobantes:
+
+```sh
+docker exec -i \
+  -e FACTURAYA_SMOKE_URL=https://facturas.meowlab.tech/internal/manolo/v1/facturaya/execute \
+  manolo-platform-bridge-1 node --input-type=module - \
+  < /opt/manolo-platform/releases/dni-20261011/smoke-test-dni-contract.mjs
+```
+
+El smoke necesita una sesión activa con permiso `create_invoice` y comprueba
+firmas, rechazo de DNI inválido y replay. Solo registra resultados seguros.
+FacturaYa ya publica la ruta DNI, pero su token efectivo de proveedor estaba
+vacío al verificar esta entrega. Configurarlo en FacturaYa (no en el bridge ni
+el Worker) antes de validar búsquedas externas; no reutilizar tokens de otro
+proveedor sin comprobar compatibilidad. No se cambiaron credenciales.
+
 El webhook de Meta no cambia. Si el puente falla, `print-advisor` vuelve al
 repositorio D1 actual. El rollback operativo consiste en poner
 `VPS_BRIDGE_ENABLED=false`, desplegar el Worker y detener solo el servicio
 `bridge`; los demás roles siguen en Cloudflare.
+
+## Rol de solo lectura del asesor de impresión
+
+El SQL que genera el modelo del asesor no usa el usuario de la plataforma (`POSTGRES_USER`, superusuario en la imagen oficial). El puente abre un pool aparte con `manolo_advisor_ro`, que solo puede leer el esquema `print_system`: no es superusuario, no ve `whatsapp`, no ejecuta `pg_read_file`, queda en solo lectura con `statement_timeout` de 8 s y como máximo 4 conexiones. Si falta su clave, el puente no arranca en vez de volver al superusuario.
+
+Antes de desplegar un puente con este cambio, aplicar en el VPS:
+
+```bash
+sh /opt/manolo-platform/infra/vps/apply-print-advisor-read-only-role.sh
+```
+
+El script crea `secrets/print_advisor_db_password` si no existe (hex aleatorio, `1000:1000`, modo `600`), aplica `infra/postgres/migrations/010-print-advisor-read-only-role.sql`, fija la clave sin mostrarla y termina con `print_advisor_read_only_role=ok` solo si los privilegios son exactamente los esperados. Es idempotente.

@@ -12,13 +12,14 @@ export type PrintPostgresConnection = {
 export function createPrintPostgresConnection(
   databaseUrl: string | undefined,
   log: RoleLog,
+  applicationName = "manolo-print-advisor",
 ): PrintPostgresConnection | null {
   const connectionString = databaseUrl?.trim();
   if (!connectionString) return null;
 
   const poolConfig: PoolConfig = {
     connectionString,
-    application_name: "manolo-print-advisor",
+    application_name: applicationName,
     // The business tables live in print_system. Set this at connection level
     // so every model-generated read uses the intended tenant schema without
     // requiring the role to know infrastructure details.

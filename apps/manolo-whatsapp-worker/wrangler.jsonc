@@ -3,7 +3,25 @@
   "name": "whatsapp-webhook-meta",
   "main": "src/index.ts",
   "compatibility_date": "2026-07-21",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WHATSAPP_BURSTS",
+        "class_name": "WhatsAppBurst"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "whatsapp-bursts-v1",
+      "new_sqlite_classes": [
+        "WhatsAppBurst"
+      ]
+    }
+  ],
   "assets": {
     "directory": "./public"
   },
@@ -31,16 +49,23 @@
   ],
   "vars": {
     "ENVIRONMENT": "development",
+    "WHATSAPP_BURST_ENABLED": "false",
+    "RADAR_PRESENCE_ENABLED": "false",
     "META_GRAPH_API_VERSION": "",
     "WHATSAPP_PHONE_NUMBER_ID": "",
+    // Números (phone_number_id de Meta) conectados por Kapso, separados por coma.
+    "KAPSO_PHONE_NUMBER_IDS": "",
+    "WHATSAPP_AUTH_TEMPLATE": "",
+    "WHATSAPP_AUTH_TEMPLATE_LANGUAGE": "es_PE",
     "GROQ_MODEL": "llama-3.1-8b-instant",
-    "GROQ_VISION_MODEL": "qwen/qwen3.6-27b",
     "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
     "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",
     "PRINT_ADVISOR_MODEL": "openai/gpt-oss-120b",
+    "SALES_AI_MODEL": "openai/gpt-oss-120b",
+    "PORTAL_PUBLIC_URL": "https://app.meowlab.tech",
     "ENTERPRISE_AI_PROVIDER": "openai",
     "ENTERPRISE_AI_BASE_URL": "https://api.openai.com/v1",
-    "ENTERPRISE_AI_MODEL": "gpt-5.6-luna",
+    "ENTERPRISE_AI_MODEL": "gpt-6-luna",
     "ENTERPRISE_AI_REASONING_EFFORT": "high",
     "VPS_BRIDGE_ENABLED": "false",
     "VPS_BRIDGE_API_URL": "",
@@ -54,7 +79,7 @@
       "META_APP_SECRET",
       "META_ACCESS_TOKEN",
       "GROQ_API_KEY",
-      "NEON_DATABASE_URL",
+      "OPENAI_API_KEY",
       "STORE_DESIGN_API_SECRET",
       "VPS_BRIDGE_HMAC_SECRET"
     ]
@@ -66,6 +91,14 @@
   "env": {
     "production": {
       "name": "whatsapp-webhook-meta-production",
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "WHATSAPP_BURSTS",
+            "class_name": "WhatsAppBurst"
+          }
+        ]
+      },
       "browser": {
         "binding": "BROWSER"
       },
@@ -90,16 +123,25 @@
       ],
       "vars": {
         "ENVIRONMENT": "production",
+        "WHATSAPP_BURST_ENABLED": "true",
+        "RADAR_PRESENCE_ENABLED": "false",
         "META_GRAPH_API_VERSION": "v25.0",
         "WHATSAPP_PHONE_NUMBER_ID": "1266091906580349",
+        // Números conectados por Kapso (etapa 1 del plan financiero). Vacío: ninguno.
+        "KAPSO_PHONE_NUMBER_IDS": "",
+        // Plantilla de autenticación «Copiar código» de WhatsApp Manager (ADR-0006).
+        // La ruta sigue apagada mientras falte el secreto AUTH_CODE_HMAC_SECRET.
+        "WHATSAPP_AUTH_TEMPLATE": "codigo_otp_meowlab",
+        "WHATSAPP_AUTH_TEMPLATE_LANGUAGE": "es_PE",
         "GROQ_MODEL": "llama-3.1-8b-instant",
-        "GROQ_VISION_MODEL": "qwen/qwen3.6-27b",
         "GROQ_QUOTES_MODEL": "openai/gpt-oss-20b",
         "GROQ_TRANSCRIPTION_MODEL": "whisper-large-v3-turbo",
         "PRINT_ADVISOR_MODEL": "openai/gpt-oss-120b",
+        "SALES_AI_MODEL": "openai/gpt-oss-120b",
+        "PORTAL_PUBLIC_URL": "https://app.meowlab.tech",
         "ENTERPRISE_AI_PROVIDER": "openai",
         "ENTERPRISE_AI_BASE_URL": "https://api.openai.com/v1",
-        "ENTERPRISE_AI_MODEL": "gpt-5.6-luna",
+        "ENTERPRISE_AI_MODEL": "gpt-6-luna",
         "ENTERPRISE_AI_REASONING_EFFORT": "high",
         "VPS_BRIDGE_ENABLED": "true",
         "VPS_BRIDGE_API_URL": "https://facturas.meowlab.tech/internal/manolo",
@@ -114,11 +156,21 @@
           "META_ACCESS_TOKEN",
           "GROQ_API_KEY",
           "OPENAI_API_KEY",
-          "NEON_DATABASE_URL",
           "STORE_DESIGN_API_SECRET",
           "VPS_BRIDGE_HMAC_SECRET"
         ]
+      },
+      "triggers": {
+        "crons": [
+          "*/15 * * * *"
+        ]
       }
     }
+  },
+  "triggers": {
+    "crons": [
+      "*/15 * * * *",
+      "*/5 * * * *"
+    ]
   }
 }

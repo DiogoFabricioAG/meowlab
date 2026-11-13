@@ -21,3 +21,9 @@ apps/manolo-whatsapp-worker/output/
 apps/manolo-whatsapp-worker/tmp/
 apps/manolo-whatsapp-worker/worker-startup.cpuprofile
 .tmp-meowlab-assets/
+
+# Portal app.meowlab.tech
+apps/meowlab-app/.dev.vars
+apps/meowlab-app/.wrangler/
+
+apps/meowlab-app/build/

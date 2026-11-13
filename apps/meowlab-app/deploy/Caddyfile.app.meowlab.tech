@@ -1,0 +1,21 @@
+# Bloque para el Caddy compartido del VPS (/opt/facturaya-ai/docker/caddy/Caddyfile).
+# Reemplaza el bloque app.meowlab.tech que hoy apunta al prototipo de meowlab-platform
+# (meowlab-platform-dashboard-1:8082). Validar y recargar:
+#   docker exec facturaya-ai-caddy-1 caddy validate --config /etc/caddy/Caddyfile
+#   docker exec facturaya-ai-caddy-1 caddy reload --config /etc/caddy/Caddyfile
+app.meowlab.tech {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# El portal agrega CSP, X-Frame-Options y el resto desde web/public/_headers.
+	reverse_proxy meowlab-app:8080
+
+	log {
+		output stdout
+		format console
+	}
+}

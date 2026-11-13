@@ -161,7 +161,6 @@ function context(
     persisted: { duplicate: false, conversationId: "conversation-1", contactId: 7 },
     env: {} as Env,
     ai: null,
-    finance: null,
     businessData: null,
     quoteNumberAllocator: null,
     roleState: state,

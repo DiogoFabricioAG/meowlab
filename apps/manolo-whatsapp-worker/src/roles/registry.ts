@@ -3,6 +3,7 @@ import { QuoteRoleHandler } from "./quote-role";
 import { PrintAdvisorRoleHandler } from "./print-advisor-role";
 import { StoreDesignerRoleHandler } from "./store-designer-role";
 import { EnterpriseAdvisorRoleHandler } from "./enterprise-advisor-role";
+import { RadarRoleHandler } from "./radar-role";
 import type { RoleHandler, TenantContext } from "./contracts";
 
 export class RoleRegistry {
@@ -47,6 +48,7 @@ export const roleRegistry = new RoleRegistry(
     new PrintAdvisorRoleHandler(),
     new StoreDesignerRoleHandler(),
     new EnterpriseAdvisorRoleHandler(),
+    new RadarRoleHandler(),
   ],
   CAT_ROLE_KEY,
 );

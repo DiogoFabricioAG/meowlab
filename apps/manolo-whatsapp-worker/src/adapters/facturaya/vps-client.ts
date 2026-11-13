@@ -1,4 +1,5 @@
 import type { SignedVpsBridgeClient } from "../bridge/signed-vps-client";
+import { parseDespatchResponse, type FacturayaDespatchOperations } from "../../facturaya/despatch-contracts";
 import type {
   CreditNoteInput,
   FacturayaClient,
@@ -158,6 +159,18 @@ export class VpsFacturayaClient implements FacturayaClient {
     return this.entityOperation<FacturayaCustomer>("lookup_customer", { ruc }, false);
   }
 
+  async lookupCustomerByDni(dni: string): Promise<FacturayaResult<FacturayaCustomer>> {
+    if (!/^\d{8}$/.test(dni)) return { ok: false, reason: "not_found" };
+    const result = await this.entityOperation<FacturayaCustomer>("lookup_customer_dni", { dni }, false);
+    if (!result.ok) return result;
+    if (result.data.ruc !== dni || typeof result.data.name !== "string" || !result.data.name.trim()) {
+      return { ok: false, reason: "api_error", message: "El VPS devolvió un cliente inválido para ese DNI." };
+    }
+    return { ok: true, data: { ruc: dni, name: result.data.name.trim().slice(0, 255),
+      source: typeof result.data.source === "string" ? result.data.source : null,
+      provider: typeof result.data.provider === "string" ? result.data.provider : null } };
+  }
+
   async importInvoiceDraft(input: ImportInvoiceDraftInput): Promise<FacturayaResult<FacturayaInvoiceDraft>> {
     return this.entityOperation<FacturayaInvoiceDraft>("import_invoice_draft", {
       ...input,
@@ -173,8 +186,23 @@ export class VpsFacturayaClient implements FacturayaClient {
     });
   }
 
-  async listInvoiceDrafts(): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>> {
-    const response = await this.operation("list_invoice_drafts");
+  readonly despatch: FacturayaDespatchOperations = {
+    create: (input) => this.despatchOperation("create_despatch", { ...input }),
+    get: (id) => this.despatchOperation("get_despatch", { id }),
+    issue: (id, digest) => this.despatchOperation("issue_despatch", { id, confirmed: true, confirmation_digest: digest }),
+    refresh: (id) => this.despatchOperation("refresh_despatch", { id }),
+  };
+
+  private async despatchOperation(operation: FacturayaBridgeOperation, payload: Record<string, unknown>) {
+    const result = await this.operation(operation, payload);
+    if (!result.ok) return result;
+    const data = parseDespatchResponse(result.data);
+    return data && (typeof payload.id !== "string" || data.id === payload.id) ? { ok: true as const, data } : { ok: false as const, reason: "api_error" as const,
+      message: "El VPS devolvió una guía no verificable." };
+  }
+
+  async listInvoiceDrafts(page?: number, draftId?: string): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>> {
+    const response = await this.operation("list_invoice_drafts", draftId ? { draftId } : page ? { page } : undefined);
     if (!response.ok) return response;
     if (!Array.isArray(response.data)) {
       return { ok: false, reason: "api_error", message: "El VPS devolvió una lista inválida." };

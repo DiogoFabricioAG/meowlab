@@ -73,6 +73,58 @@ export type AiLogger = (
   details?: Record<string, unknown>,
 ) => void;
 
+export type DecisionQuestion =
+  | {
+      type: "predicate";
+      name: string;
+      instructions: string;
+    }
+  | {
+      type: "choice";
+      name: string;
+      instructions: string;
+      choices: readonly (string | { value: string; description?: string })[];
+    }
+  | {
+      type: "score";
+      name: string;
+      instructions: string;
+      levels?: readonly string[];
+    };
+
+export type DecisionAnswer =
+  | {
+      type: "predicate";
+      name: string;
+      probability: number;
+    }
+  | {
+      type: "choice";
+      name: string;
+      choice: string;
+      probabilities?: Record<string, number>;
+      confidence?: number;
+    }
+  | {
+      type: "score";
+      name: string;
+      score: number;
+      probabilities?: Record<string, number>;
+      confidence?: number;
+    };
+
+export type AiDecisionsRequest = {
+  model?: string;
+  input: string | readonly AiMessage[];
+  questions: readonly DecisionQuestion[];
+};
+
+export type AiDecisionsResult = {
+  id?: string;
+  model?: string;
+  answers: readonly DecisionAnswer[];
+};
+
 export interface AiProvider {
   readonly key: string;
   complete(
@@ -83,6 +135,10 @@ export interface AiProvider {
     request: AiToolCompletionRequest,
     log: AiLogger,
   ): Promise<AiCompletionResult | null>;
+  decide?(
+    request: AiDecisionsRequest,
+    log: AiLogger,
+  ): Promise<AiDecisionsResult | null>;
 }
 
 export interface AudioTranscriber {

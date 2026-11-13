@@ -1,3 +1,12 @@
+import { PgPortalLinkStore, PortalLinkService, type PortalLinkPool } from "./portal/link-service";
+import { WorkerAuthCodeSender } from "./portal/auth-code-sender";
+import { PortalBillingService, type BillingPool } from "./portal/billing-service";
+import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
+import { PortalInvitationService } from "./portal/invitation-service";
+import { PortalWeeklyService } from "./portal/weekly-service";
+import { SalesService } from "./sales/sales-service";
+import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
+import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
 import { createAiProvider } from "../adapters/ai/factory";
@@ -12,11 +21,14 @@ import { PgBridgeRequestStore } from "./bridge/pg-request-store";
 import { PrintAdvisorBridgeService } from "./bridge/print-advisor-service";
 import { PgContactRoleResolver } from "./control/pg-contact-role-resolver";
 import { PlatformSyncService } from "./platform/platform-sync-service";
+import { advisorConnectionString } from "./postgres/advisor-connection";
 import { createPrintPostgresConnection } from "./postgres/pg-read-only-executor";
 import { FACTURAYA_BRIDGE_PATH } from "../facturaya/bridge-contracts";
 import { CredentialCipher } from "./security/credential-cipher";
 import { PgFacturayaTenantRepository } from "./facturaya/tenant-repository";
 import { FacturayaOperationService } from "./facturaya/operation-service";
+import { PgRadarSelectionService } from "./radar/selection-service";
+import { RADAR_SYNC_BRIDGE_PATH } from "../radar/sync-contracts";
 
 const MAX_REQUEST_BYTES = 20 * 1024 * 1024;
 const DEFAULT_PORT = 3_000;
@@ -78,6 +90,62 @@ async function readRequestBody(
   return Buffer.concat(chunks).toString("utf8");
 }
 
+/**
+ * Portal app.meowlab.tech (ADR-0006). Optional: without its secrets the portal route
+ * answers 503 and the rest of the bridge is unaffected.
+ */
+function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string) {
+  const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
+  const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
+  const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
+  if (!portalSecret || !authCodeSecret || !workerUrl) {
+    logSafeEvent("vps_portal_link_disabled");
+    return {};
+  }
+  if (portalSecret.length < 32 || authCodeSecret.length < 32) {
+    throw new Error("Portal secrets must contain at least 32 characters");
+  }
+  if (new URL(workerUrl).protocol !== "https:") throw new Error("MANOLO_WORKER_URL must use HTTPS");
+  return {
+    portalSecret,
+    // Phase 3: read-only billing data through FacturaYa, authorized per linked number.
+    portalBillingService: new PortalBillingService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+    // ADR-0010: companies created from the portal; RUC read from FacturaYa's registry.
+    portalCompanyService: new PortalCompanyService(
+      pool,
+      taxpayerDirectory(facturayaBaseUrl),
+      logSafeEvent,
+      undefined,
+      new PortalInvitationService(pool, logSafeEvent),
+      // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
+      new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+    ),
+    portalLinkService: new PortalLinkService(
+      new PgPortalLinkStore(pool),
+      new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),
+      portalSecret,
+      logSafeEvent,
+    ),
+  };
+}
+
+/** Without the internal token the portal can list companies but not look up or create them. */
+function taxpayerDirectory(facturayaBaseUrl: string): FacturayaTaxpayerDirectory | null {
+  const token = optionalSecret("FACTURAYA_INTERNAL_TOKEN", "FACTURAYA_INTERNAL_TOKEN_FILE");
+  if (!token) {
+    logSafeEvent("vps_portal_taxpayer_lookup_disabled");
+    return null;
+  }
+  return new FacturayaTaxpayerDirectory(facturayaBaseUrl, token);
+}
+
+function optionalSecret(name: string, fileName: string): string | null {
+  const direct = process.env[name]?.trim();
+  if (direct) return direct;
+  const path = process.env[fileName]?.trim();
+  return path ? readFileSync(path, "utf8").trim() || null : null;
+}
+
 async function main(): Promise<void> {
   const databaseUrl = requiredEnvironment("DATABASE_URL");
   const sharedSecret = process.env.VPS_BRIDGE_HMAC_SECRET?.trim()
@@ -101,8 +169,17 @@ async function main(): Promise<void> {
     throw new Error("VPS_BRIDGE_HMAC_SECRET must contain at least 32 characters");
   }
 
-  const connection = createPrintPostgresConnection(databaseUrl, logSafeEvent);
+  // Model-generated SQL runs with its own read-only role, never with the platform's owner role.
+  const advisorDatabaseUrl = advisorConnectionString(
+    databaseUrl,
+    process.env.PRINT_ADVISOR_DB_USER?.trim() || "manolo_advisor_ro",
+    requiredSecret("PRINT_ADVISOR_DB_PASSWORD", "PRINT_ADVISOR_DB_PASSWORD_FILE"),
+  );
+
+  const connection = createPrintPostgresConnection(databaseUrl, logSafeEvent, "manolo-platform-bridge");
   if (!connection) throw new Error("PostgreSQL connection could not be created");
+  const advisorConnection = createPrintPostgresConnection(advisorDatabaseUrl, logSafeEvent);
+  if (!advisorConnection) throw new Error("Print advisor PostgreSQL connection could not be created");
   const ai = createAiProvider("groq", { groqApiKey });
   if (!ai) throw new Error("Groq provider could not be created");
 
@@ -119,10 +196,17 @@ async function main(): Promise<void> {
   );
   const service = new PrintAdvisorBridgeService(
     ai,
-    connection.repository,
+    advisorConnection.repository,
     requestStore,
     logSafeEvent,
     { aiModel: process.env.PRINT_ADVISOR_MODEL },
+  );
+  // ADR-0013: Sales Cat quotes as PDF, drawn by FacturaYa with the single layout.
+  const quotePdfToken = optionalSecret("FACTURAYA_INTERNAL_TOKEN", "FACTURAYA_INTERNAL_TOKEN_FILE");
+  const quotePdfs = new QuotePdfService(
+    connection.pool,
+    quotePdfToken ? new FacturayaQuotePdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
+    logSafeEvent,
   );
   const handler = createBridgeHttpHandler({
     sharedSecret,
@@ -130,6 +214,11 @@ async function main(): Promise<void> {
     contactRoleResolver,
     platformSyncService,
     facturayaService,
+    radarSelectionService: new PgRadarSelectionService(connection.pool),
+    // Sales Cat (ADR-0011): its data and the public quote page.
+    salesService: new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs),
+    quotePdfService: quotePdfs,
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl),
     log: logSafeEvent,
     healthCheck: async () => {
       try {
@@ -173,6 +262,8 @@ async function main(): Promise<void> {
         PLATFORM_INBOUND_SYNC_PATH,
         PLATFORM_OUTBOUND_SYNC_PATH,
         FACTURAYA_BRIDGE_PATH,
+        RADAR_SYNC_BRIDGE_PATH,
+        SALES_BRIDGE_PATH,
       ],
     });
   });
@@ -180,7 +271,7 @@ async function main(): Promise<void> {
   const shutdown = async (signal: string) => {
     logSafeEvent("vps_bridge_stopping", { signal });
     server.close();
-    await connection.close();
+    await Promise.all([connection.close(), advisorConnection.close()]);
   };
   process.once("SIGTERM", () => void shutdown("SIGTERM"));
   process.once("SIGINT", () => void shutdown("SIGINT"));

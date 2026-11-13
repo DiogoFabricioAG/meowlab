@@ -11,6 +11,8 @@ docs/
 ├─ README.md
 ├─ project/
 │  ├─ status.md
+│  ├─ board.json
+│  ├─ board.html
 │  └─ repository-map.md
 ├─ architecture/
 │  └─ current-system.md
@@ -30,6 +32,15 @@ docs/
 ## Cómo navegar
 
 - Estado real y pendientes: [`project/status.md`](project/status.md).
+- Proyectos registrados explícitamente: [`project/projects.json`](project/projects.json).
+  Es un catálogo documental incremental, no un registro de roles ni un inventario exhaustivo.
+- RADAR (escritorio de licitaciones y futura integración de alertas compartidas):
+  [`apps/radar.md`](apps/radar.md).
+- API de alertas RADAR, migración y activación:
+  [`apps/radar-whatsapp-api.md`](apps/radar-whatsapp-api.md).
+- Tablero de trabajo `todo` / `in_progress` / `done`:
+  [`project/board.html`](project/board.html), generado desde
+  [`project/board.json`](project/board.json).
 - Ubicación y responsabilidad de cada carpeta:
   [`project/repository-map.md`](project/repository-map.md).
 - Flujo actual Cloudflare ↔ VPS:
@@ -41,6 +52,9 @@ docs/
 - Despliegues y rollback: [`operations/deployment.md`](operations/deployment.md).
 - División segura de trabajo entre agentes:
   [`agents/orchestration.md`](agents/orchestration.md).
+- Incorporar un agente de otro servicio sin explorar todo el monorepo:
+  [skill portable `meowlab-agent-onboarding`](../skills/meowlab-agent-onboarding/SKILL.md).
+  Contiene contratos acotados y plantilla de handoff; no es una API de provisión.
 - Decisiones arquitectónicas: [`decisions/README.md`](decisions/README.md).
 
 Los agentes deben iniciar en [`../AGENTS.md`](../AGENTS.md), que funciona como

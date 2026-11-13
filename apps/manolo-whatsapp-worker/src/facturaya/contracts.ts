@@ -1,11 +1,15 @@
 import type { IncomingDocument } from "../documents/contracts";
+import type { PaymentInstallment, PaymentMethod } from "./payment-terms";
+import type { FacturayaDespatchOperations } from "./despatch-contracts";
 
 export type FacturayaInvoice = {
+  credit_notes?: readonly { status: string; reason?: { code?: string } }[];
   id: string;
   number: string;
   status: string;
   document_type?: "01" | "03" | string;
   document_name?: string | null;
+  environment?: string;
   sunat?: { code?: string | null; message?: string | null; notes?: string[] };
   files?: { pdf?: string | null; xml?: string | null; cdr?: string | null };
 };
@@ -18,10 +22,14 @@ export type FacturayaInvoiceDraft = {
   issue_date?: string | null;
   tax_mode?: "included" | "excluded" | string;
   currency?: string | null;
+  payment_method?: PaymentMethod;
+  outstanding_amount?: string | null;
+  installments?: readonly PaymentInstallment[];
   items?: readonly {
     id?: number;
     description?: string;
     quantity?: number | string;
+    unit?: string;
     unit_price?: number | string;
     line_total?: number | string;
   }[];
@@ -93,6 +101,9 @@ export type ImportInvoiceDraftInput = {
   customerName: string | null;
   issueDate: string;
   taxMode: "included" | "excluded";
+  paymentMethod?: PaymentMethod;
+  outstandingAmount?: string | null;
+  installments?: readonly PaymentInstallment[];
   productsText?: string;
   document?: IncomingDocument | null;
 };
@@ -109,9 +120,11 @@ export type CreditNoteInput = {
 };
 
 export interface FacturayaOperations {
+  readonly despatch?: FacturayaDespatchOperations;
   lookupCustomer(ruc: string): Promise<FacturayaResult<FacturayaCustomer>>;
+  lookupCustomerByDni(dni: string): Promise<FacturayaResult<FacturayaCustomer>>;
   importInvoiceDraft(input: ImportInvoiceDraftInput): Promise<FacturayaResult<FacturayaInvoiceDraft>>;
-  listInvoiceDrafts(): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>>;
+  listInvoiceDrafts(page?: number, draftId?: string): Promise<FacturayaResult<readonly FacturayaInvoiceDraft[]>>;
   issueInvoice(draftId: string): Promise<FacturayaResult<FacturayaInvoice>>;
   createCreditNote(invoiceId: string, input: CreditNoteInput): Promise<FacturayaResult<FacturayaCreditNote>>;
   downloadFile(url: string): Promise<FacturayaResult<{ bytes: Uint8Array; mimeType: string; filename: string }>>;
