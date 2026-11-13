@@ -214,7 +214,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 52 · Total: 138</span>
+      <span class="summary">Abiertas: 51 · Total: 138</span>
     </div>
   </div>
 </header>
@@ -223,7 +223,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">48</span>
+          <span class="count">47</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -655,17 +655,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="decidir de qué empresa es miembro el número vinculado del operador portal el número vinculado (…0280) no es miembro de ninguna empresa con facturaya; la única membresía activa es la de …2447. opciones: agregar …0280 como miembro con view_invoice (tui) o vincular …2447. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Decidir de qué empresa es miembro el número vinculado del operador</h3>
-          
-          <p class="card-notes">El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">portal-membership-0280-20261113</code>
-        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -811,7 +800,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">86</span>
+          <span class="count">87</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1693,6 +1682,17 @@
           <p class="card-notes">Módulos por esquema para los 6 agentes y Tender Cat. Decisiones 2026-11-12: integrar todo en MeowLab (ERP fuente de verdad), sin stock negativo (reservas; Reorder Cat contacta proveedor o genera producción), sólo PEN, Tender Cat en duda (número propio o compartido), sin permisos por módulo. Pendiente: almacenes/listas del primer corte, precio y número de Tender Cat, recetas de producción; luego ADR.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">erp-data-model-draft-20261112</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="decidir de qué empresa es miembro el número vinculado del operador portal el número vinculado (…0280) no es miembro de ninguna empresa con facturaya; la única membresía activa es la de …2447. opciones: agregar …0280 como miembro con view_invoice (tui) o vincular …2447. …0280 miembro activo de creaciones j&amp;d con todos los permisos (conserva radar); …2447 sólo radar (rol cambiado en postgresql con auditoría y en d1; membresía inactiva). bridge: la cuenta vinculada ve la empresa. acta: docs/operations/portal-facturacion-2026-11-13.md">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Decidir de qué empresa es miembro el número vinculado del operador</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> …0280 miembro activo de CREACIONES J&amp;D con todos los permisos (conserva RADAR); …2447 sólo RADAR (rol cambiado en PostgreSQL con auditoría y en D1; membresía inactiva). Bridge: la cuenta vinculada ve la empresa. Acta: docs/operations/portal-facturacion-2026-11-13.md</p>
+          <p class="card-notes">El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">portal-membership-0280-20261113</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="nota de arquitectura actual y corrección de la contradicción financiera docs  docs/architecture/manolo-2026-09-13.md">
           <div class="card-top">

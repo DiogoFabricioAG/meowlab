@@ -1412,10 +1412,10 @@
       "area": "Portal",
       "owner": "",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-13",
       "notes": "El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.",
-      "evidence": ""
+      "evidence": "…0280 miembro activo de CREACIONES J&D con todos los permisos (conserva RADAR); …2447 sólo RADAR (rol cambiado en PostgreSQL con auditoría y en D1; membresía inactiva). Bridge: la cuenta vinculada ve la empresa. Acta: docs/operations/portal-facturacion-2026-11-13.md"
     }
   ]
 }

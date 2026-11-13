@@ -28,10 +28,15 @@ Fecha: 13/11/2026 (03:00–03:15 UTC). Autorizado por el operador («Sí, despli
 - Datos reales, sólo lectura, desde el bridge con el token de la empresa activa: 46
   comprobantes de producción y resumen de 12 meses.
 
-## Pendiente
+## Roles y membresías (decisión del operador, 13/11/2026)
 
-El número vinculado del operador (…0280) no es miembro de ninguna empresa; la única
-membresía activa es la de …2447. Hasta resolverlo, su pestaña muestra «Sin empresa».
+- …0280 (administrador): miembro activo de CREACIONES J&D con todos los permisos;
+  conserva el rol RADAR. Su cuenta del portal ya ve la empresa (verificado por el bridge).
+- …2447: sólo Tender Cat (RADAR). Rol `enterprise-advisor` → `radar` en PostgreSQL (con
+  auditoría `operador-asistente`) y en la D1 de Manolo; membresía de la empresa
+  `inactive`; su sesión de empresa activa borrada.
+- Consecuencia: ningún número tiene hoy el rol Invoice Cat, así que nadie emite por
+  WhatsApp hasta asignarlo; FacturaYa web y el portal siguen funcionando.
 
 ## Rollback
 
