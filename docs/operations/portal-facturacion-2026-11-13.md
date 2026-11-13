@@ -35,8 +35,11 @@ Fecha: 13/11/2026 (03:00–03:15 UTC). Autorizado por el operador («Sí, despli
 - …2447: sólo Tender Cat (RADAR). Rol `enterprise-advisor` → `radar` en PostgreSQL (con
   auditoría `operador-asistente`) y en la D1 de Manolo; membresía de la empresa
   `inactive`; su sesión de empresa activa borrada.
-- Consecuencia: ningún número tiene hoy el rol Invoice Cat, así que nadie emite por
-  WhatsApp hasta asignarlo; FacturaYa web y el portal siguen funcionando.
+- Corrección del operador (13/11, 03:30 UTC): Invoice Cat va al último número vinculado
+  en app.meowlab.tech, que es …2447. Se le devolvió `enterprise-advisor` (auditado y en
+  D1) y su membresía volvió a `active`. Estado final: …0280 RADAR + miembro con todos los
+  permisos (administrador); …2447 Invoice Cat + miembro. Números vinculados en el portal:
+  …2447, …5481 y …0280.
 
 ## Rollback
 
