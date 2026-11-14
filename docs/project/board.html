@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 73 · Total: 179</span>
+      <span class="summary">Abiertas: 77 · Total: 183</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">71</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -502,6 +502,17 @@
           <p class="card-meta">Actualizado: 2026-11-14 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-compra-20261114</code>
         </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="collections cat fase 2: escribir desde el número de la empresa con plantillas de meta, recordatorios automáticos y qr de yape manolo adr-0015 fase 2. depende del número propio de la empresa (kapso, adr-0009). ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Collections Cat fase 2: escribir desde el número de la empresa con plantillas de Meta, recordatorios automáticos y QR de Yape</h3>
+          
+          <p class="card-notes">ADR-0015 fase 2. Depende del número propio de la empresa (Kapso, ADR-0009).</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">collections-cat-2-numero-20261114</code>
+        </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
             <span class="badge area-other">FacturaYa</span>
@@ -711,17 +722,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">billing-3-yape-qr-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md ">
-          <div class="card-top">
-            <span class="badge area-other">Cobros</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Collections Cat: cobro por WhatsApp</h3>
-          
-          <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">billing-4-collections-cat-20261111</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: activar invoice cat con credenciales sol portal adr-0010. ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -865,6 +865,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">stock-cat-3-venta-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="collections cat fase 3: a la venta en el plan (s/ 25) y meowlab cobrando sus suscripciones portal adr-0015 fase 3. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Collections Cat fase 3: a la venta en el Plan (S/ 25) y MeowLab cobrando sus suscripciones</h3>
+          
+          <p class="card-notes">ADR-0015 fase 3.</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">collections-cat-3-venta-20261114</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -975,6 +986,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">blob-storage-evaluacion-20261113</code>
         </article>
+        <article class="card" data-priority="low" data-area="FacturaYa" data-text="arreglar la prueba fiscalsetupprobeendpointtest de facturaya, que falla también en el commit desplegado facturaya falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms. ">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Arreglar la prueba FiscalSetupProbeEndpointTest de FacturaYa, que falla también en el commit desplegado</h3>
+          
+          <p class="card-notes">Falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms.</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">facturaya-fiscal-probe-test-20261114</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -991,7 +1013,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">6</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1027,6 +1049,17 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="collections cat fase 1: deudas, pagos, capturas, recordatorios preparados y página en el portal manolo adr-0015. código listo, sin desplegar: rama feat/collections-cat (migración 019, bridge, worker, portal) y feat/collections-terms en facturaya-ai (saldo y cuotas en issued-documents). orden: facturaya, migración 019, bridge, worker, portal; activar creaciones j&amp;d como cortesía. 2026-11-14: worker 683/683 y tsc limpio; collections-pg-check, stock-pg-check, sales-pg-check y entitlement-pg-check en verde; portal 44/44, typecheck y build; página revisada en local con bridge falso; facturaya 192/193 en contenedor sin red (la que falla, fiscalsetupprobe, falla igual en el commit desplegado).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Collections Cat fase 1: deudas, pagos, capturas, recordatorios preparados y página en el portal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-14: Worker 683/683 y tsc limpio; collections-pg-check, stock-pg-check, sales-pg-check y entitlement-pg-check en verde; portal 44/44, typecheck y build; página revisada en local con bridge falso; FacturaYa 192/193 en contenedor sin red (la que falla, FiscalSetupProbe, falla igual en el commit desplegado).</p>
+          <p class="card-notes">ADR-0015. Código listo, sin desplegar: rama feat/collections-cat (migración 019, bridge, Worker, portal) y feat/collections-terms en facturaya-ai (saldo y cuotas en issued-documents). Orden: FacturaYa, migración 019, bridge, Worker, portal; activar CREACIONES J&amp;D como cortesía.</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">collections-cat-1-nucleo-20261114</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1037,6 +1070,17 @@
           <p class="card-notes">Repo: WHATSAPP_BURST_ENABLED=false y cron */5; producción: true y solo */15. El entorno por defecto usa la D1 y el R2 de producción. Un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, RADAR_PRESENCE_ENABLED=false). Falta aislar la D1 y el R2 del entorno de desarrollo.</p>
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en adr-0015; la fase 1 está construida y sin desplegar en feat/collections-cat (meowlab) y feat/collections-terms (facturaya-ai). ">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Collections Cat: cobro por WhatsApp</h3>
+          
+          <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está construida y sin desplegar en feat/collections-cat (meowlab) y feat/collections-terms (facturaya-ai).</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
         </div>
       </section>

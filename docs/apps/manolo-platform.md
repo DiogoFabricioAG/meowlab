@@ -134,6 +134,27 @@ se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`
   su mínimo. Las líneas sin producto quedan «por asociar» hasta que alguien dice a cuál
   corresponden. Costos y valor solo para la titular (cuenta del portal dueña de la empresa con
   su WhatsApp vinculado). Se activa por empresa en `stock.settings`.
+- **Collections Cat (ADR-0015, fase 1):** `/collections` (también `/cobranza`) en el mismo chat
+  (`src/roles/collections-role.ts`, extracción `src/collections/extractor.ts` con `SALES_AI_MODEL`).
+  - Lleva las deudas: las dichas en el chat, las ventas al crédito de Sales Cat y las facturas a
+    crédito de FacturaYa desde la activación (`outstanding_amount` e `installments` de
+    `/api/issued-documents`). Una venta con su factura cuenta una vez y las notas de crédito bajan
+    la deuda solas.
+  - Pagos parciales, de la deuda más antigua a la más nueva; el saldo de la venta de Sales Cat
+    sigue al de la deuda.
+  - Una captura reenviada (imagen) queda pendiente hasta que alguien del equipo la valida. Queda
+    registrado quién la validó.
+  - Recordatorios en tres tonos según el atraso, con las formas de pago de la empresa. Mientras
+    la empresa no tenga número propio, se preparan con un botón `wa.me` y el equipo los envía.
+  - Las deudas que agotaron sus recordatorios sin pago, o cuyo cliente pidió no recibir
+    mensajes, pasan a la titular: aparecen en «Intenta hablar con estos clientes».
+  - Reglas (plazo, ritmo, máximo, horario, domingos y formas de pago) solo para la titular,
+    desde el chat o el portal.
+  - Datos en el esquema `receivables` (migración `019-collections-cat.sql`, que añade
+    `commerce.customers.phone`). Ruta firmada `/v1/collections/execute` con idempotencia
+    (`src/node/collections/`). En el portal: `/agentes/cobranza` y una línea en Inicio.
+  - Se activa por empresa: `INSERT INTO receivables.settings (tenant_id) VALUES ('<id>')`.
+  - Pruebas: `test/collections-role.test.ts` y `tools/collections-pg-check.ts`.
 - **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
   misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
   varios productos o sin el documento del cliente, deriva a Invoice Cat.
