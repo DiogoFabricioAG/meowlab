@@ -39,7 +39,9 @@ export type PortalCompanyAction =
   | { action: "preview"; token: string }
   | { action: "accept"; token: string }
   | { action: "weekly"; tenantId: string }
-  | { action: "stock_view"; tenantId: string };
+  | { action: "stock_view"; tenantId: string }
+  | { action: "collections_view"; tenantId: string }
+  | { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> };
 
 /** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
 export type WeeklySummary = {
@@ -69,7 +71,32 @@ export type PortalCompanyResponse =
   | { status: "joined"; company: PortalMembership }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
   | { status: "ok"; weekly: WeeklySummary }
-  | { status: "ok"; stock: StockView };
+  | { status: "ok"; stock: StockView }
+  | { status: "ok"; collections: CollectionsView }
+  | { status: "invalid_settings" | "owner_only" };
+
+/** Collections Cat's rules (ADR-0015): payment options and how it reminds. */
+export type CollectionsSettings = {
+  defaultDueDays: number; remindBeforeDays: number; remindEveryDays: number; maxReminders: number;
+  windowStartHour: number; windowEndHour: number; skipSundays: boolean;
+  yapePhone: string | null; plinPhone: string | null; bankText: string | null; paymentLink: string | null;
+};
+
+/** Collections Cat in the portal (ADR-0015, point 17). */
+export type CollectionsView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    settings: CollectionsSettings;
+    totalCents: number;
+    buckets: { current: number; d1_30: number; d31_60: number; d61: number };
+    debts: Array<{ id: string; customer: string; docNumber: string | null; phone: string | null; balanceCents: number; amountCents: number;
+      dueOn: string; daysLate: number; document: string | null; description: string | null; remindersSent: number; escalated: boolean;
+      dueForReminder: boolean; source: "sale" | "invoice" | "chat" }>;
+    pending: Array<{ id: string; customer: string; amountCents: number; method: string; operationNumber: string | null; paidOn: string }>;
+    recent: Array<{ customer: string; amountCents: number; method: string; paidOn: string }>;
+  };
 
 /** Stock Cat in the portal (ADR-0014): costs and value only reach the owner. */
 export type StockView =
