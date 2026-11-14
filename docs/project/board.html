@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 73 · Total: 178</span>
+      <span class="summary">Abiertas: 73 · Total: 179</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">68</span>
+          <span class="count">69</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -490,6 +490,17 @@
           <p class="card-notes">ADR-0014 fase 1 recién desplegada.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">stock-cat-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="contratar sales cat en modo de prueba para una empresa distinta de creaciones j&amp;d y confirmar que se activa portal venta por empresa recién desplegada; mercado pago en modo de prueba. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Contratar Sales Cat en modo de prueba para una empresa distinta de CREACIONES J&amp;D y confirmar que se activa</h3>
+          
+          <p class="card-notes">Venta por empresa recién desplegada; Mercado Pago en modo de prueba.</p>
+          <p class="card-meta">Actualizado: 2026-11-14 · Responsable: operador</p>
+          <code class="card-id">sales-cat-prueba-compra-20261114</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -980,7 +991,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">4</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1016,17 +1027,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="vender sales cat en el plan: suscripción por empresa y activación automática portal código listo, sin desplegar (rama feat/billing-por-empresa). portal: migración 0004 (tenant_id, una suscripción viva por empresa, sales cat disponible), plan por empresa, solo la titular contrata. plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. mercado pago sigue en modo de prueba. orden: migración 017, bridge, migración 0004 y portal. 2026-11-13: worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde.">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Vender Sales Cat en el Plan: suscripción por empresa y activación automática</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: Worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde.</p>
-          <p class="card-notes">Código listo, sin desplegar (rama feat/billing-por-empresa). Portal: migración 0004 (tenant_id, una suscripción viva por empresa, Sales Cat disponible), Plan por empresa, solo la titular contrata. Plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. Mercado Pago sigue en modo de prueba. Orden: migración 017, bridge, migración 0004 y portal.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">sales-cat-venta-plan-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1043,7 +1043,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">105</span>
+          <span class="count">106</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1903,6 +1903,17 @@
           <p class="card-notes">Desplegado el 13/11/2026 y activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/stock-cat-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">stock-cat-1-nucleo-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="vender sales cat en el plan: suscripción por empresa y activación automática portal desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. mercado pago sigue en modo de prueba; creaciones j&amp;d sigue como cortesía. producción: migración 017, bridge sales-venta-20261114t015537z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Vender Sales Cat en el Plan: suscripción por empresa y activación automática</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 017, bridge sales-venta-20261114T015537Z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión.</p>
+          <p class="card-notes">Desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). Acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. Mercado Pago sigue en modo de prueba; CREACIONES J&amp;D sigue como cortesía.</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">sales-cat-venta-plan-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. desplegado en el vps: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo http/2 200 con el nuevo bundle index-dhgs6wmb.js y contenedor en estado healthy. tests vitest 16/16, typecheck y build limpios. acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md">
           <div class="card-top">

@@ -1852,10 +1852,21 @@
       "area": "Portal",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
-      "updated": "2026-11-13",
-      "notes": "Código listo, sin desplegar (rama feat/billing-por-empresa). Portal: migración 0004 (tenant_id, una suscripción viva por empresa, Sales Cat disponible), Plan por empresa, solo la titular contrata. Plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. Mercado Pago sigue en modo de prueba. Orden: migración 017, bridge, migración 0004 y portal.",
-      "evidence": "2026-11-13: Worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde."
+      "status": "done",
+      "updated": "2026-11-14",
+      "notes": "Desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). Acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. Mercado Pago sigue en modo de prueba; CREACIONES J&D sigue como cortesía.",
+      "evidence": "Producción: migración 017, bridge sales-venta-20261114T015537Z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión."
+    },
+    {
+      "id": "sales-cat-prueba-compra-20261114",
+      "title": "Contratar Sales Cat en modo de prueba para una empresa distinta de CREACIONES J&D y confirmar que se activa",
+      "area": "Portal",
+      "owner": "operador",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-14",
+      "notes": "Venta por empresa recién desplegada; Mercado Pago en modo de prueba.",
+      "evidence": ""
     }
   ]
 }
