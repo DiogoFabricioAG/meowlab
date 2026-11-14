@@ -21,7 +21,9 @@ export type PortalCompanyRequest =
   | (Base & { action: "preview"; token: string })
   | (Base & { action: "accept"; token: string })
   // «Inicio»: what the company's agents did this week.
-  | (Base & { action: "weekly"; tenantId: string });
+  | (Base & { action: "weekly"; tenantId: string })
+  // Stock Cat (ADR-0014): stock, alerts and moves of one company.
+  | (Base & { action: "stock_view"; tenantId: string });
 
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
@@ -36,6 +38,8 @@ export type WeeklySummary = {
     interesting: number;
     highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
+  /** Stock Cat (ADR-0014): items at or below their minimum, and today's moves. */
+  stock?: { enabled: boolean; lowCount: number; movesToday: number };
   /** Sales Cat (ADR-0011): sales registered today and this week. */
   sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
@@ -91,7 +95,24 @@ export type PortalCompanyResponse =
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
-  | { status: "ok"; weekly: WeeklySummary };
+  | { status: "ok"; weekly: WeeklySummary }
+  | { status: "ok"; stock: PortalStockView };
+
+export type PortalStockView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    allowNegative: boolean;
+    /** Inventory value at average cost; owner only. */
+    valueCents: number | null;
+    items: Array<{ name: string; kind: "product" | "supply"; onHand: number; minQty: number | null; low: boolean; needsCount: boolean;
+      avgCostCents: number | null }>;
+    moves: Array<{ at: string; kind: "in" | "out" | "count" | "document_out" | "document_in"; name: string; delta: number; balance: number;
+      document: string | null }>;
+    /** Lines of documents that matched no item yet. */
+    unmatched: string[];
+  };
 
 /** Max companies one account may own; more needs the MeowLab team. */
 export const MAX_OWNED_COMPANIES = 3;
@@ -133,6 +154,7 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
         && (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160));
     case "team":
     case "weekly":
+    case "stock_view":
       return tenant(value.tenantId);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")

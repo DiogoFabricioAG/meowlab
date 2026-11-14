@@ -572,6 +572,8 @@ export class SalesRoleHandler implements RoleHandler {
       await context.reply(`Emití ${issued.data.number}; SUNAT lo dejó en estado «${issued.data.status}». Invoice Cat te avisará cómo sigue.`);
       return;
     }
+    const lowStock = await context.stockAlertsAfterInvoice?.();
+    if (lowStock) await context.reply(lowStock);
     const pdf = issued.data.files?.pdf ? await facturaya.downloadFile(issued.data.files.pdf) : null;
     if (pdf?.ok) {
       await context.sendDocument({

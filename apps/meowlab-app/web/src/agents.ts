@@ -13,6 +13,7 @@ export type Weekly = {
     interesting: number;
     highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
+  stock?: { enabled: boolean; lowCount: number; movesToday: number };
   sales?: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   invoicing:
     | null
@@ -35,7 +36,7 @@ export const AGENTS: Array<{ key: AgentKey; name: string; does: string; icon: Ic
   { key: "invoice", name: "Invoice Cat", does: "Emite tus facturas, boletas y guías ante SUNAT cuando se lo pides en el chat.", icon: "invoice", detail: "/agentes/facturas" },
   { key: "tender", name: "Tender Cat", does: "Te avisa de licitaciones del Estado que encajan con tu negocio.", icon: "radar", detail: "/agentes/licitaciones" },
   { key: "sales", name: "Sales Cat", does: "Registra tus ventas y arma cotizaciones con enlace. Escríbele /sales en el chat.", icon: "chart" },
-  { key: "stock", name: "Stock Cat", does: "Lleva tu inventario al día con cada venta y compra.", icon: "package" },
+  { key: "stock", name: "Stock Cat", does: "Te avisa antes de que algo se acabe. Escríbele /stock en el chat.", icon: "package", detail: "/agentes/stock" },
   { key: "reorder", name: "Reorder Cat", does: "Te avisa cuando algo se acaba y le escribe a tu proveedor.", icon: "refresh" },
   { key: "support", name: "Support Cat", does: "Responde a tus clientes las preguntas de siempre.", icon: "message" },
   { key: "collections", name: "Collections Cat", does: "Cobra por Yape y confirma los pagos de tus clientes.", icon: "cash" },
@@ -73,6 +74,12 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
     if (!sales?.todayCount) return "Hoy no registró ventas.";
     return `Hoy registró ${plural(sales.todayCount, "venta", "ventas")} por ${money(String(sales.todayTotalCents / 100))}.`;
   }
+  if (key === "stock") {
+    const stock = weekly.stock;
+    if (!stock?.enabled) return "";
+    if (stock.lowCount) return `${plural(stock.lowCount, "producto está", "productos están")} en su mínimo o por debajo.`;
+    return stock.movesToday ? `Hoy registró ${plural(stock.movesToday, "movimiento", "movimientos")}; nada se está acabando.` : "Nada se está acabando.";
+  }
   if (key === "tender") {
     return weekly.tender.foundToday
       ? `Hoy encontró ${plural(weekly.tender.foundToday, "licitación", "licitaciones")} para tu negocio.`
@@ -93,6 +100,7 @@ export function agentState(key: AgentKey, company: Membership, weekly: Weekly | 
     return listed?.available ? { kind: "available", priceCents: listed.priceCents } : { kind: "ask" };
   }
   if (key === "sales" && weekly?.sales?.enabled) return { kind: "active", today: todayLine("sales", weekly) };
+  if (key === "stock" && weekly?.stock?.enabled) return { kind: "active", today: todayLine("stock", weekly) };
   if (listed?.available) return { kind: "available", priceCents: listed.priceCents };
   return { kind: "soon", priceCents: listed?.priceCents ?? null };
 }

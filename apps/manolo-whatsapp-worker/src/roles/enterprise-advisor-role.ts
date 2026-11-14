@@ -1571,7 +1571,15 @@ async function emitInvoice(context: RoleHandlerContext, state: EnterpriseState, 
       return;
     }
   }
+  await stockAlert(context, invoice.status === "accepted");
   await offerNextAction(context, completed);
+}
+
+/** Stock Cat (ADR-0014): an accepted document moves stock; say right away if something runs low. */
+async function stockAlert(context: RoleHandlerContext, accepted: boolean) {
+  if (!accepted || !context.stockAlertsAfterInvoice) return;
+  const alert = await context.stockAlertsAfterInvoice();
+  if (alert) await context.reply(alert);
 }
 
 function inferReasonCode(text: string): string | null {
@@ -1692,6 +1700,7 @@ async function confirmCreditNote(context: RoleHandlerContext, state: EnterpriseS
   const completed: EnterpriseState = { ...issuing, phase: terminal ? "issued" : "issuing", issuedNumber: result.data.number };
   await saveState(context, completed);
   await context.reply(`Nota de crédito ${result.data.number}: ${result.data.status}.\n${result.data.sunat?.message || ""}`.trim());
+  await stockAlert(context, result.data.status === "accepted");
   if (terminal) await offerNextAction(context, completed);
 }
 

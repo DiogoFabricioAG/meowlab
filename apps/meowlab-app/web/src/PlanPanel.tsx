@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchJson, postJson } from "./auth-client";
+import { fetchJson, postJson, type Membership } from "./auth-client";
 
 type Agent = { key: string; name: string; description: string; priceCents: number; available: boolean };
 type Discount = { minAgents: number; percent: number };
@@ -13,7 +13,7 @@ type Subscription = {
   active: boolean;
   checkoutUrl: string | null;
 };
-type Billing = { agents: Agent[]; discounts: Discount[]; testMode?: boolean; subscription: Subscription | null };
+type Billing = { agents: Agent[]; discounts: Discount[]; testMode?: boolean; subscription: Subscription | null; canManage?: boolean };
 
 const soles = (cents: number) => `S/ ${(cents / 100).toFixed(2)}`;
 const date = (iso: string | null) =>
@@ -32,7 +32,11 @@ const STATUS_LABEL: Record<Subscription["status"], string> = {
   failed: "No se pudo crear",
 };
 
-export function PlanPanel({ email }: { email: string }) {
+/**
+ * The plan of the company chosen in the menu (ADR-0007, per company since 13/11/2026). Each
+ * company pays for its own agents; only its owner subscribes or cancels.
+ */
+export function PlanPanel({ email, company }: { email: string; company: Membership }) {
   const [billing, setBilling] = useState<Billing | null>(null);
   const [unavailable, setUnavailable] = useState(false);
   const [selected, setSelected] = useState<string[]>(["invoice"]);
@@ -41,15 +45,20 @@ export function PlanPanel({ email }: { email: string }) {
   const [message, setMessage] = useState<string | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
+  const companyQuery = `company=${encodeURIComponent(company.id)}`;
+
   useEffect(() => {
+    setBilling(null);
+    setUnavailable(false);
+    setMessage(null);
     const returning = new URLSearchParams(window.location.search).get("pago") === "retorno";
-    const load = returning ? postJson<Billing>("/api/billing/sync") : fetchJson<Billing>("/api/billing");
+    const load = returning ? postJson<Billing>("/api/billing/sync", { company: company.id }) : fetchJson<Billing>(`/api/billing?${companyQuery}`);
     void load.then((value) => {
       if (!value) return setUnavailable(true);
       setBilling(value);
       if (returning) window.history.replaceState(null, "", "/plan");
     });
-  }, []);
+  }, [company.id, companyQuery]);
 
   const price = useMemo(() => {
     if (!billing) return null;
@@ -80,6 +89,7 @@ export function PlanPanel({ email }: { email: string }) {
     setMessage(null);
     setBusy(true);
     const result = await postJson<{ status: string; checkoutUrl?: string; reason?: string }>("/api/billing/subscribe", {
+      company: company.id,
       agents: selected,
       payerEmail,
     });
@@ -92,7 +102,7 @@ export function PlanPanel({ email }: { email: string }) {
       result?.status === "invalid_email"
         ? "Revisa el correo de Mercado Pago."
         : result?.status === "already_subscribed"
-          ? "Ya tienes una suscripción activa."
+          ? `${company.name} ya tiene una suscripción activa.`
           : result?.status === "test_account_mismatch"
             ? "En modo de prueba, el correo debe ser de una cuenta de prueba de Mercado Pago (termina en @testuser.com)."
           : result?.status === "invalid_agents"
@@ -103,8 +113,8 @@ export function PlanPanel({ email }: { email: string }) {
 
   async function cancel() {
     setBusy(true);
-    const result = await postJson<{ status: string }>("/api/billing/cancel");
-    const refreshed = await fetchJson<Billing>("/api/billing");
+    const result = await postJson<{ status: string }>("/api/billing/cancel", { company: company.id });
+    const refreshed = await fetchJson<Billing>(`/api/billing?${companyQuery}`);
     setBusy(false);
     setConfirmCancel(false);
     if (refreshed) setBilling(refreshed);
@@ -116,9 +126,17 @@ export function PlanPanel({ email }: { email: string }) {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Tu plan</h1>
-        <p className="text-ink-muted">Paga solo por los agentes que usas. Precios mensuales con IGV incluido.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-ink">Plan de {company.name}</h1>
+        <p className="text-ink-muted">
+          Cada empresa paga por los agentes que usa. Precios mensuales con IGV incluido.
+        </p>
       </div>
+
+      {!billing.canManage && (
+        <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-2">
+          Solo quien administra {company.name} puede contratar o cancelar agentes. Tú puedes ver el plan.
+        </p>
+      )}
 
       {billing.testMode && (
         <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -161,7 +179,7 @@ export function PlanPanel({ email }: { email: string }) {
             {sub.status === "pending" && sub.checkoutUrl && (
               <a href={sub.checkoutUrl} className="btn-primary">Completar el pago en Mercado Pago</a>
             )}
-            {confirmCancel ? (
+            {!billing.canManage ? null : confirmCancel ? (
               <>
                 <span className="text-sm text-ink-2">
                   ¿Cancelar la renovación? {sub.active ? `Tu plan sigue vigente hasta el ${date(sub.paidUntil)}.` : ""}
@@ -183,14 +201,14 @@ export function PlanPanel({ email }: { email: string }) {
         </section>
       )}
 
-      {!live && (
+      {!live && billing.canManage && (
         <section className="space-y-4" aria-labelledby="catalog-title">
           {sub?.active && (
             <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">
               Cancelaste la renovación: tu plan sigue vigente hasta el {date(sub.paidUntil)}.
             </p>
           )}
-          <h3 id="catalog-title" className="text-lg font-bold text-ink">Elige tus agentes</h3>
+          <h3 id="catalog-title" className="text-lg font-bold text-ink">Elige los agentes de {company.name}</h3>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {billing.agents.map((agent) => {
               const checked = selected.includes(agent.key);

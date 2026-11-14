@@ -8,10 +8,11 @@ import { InvoicingPanel } from "./InvoicingPanel";
 import { CompanyCards } from "./CompanyStep";
 import { WeeklyHome } from "./WeeklyHome";
 import { AgentsPage, TenderPanel } from "./AgentsPage";
+import { StockPanel } from "./StockPanel";
 import type { CatalogAgent, Weekly } from "./agents";
 import { Icon, type IconName } from "./icons";
 
-type Section = "home" | "agents" | "invoice" | "tender" | "plan" | "settings" | "team" | "business";
+type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "plan" | "settings" | "team" | "business";
 
 /** Each section has its own address, so Back works and a link can point at it. */
 const ROUTES: Record<string, Section> = {
@@ -20,13 +21,14 @@ const ROUTES: Record<string, Section> = {
   "/agentes": "agents",
   "/agentes/facturas": "invoice",
   "/agentes/licitaciones": "tender",
+  "/agentes/stock": "stock",
   "/plan": "plan",
   "/ajustes": "settings",
   "/ajustes/equipo": "team",
   "/negocio": "business",
 };
 const TITLES: Record<Section, string> = {
-  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", plan: "Plan",
+  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", stock: "Stock Cat", plan: "Plan",
   settings: "Configuración", team: "Equipo", business: "Negocio",
 };
 const sectionOf = (path: string): Section => ROUTES[path.replace(/\/+$/, "") || "/"] ?? "home";
@@ -109,7 +111,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
 
   const nav: NavItem[] = [
     { path: "/inicio", label: "Inicio", icon: "home", matches: ["home"] },
-    { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender"] },
+    { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender", "stock"] },
     { path: "/plan", label: "Plan", icon: "card", matches: ["plan"] },
     { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team"] },
   ];
@@ -199,7 +201,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "agents" && <AgentsPage company={company} weekly={weekly} catalog={catalog} go={go} />}
         {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
         {section === "tender" && <TenderPanel weekly={weekly} onBack={() => go("/agentes")} />}
-        {section === "plan" && <PlanPanel email={me.user.email} />}
+        {company && section === "stock" && <StockPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
+        {company && section === "plan" && <PlanPanel key={company.id} email={me.user.email} company={company} />}
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
           <div className="space-y-10">

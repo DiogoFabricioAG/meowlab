@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 69 · Total: 173</span>
+      <span class="summary">Abiertas: 73 · Total: 179</span>
     </div>
   </div>
 </header>
@@ -224,7 +224,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">65</span>
+          <span class="count">69</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -468,6 +468,39 @@
           <p class="card-notes">ADR-0011, fase 1 recién desplegada.</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 2: carga desde excel e imagen y entradas desde la foto de la factura del proveedor manolo adr-0014. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor</h3>
+          
+          <p class="card-notes">ADR-0014.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-2-digitalizar-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="probar stock cat por whatsapp con creaciones j&amp;d (/stock desde …0280) manolo adr-0014 fase 1 recién desplegada. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Probar Stock Cat por WhatsApp con CREACIONES J&amp;D (/stock desde …0280)</h3>
+          
+          <p class="card-notes">ADR-0014 fase 1 recién desplegada.</p>
+          <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
+          <code class="card-id">stock-cat-prueba-whatsapp-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="contratar sales cat en modo de prueba para una empresa distinta de creaciones j&amp;d y confirmar que se activa portal venta por empresa recién desplegada; mercado pago en modo de prueba. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Contratar Sales Cat en modo de prueba para una empresa distinta de CREACIONES J&amp;D y confirmar que se activa</h3>
+          
+          <p class="card-notes">Venta por empresa recién desplegada; Mercado Pago en modo de prueba.</p>
+          <p class="card-meta">Actualizado: 2026-11-14 · Responsable: operador</p>
+          <code class="card-id">sales-cat-prueba-compra-20261114</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -821,6 +854,17 @@
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">cotizacion-pdf-prueba-whatsapp-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="stock cat fase 3: a la venta en el plan a s/ 29, por empresa portal adr-0014; reutiliza la activación por empresa de sales cat (feat/billing-por-empresa). ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa</h3>
+          
+          <p class="card-notes">ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa).</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-3-venta-20261113</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -999,7 +1043,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">104</span>
+          <span class="count">106</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -1848,6 +1892,28 @@
           <p class="card-notes">Desplegado el 13/11/2026. Acta: docs/operations/cotizacion-pdf-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">cotizacion-pdf-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal manolo desplegado el 13/11/2026 y activo para creaciones j&amp;d como cortesía. acta: docs/operations/stock-cat-2026-11-13.md. producción: facturaya stock-items-20261113t222135z, migración 018, bridge stock-cat-20261113t222237z, worker 0e82850a, portal meowlab-app:76719df88767; /v1/stock/execute firmado reconoce a …0280 como titular tras el traspaso.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: FacturaYa stock-items-20261113T222135Z, migración 018, bridge stock-cat-20261113T222237Z, Worker 0e82850a, portal meowlab-app:76719df88767; /v1/stock/execute firmado reconoce a …0280 como titular tras el traspaso.</p>
+          <p class="card-notes">Desplegado el 13/11/2026 y activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/stock-cat-2026-11-13.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">stock-cat-1-nucleo-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="vender sales cat en el plan: suscripción por empresa y activación automática portal desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. mercado pago sigue en modo de prueba; creaciones j&amp;d sigue como cortesía. producción: migración 017, bridge sales-venta-20261114t015537z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Vender Sales Cat en el Plan: suscripción por empresa y activación automática</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Producción: migración 017, bridge sales-venta-20261114T015537Z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión.</p>
+          <p class="card-notes">Desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). Acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. Mercado Pago sigue en modo de prueba; CREACIONES J&amp;D sigue como cortesía.</p>
+          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <code class="card-id">sales-cat-venta-plan-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. desplegado en el vps: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo http/2 200 con el nuevo bundle index-dhgs6wmb.js y contenedor en estado healthy. tests vitest 16/16, typecheck y build limpios. acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md">
           <div class="card-top">

@@ -66,14 +66,15 @@ class MemoryStore implements BillingStore {
   subs: SubscriptionRow[] = [];
   payments = new Map<string, { subscriptionId: string; periodEnd: Date }>();
   webhooks: string[] = [];
-  async catalog() { return { agents: catalog.map((a) => ({ ...a, available: a.key === "invoice" })), discounts }; }
-  async currentFor(userId: string) {
-    const mine = this.subs.filter((s) => s.userId === userId);
+  async catalog() { return { agents: catalog.map((a) => ({ ...a, available: a.key === "invoice" || a.key === "sales" })), discounts }; }
+  async currentFor(tenantId: string) {
+    const mine = this.subs.filter((s) => s.tenantId === tenantId);
     return mine.find((s) => ["creating", "pending", "authorized", "paused"].includes(s.status)) ?? mine.at(-1) ?? null;
   }
   async createSubscription(input: Parameters<BillingStore["createSubscription"]>[0]) {
-    if (this.subs.some((s) => s.userId === input.userId && ["creating", "pending", "authorized", "paused"].includes(s.status))) return "already_live" as const;
-    this.subs.push({ ...input, status: "creating", providerRef: null, checkoutUrl: null, paidUntil: null, nextPaymentAt: null, createdAt: new Date() });
+    if (this.subs.some((s) => s.tenantId === input.tenantId && ["creating", "pending", "authorized", "paused"].includes(s.status))) return "already_live" as const;
+    this.subs.push({ ...input, status: "creating", providerRef: null, checkoutUrl: null, paidUntil: null, nextPaymentAt: null,
+      entitlementAppliedUntil: null, createdAt: new Date() });
     return "created" as const;
   }
   async markCreated(id: string, providerRef: string, checkoutUrl: string | null, status: SubscriptionStatus) {
@@ -92,7 +93,11 @@ class MemoryStore implements BillingStore {
     return "granted" as const;
   }
   async recordWebhook(input: Parameters<BillingStore["recordWebhook"]>[0]) { this.webhooks.push(`${input.topic}:${input.outcome}`); }
-  async reconcilable() { return this.subs.filter((s) => s.providerRef && ["pending", "authorized", "paused"].includes(s.status)); }
+  async markEntitlementApplied(id: string, until: Date) { this.subs.find((s) => s.id === id)!.entitlementAppliedUntil = until; }
+  async reconcilable() {
+    return this.subs.filter((s) => (s.providerRef && ["pending", "authorized", "paused"].includes(s.status))
+      || (s.tenantId && s.paidUntil && (!s.entitlementAppliedUntil || s.entitlementAppliedUntil < s.paidUntil)));
+  }
   async metrics() { return { live: 0, paying: 0, monthlyRevenueCents: 0, paymentsLast30Days: 0, revenueLast30DaysCents: 0 }; }
 }
 
@@ -113,18 +118,21 @@ class FakeMercadoPago implements MercadoPagoApi {
   async getAuthorizedPayment(id: string) { return this.charges.find((c) => String(c.id) === id)!; }
 }
 
-function setup(webhookSecret?: string) {
+function setup(webhookSecret?: string, sinkWorks = true) {
   const store = new MemoryStore();
   const mp = new FakeMercadoPago();
   const log = vi.fn();
-  const service = new BillingService(store, mp, { appUrl: "https://app.meowlab.tech", webhookSecret, log, now: () => new Date("2026-11-11T12:00:00Z") });
-  return { store, mp, service, log };
+  const entitlements = { apply: vi.fn(async (_tenant: string, _agents: string[], _until: Date) => sinkWorks) };
+  const service = new BillingService(store, mp, {
+    appUrl: "https://app.meowlab.tech", webhookSecret, log, now: () => new Date("2026-11-11T12:00:00Z"), entitlements,
+  });
+  return { store, mp, service, log, entitlements };
 }
 
 describe("billing service", () => {
   it("prices on the server and opens a Mercado Pago checkout", async () => {
     const { service, mp, store } = setup();
-    const result = await service.subscribe("u1", ["invoice"], "pagador@test.com");
+    const result = await service.subscribe("u1", "org_1", ["invoice"], "pagador@test.com");
     expect(result).toEqual({ status: "redirect", checkoutUrl: "https://mp.example/checkout/pre_1" });
     expect(mp.created[0]).toMatchObject({ amount: 39, payerEmail: "pagador@test.com", reason: "MeowLab · Invoice Cat", backUrl: "https://app.meowlab.tech/?pago=retorno" });
     expect(mp.created[0].externalReference).toMatch(/^meowlab:/);
@@ -133,47 +141,47 @@ describe("billing service", () => {
 
   it("refuses agents that are not for sale and bad e-mails", async () => {
     const { service } = setup();
-    expect(await service.subscribe("u1", ["sales"], "a@b.co")).toEqual({ status: "invalid_agents", reason: "unavailable_agent" });
-    expect(await service.subscribe("u1", ["invoice"], "no-es-correo")).toEqual({ status: "invalid_email" });
+    expect(await service.subscribe("u1", "org_1", ["stock"], "a@b.co")).toEqual({ status: "invalid_agents", reason: "unavailable_agent" });
+    expect(await service.subscribe("u1", "org_1", ["invoice"], "no-es-correo")).toEqual({ status: "invalid_email" });
   });
 
   it("reopens an unfinished checkout instead of creating a second subscription", async () => {
     const { service, mp } = setup();
-    await service.subscribe("u1", ["invoice"], "a@b.co");
-    expect(await service.subscribe("u1", ["invoice"], "a@b.co")).toEqual({ status: "redirect", checkoutUrl: "https://mp.example/checkout/pre_1" });
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
+    expect(await service.subscribe("u1", "org_1", ["invoice"], "a@b.co")).toEqual({ status: "redirect", checkoutUrl: "https://mp.example/checkout/pre_1" });
     expect(mp.created).toHaveLength(1);
   });
 
   it("grants one month per approved charge, never twice, and only for the right amount", async () => {
     const { service, mp, store } = setup();
-    await service.subscribe("u1", ["invoice"], "a@b.co");
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
     mp.preapprovals.get("pre_1")!.status = "authorized";
     mp.charges.push(
       { id: 7001, preapproval_id: "pre_1", status: "processed", transaction_amount: 39, currency_id: "PEN", debit_date: "2026-11-11T12:00:00Z", payment: { id: 1, status: "approved" } },
       { id: 7002, preapproval_id: "pre_1", status: "processed", transaction_amount: 1, currency_id: "PEN", debit_date: "2026-11-11T12:00:00Z", payment: { id: 2, status: "approved" } },
       { id: 7003, preapproval_id: "pre_1", status: "scheduled", transaction_amount: 39, currency_id: "PEN", payment: { id: 3, status: "rejected" } },
     );
-    await service.syncFor("u1");
-    await service.syncFor("u1");
+    await service.syncFor("org_1");
+    await service.syncFor("org_1");
     expect(store.subs[0].status).toBe("authorized");
     expect(store.subs[0].paidUntil?.toISOString()).toBe("2026-12-11T12:00:00.000Z");
     expect(store.payments.size).toBe(1);
-    expect((await service.status("u1")).subscription).toMatchObject({ active: true, status: "authorized" });
+    expect((await service.status("org_1")).subscription).toMatchObject({ active: true, status: "authorized" });
   });
 
   it("ignores a provider resource that belongs to another reference", async () => {
     const { service, mp, store } = setup();
-    await service.subscribe("u1", ["invoice"], "a@b.co");
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
     mp.preapprovals.get("pre_1")!.external_reference = "metodia:otra";
     mp.charges.push({ id: 9, preapproval_id: "pre_1", status: "processed", transaction_amount: 39, currency_id: "PEN", payment: { status: "approved" } });
-    await service.syncFor("u1");
+    await service.syncFor("org_1");
     expect(store.payments.size).toBe(0);
   });
 
   it("only trusts signed webhooks and re-reads the resource", async () => {
     const secret = "whsec";
     const { service, mp, store } = setup(secret);
-    await service.subscribe("u1", ["invoice"], "a@b.co");
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
     mp.charges.push({ id: 555, preapproval_id: "pre_1", status: "processed", transaction_amount: 39, currency_id: "PEN", debit_date: "2026-11-11T12:00:00Z", payment: { status: "approved" } });
     const query = new URLSearchParams({ type: "subscription_authorized_payment", "data.id": "555" });
     const bad = await service.webhook({ query, signature: "ts=1,v1=" + "0".repeat(64), requestId: "r1", body: null });
@@ -192,11 +200,65 @@ describe("billing service", () => {
 
   it("cancels at Mercado Pago and keeps the paid period", async () => {
     const { service, mp, store } = setup();
-    await service.subscribe("u1", ["invoice"], "a@b.co");
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
     store.subs[0].paidUntil = new Date("2026-12-11T00:00:00Z");
-    expect(await service.cancel("u1")).toBe("cancelled");
+    expect(await service.cancel("org_1")).toBe("cancelled");
     expect(mp.preapprovals.get("pre_1")!.status).toBe("cancelled");
-    expect((await service.status("u1")).subscription).toMatchObject({ status: "cancelled", active: true });
+    expect((await service.status("org_1")).subscription).toMatchObject({ status: "cancelled", active: true });
+  });
+});
+
+describe("billing per company (13/11/2026)", () => {
+  const approve = (mp: FakeMercadoPago, id: number, amount: number) => mp.charges.push(
+    { id, preapproval_id: "pre_1", status: "processed", transaction_amount: amount, currency_id: "PEN", debit_date: "2026-11-11T12:00:00Z", payment: { status: "approved" } });
+
+  it("keeps one live subscription per company, not per account", async () => {
+    const { service, store } = setup();
+    await service.subscribe("u1", "org_1", ["invoice"], "a@b.co");
+    store.subs[0].status = "authorized";
+    expect(await service.subscribe("u1", "org_1", ["sales"], "a@b.co")).toEqual({ status: "already_subscribed" });
+    expect((await service.subscribe("u1", "org_2", ["sales"], "a@b.co")).status).toBe("redirect");
+    expect(store.subs.map((s) => s.tenantId)).toEqual(["org_1", "org_2"]);
+    expect((await service.status(null)).subscription).toBeNull();
+  });
+
+  it("switches Sales Cat on in the company once the payment is confirmed, until the end of the paid period", async () => {
+    const { service, mp, store, entitlements } = setup();
+    await service.subscribe("u1", "org_1", ["sales"], "a@b.co");
+    await service.syncFor("org_1");
+    expect(entitlements.apply).not.toHaveBeenCalled();
+    mp.preapprovals.get("pre_1")!.status = "authorized";
+    approve(mp, 801, 59);
+    await service.syncFor("org_1");
+    expect(entitlements.apply).toHaveBeenCalledWith("org_1", ["sales"], new Date("2026-12-11T12:00:00.000Z"));
+    expect(store.subs[0].entitlementAppliedUntil?.toISOString()).toBe("2026-12-11T12:00:00.000Z");
+    await service.syncFor("org_1");
+    expect(entitlements.apply).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries the platform on the next reconciliation when it could not confirm", async () => {
+    const { service, mp, store, entitlements } = setup(undefined, false);
+    await service.subscribe("u1", "org_1", ["sales"], "a@b.co");
+    mp.preapprovals.get("pre_1")!.status = "authorized";
+    approve(mp, 802, 59);
+    await service.syncFor("org_1");
+    expect(store.subs[0].entitlementAppliedUntil).toBeNull();
+    entitlements.apply.mockResolvedValue(true);
+    // Cancelled after paying: still reconciled until the platform confirms the paid period.
+    await service.cancel("org_1");
+    expect(await service.reconcileAll()).toBe(1);
+    expect(store.subs[0].entitlementAppliedUntil?.toISOString()).toBe("2026-12-11T12:00:00.000Z");
+    expect(entitlements.apply).toHaveBeenLastCalledWith("org_1", ["sales"], new Date("2026-12-11T12:00:00.000Z"));
+  });
+
+  it("never touches subscriptions from before companies, nor expired periods", async () => {
+    const { service, store, entitlements } = setup();
+    await service.subscribe("u1", "org_1", ["sales"], "a@b.co");
+    Object.assign(store.subs[0], { tenantId: null, paidUntil: new Date("2026-12-11T12:00:00Z"), status: "cancelled" });
+    await service.applyEntitlements(store.subs[0]);
+    Object.assign(store.subs[0], { tenantId: "org_1", paidUntil: new Date("2026-11-01T00:00:00Z") });
+    await service.applyEntitlements(store.subs[0]);
+    expect(entitlements.apply).not.toHaveBeenCalled();
   });
 });
 
@@ -204,7 +266,7 @@ describe("billing service errors", () => {
   it("explains when a real buyer meets a test seller", async () => {
     const { service, mp } = setup();
     mp.createPreapproval = async () => { throw new Error("mercadopago_400_Both payer and collector must be real or test users"); };
-    expect(await service.subscribe("u1", ["invoice"], "real@gmail.com")).toEqual({ status: "test_account_mismatch" });
+    expect(await service.subscribe("u1", "org_1", ["invoice"], "real@gmail.com")).toEqual({ status: "test_account_mismatch" });
   });
 });
 

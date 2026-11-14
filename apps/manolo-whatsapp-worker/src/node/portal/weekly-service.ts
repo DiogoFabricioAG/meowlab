@@ -64,11 +64,12 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing, sales] = await Promise.all([
+    const [team, tender, invoicing, sales, stock] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
       this.sales(tenantId, start, end, day),
+      this.stock(tenantId, day),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -77,6 +78,7 @@ export class PortalWeeklyService {
       tender,
       invoicing,
       sales,
+      stock,
     };
     return { status: "ok", weekly: summary };
   }
@@ -113,7 +115,11 @@ export class PortalWeeklyService {
   private async sales(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["sales"]> {
     const off = { enabled: false, todayCount: 0, todayTotalCents: 0, weekCount: 0, weekTotalCents: 0, weekQuotes: 0 };
     try {
-      const settings = await this.query("SELECT enabled FROM sales.settings WHERE tenant_id = $1", [tenantId]);
+      const settings = await this.query(
+        `SELECT enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP) AS enabled
+           FROM sales.settings WHERE tenant_id = $1`,
+        [tenantId],
+      );
       if (!settings.rows[0]?.enabled) return off;
       const [sales, quotes] = await Promise.all([
         this.query(
@@ -140,6 +146,24 @@ export class PortalWeeklyService {
       };
     } catch {
       // Before migration 014 the schema does not exist: Sales Cat is simply off.
+      return off;
+    }
+  }
+
+  private async stock(tenantId: string, day: Date): Promise<WeeklySummary["stock"]> {
+    const off = { enabled: false, lowCount: 0, movesToday: 0 };
+    try {
+      const { rows } = await this.query(
+        `SELECT (SELECT count(*) FROM stock.items WHERE tenant_id = $1 AND active AND min_qty IS NOT NULL AND on_hand <= min_qty)::int AS low,
+                (SELECT count(*) FROM stock.moves WHERE tenant_id = $1 AND created_at >= $2)::int AS moves
+           FROM stock.settings
+          WHERE tenant_id = $1 AND enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP)`,
+        [tenantId, day],
+      );
+      if (!rows.length) return off;
+      return { enabled: true, lowCount: Number(rows[0].low ?? 0), movesToday: Number(rows[0].moves ?? 0) };
+    } catch {
+      // Before migration 018 the schema does not exist: Stock Cat is simply off.
       return off;
     }
   }

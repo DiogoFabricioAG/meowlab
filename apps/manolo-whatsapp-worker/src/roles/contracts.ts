@@ -108,6 +108,11 @@ export type RoleHandlerContext = {
     sections: readonly WhatsAppListSection[],
   ) => Promise<SendResult>;
   sendDocument: (document: RoleDocument) => Promise<SendResult>;
+  /**
+   * Stock Cat (ADR-0014): after Invoice Cat issues a document, brings stock up to date and
+   * returns the low-stock alert to show in the same chat, or null.
+   */
+  stockAlertsAfterInvoice?: () => Promise<string | null>;
   /** Renders self-contained print HTML to PDF; absent when no renderer is bound. */
   renderPdf?: (html: string) => Promise<Blob | null>;
   generateAiReply: () => Promise<string | null>;

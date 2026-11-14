@@ -21,6 +21,12 @@ import {
   type SalesBridgeRequest,
   type SalesBridgeResponse,
 } from "../../sales/bridge-contracts";
+import {
+  STOCK_BRIDGE_PATH,
+  isStockBridgeResponse,
+  type StockBridgeRequest,
+  type StockBridgeResponse,
+} from "../../stock/bridge-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import {
   FACTURAYA_BRIDGE_PATH,
@@ -173,6 +179,23 @@ export class SignedVpsBridgeClient {
       request,
       isSalesBridgeResponse,
       "sales_operation",
+      this.timeoutMs,
+      (value) => value.request_id === requestId,
+      256 * 1024,
+    );
+  }
+
+  /** Stock Cat (ADR-0014): same trust boundary and idempotency as Sales Cat. */
+  async requestStockOperation(
+    requestId: string,
+    request: StockBridgeRequest,
+  ): Promise<StockBridgeResponse | null> {
+    return this.requestSignedJson(
+      STOCK_BRIDGE_PATH,
+      requestId,
+      request,
+      isStockBridgeResponse,
+      "stock_operation",
       this.timeoutMs,
       (value) => value.request_id === requestId,
       256 * 1024,

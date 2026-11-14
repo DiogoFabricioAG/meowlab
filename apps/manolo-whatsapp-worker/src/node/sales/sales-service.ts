@@ -127,6 +127,7 @@ export class SalesService {
          FROM whatsapp.tenant_members AS member
          JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
          JOIN sales.settings AS settings ON settings.tenant_id = tenant.id AND settings.enabled
+          AND (settings.active_until IS NULL OR settings.active_until > CURRENT_TIMESTAMP)
         WHERE member.contact_id = $1 AND member.status = 'active'
         ORDER BY tenant.name`,
       [contactId],

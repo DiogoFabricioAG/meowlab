@@ -39,7 +39,8 @@ un PDF. Este ADR fija qué es Sales Cat a partir del cuestionario del operador.
    cobra cuando exista, y mientras tanto se cobran a mano.
 10. **Confirmación:** antes de guardar, Sales Cat muestra el resumen y pide confirmar.
 11. **Con Invoice Cat:** al registrar la venta pregunta si se emite factura o boleta.
-12. **Con Stock Cat:** cada venta descuenta stock y sin stock no se vende (ADR-0008, sin
+12. **Con Stock Cat** (reemplazado por ADR-0014, punto 17: el stock baja con los comprobantes y la
+    titular decide si se permite quedar en negativo): cada venta descuenta stock y sin stock no se vende (ADR-0008, sin
     stock negativo). Mientras Stock Cat no exista, Sales Cat no controla stock.
 13. **Funciona solo:** no requiere Invoice Cat ni Stock Cat activos.
 14. **Consultas:** responde todo lo que sabe de ventas, cotizaciones, clientes y
@@ -83,3 +84,9 @@ un PDF. Este ADR fija qué es Sales Cat a partir del cuestionario del operador.
   los mensajes) o desde el portal.
 - Qué puede decidir Sales Cat solo frente a un cliente (descuentos, plazos) y cuándo
   avisa a la titular.
+
+## Nota 2026-11-13: a la venta en el Plan
+
+Sales Cat se vende en el Plan del portal a S/ 59 al mes, por empresa. Al confirmarse el pago
+queda activo para esa empresa hasta el fin del periodo pagado (ADR-0007, nota del mismo día).
+CREACIONES J&D lo conserva gratis como cortesía.

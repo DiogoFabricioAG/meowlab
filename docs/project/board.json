@@ -1801,6 +1801,72 @@
       "updated": "2026-11-13",
       "notes": "ADR-0013 recién desplegado.",
       "evidence": ""
+    },
+    {
+      "id": "stock-cat-1-nucleo-20261113",
+      "title": "Stock Cat fase 1: núcleo por chat, descuento por comprobantes y sección en el portal",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-13",
+      "notes": "Desplegado el 13/11/2026 y activo para CREACIONES J&D como cortesía. Acta: docs/operations/stock-cat-2026-11-13.md.",
+      "evidence": "Producción: FacturaYa stock-items-20261113T222135Z, migración 018, bridge stock-cat-20261113T222237Z, Worker 0e82850a, portal meowlab-app:76719df88767; /v1/stock/execute firmado reconoce a …0280 como titular tras el traspaso."
+    },
+    {
+      "id": "stock-cat-2-digitalizar-20261113",
+      "title": "Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014.",
+      "evidence": ""
+    },
+    {
+      "id": "stock-cat-3-venta-20261113",
+      "title": "Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa).",
+      "evidence": ""
+    },
+    {
+      "id": "stock-cat-prueba-whatsapp-20261113",
+      "title": "Probar Stock Cat por WhatsApp con CREACIONES J&D (/stock desde …0280)",
+      "area": "Manolo",
+      "owner": "operador",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-13",
+      "notes": "ADR-0014 fase 1 recién desplegada.",
+      "evidence": ""
+    },
+    {
+      "id": "sales-cat-venta-plan-20261113",
+      "title": "Vender Sales Cat en el Plan: suscripción por empresa y activación automática",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-14",
+      "notes": "Desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). Acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. Mercado Pago sigue en modo de prueba; CREACIONES J&D sigue como cortesía.",
+      "evidence": "Producción: migración 017, bridge sales-venta-20261114T015537Z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión."
+    },
+    {
+      "id": "sales-cat-prueba-compra-20261114",
+      "title": "Contratar Sales Cat en modo de prueba para una empresa distinta de CREACIONES J&D y confirmar que se activa",
+      "area": "Portal",
+      "owner": "operador",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-14",
+      "notes": "Venta por empresa recién desplegada; Mercado Pago en modo de prueba.",
+      "evidence": ""
     }
   ]
 }
