@@ -64,12 +64,13 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing, sales, stock] = await Promise.all([
+    const [team, tender, invoicing, sales, stock, collections] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
       this.sales(tenantId, start, end, day),
       this.stock(tenantId, day),
+      this.collections(tenantId, limaDate(start), limaDate(day)),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -79,6 +80,7 @@ export class PortalWeeklyService {
       invoicing,
       sales,
       stock,
+      collections,
     };
     return { status: "ok", weekly: summary };
   }
@@ -164,6 +166,28 @@ export class PortalWeeklyService {
       return { enabled: true, lowCount: Number(rows[0].low ?? 0), movesToday: Number(rows[0].moves ?? 0) };
     } catch {
       // Before migration 018 the schema does not exist: Stock Cat is simply off.
+      return off;
+    }
+  }
+
+  private async collections(tenantId: string, weekStart: string, today: string): Promise<WeeklySummary["collections"]> {
+    const off = { enabled: false, owedCents: 0, lateCount: 0, needsOwner: 0, paidWeekCents: 0 };
+    try {
+      const { rows } = await this.query(
+        `SELECT (SELECT COALESCE(sum(balance_cents), 0) FROM receivables.debts WHERE tenant_id = $1 AND status = 'open')::bigint AS owed,
+                (SELECT count(*) FROM receivables.debts WHERE tenant_id = $1 AND status = 'open' AND due_on < $3::date)::int AS late,
+                (SELECT count(*) FROM receivables.debts WHERE tenant_id = $1 AND status = 'open' AND escalated_at IS NOT NULL)::int AS owner,
+                (SELECT COALESCE(sum(amount_cents), 0) FROM receivables.payments
+                  WHERE tenant_id = $1 AND status = 'confirmed' AND method <> 'nota_credito' AND paid_on >= $2::date)::bigint AS paid
+           FROM receivables.settings
+          WHERE tenant_id = $1 AND enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP)`,
+        [tenantId, weekStart, today],
+      );
+      if (!rows.length) return off;
+      return { enabled: true, owedCents: Number(rows[0].owed ?? 0), lateCount: Number(rows[0].late ?? 0),
+        needsOwner: Number(rows[0].owner ?? 0), paidWeekCents: Number(rows[0].paid ?? 0) };
+    } catch {
+      // Before migration 019 the schema does not exist: Collections Cat is simply off.
       return off;
     }
   }

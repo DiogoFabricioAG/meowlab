@@ -1,3 +1,5 @@
+import { isSettingsChange, type CollectionsSettings } from "../collections/bridge-contracts";
+
 /**
  * Companies created from the portal and the owner's invitations (ADR-0010, phases 1–2). Signed with the portal's own
  * secret, like the other portal routes. The bridge re-reads the RUC from the taxpayer
@@ -23,7 +25,10 @@ export type PortalCompanyRequest =
   // «Inicio»: what the company's agents did this week.
   | (Base & { action: "weekly"; tenantId: string })
   // Stock Cat (ADR-0014): stock, alerts and moves of one company.
-  | (Base & { action: "stock_view"; tenantId: string });
+  | (Base & { action: "stock_view"; tenantId: string })
+  // Collections Cat (ADR-0015): what the company is owed, and its rules (owner only).
+  | (Base & { action: "collections_view"; tenantId: string })
+  | (Base & { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> });
 
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
@@ -40,6 +45,8 @@ export type WeeklySummary = {
   };
   /** Stock Cat (ADR-0014): items at or below their minimum, and today's moves. */
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
+  /** Collections Cat (ADR-0015): what is owed, how much is late and who needs the owner. */
+  collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   /** Sales Cat (ADR-0011): sales registered today and this week. */
   sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
@@ -96,7 +103,24 @@ export type PortalCompanyResponse =
   | { status: "joined"; company: PortalMembership }
   | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
   | { status: "ok"; weekly: WeeklySummary }
-  | { status: "ok"; stock: PortalStockView };
+  | { status: "ok"; stock: PortalStockView }
+  | { status: "ok"; collections: PortalCollectionsView }
+  | { status: "invalid_settings" | "owner_only" };
+
+export type PortalCollectionsView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    settings: CollectionsSettings;
+    totalCents: number;
+    buckets: { current: number; d1_30: number; d31_60: number; d61: number };
+    debts: Array<{ id: string; customer: string; docNumber: string | null; phone: string | null; balanceCents: number; amountCents: number;
+      dueOn: string; daysLate: number; document: string | null; description: string | null; remindersSent: number; escalated: boolean;
+      dueForReminder: boolean; source: "sale" | "invoice" | "chat" }>;
+    pending: Array<{ id: string; customer: string; amountCents: number; method: string; operationNumber: string | null; paidOn: string }>;
+    recent: Array<{ customer: string; amountCents: number; method: string; paidOn: string }>;
+  };
 
 export type PortalStockView =
   | { enabled: false }
@@ -155,7 +179,10 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
     case "team":
     case "weekly":
     case "stock_view":
+    case "collections_view":
       return tenant(value.tenantId);
+    case "collections_settings":
+      return tenant(value.tenantId) && isSettingsChange(value.change);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")
         && (value.phone === undefined || (typeof value.phone === "string" && value.phone.length <= 32));

@@ -27,6 +27,12 @@ import {
   type StockBridgeRequest,
   type StockBridgeResponse,
 } from "../../stock/bridge-contracts";
+import {
+  COLLECTIONS_BRIDGE_PATH,
+  isCollectionsBridgeResponse,
+  type CollectionsBridgeRequest,
+  type CollectionsBridgeResponse,
+} from "../../collections/bridge-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import {
   FACTURAYA_BRIDGE_PATH,
@@ -196,6 +202,21 @@ export class SignedVpsBridgeClient {
       request,
       isStockBridgeResponse,
       "stock_operation",
+      this.timeoutMs,
+      (value) => value.request_id === requestId,
+      256 * 1024,
+    );
+  }
+  async requestCollectionsOperation(
+    requestId: string,
+    request: CollectionsBridgeRequest,
+  ): Promise<CollectionsBridgeResponse | null> {
+    return this.requestSignedJson(
+      COLLECTIONS_BRIDGE_PATH,
+      requestId,
+      request,
+      isCollectionsBridgeResponse,
+      "collections_operation",
       this.timeoutMs,
       (value) => value.request_id === requestId,
       256 * 1024,

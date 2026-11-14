@@ -8,6 +8,8 @@ import { PortalEntitlementService } from "./portal/entitlement-service";
 import { SalesService } from "./sales/sales-service";
 import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-service";
 import { PortalStockService } from "./stock/portal-stock-service";
+import { CollectionsService, FacturayaCreditDocumentReader } from "./collections/collections-service";
+import { PortalCollectionsService } from "./collections/portal-collections-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
@@ -98,7 +100,7 @@ async function readRequestBody(
  * answers 503 and the rest of the bridge is unaffected.
  */
 function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string,
-  stock: StockService | null = null) {
+  stock: StockService | null = null, collections: CollectionsService | null = null) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
   const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
   const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
@@ -125,6 +127,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
       // ADR-0014: Stock Cat's page in the portal.
       new PortalStockService(pool, stock, logSafeEvent),
+      // ADR-0015: Collections Cat's page in the portal.
+      collections ? new PortalCollectionsService(pool, collections, logSafeEvent) : null,
     ),
     // Plan per company: what a company paid for, until the end of the paid period.
     portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),
@@ -223,6 +227,13 @@ async function main(): Promise<void> {
     logSafeEvent,
     new FacturayaIssuedDocumentReader(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, logSafeEvent),
   );
+  // ADR-0015: Collections Cat; credit invoices are read from FacturaYa with each company's own token.
+  const collectionsService = new CollectionsService(
+    connection.pool,
+    requestStore,
+    logSafeEvent,
+    new FacturayaCreditDocumentReader(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, logSafeEvent),
+  );
   const handler = createBridgeHttpHandler({
     sharedSecret,
     service,
@@ -234,7 +245,8 @@ async function main(): Promise<void> {
     salesService: new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs),
     quotePdfService: quotePdfs,
     stockService,
-    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService),
+    collectionsService,
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService, collectionsService),
     log: logSafeEvent,
     healthCheck: async () => {
       try {
