@@ -202,7 +202,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
         {section === "tender" && <TenderPanel weekly={weekly} onBack={() => go("/agentes")} />}
         {company && section === "stock" && <StockPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
-        {section === "plan" && <PlanPanel email={me.user.email} />}
+        {company && section === "plan" && <PlanPanel key={company.id} email={me.user.email} company={company} />}
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
           <div className="space-y-10">

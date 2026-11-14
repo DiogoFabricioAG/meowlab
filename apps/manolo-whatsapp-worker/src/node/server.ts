@@ -4,6 +4,7 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
+import { PortalEntitlementService } from "./portal/entitlement-service";
 import { SalesService } from "./sales/sales-service";
 import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-service";
 import { PortalStockService } from "./stock/portal-stock-service";
@@ -125,6 +126,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       // ADR-0014: Stock Cat's page in the portal.
       new PortalStockService(pool, stock, logSafeEvent),
     ),
+    // Plan per company: what a company paid for, until the end of the paid period.
+    portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),
     portalLinkService: new PortalLinkService(
       new PgPortalLinkStore(pool),
       new WorkerAuthCodeSender(workerUrl, authCodeSecret, logSafeEvent),

@@ -115,7 +115,11 @@ export class PortalWeeklyService {
   private async sales(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["sales"]> {
     const off = { enabled: false, todayCount: 0, todayTotalCents: 0, weekCount: 0, weekTotalCents: 0, weekQuotes: 0 };
     try {
-      const settings = await this.query("SELECT enabled FROM sales.settings WHERE tenant_id = $1", [tenantId]);
+      const settings = await this.query(
+        `SELECT enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP) AS enabled
+           FROM sales.settings WHERE tenant_id = $1`,
+        [tenantId],
+      );
       if (!settings.rows[0]?.enabled) return off;
       const [sales, quotes] = await Promise.all([
         this.query(

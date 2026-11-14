@@ -29,6 +29,8 @@ await pool.query(readFileSync("infra/postgres/migrations/015-brand-kit.sql", "ut
 const quotePdfMigration = readFileSync("infra/postgres/migrations/016-quote-pdf.sql", "utf8");
 await pool.query(quotePdfMigration);
 await pool.query(quotePdfMigration); // re-runnable
+// 017: Sales Cat sold per company; pre-existing rows become courtesy (no end date).
+await pool.query(readFileSync("infra/postgres/migrations/017-sales-subscriptions.sql", "utf8"));
 const rendered: QuotePdfInput[] = [];
 const quotePdfs = new QuotePdfService(pool, {
   async render(quote) { rendered.push(quote); return new TextEncoder().encode(`%PDF-1.4 cotizacion ${quote.number} `.padEnd(300, "x")); },

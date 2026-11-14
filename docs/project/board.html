@@ -215,7 +215,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 72 · Total: 177</span>
+      <span class="summary">Abiertas: 73 · Total: 178</span>
     </div>
   </div>
 </header>
@@ -980,7 +980,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">4</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1015,6 +1015,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="vender sales cat en el plan: suscripción por empresa y activación automática portal código listo, sin desplegar (rama feat/billing-por-empresa). portal: migración 0004 (tenant_id, una suscripción viva por empresa, sales cat disponible), plan por empresa, solo la titular contrata. plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. mercado pago sigue en modo de prueba. orden: migración 017, bridge, migración 0004 y portal. 2026-11-13: worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Vender Sales Cat en el Plan: suscripción por empresa y activación automática</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-13: Worker 662/662; entitlement-pg-check y sales-pg-check en verde; portal 38/38, typecheck y build; billing-pg-check en verde.</p>
+          <p class="card-notes">Código listo, sin desplegar (rama feat/billing-por-empresa). Portal: migración 0004 (tenant_id, una suscripción viva por empresa, Sales Cat disponible), Plan por empresa, solo la titular contrata. Plataforma: migración 017 (sales.settings.source y active_until), ruta firmada /v1/portal/entitlements. Mercado Pago sigue en modo de prueba. Orden: migración 017, bridge, migración 0004 y portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-13</p>
+          <code class="card-id">sales-cat-venta-plan-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">

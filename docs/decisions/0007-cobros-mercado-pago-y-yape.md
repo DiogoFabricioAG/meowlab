@@ -115,3 +115,27 @@ bridge:
 - Mientras se usen credenciales de prueba, `MERCADOPAGO_TEST_MODE=true` muestra un
   aviso de «modo de prueba» en la pestaña Plan.
 
+
+## Nota 2026-11-13: cobro por empresa y activación automática
+
+Decidido por el operador al poner Sales Cat a la venta:
+
+- **Cada empresa tiene su propia suscripción.** El Plan se muestra para la empresa elegida en
+  el menú del portal. Solo su titular (ADR-0010) contrata o cancela; los miembros lo ven.
+  `billing_subscriptions.tenant_id` (migración `0004_billing_por_empresa.sql`) y una
+  suscripción viva por empresa. Las suscripciones anteriores, sin empresa, quedan como
+  estaban (una por cuenta) y no activan nada.
+- **Pagar activa el agente.** Cuando Mercado Pago confirma un cobro, el portal avisa a la
+  plataforma por la ruta firmada `/v1/portal/entitlements` (secreto del portal) con el fin
+  del periodo pagado. La plataforma activa el agente hasta esa fecha
+  (`sales.settings.active_until`, migración `017-sales-subscriptions.sql`). Nunca acorta un
+  periodo. Si el aviso falla, la conciliación horaria lo repite hasta confirmarlo
+  (`entitlement_applied_until`).
+- **Cancelar o un cobro fallido no apagan nada al instante.** El agente sigue hasta el fin
+  del periodo pagado y luego deja de estar activo (se evalúa en cada consulta, sin cron). Los
+  datos se conservan.
+- **Cortesías:** lo activado a mano (el piloto de CREACIONES J&D) es `source = 'courtesy'`,
+  sin vencimiento, y el cobro no lo toca.
+- Hoy solo Sales Cat se activa así. Invoice Cat sigue dependiendo de la clave SOL.
+- Mercado Pago sigue en modo de prueba hasta que el operador cargue las credenciales de
+  producción.

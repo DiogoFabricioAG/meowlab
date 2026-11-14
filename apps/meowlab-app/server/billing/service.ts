@@ -22,11 +22,26 @@ export type SubscribeResult =
 
 export type WebhookResult = { status: number; outcome: string };
 
+/**
+ * Tells the platform what a company paid for and until when (signed portal route). Returns
+ * false when it could not confirm; the next reconciliation tries again.
+ */
+export interface EntitlementSink {
+  apply(tenantId: string, agents: string[], activeUntil: Date): Promise<boolean>;
+}
+
 export class BillingService {
   constructor(
     private readonly store: BillingStore,
     private readonly mercadopago: MercadoPagoApi,
-    private readonly options: { appUrl: string; webhookSecret?: string; testMode?: boolean; log: BillingLog; now?: () => Date },
+    private readonly options: {
+      appUrl: string;
+      webhookSecret?: string;
+      testMode?: boolean;
+      log: BillingLog;
+      now?: () => Date;
+      entitlements?: EntitlementSink;
+    },
   ) {}
 
   private now() {
@@ -37,8 +52,12 @@ export class BillingService {
     return this.store.catalog();
   }
 
-  async status(userId: string) {
-    const [{ agents, discounts }, subscription] = await Promise.all([this.store.catalog(), this.store.currentFor(userId)]);
+  /** The catalog, plus the company's subscription when a company is given. */
+  async status(tenantId: string | null) {
+    const [{ agents, discounts }, subscription] = await Promise.all([
+      this.store.catalog(),
+      tenantId ? this.store.currentFor(tenantId) : Promise.resolve(null),
+    ]);
     const now = this.now();
     return {
       agents,
@@ -57,7 +76,8 @@ export class BillingService {
     };
   }
 
-  async subscribe(userId: string, requestedAgents: string[], payerEmail: string): Promise<SubscribeResult> {
+  /** The caller checks that `userId` is the owner of `tenantId` (ADR-0010). */
+  async subscribe(userId: string, tenantId: string, requestedAgents: string[], payerEmail: string): Promise<SubscribeResult> {
     const email = payerEmail.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return { status: "invalid_email" };
     const { agents, discounts } = await this.store.catalog();
@@ -69,7 +89,7 @@ export class BillingService {
       throw error;
     }
 
-    const current = await this.store.currentFor(userId);
+    const current = await this.store.currentFor(tenantId);
     if (current && LIVE.includes(current.status)) {
       // A checkout that was never completed can be reopened instead of creating another one.
       if (current.status === "pending" && current.checkoutUrl
@@ -86,7 +106,7 @@ export class BillingService {
 
     const id = crypto.randomUUID();
     const externalReference = `${REFERENCE_PREFIX}${id}`;
-    if (await this.store.createSubscription({ id, userId, agents: priced.agents, amountCents: priced.totalCents, externalReference, payerEmail: email }) === "already_live") {
+    if (await this.store.createSubscription({ id, userId, tenantId, agents: priced.agents, amountCents: priced.totalCents, externalReference, payerEmail: email }) === "already_live") {
       return { status: "already_subscribed" };
     }
     const names = agents.filter((agent) => priced.agents.includes(agent.key)).map((agent) => agent.name).join(" + ");
@@ -112,8 +132,8 @@ export class BillingService {
     }
   }
 
-  async cancel(userId: string): Promise<"cancelled" | "not_found"> {
-    const current = await this.store.currentFor(userId);
+  async cancel(tenantId: string): Promise<"cancelled" | "not_found"> {
+    const current = await this.store.currentFor(tenantId);
     if (!current || !LIVE.includes(current.status) || !current.providerRef) return "not_found";
     await this.mercadopago.cancelPreapproval(current.providerRef);
     await this.store.updateStatus(current.id, "cancelled", null);
@@ -121,9 +141,26 @@ export class BillingService {
     return "cancelled";
   }
 
-  async syncFor(userId: string) {
-    const current = await this.store.currentFor(userId);
+  async syncFor(tenantId: string) {
+    const current = await this.store.currentFor(tenantId);
     if (current?.providerRef && LIVE.includes(current.status)) await this.sync(current);
+  }
+
+  /**
+   * Switches the paid agents on in the company until the end of the paid period. Cancelling
+   * or a failed charge never shortens it: the agents stop when that date passes.
+   */
+  async applyEntitlements(subscription: SubscriptionRow): Promise<void> {
+    const sink = this.options.entitlements;
+    const until = subscription.paidUntil;
+    if (!sink || !subscription.tenantId || !until || until <= this.now()) return;
+    if (subscription.entitlementAppliedUntil && subscription.entitlementAppliedUntil >= until) return;
+    if (await sink.apply(subscription.tenantId, subscription.agents, until)) {
+      await this.store.markEntitlementApplied(subscription.id, until);
+      this.options.log("billing_entitlement_applied", { agents: subscription.agents });
+    } else {
+      this.options.log("billing_entitlement_pending");
+    }
   }
 
   /**
@@ -160,13 +197,16 @@ export class BillingService {
       });
       if (result === "granted") this.options.log("billing_month_granted", { amountCents });
     }
+    const fresh = await this.store.byProviderRef(subscription.providerRef);
+    if (fresh) await this.applyEntitlements(fresh);
   }
 
   async reconcileAll(): Promise<number> {
     let synced = 0;
     for (const subscription of await this.store.reconcilable()) {
       try {
-        await this.sync(subscription);
+        if (subscription.providerRef && LIVE.includes(subscription.status)) await this.sync(subscription);
+        else await this.applyEntitlements(subscription);
         synced++;
       } catch (error) {
         this.options.log("billing_reconcile_failed", { reason: error instanceof Error ? error.message.slice(0, 80) : "error" });
