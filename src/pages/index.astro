@@ -33,19 +33,27 @@ const teamChat = [
 const agents = [
   { name: 'Invoice Cat', line: 'Facturas, boletas y guías de remisión ante SUNAT.', price: 'S/ 39', img: 'gato-facturas', logo: 'invoice-cat', live: true },
   { name: 'Tender Cat', line: 'Alertas de licitaciones del SEACE para tu rubro.', price: 'S/ 35', img: 'gato-licitaciones', logo: 'tender-cat', live: true },
-  { name: 'Sales Cat', line: 'Ventas.', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: false },
-  { name: 'Stock Cat', line: 'Inventario.', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: false },
-  { name: 'Reorder Cat', line: 'Reposición de mercadería.', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: false },
-  { name: 'Support Cat', line: 'Atención a tus clientes.', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: false },
-  { name: 'Collections Cat', line: 'Cobros por Yape.', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: false },
+  { name: 'Sales Cat', line: 'Ventas al contado o al crédito y cotizaciones con enlace y PDF.', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: true },
+  { name: 'Stock Cat', line: 'Inventario, entradas por chat o por foto y avisos de stock mínimo.', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: true },
+  { name: 'Reorder Cat', line: 'Pedidos a tus proveedores cuando algo baja del mínimo.', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: true },
+  { name: 'Support Cat', line: 'Atención postventa 24/7 en el WhatsApp de tu empresa.', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: true },
+  { name: 'Collections Cat', line: 'Lo que te deben, pagos parciales y recordatorios de cobro.', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: true },
 ];
-const firstCol = agents.slice(0, 4);
-const secondCol = agents.slice(4);
+
+// The five cats that joined Invoice Cat and Tender Cat (ADR-0011 to ADR-0017). Each text says only
+// what the cat does today; nothing from a later phase.
+const moreCats = [
+  { name: 'Sales Cat', logo: 'sales-cat', where: '/sales', text: 'Registra tus ventas al contado o al crédito y arma cotizaciones que compartes con un enlace y en PDF.' },
+  { name: 'Stock Cat', logo: 'stock-cat', where: '/stock', text: 'Lleva tu inventario. Las entradas se las dices en el chat o le mandas la foto de la factura del proveedor, y las salidas bajan solas con tus comprobantes. Te avisa cuando algo baja del mínimo y te acompaña en los conteos.' },
+  { name: 'Collections Cat', logo: 'collections-cat', where: '/collections', text: 'Lleva lo que te deben: ventas y facturas a crédito, o lo que le cuentas en el chat. Acepta pagos parciales, lee las capturas de pago para que una persona las valide y prepara recordatorios en tres tonos que tu equipo envía con un botón. Te dice a qué clientes tienes que hablarles tú.' },
+  { name: 'Reorder Cat', logo: 'reorder-cat', where: '/reorder', text: 'Cuando algo baja del mínimo te propone el pedido. Lo apruebas y el gato le escribe al proveedor por WhatsApp a nombre de tu negocio, insiste a las 24 horas y te avisa si no logra cerrar. Arma la orden de compra en PDF y, para tus productos propios, la orden de producción.' },
+  { name: 'Support Cat', logo: 'support-cat', where: 'Tu WhatsApp', text: 'Atiende a tus clientes las 24 horas, todos los días. Responde las preguntas frecuentes que tú cargas y el estado de sus cotizaciones y ventas, y cotiza con el catálogo de Sales Cat. Lo que no sabe y los reclamos te los pasa a ti. Al final pregunta «¿te ayudé?» y te manda un resumen diario.' },
+];
 ---
 
 <LandingLayout
   title="MeowLab: agentes de IA en WhatsApp para mypes del Perú"
-  description="Pides en el chat con Manolo y un gato de MeowLab emite tus facturas ante SUNAT o te avisa de licitaciones del SEACE. Desde S/ 35 al mes con IGV."
+  description="Pides en el chat con Manolo y los gatos de MeowLab emiten tus comprobantes ante SUNAT, registran ventas, llevan tu stock y tus cobros, piden a tus proveedores, atienden a tus clientes y te avisan de licitaciones del SEACE. Desde S/ 25 al mes con IGV."
 >
   <!-- type: software (page type software, site-kind software)
        deal: hero split, nav nav-centre, close close-type, footer footer-columns, rhythm surface-pairs,
@@ -63,7 +71,7 @@ const secondCol = agents.slice(4);
           <div class="hero__text span-5">
             <p class="hero__kicker">S/ 39 al mes por Invoice Cat, IGV incluido</p>
             <h1 id="hero-h">Agentes de IA en WhatsApp para mypes peruanas</h1>
-            <p class="hero__lead">Le pides a Manolo por WhatsApp y un gato lo hace: Invoice Cat emite facturas, boletas y guías ante SUNAT, y Tender Cat te avisa de licitaciones del SEACE.</p>
+            <p class="hero__lead">Le pides a Manolo por WhatsApp y un gato lo hace: emite tus comprobantes ante SUNAT, registra ventas y cotizaciones, lleva tu stock y tus cobros, le pide a tus proveedores y te avisa de licitaciones del SEACE.</p>
             <div class="btn-row">
               <a class="btn btn--primary" href={portal}>Entrar al portal<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8" /><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" /></svg></a>
               <a class="btn btn--secondary" href="#agentes">Ver los agentes</a>
@@ -205,6 +213,29 @@ const secondCol = agents.slice(4);
       </div>
     </section>
 
+    <section class="section ground-surface" id="gatos" style="--hm: 2" aria-labelledby="gatos-h">
+      <div class="wrap">
+        <div class="grid fill">
+          <div class="span-5 split-col">
+            <h2 id="gatos-h">Ventas, stock, cobros y compras en el mismo chat</h2>
+            <p class="t-lead">Cada gato tiene su comando en el chat con Manolo y su página en app.meowlab.tech. Support Cat, además, atiende a tus clientes en el WhatsApp de tu empresa.</p>
+            <div class="gatos-art split-col__end" role="img" aria-label="Los logos de Sales Cat, Stock Cat, Collections Cat, Reorder Cat y Support Cat.">
+              {moreCats.map((c) => <span><img src={`/assets/agents/${c.logo}.webp`} alt="" width="72" height="72" loading="lazy" /></span>)}
+            </div>
+          </div>
+          <ul class="rows gatos-rows span-6 start-7">
+            {moreCats.map((c) => (
+              <li>
+                <span class="rows__name">{c.name}</span>
+                <span class="rows__value">{c.where}</span>
+                <p>{c.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="equipo" aria-labelledby="equipo-h">
       <div class="wrap">
         <div class="grid fill">
@@ -280,10 +311,10 @@ const secondCol = agents.slice(4);
             <div class="faq-cat split-col__end"><img src="/assets/landing/gato-maulla.webp" alt="Ilustración del gato de MeowLab maullando" width="180" height="180" loading="lazy" /></div>
           </div>
           <div class="faq span-6 start-7">
-            <div class="faq__item"><h3>¿Necesito otro número de WhatsApp?</h3><p>No. Todos los gatos trabajan en el mismo chat con Manolo; sumar un agente no agrega números.</p></div>
+            <div class="faq__item"><h3>¿Necesito otro número de WhatsApp?</h3><p>No. Tú y tu equipo les hablan a todos los gatos en el mismo chat con Manolo. Support Cat es el único que, además, atiende a tus clientes, y lo hace en el WhatsApp de tu empresa.</p></div>
             <div class="faq__item"><h3>¿Los comprobantes de Invoice Cat valen ante SUNAT?</h3><p>Sí. Invoice Cat los emite ante SUNAT con FacturaYa, después de que confirmas el borrador en el chat.</p></div>
             <div class="faq__item"><h3>¿Cómo pago los agentes?</h3><p>Con una suscripción mensual de Mercado Pago. Los precios ya incluyen IGV.</p></div>
-            <div class="faq__item"><h3>¿Qué agentes funcionan hoy?</h3><p>Invoice Cat y Tender Cat. Sales Cat, Stock Cat, Reorder Cat, Support Cat y Collections Cat llegan pronto.</p></div>
+            <div class="faq__item"><h3>¿Qué agentes funcionan hoy?</h3><p>Los siete: Invoice Cat, Tender Cat, Sales Cat, Stock Cat, Collections Cat, Reorder Cat y Support Cat. Contratas solo los que necesitas.</p></div>
           </div>
         </div>
       </div>

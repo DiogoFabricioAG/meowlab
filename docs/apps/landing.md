@@ -43,8 +43,9 @@ el hero y el cierre).
 | `#facturas` | Invoice Cat: facturas, boletas y guías ante SUNAT con FacturaYa | chat de una guía de remisión |
 | `#un-chat` | todos los gatos en el mismo chat | frase con momento `word-highlight` y los siete gatos |
 | `#licitaciones` | Tender Cat y el SEACE | aviso en el chat y lista del portal |
+| `#gatos` | Sales, Stock, Collections y Reorder Cat (comando del chat de cada uno) y Support Cat en el WhatsApp de la empresa | tarjetas con el logo de cada gato (`public/assets/agents/`) |
 | `#equipo` | invitar al equipo con un enlace de WhatsApp | invitación del portal y chat |
-| `#agentes` | los siete agentes, estado y precio mensual con IGV, descuentos por paquete, Mercado Pago | ilustraciones de los gatos |
+| `#agentes` | los siete agentes, todos «Disponible», con una línea y el precio mensual con IGV, descuentos por paquete, Mercado Pago | logos de los gatos y el plan del portal |
 | `#preguntas` | preguntas frecuentes | — |
 | pie (`footer.closing`) | cierre «Empieza con Invoice Cat por S/ 39 al mes» y columnas | — |
 
@@ -53,12 +54,42 @@ Componentes en `src/components/landing/` (`LandingNav`, `LandingFooter`,
 los visuales). Las ilustraciones derivadas de los gatos de la marca están en
 `public/assets/landing/` (WebP pequeños generados desde los PNG del repo).
 
-Hechos que la página puede afirmar: hoy funcionan Invoice Cat y Tender Cat;
-Sales, Stock, Reorder, Support y Collections Cat se muestran como
-«Próximamente». Precios mensuales con IGV: Invoice S/ 39, Sales S/ 59, Stock
-S/ 29, Reorder S/ 25, Support S/ 39, Collections S/ 25, Tender S/ 35. Descuentos:
-2 agentes 10 %, 3–4 agentes 15 %, 5–6 agentes 20 %. Los nombres, montos y series
-que aparecen dentro de los chats y del portal son datos de demostración de la
+Hechos que la página puede afirmar (actualizado el 2026-11-15; fuente: ADR-0011,
+0013, 0014, 0015, 0016 y 0017):
+
+- Funcionan los siete gatos y cada uno tiene su página en app.meowlab.tech. Todos
+  trabajan en el mismo chat de Manolo, salvo Support Cat, que atiende a los
+  clientes de la empresa en el WhatsApp de la propia empresa.
+- Invoice Cat: facturas, boletas, notas de crédito y guías de remisión ante SUNAT
+  desde el chat, con FacturaYa.
+- Tender Cat: licitaciones del SEACE que encajan con el negocio.
+- Sales Cat (`/sales`): registra ventas al contado o al crédito y arma
+  cotizaciones que se comparten con un enlace y en PDF.
+- Stock Cat (`/stock`): inventario; entradas por chat o con la foto de la factura
+  del proveedor; salidas automáticas con los comprobantes; avisos de stock mínimo;
+  conteos.
+- Collections Cat (`/collections`): lleva lo que le deben a la empresa (ventas a
+  crédito, facturas a crédito, lo dicho en el chat), acepta pagos parciales, las
+  capturas de pago las valida una persona, prepara recordatorios en tres tonos que
+  hoy el equipo envía con un botón y avisa qué clientes necesitan que les hable la
+  titular.
+- Reorder Cat (`/reorder`): cuando algo baja del mínimo propone el pedido, la
+  titular aprueba, el gato le escribe al proveedor por WhatsApp a nombre del
+  negocio, insiste a las 24 horas, avisa si no logra cerrar, arma la orden de
+  compra en PDF y, para productos propios, la orden de producción.
+- Support Cat: postventa 24/7 en el WhatsApp de la empresa; responde las preguntas
+  frecuentes que carga la titular y el estado de cotizaciones y ventas, cotiza con
+  el catálogo de Sales Cat, pasa a la titular lo que no sabe y los reclamos,
+  pregunta «¿te ayudé?» y manda un resumen diario.
+
+La página no promete lo que es de fases posteriores: recordatorios de cobro
+enviados solos desde el número de la empresa, cargas por Excel, cuentas por pagar
+ni metas de venta.
+
+Precios mensuales con IGV: Invoice S/ 39, Sales S/ 59, Stock S/ 29, Reorder
+S/ 25, Support S/ 39, Collections S/ 25, Tender S/ 35. Descuentos: 2 agentes
+10 %, 3–4 agentes 15 %, 5–6 agentes 20 %. Los nombres, montos y series que
+aparecen dentro de los chats y del portal son datos de demostración de la
 interfaz, no clientes.
 
 ### El kit taste-skill

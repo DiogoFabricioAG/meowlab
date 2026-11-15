@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-siete-gatos-20261115",
+      "title": "Landing: los siete gatos disponibles, sin «Próximamente»",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-15",
+      "notes": "Rama feat/landing-7-gatos. Sales, Stock, Collections, Reorder y Support Cat pasan a «Disponible» en #agentes con su línea; nueva sección #gatos con lo que hace cada uno (ADR-0011, 0013-0017); hero, descripción, preguntas, menú, pies y /contacto sin «llegan pronto». docs/apps/landing.md actualiza los hechos que la página puede afirmar. Sin desplegar.",
+      "evidence": "pnpm build OK (4 páginas). taste-skill copy-lint: 0 FAIL, 0 WARN. consistency.mjs (1440, 1024, 820, 768, 390): 5 FAIL en #gatos, todos en tablet o teléfono (aire y espacio entre secciones a 768/820, fila de logos a 768/820, poca superficie visual a 390); el resto de FAIL ya existía en origin/main. Revisión en navegador a 1024, 768 y 375/390 px: sin desborde horizontal."
+    },
+    {
       "id": "app-portal-auth-transition-20261112",
       "title": "Portal: transición suave en el toggle y formulario de Iniciar sesión y Crear cuenta",
       "area": "Portal",

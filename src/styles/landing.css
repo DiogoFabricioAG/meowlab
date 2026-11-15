@@ -197,3 +197,25 @@
 
 /* the portal's lead and its link */
 .portal-intro { display: grid; gap: var(--s-4); justify-items: start; }
+
+/* ---------------------------------------------------------------- the five cats that joined (#gatos) */
+/* the cats' own logos on the mint panel, like the statement's row but larger */
+.gatos-art { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: var(--s-4); padding: var(--s-6); border-radius: var(--r-lg); background: #d8f0e5; min-height: 240px; flex: 1 1 auto; }
+.gatos-art span { display: grid; place-items: center; width: 96px; height: 96px; border-radius: 22px; background: #ffffff; }
+.gatos-art img { width: 72px; height: 72px; mix-blend-mode: multiply; }
+.gatos-rows .rows__value { color: var(--muted); }
+@media (min-width: 640px) and (max-width: 1023px) { .gatos-art { min-height: 160px; } }
+/* phone: the five logos in one row from the left line to the right one, no panel around them */
+@media (max-width: 639px) { .gatos-art { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-2); min-height: 0; padding: 0; background: none; } .gatos-art span { width: auto; height: auto; aspect-ratio: 1; border-radius: 14px; background: #d8f0e5; } .gatos-art img { width: 76%; height: auto; } }
+/* 640-1279 the split stacks or narrows and the five rows need more than one screen: two screens */
+@media (min-width: 640px) and (max-width: 1279px) { #gatos { --h: 2; } }
+/* tablet, stacked: the heading and the lead, then the five rows, then the logos panel takes what the two screens leave */
+@media (min-width: 640px) and (max-width: 1023px) {
+  #gatos .split-col { display: contents; }
+  #gatos .split-col > * { grid-column: 1 / -1; }
+  #gatos .grid.fill { grid-template-rows: auto auto auto minmax(160px, 1fr); }
+  #gatos .gatos-rows { order: 1; }
+  #gatos .gatos-art { order: 2; align-self: stretch; }
+  #gatos .gatos-art span { width: 120px; height: 120px; border-radius: 26px; }
+  #gatos .gatos-art img { width: 90px; height: 90px; }
+}
