@@ -15,6 +15,8 @@ export type StockExtraction = {
   period: MovePeriod | null;
   allowNegative: boolean | null;
   alias: { description: string; name: string } | null;
+  /** Who sold it, when the entry comes from a purchase invoice (ADR-0016, point 3). */
+  supplier: { name: string; ruc: string | null } | null;
   reply: string;
 };
 
@@ -22,7 +24,7 @@ export type StockExtraction = {
 const SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["intent", "items", "minQty", "queryType", "itemName", "period", "allowNegative", "alias", "reply"],
+  required: ["intent", "items", "minQty", "queryType", "itemName", "period", "allowNegative", "alias", "supplier", "reply"],
   properties: {
     intent: { type: "string", enum: [...STOCK_INTENTS] },
     items: {
@@ -50,6 +52,12 @@ const SCHEMA = {
       required: ["description", "name"],
       properties: { description: { type: "string" }, name: { type: "string" } },
     },
+    supplier: {
+      type: "object",
+      additionalProperties: false,
+      required: ["name", "ruc"],
+      properties: { name: { type: "string" }, ruc: { type: "string" } },
+    },
     reply: { type: "string" },
   },
 };
@@ -69,6 +77,7 @@ Reglas:
 - "items": sólo lo que el mensaje menciona, con el nombre tal como lo dice (sin inventar). Cantidad 1 si no se dice y la intención lo necesita.
 - "unitCost": costo por unidad en soles si lo dice (si da un total, divide entre la cantidad); -1 si no lo dice. Nunca inventes costos.
 - "kind": "supply" si es insumo o materia prima (papel, tinta, vinil, tela, hilo), "product" si es algo que se vende, "none" si no está claro.
+- "supplier": sólo en "in" cuando el mensaje es una factura o boleta de compra (o lo dice): "name" es la razón social del emisor (el que vende) y "ruc" sus 11 dígitos. Nunca uses los datos del cliente (la empresa que compra). Vacíos si no aparecen.
 - Usa "-1", "none" o "" para todo lo que no aplique.
 - "reply": una frase corta en español peruano, de tú: lo que falta o la respuesta a "help"/"other". Sin inventar datos.`;
 
@@ -79,6 +88,7 @@ function clean(value: unknown): StockExtraction | null {
   const number = (input: unknown) => (typeof input === "number" && Number.isFinite(input) ? input : null);
   const string = (input: unknown, max: number) => (typeof input === "string" && input.trim() ? input.trim().slice(0, max) : null);
   const alias = raw.alias && typeof raw.alias === "object" ? raw.alias as Record<string, unknown> : null;
+  const supplier = raw.supplier && typeof raw.supplier === "object" ? raw.supplier as Record<string, unknown> : null;
   const minQty = number(raw.minQty);
   return {
     intent,
@@ -99,6 +109,9 @@ function clean(value: unknown): StockExtraction | null {
     allowNegative: raw.allowNegative === "yes" ? true : raw.allowNegative === "no" ? false : null,
     alias: alias && string(alias.description, 300) && string(alias.name, 200)
       ? { description: string(alias.description, 300)!, name: string(alias.name, 200)! } : null,
+    supplier: intent === "in" && supplier && string(supplier.name, 200)
+      ? { name: string(supplier.name, 200)!, ruc: typeof supplier.ruc === "string" && /^[0-9]{11}$/.test(supplier.ruc.trim()) ? supplier.ruc.trim() : null }
+      : null,
     reply: string(raw.reply, 600) ?? "",
   };
 }

@@ -117,7 +117,7 @@ describe("Stock Cat in the chat", () => {
       [{ id: "stock:confirm", title: "Guardar" }, { id: "stock:cancel", title: "Cancelar" }]);
     const confirm = run({ interactionId: "stock:confirm", client, state });
     await confirm.promise;
-    expect(client.move).toHaveBeenCalledWith("org_jd", "in", [{ name: "Polo blanco M", quantity: 50, unitCostCents: 1200, kind: "product" }], null);
+    expect(client.move).toHaveBeenCalledWith("org_jd", "in", [{ name: "Polo blanco M", quantity: 50, unitCostCents: 1200, kind: "product" }], null, null);
     expect(confirm.calls.reply.mock.calls[0][0]).toContain("⚠️ *Se está acabando:*");
   });
 

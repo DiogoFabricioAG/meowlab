@@ -77,6 +77,12 @@ export function stockPeriod(period: MovePeriod, now: Date): { from: Date; to: Da
  * Cat on; costs, inventory value and rules belong to the company's owner. Writes are
  * idempotent per request id. Every change is a row in `stock.moves`.
  */
+/** Reorder Cat receives Stock Cat's entries (ADR-0016, point 12). */
+export interface StockEntryReceiver {
+  receive(db: Db, companyId: string, entries: Array<{ itemId: string; name: string; quantity: number; unitCostCents: number | null }>,
+    supplier: { name: string; ruc?: string | null } | null): Promise<unknown[]>;
+}
+
 export class StockService {
   constructor(
     private readonly pool: StockPool,
@@ -84,6 +90,7 @@ export class StockService {
     private readonly log: RoleLog,
     private readonly documents: IssuedDocumentReader | null = null,
     private readonly now: () => Date = () => new Date(),
+    private readonly receiver: StockEntryReceiver | null = null,
   ) {}
 
   async process(request: StockBridgeRequest, requestId: string, requestHash: string): Promise<StockServiceResult> {
@@ -182,7 +189,8 @@ export class StockService {
         return { items: await this.items(companyId, owner), owner, settings: await this.settings(companyId) };
       case "move":
         return this.transaction((client) => this.move(client, companyId, contactId, payload.kind as MoveKind,
-          payload.lines as StockLineInput[], (payload.note as string | null | undefined) ?? null));
+          payload.lines as StockLineInput[], (payload.note as string | null | undefined) ?? null,
+          (payload.supplier as { name: string; ruc?: string | null } | undefined) ?? null));
       case "set_min": {
         if (!owner) throw new StockError("owner_only");
         const { rows } = await this.query(
@@ -288,9 +296,11 @@ export class StockService {
     return after;
   }
 
-  private async move(client: QueryClient, companyId: string, contactId: number, kind: MoveKind, lines: StockLineInput[], note: string | null) {
+  private async move(client: QueryClient, companyId: string, contactId: number, kind: MoveKind, lines: StockLineInput[], note: string | null,
+    supplier: { name: string; ruc?: string | null } | null = null) {
     const { allowNegative } = await this.settingsIn(client, companyId);
     const results: Array<{ name: string; onHand: number; delta: number }> = [];
+    const entries: Array<{ itemId: string; name: string; quantity: number; unitCostCents: number | null }> = [];
     for (const line of lines) {
       const item = await this.resolve(client, companyId, line.name, kind === "out" ? null : { kind: line.kind ?? "product", contactId });
       if (!item) throw new StockError("not_found", { name: line.name });
@@ -301,10 +311,13 @@ export class StockService {
       }
       const after = await this.apply(client, companyId, item, kind, delta, line.unitCostCents ?? null, contactId, null, note);
       results.push({ name: String(item.name), onHand: after, delta: qty(delta) });
+      if (kind === "in") entries.push({ itemId: String(item.id), name: String(item.name), quantity: line.quantity, unitCostCents: line.unitCostCents ?? null });
     }
     const alerts = await this.collectAlerts(client, companyId);
+    // Reorder Cat (ADR-0016, point 12): what arrived closes its orders in this same transaction.
+    const received = this.receiver && entries.length ? await this.receiver.receive(client, companyId, entries, supplier) : [];
     this.log("vps_stock_moved", { kind, lines: lines.length });
-    return { moved: results, alerts };
+    return { moved: results, alerts, ...(received.length ? { received } : {}) };
   }
 
   private async settingsIn(db: Db, companyId: string) {

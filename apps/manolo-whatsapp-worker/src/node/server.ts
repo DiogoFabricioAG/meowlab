@@ -10,6 +10,8 @@ import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-servi
 import { PortalStockService } from "./stock/portal-stock-service";
 import { CollectionsService, FacturayaCreditDocumentReader } from "./collections/collections-service";
 import { PortalCollectionsService } from "./collections/portal-collections-service";
+import { FacturayaPurchaseOrderPdfRenderer, ReorderService } from "./reorder/reorder-service";
+import { PortalReorderService } from "./reorder/portal-reorder-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
@@ -100,7 +102,7 @@ async function readRequestBody(
  * answers 503 and the rest of the bridge is unaffected.
  */
 function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string,
-  stock: StockService | null = null, collections: CollectionsService | null = null) {
+  stock: StockService | null = null, collections: CollectionsService | null = null, reorder: ReorderService | null = null) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
   const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
   const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
@@ -129,6 +131,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       new PortalStockService(pool, stock, logSafeEvent),
       // ADR-0015: Collections Cat's page in the portal.
       collections ? new PortalCollectionsService(pool, collections, logSafeEvent) : null,
+      // ADR-0016: Reorder Cat's page in the portal.
+      reorder ? new PortalReorderService(pool, reorder, logSafeEvent) : null,
     ),
     // Plan per company: what a company paid for, until the end of the paid period.
     portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),
@@ -220,12 +224,22 @@ async function main(): Promise<void> {
     quotePdfToken ? new FacturayaQuotePdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
     logSafeEvent,
   );
+  // ADR-0016: Reorder Cat; purchase orders drawn by FacturaYa with the single layout.
+  const reorderService = new ReorderService(
+    connection.pool,
+    requestStore,
+    logSafeEvent,
+    quotePdfToken ? new FacturayaPurchaseOrderPdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
+  );
   // ADR-0014: Stock Cat; documents are read from FacturaYa with each company's own token.
+  // Its entries close Reorder Cat's orders in the same transaction (ADR-0016, point 12).
   const stockService = new StockService(
     connection.pool,
     requestStore,
     logSafeEvent,
     new FacturayaIssuedDocumentReader(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, logSafeEvent),
+    undefined,
+    reorderService,
   );
   // ADR-0015: Collections Cat; credit invoices are read from FacturaYa with each company's own token.
   const collectionsService = new CollectionsService(
@@ -246,7 +260,9 @@ async function main(): Promise<void> {
     quotePdfService: quotePdfs,
     stockService,
     collectionsService,
-    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService, collectionsService),
+    reorderService,
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService, collectionsService,
+      reorderService),
     log: logSafeEvent,
     healthCheck: async () => {
       try {

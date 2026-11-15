@@ -38,6 +38,8 @@ import { STOCK_BRIDGE_PATH, isStockBridgeRequest } from "../../stock/bridge-cont
 import type { StockService } from "../stock/stock-service";
 import { COLLECTIONS_BRIDGE_PATH, isCollectionsBridgeRequest } from "../../collections/bridge-contracts";
 import type { CollectionsService } from "../collections/collections-service";
+import { REORDER_BRIDGE_PATH, isReorderBridgeRequest } from "../../reorder/bridge-contracts";
+import type { ReorderService } from "../reorder/reorder-service";
 import type { SalesService } from "../sales/sales-service";
 import type { QuotePdfService } from "../sales/quote-pdf-service";
 
@@ -77,6 +79,8 @@ export type BridgeHttpHandlerDependencies = {
   stockService?: Pick<StockService, "process">;
   /** Collections Cat (ADR-0015). */
   collectionsService?: Pick<CollectionsService, "process">;
+  /** Reorder Cat (ADR-0016). */
+  reorderService?: Pick<ReorderService, "process">;
   /** ADR-0013: the quote's PDF behind its public link code. */
   quotePdfService?: Pick<QuotePdfService, "byToken">;
   healthCheck: () => Promise<boolean>;
@@ -136,6 +140,7 @@ export function createBridgeHttpHandler(
       && request.path !== SALES_BRIDGE_PATH
       && request.path !== STOCK_BRIDGE_PATH
       && request.path !== COLLECTIONS_BRIDGE_PATH
+      && request.path !== REORDER_BRIDGE_PATH
     ) {
       return jsonResponse(404, { error: "not_found" });
     }
@@ -197,6 +202,23 @@ export function createBridgeHttpHandler(
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
       } catch {
         dependencies.log("vps_stock_processing_failed", { operation: payload.operation });
+        return jsonResponse(500, { error: "internal_error" });
+      }
+    }
+
+    if (request.path === REORDER_BRIDGE_PATH) {
+      if (!dependencies.reorderService) return jsonResponse(503, { error: "reorder_unavailable" });
+      const headerRequestId = request.headers["x-manolo-request-id"]?.trim();
+      if (!headerRequestId || headerRequestId.length > 255 || !isReorderBridgeRequest(payload)) {
+        return jsonResponse(400, { error: "invalid_request" });
+      }
+      try {
+        const result = await dependencies.reorderService.process(payload, headerRequestId, requestHash);
+        if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
+        if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
+        return jsonResponse(200, result.response as unknown as Record<string, unknown>);
+      } catch {
+        dependencies.log("vps_reorder_processing_failed", { operation: payload.operation });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
