@@ -216,7 +216,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 81 · Total: 188</span>
+      <span class="summary">Abiertas: 80 · Total: 188</span>
     </div>
   </div>
 </header>
@@ -1058,7 +1058,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">6</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1094,17 +1094,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="reorder cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal manolo adr-0016. código listo y sin desplegar: rama feat/reorder-cat (migración 020, bridge, worker, portal) y feat/purchase-order-pdf en facturaya-ai (pdf de orden de compra). falta el texto exacto de la plantilla pedido_reposicion_proveedor para confirmar sus variables (hoy: proveedor, empresa, productos, código). orden: facturaya, migración 020, bridge, worker, portal; activar creaciones j&amp;d como cortesía. 2026-11-15: worker 694/696 (fallan solo las 2 de radar que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); facturaya 195/196 en contenedor sin red (falla solo fiscalsetupprobe, previa).">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Reorder Cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa).</p>
-          <p class="card-notes">ADR-0016. Código listo y sin desplegar: rama feat/reorder-cat (migración 020, bridge, Worker, portal) y feat/purchase-order-pdf en facturaya-ai (PDF de orden de compra). Falta el texto exacto de la plantilla pedido_reposicion_proveedor para confirmar sus variables (hoy: proveedor, empresa, productos, código). Orden: FacturaYa, migración 020, bridge, Worker, portal; activar CREACIONES J&amp;D como cortesía.</p>
-          <p class="card-meta">Actualizado: 2026-11-15</p>
-          <code class="card-id">reorder-cat-1-nucleo-20261115</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1132,7 +1121,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">107</span>
+          <span class="count">108</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -2014,6 +2003,17 @@
           <p class="card-notes">ADR-0015. Desplegado el 14/11 desde 369472f (meowlab) y ed529d1 (facturaya-ai); activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/collections-cat-2026-11-14.md.</p>
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">collections-cat-1-nucleo-20261114</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="reorder cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal manolo adr-0016. desplegado el 15/11 desde 4892207 (meowlab) y 4377c8e (facturaya-ai); activo para creaciones j&amp;d como cortesía. acta: docs/operations/reorder-cat-2026-11-15.md. pendiente confirmar el texto de la plantilla pedido_reposicion_proveedor (variables: proveedor, empresa, productos, código). 2026-11-15: worker 694/696 (fallan solo las 2 de radar que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); facturaya 195/196 en contenedor sin red (falla solo fiscalsetupprobe, previa). despliegue: cortes de facturaya y bridge verificados (reorder_view ajeno forbidden, purchase-orders/pdf sin token 401), worker 13055d67, portal 489220796c85 con /agentes/reposicion 200, purchasing.settings de j&amp;d creado.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Reorder Cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa). Despliegue: cortes de FacturaYa y bridge verificados (reorder_view ajeno forbidden, purchase-orders/pdf sin token 401), Worker 13055d67, portal 489220796c85 con /agentes/reposicion 200, purchasing.settings de J&amp;D creado.</p>
+          <p class="card-notes">ADR-0016. Desplegado el 15/11 desde 4892207 (meowlab) y 4377c8e (facturaya-ai); activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/reorder-cat-2026-11-15.md. Pendiente confirmar el texto de la plantilla pedido_reposicion_proveedor (variables: proveedor, empresa, productos, código).</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">reorder-cat-1-nucleo-20261115</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. desplegado en el vps: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo http/2 200 con el nuevo bundle index-dhgs6wmb.js y contenedor en estado healthy. tests vitest 16/16, typecheck y build limpios. acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md">
           <div class="card-top">

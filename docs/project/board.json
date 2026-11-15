@@ -1918,10 +1918,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-15",
-      "notes": "ADR-0016. Código listo y sin desplegar: rama feat/reorder-cat (migración 020, bridge, Worker, portal) y feat/purchase-order-pdf en facturaya-ai (PDF de orden de compra). Falta el texto exacto de la plantilla pedido_reposicion_proveedor para confirmar sus variables (hoy: proveedor, empresa, productos, código). Orden: FacturaYa, migración 020, bridge, Worker, portal; activar CREACIONES J&D como cortesía.",
-      "evidence": "2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa)."
+      "notes": "ADR-0016. Desplegado el 15/11 desde 4892207 (meowlab) y 4377c8e (facturaya-ai); activo para CREACIONES J&D como cortesía. Acta: docs/operations/reorder-cat-2026-11-15.md. Pendiente confirmar el texto de la plantilla pedido_reposicion_proveedor (variables: proveedor, empresa, productos, código).",
+      "evidence": "2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa). Despliegue: cortes de FacturaYa y bridge verificados (reorder_view ajeno forbidden, purchase-orders/pdf sin token 401), Worker 13055d67, portal 489220796c85 con /agentes/reposicion 200, purchasing.settings de J&D creado."
     },
     {
       "id": "reorder-cat-2-20261115",
