@@ -83,8 +83,8 @@ export async function runReorderFollowups(client: ReorderClient, whatsapp: Whats
     const phoneNumberId = reminder.phoneNumberId ?? fallbackPhoneNumberId;
     const phone = reminder.order.supplier?.phone;
     if (!phoneNumberId || !phone || !whatsapp.sendTemplate) continue;
-    const sent = await whatsapp.sendTemplate(phone, SUPPLIER_TEMPLATE.name, SUPPLIER_TEMPLATE.language,
-      supplierTemplateParameters(reminder.order, reminder.companyName), phoneNumberId);
+    const parameters = supplierTemplateParameters(reminder.order, reminder.companyName);
+    const sent = await whatsapp.sendTemplate(phone, SUPPLIER_TEMPLATE.name, SUPPLIER_TEMPLATE.language, parameters.body, phoneNumberId, parameters.header);
     log("reorder_supplier_reminded", { status: sent.status, lines: itemsLine(reminder.order).length > 0 });
   }
   for (const escalation of due.data.escalations) {

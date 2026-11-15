@@ -803,7 +803,8 @@ export async function processConversationTurn(
         (context) => reorderClientFor(context.persisted.contactId, bridgeRequestId),
         (context) => whatsappClient.sendTemplate ? {
           phoneNumberId: context.tenant.phoneNumberId,
-          sendTemplate: (to, template, language, parameters) => whatsappClient.sendTemplate!(to, template, language, parameters, context.tenant.phoneNumberId),
+          sendTemplate: (to, template, language, parameters) =>
+            whatsappClient.sendTemplate!(to, template, language, parameters.body, context.tenant.phoneNumberId, parameters.header),
         } : null,
         (context) => bridgeClient
           ? new VpsStockClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, `${bridgeRequestId}:produced`, logSafeEvent)

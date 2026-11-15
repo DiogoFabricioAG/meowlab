@@ -119,7 +119,16 @@ async function readBytesWithLimit(
  * Meta forbids line breaks, tabs and more than four spaces in a row inside a template
  * parameter, and caps its length: each one is flattened to a single line.
  */
-export function templatePayload(to: string, template: string, language: string, bodyParameters: readonly string[]) {
+export function templatePayload(to: string, template: string, language: string, bodyParameters: readonly string[],
+  headerParameters: readonly string[] = []) {
+  const flat = (values: readonly string[]) => values.map((value) => ({
+    type: "text",
+    text: value.replace(/[\r\n\t]+/g, " ").replace(/ {2,}/g, " ").trim().slice(0, 1000) || "-",
+  }));
+  const components = [
+    ...(headerParameters.length ? [{ type: "header", parameters: flat(headerParameters) }] : []),
+    ...(bodyParameters.length ? [{ type: "body", parameters: flat(bodyParameters) }] : []),
+  ];
   return {
     messaging_product: "whatsapp",
     to,
@@ -127,15 +136,7 @@ export function templatePayload(to: string, template: string, language: string, 
     template: {
       name: template,
       language: { code: language },
-      ...(bodyParameters.length ? {
-        components: [{
-          type: "body",
-          parameters: bodyParameters.map((value) => ({
-            type: "text",
-            text: value.replace(/[\r\n\t]+/g, " ").replace(/ {2,}/g, " ").trim().slice(0, 1000) || "-",
-          })),
-        }],
-      } : {}),
+      ...(components.length ? { components } : {}),
     },
   };
 }
@@ -535,6 +536,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
     language: string,
     bodyParameters: readonly string[],
     phoneNumberId: string,
+    headerParameters: readonly string[] = [],
   ): Promise<WhatsAppSendResult> {
     if (!this.isConfigured(phoneNumberId)) {
       this.log("whatsapp_template_skipped", { reason: "missing_outbound_configuration" });
@@ -544,7 +546,7 @@ export class MetaWhatsAppClient implements WhatsAppClient {
       const response = await fetch(this.endpoint(phoneNumberId, "messages"), {
         method: "POST",
         headers: { ...this.authHeaders(phoneNumberId), "Content-Type": "application/json" },
-        body: JSON.stringify(templatePayload(to, template, language, bodyParameters)),
+        body: JSON.stringify(templatePayload(to, template, language, bodyParameters, headerParameters)),
       });
       if (!response.ok) {
         this.log("whatsapp_template_failed", { reason: "graph_api_error", status: response.status });
