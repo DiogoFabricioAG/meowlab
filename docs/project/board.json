@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-13",
+  "updatedAt": "2026-11-14",
   "columns": [
     {
       "id": "todo",
@@ -1335,9 +1335,9 @@
       "area": "Cobros",
       "owner": "",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-11",
-      "notes": "Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md",
+      "status": "in_progress",
+      "updated": "2026-11-14",
+      "notes": "Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3.",
       "evidence": ""
     },
     {
@@ -1866,6 +1866,50 @@
       "status": "todo",
       "updated": "2026-11-14",
       "notes": "Venta por empresa recién desplegada; Mercado Pago en modo de prueba.",
+      "evidence": ""
+    },
+    {
+      "id": "collections-cat-1-nucleo-20261114",
+      "title": "Collections Cat fase 1: deudas, pagos, capturas, recordatorios preparados y página en el portal",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-14",
+      "notes": "ADR-0015. Desplegado el 14/11 desde 369472f (meowlab) y ed529d1 (facturaya-ai); activo para CREACIONES J&D como cortesía. Acta: docs/operations/collections-cat-2026-11-14.md.",
+      "evidence": "2026-11-14: Worker 683/683 y tsc limpio; collections-pg-check, stock-pg-check, sales-pg-check y entitlement-pg-check en verde; portal 44/44, typecheck y build; página revisada en local con bridge falso; FacturaYa 192/193 en contenedor sin red (la que falla, FiscalSetupProbe, falla igual en el commit desplegado). Despliegue: cortes de FacturaYa y bridge verificados (collections_view ajeno forbidden), Worker a825cfc8, portal 369472f15e95 con /agentes/cobranza 200, receivables.settings de J&D creado."
+    },
+    {
+      "id": "collections-cat-2-numero-20261114",
+      "title": "Collections Cat fase 2: escribir desde el número de la empresa con plantillas de Meta, recordatorios automáticos y QR de Yape",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-14",
+      "notes": "ADR-0015 fase 2. Depende del número propio de la empresa (Kapso, ADR-0009).",
+      "evidence": ""
+    },
+    {
+      "id": "collections-cat-3-venta-20261114",
+      "title": "Collections Cat fase 3: a la venta en el Plan (S/ 25) y MeowLab cobrando sus suscripciones",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-14",
+      "notes": "ADR-0015 fase 3.",
+      "evidence": ""
+    },
+    {
+      "id": "facturaya-fiscal-probe-test-20261114",
+      "title": "Arreglar la prueba FiscalSetupProbeEndpointTest de FacturaYa, que falla también en el commit desplegado",
+      "area": "FacturaYa",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-14",
+      "notes": "Falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms.",
       "evidence": ""
     }
   ]

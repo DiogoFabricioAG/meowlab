@@ -5,6 +5,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 
 ## Índice
 
+- [0015 — Collections Cat](0015-collections-cat.md): lleva lo que le deben a la empresa y lo
+  cobra; recordatorios más firmes con el tiempo, capturas validadas por una persona y la titular
+  solo interviene cuando el gato no puede resolver.
 - [0014 — Stock Cat](0014-stock-cat.md): alertas para que nada se acabe; el stock baja con los
   comprobantes de Invoice Cat y se carga por chat, Excel o imagen.
 

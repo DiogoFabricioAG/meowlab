@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
+import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
@@ -260,6 +260,32 @@ export function createApp(deps: AppDeps) {
     return c.json(result.stock);
   });
 
+  // Collections Cat (ADR-0015): what the company is owed; its rules change only by the owner.
+  app.get("/api/companies/:tenantId/collections", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "collections_view", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("collections" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.collections);
+  });
+
+  app.post("/api/companies/:tenantId/collections/settings", async (c) => {
+    const tenantId = tenantParam(c);
+    const body = await c.req.json().catch(() => null) as { change?: unknown } | null;
+    const change = collectionsChange(body?.change);
+    if (!tenantId || !change) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "collections_settings", tenantId, change });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden" || result.status === "owner_only") return c.json({ error: result.status }, 403);
+    if (result.status === "invalid_settings") return c.json({ error: "invalid_settings" }, 400);
+    if (result.status !== "ok" || !("collections" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.collections);
+  });
+
   app.post("/api/companies/:tenantId/invitations", async (c) => {
     const tenantId = tenantParam(c);
     const body = await c.req.json().catch(() => null) as { access?: unknown; phone?: unknown } | null;
@@ -486,4 +512,34 @@ export function createApp(deps: AppDeps) {
   app.all("/api/*", (c) => c.json({ error: "not_found" }, 404));
 
   return app;
+}
+
+const COLLECTIONS_INTS: Record<string, [number, number]> = {
+  defaultDueDays: [0, 365], remindBeforeDays: [0, 30], remindEveryDays: [1, 60], maxReminders: [1, 20], windowStartHour: [0, 23], windowEndHour: [1, 24],
+};
+
+/** A Collections Cat rules change from the Plan page; the bridge validates it again. */
+export function collectionsChange(value: unknown): Partial<CollectionsSettings> | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (!entries.length || entries.length > 11) return null;
+  const change: Record<string, unknown> = {};
+  for (const [key, field] of entries) {
+    const range = COLLECTIONS_INTS[key];
+    if (range) {
+      if (!Number.isInteger(field) || Number(field) < range[0] || Number(field) > range[1]) return null;
+    } else if (key === "skipSundays") {
+      if (typeof field !== "boolean") return null;
+    } else if (key === "yapePhone" || key === "plinPhone") {
+      if (field !== null && !(typeof field === "string" && /^9[0-9]{8}$/.test(field))) return null;
+    } else if (key === "bankText") {
+      if (field !== null && !(typeof field === "string" && field.trim().length > 0 && field.length <= 300)) return null;
+    } else if (key === "paymentLink") {
+      if (field !== null && !(typeof field === "string" && field.length <= 500 && /^https:\/\/\S+$/.test(field))) return null;
+    } else {
+      return null;
+    }
+    change[key] = typeof field === "string" ? field.trim() : field;
+  }
+  return change as Partial<CollectionsSettings>;
 }

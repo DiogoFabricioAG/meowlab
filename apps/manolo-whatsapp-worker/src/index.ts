@@ -47,6 +47,8 @@ import { SALES_ROLE_KEY, SalesRoleHandler, isSalesCommand, parseSalesState } fro
 import { VpsSalesClient } from "./sales/client";
 import { STOCK_ROLE_KEY, StockRoleHandler, isStockCommand, parseStockState, stockAlertsAfterInvoice } from "./roles/stock-role";
 import { VpsStockClient } from "./stock/client";
+import { COLLECTIONS_ROLE_KEY, CollectionsRoleHandler, isCollectionsCommand, parseCollectionsState } from "./roles/collections-role";
+import { VpsCollectionsClient } from "./collections/client";
 import {
   PRINT_ADVISOR_PROVIDER,
   PRINT_ADVISOR_ROLE_KEY,
@@ -755,19 +757,28 @@ export async function processConversationTurn(
       // picks the cat; otherwise the open conversation keeps the turn, Stock Cat first.
       const salesSignal = isSalesCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("sales:"));
       const stockSignal = isStockCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("stock:"));
-      const stockOpen = persisted.contactId !== null && !salesSignal
+      // Collections Cat (ADR-0015) too, with `/collections`; an explicit signal wins, then the open conversation.
+      const collectionsSignal = isCollectionsCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("collections:"));
+      const collectionsOpen = persisted.contactId !== null && !salesSignal && !stockSignal
+        && parseCollectionsState(await roleState.get(tenant.tenantId, persisted.contactId, COLLECTIONS_ROLE_KEY).catch(() => null)) !== null;
+      const collectionsTurn = persisted.contactId !== null && !salesSignal && !stockSignal && (collectionsSignal || collectionsOpen);
+      const stockOpen = persisted.contactId !== null && !salesSignal && !collectionsTurn
         && parseStockState(await roleState.get(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => null)) !== null;
-      const stockTurn = persisted.contactId !== null && !salesSignal && (stockSignal || stockOpen);
-      const salesTurn = persisted.contactId !== null && !stockTurn && (
+      const stockTurn = persisted.contactId !== null && !salesSignal && !collectionsTurn && (stockSignal || stockOpen);
+      const salesTurn = persisted.contactId !== null && !stockTurn && !collectionsTurn && (
         salesSignal
         || parseSalesState(await roleState.get(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => null)) !== null
       );
-      // Opening one cat closes the other's open conversation.
-      if (persisted.contactId !== null && isStockCommand(activeMessage.text)) {
-        await roleState.clear(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => false);
-      }
-      if (persisted.contactId !== null && isSalesCommand(activeMessage.text)) {
-        await roleState.clear(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => false);
+      // Opening one cat closes the others' open conversations.
+      const opened = persisted.contactId === null ? null
+        : isStockCommand(activeMessage.text) ? STOCK_ROLE_KEY
+        : isSalesCommand(activeMessage.text) ? SALES_ROLE_KEY
+        : isCollectionsCommand(activeMessage.text) ? COLLECTIONS_ROLE_KEY
+        : null;
+      if (opened && persisted.contactId !== null) {
+        for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
+          await roleState.clear(tenant.tenantId, persisted.contactId, key).catch(() => false);
+        }
       }
       const salesRole = new SalesRoleHandler((context) => bridgeClient
         ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
@@ -775,7 +786,12 @@ export async function processConversationTurn(
       const stockRole = new StockRoleHandler((context) => bridgeClient
         ? new VpsStockClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
-      const configuredTenant = stockTurn
+      const collectionsRole = new CollectionsRoleHandler((context) => bridgeClient
+        ? new VpsCollectionsClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
+        : null);
+      const configuredTenant = collectionsTurn
+        ? collectionsRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
+        : stockTurn
         ? stockRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
         : salesTurn
         ? salesRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
@@ -788,6 +804,7 @@ export async function processConversationTurn(
         systemPrompt: withMultimodalContext(configuredTenant.systemPrompt),
         aiProvider:
           configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
+          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY
             ? "groq"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_PROVIDER?.trim() || "openai"
@@ -796,6 +813,7 @@ export async function processConversationTurn(
             : configuredTenant.aiProvider,
         aiModel:
           configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
+          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY
             ? env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_MODEL?.trim() || configuredTenant.aiModel
@@ -936,7 +954,7 @@ export async function processConversationTurn(
       );
       const documentStore = new R2DocumentStore(env.ENTERPRISE_DOCUMENTS);
 
-      const roleHandler = stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
+      const roleHandler = collectionsTurn ? collectionsRole : stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
       if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
         || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
         || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {

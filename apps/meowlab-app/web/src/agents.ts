@@ -14,6 +14,7 @@ export type Weekly = {
     highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
+  collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   sales?: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   invoicing:
     | null
@@ -39,7 +40,7 @@ export const AGENTS: Array<{ key: AgentKey; name: string; does: string; icon: Ic
   { key: "stock", name: "Stock Cat", does: "Te avisa antes de que algo se acabe. Escríbele /stock en el chat.", icon: "package", detail: "/agentes/stock" },
   { key: "reorder", name: "Reorder Cat", does: "Te avisa cuando algo se acaba y le escribe a tu proveedor.", icon: "refresh" },
   { key: "support", name: "Support Cat", does: "Responde a tus clientes las preguntas de siempre.", icon: "message" },
-  { key: "collections", name: "Collections Cat", does: "Cobra por Yape y confirma los pagos de tus clientes.", icon: "cash" },
+  { key: "collections", name: "Collections Cat", does: "Lleva lo que te deben y cobra por ti. Escríbele /collections en el chat.", icon: "cash", detail: "/agentes/cobranza" },
 ];
 
 /** The agent's logo (public/agents): black line art on white, shown on mint tiles. */
@@ -80,6 +81,14 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
     if (stock.lowCount) return `${plural(stock.lowCount, "producto está", "productos están")} en su mínimo o por debajo.`;
     return stock.movesToday ? `Hoy registró ${plural(stock.movesToday, "movimiento", "movimientos")}; nada se está acabando.` : "Nada se está acabando.";
   }
+  if (key === "collections") {
+    const collections = weekly.collections;
+    if (!collections?.enabled) return "";
+    if (!collections.owedCents) return "Nadie te debe nada.";
+    const late = collections.lateCount ? `, ${plural(collections.lateCount, "deuda vencida", "deudas vencidas")}` : "";
+    const owner = collections.needsOwner ? `. ${plural(collections.needsOwner, "cliente necesita", "clientes necesitan")} que le hables tú` : "";
+    return `Te deben ${money(String(collections.owedCents / 100))}${late}${owner}.`;
+  }
   if (key === "tender") {
     return weekly.tender.foundToday
       ? `Hoy encontró ${plural(weekly.tender.foundToday, "licitación", "licitaciones")} para tu negocio.`
@@ -101,6 +110,7 @@ export function agentState(key: AgentKey, company: Membership, weekly: Weekly | 
   }
   if (key === "sales" && weekly?.sales?.enabled) return { kind: "active", today: todayLine("sales", weekly) };
   if (key === "stock" && weekly?.stock?.enabled) return { kind: "active", today: todayLine("stock", weekly) };
+  if (key === "collections" && weekly?.collections?.enabled) return { kind: "active", today: todayLine("collections", weekly) };
   if (listed?.available) return { kind: "available", priceCents: listed.priceCents };
   return { kind: "soon", priceCents: listed?.priceCents ?? null };
 }
