@@ -52,3 +52,11 @@ bridge, portal, FacturaYa ni base de datos. Rollback: `npx wrangler rollback 130
 
 Si el encabezado fuera texto fijo y no una variable, Meta rechaza el envío y la titular ve «No pude enviarle el pedido»; en ese
 caso se quita el parámetro del encabezado.
+
+## Prueba real del envío, 15/11/2026, 13:30 de Lima
+
+A pedido del operador se simuló en CREACIONES J&D un pedido enviado hace 25 horas (proveedor «Juan» con el número de prueba
+del operador, una línea de 50 polos blancos talla M, `phone_number_id` del número de MeowLab). El cron de las 13:30 envió la
+plantilla `pedido_reposicion_proveedor` desde el Worker de producción: `whatsapp_template_sent` con estado 200 y
+`reorder_supplier_reminded` «sent». Meta acepta el encabezado con la empresa y las tres variables del cuerpo. Después se
+borraron el pedido, su línea, el proveedor y el ítem de prueba (las cuatro tablas quedaron sin registros de J&D).
