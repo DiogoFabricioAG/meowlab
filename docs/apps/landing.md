@@ -45,7 +45,7 @@ el hero y el cierre).
 | `#licitaciones` | Tender Cat y el SEACE | aviso en el chat y lista del portal |
 | `#gatos` | Sales, Stock, Collections y Reorder Cat (comando del chat de cada uno) y Support Cat en el WhatsApp de la empresa | tarjetas con el logo de cada gato (`public/assets/agents/`) |
 | `#equipo` | invitar al equipo con un enlace de WhatsApp | invitación del portal y chat |
-| `#agentes` | los siete agentes, todos «Disponible», con una línea y el precio mensual con IGV, descuentos por paquete, Mercado Pago | logos de los gatos y el plan del portal |
+| `#agentes` | los siete agentes, todos «Disponible», con su precio mensual con IGV (lo que hace cada uno va en `#facturas`, `#licitaciones` y `#gatos`), descuentos por paquete, Mercado Pago | logos de los gatos y el plan del portal |
 | `#preguntas` | preguntas frecuentes | — |
 | pie (`footer.closing`) | cierre «Empieza con Invoice Cat por S/ 39 al mes» y columnas | — |
 

@@ -31,13 +31,13 @@ const teamChat = [
 ] as const;
 
 const agents = [
-  { name: 'Invoice Cat', line: 'Facturas, boletas y guías de remisión ante SUNAT.', price: 'S/ 39', img: 'gato-facturas', logo: 'invoice-cat', live: true },
-  { name: 'Tender Cat', line: 'Alertas de licitaciones del SEACE para tu rubro.', price: 'S/ 35', img: 'gato-licitaciones', logo: 'tender-cat', live: true },
-  { name: 'Sales Cat', line: 'Ventas al contado o al crédito y cotizaciones con enlace y PDF.', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: true },
-  { name: 'Stock Cat', line: 'Inventario, entradas por chat o por foto y avisos de stock mínimo.', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: true },
-  { name: 'Reorder Cat', line: 'Pedidos a tus proveedores cuando algo baja del mínimo.', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: true },
-  { name: 'Support Cat', line: 'Atención postventa 24/7 en el WhatsApp de tu empresa.', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: true },
-  { name: 'Collections Cat', line: 'Lo que te deben, pagos parciales y recordatorios de cobro.', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: true },
+  { name: 'Invoice Cat', price: 'S/ 39', img: 'gato-facturas', logo: 'invoice-cat', live: true },
+  { name: 'Tender Cat', price: 'S/ 35', img: 'gato-licitaciones', logo: 'tender-cat', live: true },
+  { name: 'Sales Cat', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: true },
+  { name: 'Stock Cat', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: true },
+  { name: 'Reorder Cat', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: true },
+  { name: 'Support Cat', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: true },
+  { name: 'Collections Cat', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: true },
 ];
 
 // The five cats that joined Invoice Cat and Tender Cat (ADR-0011 to ADR-0017). Each text says only
@@ -278,7 +278,6 @@ const moreCats = [
             {agents.map((a) => (
               <li>
                 <span class="rows__name"><span class="agent-logo"><img src={`/assets/agents/${a.logo}.webp`} alt="" width="28" height="28" loading="lazy" /></span>{a.name} <span class={`tag ${a.live ? 'tag--live' : 'tag--soon'}`}>{a.live ? 'Disponible' : 'Próximamente'}</span></span>
-                {a.live && <p>{a.line}</p>}
                 <span class="rows__value">{a.price} al mes</span>
               </li>
             ))}
