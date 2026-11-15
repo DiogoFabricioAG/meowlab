@@ -11,6 +11,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
 - [0016 — Reorder Cat](0016-reorder-cat.md): propone reponer lo que se acaba, la titular aprueba
   y el gato le pide al proveedor desde el número de MeowLab, insiste y escala solo lo que no
   puede cerrar; productos propios como órdenes de producción.
+- [0017 — Support Cat](0017-support-cat.md): postventa 24/7 en el WhatsApp de la empresa: responde
+  con las preguntas frecuentes y el estado en Sales Cat, cotiza con el catálogo y pasa a la titular
+  lo que no sabe, con resumen diario.
 - [0014 — Stock Cat](0014-stock-cat.md): alertas para que nada se acabe; el stock baja con los
   comprobantes de Invoice Cat y se carga por chat, Excel o imagen.
 
