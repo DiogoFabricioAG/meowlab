@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction } from "./bridge";
+import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction, ReorderSettings } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
@@ -286,6 +286,32 @@ export function createApp(deps: AppDeps) {
     return c.json(result.collections);
   });
 
+  // Reorder Cat (ADR-0016): orders, suppliers and purchases; budget and waiting times only by the owner.
+  app.get("/api/companies/:tenantId/reorder", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "reorder_view", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("reorder" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.reorder);
+  });
+
+  app.post("/api/companies/:tenantId/reorder/settings", async (c) => {
+    const tenantId = tenantParam(c);
+    const body = await c.req.json().catch(() => null) as { change?: unknown } | null;
+    const change = reorderChange(body?.change);
+    if (!tenantId || !change) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "reorder_settings", tenantId, change });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden" || result.status === "owner_only") return c.json({ error: result.status }, 403);
+    if (result.status === "invalid_settings") return c.json({ error: "invalid_settings" }, 400);
+    if (result.status !== "ok" || !("reorder" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.reorder);
+  });
+
   app.post("/api/companies/:tenantId/invitations", async (c) => {
     const tenantId = tenantParam(c);
     const body = await c.req.json().catch(() => null) as { access?: unknown; phone?: unknown } | null;
@@ -517,6 +543,25 @@ export function createApp(deps: AppDeps) {
 const COLLECTIONS_INTS: Record<string, [number, number]> = {
   defaultDueDays: [0, 365], remindBeforeDays: [0, 30], remindEveryDays: [1, 60], maxReminders: [1, 20], windowStartHour: [0, 23], windowEndHour: [1, 24],
 };
+
+/** A Reorder Cat rules change; the bridge validates it again (the escalation after the follow-up). */
+export function reorderChange(value: unknown): Partial<ReorderSettings> | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (!entries.length || entries.length > 3) return null;
+  for (const [key, field] of entries) {
+    if (key === "monthlyBudgetCents") {
+      if (field !== null && !(Number.isSafeInteger(field) && Number(field) > 0 && Number(field) <= 100_000_000_000)) return null;
+    } else if (key === "followupHours") {
+      if (!Number.isInteger(field) || Number(field) < 1 || Number(field) > 168) return null;
+    } else if (key === "escalateHours") {
+      if (!Number.isInteger(field) || Number(field) < 2 || Number(field) > 336) return null;
+    } else {
+      return null;
+    }
+  }
+  return value as Partial<ReorderSettings>;
+}
 
 /** A Collections Cat rules change from the Plan page; the bridge validates it again. */
 export function collectionsChange(value: unknown): Partial<CollectionsSettings> | null {
