@@ -184,7 +184,7 @@
   <div class="page-inner">
     <div class="page-title">
       <h1><span class="dot">●</span> MeowLab · Tablero de trabajo</h1>
-      <span class="meta">Actualizado: 2026-11-14</span>
+      <span class="meta">Actualizado: 2026-11-15</span>
     </div>
     <div class="controls">
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
@@ -202,6 +202,7 @@
           <option value="Ops">Ops</option>
           <option value="Plataforma">Plataforma</option>
           <option value="Portal">Portal</option>
+          <option value="Pruebas">Pruebas</option>
           <option value="TUI">TUI</option>
           <option value="Tests">Tests</option>
           <option value="VPS">VPS</option>
@@ -215,7 +216,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 76 · Total: 183</span>
+      <span class="summary">Abiertas: 81 · Total: 188</span>
     </div>
   </div>
 </header>
@@ -224,7 +225,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">71</span>
+          <span class="count">75</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -502,15 +503,15 @@
           <p class="card-meta">Actualizado: 2026-11-14 · Responsable: operador</p>
           <code class="card-id">sales-cat-prueba-compra-20261114</code>
         </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="collections cat fase 2: escribir desde el número de la empresa con plantillas de meta, recordatorios automáticos y qr de yape manolo adr-0015 fase 2. depende del número propio de la empresa (kapso, adr-0009). ">
+        <article class="card" data-priority="high" data-area="Manolo" data-text="collections cat fase 2: escribir desde el número de la empresa con plantillas de meta, recordatorios automáticos y qr de yape manolo adr-0015 fase 2. depende del número propio de la empresa (kapso, adr-0009). 2026-11-15: el operador decidió mantener la fase 1 (recordatorios con botón) y no enviar desde el número de meowlab; el envío automático espera a los números de las empresas (adr-0016, consecuencias). ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
             <span class="priority priority-high">Alta</span>
           </div>
           <h3 class="card-title">Collections Cat fase 2: escribir desde el número de la empresa con plantillas de Meta, recordatorios automáticos y QR de Yape</h3>
           
-          <p class="card-notes">ADR-0015 fase 2. Depende del número propio de la empresa (Kapso, ADR-0009).</p>
-          <p class="card-meta">Actualizado: 2026-11-14</p>
+          <p class="card-notes">ADR-0015 fase 2. Depende del número propio de la empresa (Kapso, ADR-0009). 2026-11-15: el operador decidió mantener la fase 1 (recordatorios con botón) y no enviar desde el número de MeowLab; el envío automático espera a los números de las empresas (ADR-0016, Consecuencias).</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">collections-cat-2-numero-20261114</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
@@ -876,6 +877,28 @@
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">collections-cat-3-venta-20261114</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Manolo" data-text="reorder cat fase 2: proveedores por excel, varios proveedores con pedido de precios y número propio de la empresa manolo adr-0016, fases. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Reorder Cat fase 2: proveedores por Excel, varios proveedores con pedido de precios y número propio de la empresa</h3>
+          
+          <p class="card-notes">ADR-0016, Fases.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">reorder-cat-2-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Manolo" data-text="plantilla de meta para avisar a la titular fuera de su ventana de 24 horas (reorder y collections) manolo hoy los avisos de reorder cat a la titular solo salen si escribió en las últimas 24 horas; si no, esperan en purchasing.notices hasta que abre /reorder o el portal. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Plantilla de Meta para avisar a la titular fuera de su ventana de 24 horas (Reorder y Collections)</h3>
+          
+          <p class="card-notes">Hoy los avisos de Reorder Cat a la titular solo salen si escribió en las últimas 24 horas; si no, esperan en purchasing.notices hasta que abre /reorder o el portal.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">reorder-owner-template-20261115</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -997,6 +1020,28 @@
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">facturaya-fiscal-probe-test-20261114</code>
         </article>
+        <article class="card" data-priority="low" data-area="Manolo" data-text="reorder cat fase 3: cuentas por pagar y recetas de producción con descuento de insumos manolo adr-0016, fases. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Reorder Cat fase 3: cuentas por pagar y recetas de producción con descuento de insumos</h3>
+          
+          <p class="card-notes">ADR-0016, Fases.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">reorder-cat-3-20261115</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Pruebas" data-text="la comprobación collections-pg-check depende de la fecha real en un caso pruebas el 2026-11-15 falla «rosita is due for a reminder…» sin cambios en collections (pasó el 14/11). buscar el uso de la fecha real (current_date o created_at) y fijarla con el reloj de la prueba. ">
+          <div class="card-top">
+            <span class="badge area-other">Pruebas</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">La comprobación collections-pg-check depende de la fecha real en un caso</h3>
+          
+          <p class="card-notes">El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">collections-pg-check-date-20261115</code>
+        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -1013,7 +1058,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">6</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1048,6 +1093,17 @@
           <p class="card-notes">ADR-0009. Etapa 1 del plan financiero (Kapso Pro). Número del piloto de un cliente. Falta: phone_number_id, KAPSO_API_KEY, secreto y webhook tipo meta en Kapso, empresa y rol por defecto del piloto, despliegue. 2026-11-13: código desplegado en c1147d37 (inactivo, lista vacía); secretos KAPSO_* cargados y webhook creado en Kapso.</p>
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="reorder cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal manolo adr-0016. código listo y sin desplegar: rama feat/reorder-cat (migración 020, bridge, worker, portal) y feat/purchase-order-pdf en facturaya-ai (pdf de orden de compra). falta el texto exacto de la plantilla pedido_reposicion_proveedor para confirmar sus variables (hoy: proveedor, empresa, productos, código). orden: facturaya, migración 020, bridge, worker, portal; activar creaciones j&amp;d como cortesía. 2026-11-15: worker 694/696 (fallan solo las 2 de radar que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); facturaya 195/196 en contenedor sin red (falla solo fiscalsetupprobe, previa).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Reorder Cat fase 1: propuestas, aprobación, pedido al proveedor con plantilla, insistencia, recepción y página en el portal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa).</p>
+          <p class="card-notes">ADR-0016. Código listo y sin desplegar: rama feat/reorder-cat (migración 020, bridge, Worker, portal) y feat/purchase-order-pdf en facturaya-ai (PDF de orden de compra). Falta el texto exacto de la plantilla pedido_reposicion_proveedor para confirmar sus variables (hoy: proveedor, empresa, productos, código). Orden: FacturaYa, migración 020, bridge, Worker, portal; activar CREACIONES J&amp;D como cortesía.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">reorder-cat-1-nucleo-20261115</code>
         </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
