@@ -86,7 +86,10 @@ export function isStockPayload(operation: StockOperation, payload: Record<string
       return true;
     case "move":
       return MOVE_KINDS.includes(payload.kind as MoveKind) && isStockLines(payload.lines, payload.kind as MoveKind)
-        && (payload.note === undefined || payload.note === null || (typeof payload.note === "string" && payload.note.length <= 300));
+        && (payload.note === undefined || payload.note === null || (typeof payload.note === "string" && payload.note.length <= 300))
+        // Who sold it, read from the purchase invoice (ADR-0016, point 3); only on entries.
+        && (payload.supplier === undefined || (payload.kind === "in" && record(payload.supplier) && text(payload.supplier.name, 200)
+          && (payload.supplier.ruc === undefined || payload.supplier.ruc === null || (typeof payload.supplier.ruc === "string" && /^[0-9]{11}$/.test(payload.supplier.ruc)))));
     case "set_min":
       return text(payload.name, 200) && (payload.minQty === null || quantity(payload.minQty));
     case "settings":

@@ -1,4 +1,5 @@
 import { isSettingsChange, type CollectionsSettings } from "../collections/bridge-contracts";
+import { isSettingsChange as isReorderSettingsChange, type Notice, type OrderSummary, type ReorderSettings } from "../reorder/bridge-contracts";
 
 /**
  * Companies created from the portal and the owner's invitations (ADR-0010, phases 1–2). Signed with the portal's own
@@ -28,7 +29,10 @@ export type PortalCompanyRequest =
   | (Base & { action: "stock_view"; tenantId: string })
   // Collections Cat (ADR-0015): what the company is owed, and its rules (owner only).
   | (Base & { action: "collections_view"; tenantId: string })
-  | (Base & { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> });
+  | (Base & { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> })
+  // Reorder Cat (ADR-0016): orders, suppliers and purchases; budget and waiting times (owner only).
+  | (Base & { action: "reorder_view"; tenantId: string })
+  | (Base & { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> });
 
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
@@ -47,6 +51,8 @@ export type WeeklySummary = {
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
   /** Collections Cat (ADR-0015): what is owed, how much is late and who needs the owner. */
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
+  /** Reorder Cat (ADR-0016): to approve, on their way, escalated this week, and the month's purchases. */
+  reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
   /** Sales Cat (ADR-0011): sales registered today and this week. */
   sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
@@ -105,7 +111,24 @@ export type PortalCompanyResponse =
   | { status: "ok"; weekly: WeeklySummary }
   | { status: "ok"; stock: PortalStockView }
   | { status: "ok"; collections: PortalCollectionsView }
+  | { status: "ok"; reorder: PortalReorderView }
   | { status: "invalid_settings" | "owner_only" };
+
+export type PortalReorderView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    settings: ReorderSettings;
+    proposals: OrderSummary[];
+    open: OrderSummary[];
+    notices: Notice[];
+    needsMax: string[];
+    needsSupplier: string[];
+    monthSpentCents: number;
+    suppliers: Array<{ name: string; phone: string | null; ruc: string | null; items: string[] }>;
+    month: Array<{ supplier: string; orders: number; totalCents: number }>;
+  };
 
 export type PortalCollectionsView =
   | { enabled: false }
@@ -180,9 +203,12 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
     case "weekly":
     case "stock_view":
     case "collections_view":
+    case "reorder_view":
       return tenant(value.tenantId);
     case "collections_settings":
       return tenant(value.tenantId) && isSettingsChange(value.change);
+    case "reorder_settings":
+      return tenant(value.tenantId) && isReorderSettingsChange(value.change);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")
         && (value.phone === undefined || (typeof value.phone === "string" && value.phone.length <= 32));

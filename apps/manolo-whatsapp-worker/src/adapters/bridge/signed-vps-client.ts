@@ -33,6 +33,12 @@ import {
   type CollectionsBridgeRequest,
   type CollectionsBridgeResponse,
 } from "../../collections/bridge-contracts";
+import {
+  REORDER_BRIDGE_PATH,
+  isReorderBridgeResponse,
+  type ReorderBridgeRequest,
+  type ReorderBridgeResponse,
+} from "../../reorder/bridge-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import {
   FACTURAYA_BRIDGE_PATH,
@@ -220,6 +226,23 @@ export class SignedVpsBridgeClient {
       this.timeoutMs,
       (value) => value.request_id === requestId,
       256 * 1024,
+    );
+  }
+
+  /** Reorder Cat (ADR-0016). Larger answers: a purchase order PDF travels in base64. */
+  async requestReorderOperation(
+    requestId: string,
+    request: ReorderBridgeRequest,
+  ): Promise<ReorderBridgeResponse | null> {
+    return this.requestSignedJson(
+      REORDER_BRIDGE_PATH,
+      requestId,
+      request,
+      isReorderBridgeResponse,
+      "reorder_operation",
+      this.timeoutMs,
+      (value) => value.request_id === requestId,
+      4 * 1024 * 1024,
     );
   }
 

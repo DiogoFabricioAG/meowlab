@@ -64,13 +64,14 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing, sales, stock, collections] = await Promise.all([
+    const [team, tender, invoicing, sales, stock, collections, reorder] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
       this.sales(tenantId, start, end, day),
       this.stock(tenantId, day),
       this.collections(tenantId, limaDate(start), limaDate(day)),
+      this.reorder(tenantId, now),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -81,6 +82,7 @@ export class PortalWeeklyService {
       sales,
       stock,
       collections,
+      reorder,
     };
     return { status: "ok", weekly: summary };
   }
@@ -166,6 +168,32 @@ export class PortalWeeklyService {
       return { enabled: true, lowCount: Number(rows[0].low ?? 0), movesToday: Number(rows[0].moves ?? 0) };
     } catch {
       // Before migration 018 the schema does not exist: Stock Cat is simply off.
+      return off;
+    }
+  }
+
+  private async reorder(tenantId: string, now: Date): Promise<WeeklySummary["reorder"]> {
+    const off = { enabled: false, toApprove: 0, waiting: 0, escalated: 0, monthSpentCents: 0 };
+    try {
+      const lima = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+      const monthStart = new Date(Date.UTC(lima.getUTCFullYear(), lima.getUTCMonth(), 1) + 5 * 60 * 60 * 1000);
+      const { rows } = await this.query(
+        `SELECT count(orders.id) FILTER (WHERE orders.status = 'proposed')::int AS to_approve,
+                count(orders.id) FILTER (WHERE orders.status IN ('sent', 'confirmed', 'partial', 'in_production'))::int AS waiting,
+                count(orders.id) FILTER (WHERE orders.escalated_at > $2::timestamptz - interval '7 days')::int AS escalated,
+                COALESCE(sum(COALESCE(orders.confirmed_cents, orders.estimated_cents, 0)) FILTER (
+                  WHERE orders.kind = 'purchase' AND orders.approved_at >= $3 AND orders.status NOT IN ('cancelled', 'declined')), 0)::bigint AS spent
+           FROM purchasing.settings AS settings
+           LEFT JOIN purchasing.orders AS orders ON orders.tenant_id = settings.tenant_id
+          WHERE settings.tenant_id = $1 AND settings.enabled AND (settings.active_until IS NULL OR settings.active_until > CURRENT_TIMESTAMP)
+          GROUP BY settings.tenant_id`,
+        [tenantId, now, monthStart],
+      );
+      if (!rows.length) return off;
+      return { enabled: true, toApprove: Number(rows[0].to_approve ?? 0), waiting: Number(rows[0].waiting ?? 0),
+        escalated: Number(rows[0].escalated ?? 0), monthSpentCents: Number(rows[0].spent ?? 0) };
+    } catch {
+      // Before migration 020 the schema does not exist: Reorder Cat is simply off.
       return off;
     }
   }

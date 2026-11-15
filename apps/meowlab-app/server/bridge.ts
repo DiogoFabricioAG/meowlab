@@ -41,7 +41,9 @@ export type PortalCompanyAction =
   | { action: "weekly"; tenantId: string }
   | { action: "stock_view"; tenantId: string }
   | { action: "collections_view"; tenantId: string }
-  | { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> };
+  | { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> }
+  | { action: "reorder_view"; tenantId: string }
+  | { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> };
 
 /** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
 export type WeeklySummary = {
@@ -73,7 +75,14 @@ export type PortalCompanyResponse =
   | { status: "ok"; weekly: WeeklySummary }
   | { status: "ok"; stock: StockView }
   | { status: "ok"; collections: CollectionsView }
+  | { status: "ok"; reorder: ReorderView }
   | { status: "invalid_settings" | "owner_only" };
+
+/** Reorder Cat's rules (ADR-0016): monthly budget and how long to wait for a supplier. */
+export type ReorderSettings = { monthlyBudgetCents: number | null; followupHours: number; escalateHours: number };
+
+/** Reorder Cat in the portal (ADR-0016, point 18). Passed through as the bridge sends it. */
+export type ReorderView = { enabled: false } | ({ enabled: true; owner: boolean; settings: ReorderSettings } & Record<string, unknown>);
 
 /** Collections Cat's rules (ADR-0015): payment options and how it reminds. */
 export type CollectionsSettings = {

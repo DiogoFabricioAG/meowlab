@@ -70,6 +70,18 @@ export interface WhatsAppClient extends WhatsAppMediaClient {
     url: string,
     phoneNumberId: string,
   ): Promise<WhatsAppSendResult>;
+  /**
+   * An approved template, the only way to open a conversation outside the 24-hour window
+   * (Reorder Cat writes to suppliers this way, ADR-0016). Body parameters in order; each
+   * one a single line. Optional: older fakes omit it.
+   */
+  sendTemplate?(
+    to: string,
+    template: string,
+    language: string,
+    bodyParameters: readonly string[],
+    phoneNumberId: string,
+  ): Promise<WhatsAppSendResult>;
   sendList(
     to: string,
     body: string,

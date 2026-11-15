@@ -15,7 +15,9 @@ export type StockResult<T> = { ok: true; data: T } | { ok: false; code: string; 
 
 export type StockCompany = { id: string; name: string };
 export type StockSync = { processed: number; alerts: StockAlert[]; unmatched: string[]; available: boolean };
-export type StockMoved = { moved: Array<{ name: string; onHand: number; delta: number }>; alerts: StockAlert[] };
+/** An order of Reorder Cat that this entry received (ADR-0016, point 12). */
+export type StockReception = { number: number; kind: "purchase" | "production"; supplier: string | null; complete: boolean; missing: Array<{ item: string; quantity: number }> };
+export type StockMoved = { moved: Array<{ name: string; onHand: number; delta: number }>; alerts: StockAlert[]; received?: StockReception[] };
 export type StockAnswer =
   | { items: StockItem[]; days?: number }
   | { valueCents: number; withoutCost: number; withStock: number }
@@ -25,7 +27,7 @@ export type StockAnswer =
 export interface StockClient {
   companies(): Promise<StockResult<StockCompany[]>>;
   items(companyId: string): Promise<StockResult<{ items: StockItem[]; owner: boolean; settings: { allowNegative: boolean } }>>;
-  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null): Promise<StockResult<StockMoved>>;
+  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier?: { name: string; ruc: string | null } | null): Promise<StockResult<StockMoved>>;
   setMin(companyId: string, name: string, minQty: number | null): Promise<StockResult<{ item: { name: string; onHand: number; minQty: number | null }; alerts: StockAlert[] }>>;
   settings(companyId: string, allowNegative: boolean): Promise<StockResult<{ settings: { allowNegative: boolean } }>>;
   query(companyId: string, type: QueryType, options: { name?: string; period?: MovePeriod }): Promise<StockResult<StockAnswer>>;
@@ -74,8 +76,11 @@ export class VpsStockClient implements StockClient {
     return this.call<{ items: StockItem[]; owner: boolean; settings: { allowNegative: boolean } }>("items", companyId, {});
   }
 
-  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null) {
-    return this.call<StockMoved>("move", companyId, { kind, lines, note });
+  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier: { name: string; ruc: string | null } | null = null) {
+    return this.call<StockMoved>("move", companyId, {
+      kind, lines, note,
+      ...(supplier && kind === "in" ? { supplier: supplier.ruc ? supplier : { name: supplier.name } } : {}),
+    });
   }
 
   setMin(companyId: string, name: string, minQty: number | null) {

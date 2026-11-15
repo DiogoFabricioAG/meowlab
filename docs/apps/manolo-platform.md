@@ -155,6 +155,30 @@ se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`
     (`src/node/collections/`). En el portal: `/agentes/cobranza` y una línea en Inicio.
   - Se activa por empresa: `INSERT INTO receivables.settings (tenant_id) VALUES ('<id>')`.
   - Pruebas: `test/collections-role.test.ts` y `tools/collections-pg-check.ts`.
+- **Reorder Cat (ADR-0016, fase 1):** `/reorder` (también `/reposicion` y `/pedidos`) en el mismo
+  chat (`src/roles/reorder-role.ts`, extracción `src/reorder/extractor.ts` con `SALES_AI_MODEL`).
+  - Cuando un producto de Stock Cat baja de su mínimo, propone el pedido hasta el máximo que puso
+    la titular: uno por proveedor, o una orden de producción si el producto es propio. El aviso
+    de Stock Cat trae el botón «Pedir reposición» (`reorder:open:<empresa>`).
+  - Solo aprueba la titular; si el pedido pasa el presupuesto mensual, pregunta antes.
+  - Al aprobar envía la plantilla `pedido_reposicion_proveedor` (es_PE) desde el número de
+    MeowLab al WhatsApp del proveedor y deja el PDF de la orden de compra en el chat
+    (`POST /api/internal/purchase-orders/pdf` de FacturaYa).
+  - Un contacto sin rol propio que escribe al número es buscado entre los proveedores con pedido
+    abierto (`supplier_match`); si lo es, su mensaje se lee (acepta, rechaza, fecha, precios), se
+    registra, se le agradece, recibe el PDF y la titular recibe el aviso
+    (`src/reorder/supplier.ts`).
+  - El cron de 15 minutos (`withReorderFollowups` en `src/index.ts`) insiste una vez a las 24
+    horas y escala a la titular a las 48, solo de 8:00 a 20:00 de Lima. Los avisos a la titular
+    fuera de su ventana de 24 horas quedan en `purchasing.notices` y aparecen al abrir `/reorder`
+    y en el portal.
+  - La recepción entra por Stock Cat: cada entrada cierra lo pedido (parcial o completo) en la
+    misma transacción, y una factura de compra con foto anota a su proveedor.
+  - Datos en el esquema `purchasing` (migración `020-reorder-cat.sql`). Ruta firmada
+    `/v1/reorder/execute`; las operaciones del proveedor y del cron van sin contacto
+    (`SYSTEM_OPERATIONS`). En el portal: `/agentes/reposicion` y una línea en Inicio.
+  - Se activa por empresa: `INSERT INTO purchasing.settings (tenant_id) VALUES ('<id>')`.
+  - Pruebas: `test/reorder-role.test.ts` y `tools/reorder-pg-check.ts`.
 - **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
   misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
   varios productos o sin el documento del cliente, deriva a Invoice Cat.

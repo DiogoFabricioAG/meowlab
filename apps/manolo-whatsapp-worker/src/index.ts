@@ -49,6 +49,9 @@ import { STOCK_ROLE_KEY, StockRoleHandler, isStockCommand, parseStockState, stoc
 import { VpsStockClient } from "./stock/client";
 import { COLLECTIONS_ROLE_KEY, CollectionsRoleHandler, isCollectionsCommand, parseCollectionsState } from "./roles/collections-role";
 import { VpsCollectionsClient } from "./collections/client";
+import { REORDER_ROLE_KEY, ReorderRoleHandler, isReorderCommand, offerReorder, parseReorderState } from "./roles/reorder-role";
+import { VpsReorderClient } from "./reorder/client";
+import { handleSupplierMessage, runReorderFollowups } from "./reorder/supplier";
 import {
   PRINT_ADVISOR_PROVIDER,
   PRINT_ADVISOR_ROLE_KEY,
@@ -759,13 +762,18 @@ export async function processConversationTurn(
       const stockSignal = isStockCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("stock:"));
       // Collections Cat (ADR-0015) too, with `/collections`; an explicit signal wins, then the open conversation.
       const collectionsSignal = isCollectionsCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("collections:"));
-      const collectionsOpen = persisted.contactId !== null && !salesSignal && !stockSignal
+      // Reorder Cat (ADR-0016) with `/reorder`; its button also comes from Stock Cat's alert.
+      const reorderSignal = isReorderCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("reorder:"));
+      const reorderOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal
+        && parseReorderState(await roleState.get(tenant.tenantId, persisted.contactId, REORDER_ROLE_KEY).catch(() => null)) !== null;
+      const reorderTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal && (reorderSignal || reorderOpen);
+      const collectionsOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn
         && parseCollectionsState(await roleState.get(tenant.tenantId, persisted.contactId, COLLECTIONS_ROLE_KEY).catch(() => null)) !== null;
-      const collectionsTurn = persisted.contactId !== null && !salesSignal && !stockSignal && (collectionsSignal || collectionsOpen);
-      const stockOpen = persisted.contactId !== null && !salesSignal && !collectionsTurn
+      const collectionsTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn && (collectionsSignal || collectionsOpen);
+      const stockOpen = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn
         && parseStockState(await roleState.get(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => null)) !== null;
-      const stockTurn = persisted.contactId !== null && !salesSignal && !collectionsTurn && (stockSignal || stockOpen);
-      const salesTurn = persisted.contactId !== null && !stockTurn && !collectionsTurn && (
+      const stockTurn = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn && (stockSignal || stockOpen);
+      const salesTurn = persisted.contactId !== null && !stockTurn && !collectionsTurn && !reorderTurn && (
         salesSignal
         || parseSalesState(await roleState.get(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => null)) !== null
       );
@@ -774,22 +782,39 @@ export async function processConversationTurn(
         : isStockCommand(activeMessage.text) ? STOCK_ROLE_KEY
         : isSalesCommand(activeMessage.text) ? SALES_ROLE_KEY
         : isCollectionsCommand(activeMessage.text) ? COLLECTIONS_ROLE_KEY
+        : isReorderCommand(activeMessage.text) || activeMessage.interactionId?.startsWith("reorder:open:") ? REORDER_ROLE_KEY
         : null;
       if (opened && persisted.contactId !== null) {
-        for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
+        for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY, REORDER_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
           await roleState.clear(tenant.tenantId, persisted.contactId, key).catch(() => false);
         }
       }
       const salesRole = new SalesRoleHandler((context) => bridgeClient
         ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
+      const reorderClientFor = (contactId: number | null, seed: string) => bridgeClient
+        ? new VpsReorderClient(bridgeClient, tenant.tenantId, contactId, seed, logSafeEvent)
+        : null;
       const stockRole = new StockRoleHandler((context) => bridgeClient
         ? new VpsStockClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
-        : null);
+        : null,
+      (context, companyId) => offerReorder(context, reorderClientFor(context.persisted.contactId, `${bridgeRequestId}:offer`), companyId));
+      const reorderRole = new ReorderRoleHandler(
+        (context) => reorderClientFor(context.persisted.contactId, bridgeRequestId),
+        (context) => whatsappClient.sendTemplate ? {
+          phoneNumberId: context.tenant.phoneNumberId,
+          sendTemplate: (to, template, language, parameters) => whatsappClient.sendTemplate!(to, template, language, parameters, context.tenant.phoneNumberId),
+        } : null,
+        (context) => bridgeClient
+          ? new VpsStockClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, `${bridgeRequestId}:produced`, logSafeEvent)
+          : null,
+      );
       const collectionsRole = new CollectionsRoleHandler((context) => bridgeClient
         ? new VpsCollectionsClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
-      const configuredTenant = collectionsTurn
+      const configuredTenant = reorderTurn
+        ? reorderRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
+        : collectionsTurn
         ? collectionsRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
         : stockTurn
         ? stockRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
@@ -804,7 +829,7 @@ export async function processConversationTurn(
         systemPrompt: withMultimodalContext(configuredTenant.systemPrompt),
         aiProvider:
           configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
-          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY
+          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY || configuredTenant.roleKey === REORDER_ROLE_KEY
             ? "groq"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_PROVIDER?.trim() || "openai"
@@ -813,7 +838,7 @@ export async function processConversationTurn(
             : configuredTenant.aiProvider,
         aiModel:
           configuredTenant.roleKey === SALES_ROLE_KEY || configuredTenant.roleKey === STOCK_ROLE_KEY
-          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY
+          || configuredTenant.roleKey === COLLECTIONS_ROLE_KEY || configuredTenant.roleKey === REORDER_ROLE_KEY
             ? env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b"
             : configuredTenant.roleKey === ENTERPRISE_ADVISOR_ROLE_KEY
             ? env.ENTERPRISE_AI_MODEL?.trim() || configuredTenant.aiModel
@@ -954,7 +979,30 @@ export async function processConversationTurn(
       );
       const documentStore = new R2DocumentStore(env.ENTERPRISE_DOCUMENTS);
 
-      const roleHandler = collectionsTurn ? collectionsRole : stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
+      // A supplier answering a Reorder Cat order (ADR-0016, point 9): only contacts without a role
+      // of their own and outside any cat; anyone else goes on as usual.
+      if (bridgeClient && persisted.contactId !== null && roleResolution.source === "tenant" && !activeMessage.interactionId
+        && !salesTurn && !stockTurn && !collectionsTurn && !reorderTurn && !activeMessage.text.trim().startsWith("/")) {
+        const system = reorderClientFor(null, `${bridgeRequestId}:supplier`)!;
+        const matches = await system.supplierMatch(activeMessage.to);
+        if (matches.ok && matches.data.length) {
+          await handleSupplierMessage({
+            matches: matches.data,
+            text: activeMessage.text,
+            supplierPhone: activeMessage.to,
+            phoneNumberId: tenant.phoneNumberId,
+            client: system,
+            whatsapp: whatsappClient,
+            replyToSupplier: replyWithText,
+            ai: createAiProvider("groq", { groqApiKey: env.GROQ_API_KEY }),
+            tenant: { ...effectiveTenant, aiProvider: "groq", aiModel: env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b", temperature: 0 },
+            log: logSafeEvent,
+          });
+          return;
+        }
+      }
+
+      const roleHandler = reorderTurn ? reorderRole : collectionsTurn ? collectionsRole : stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
       if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
         || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
         || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {
@@ -1301,7 +1349,22 @@ async function storePaymentNotificationResponse(
   return jsonResponse({ received: true, notified: true });
 }
 
-export default withRadarPresence(withRadarWindowReminders({
+/** Reorder Cat's follow-ups ride on the existing 15-minute cron (ADR-0016, point 10). */
+export function withReorderFollowups<H extends ExportedHandler<Env>>(handler: H): H {
+  return { ...handler,
+    async scheduled(controller, env, ctx) {
+      if (handler.scheduled) await handler.scheduled(controller, env, ctx);
+      if (env.VPS_BRIDGE_ENABLED !== "true" && env.VPS_PLATFORM_SHADOW_ENABLED !== "true") return;
+      const bridge = new SignedVpsBridgeClient(env.VPS_BRIDGE_API_URL, env.VPS_BRIDGE_HMAC_SECRET, logSafeEvent);
+      // Each order remembers the number it left from; the cron writes again from that one.
+      const client = new VpsReorderClient(bridge, "cron", null, `cron:${controller.scheduledTime}`, logSafeEvent);
+      const whatsapp = createWhatsAppClient(env.META_ACCESS_TOKEN, env.META_GRAPH_API_VERSION, logSafeEvent, kapsoConfig(env));
+      ctx.waitUntil(runReorderFollowups(client, whatsapp, null, logSafeEvent).catch(() => logSafeEvent("reorder_followups_failed")));
+    },
+  } satisfies ExportedHandler<Env> as H;
+}
+
+export default withReorderFollowups(withRadarPresence(withRadarWindowReminders({
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
 
@@ -1366,4 +1429,4 @@ export default withRadarPresence(withRadarWindowReminders({
 
     return new Response(null, { status: 404 });
   },
-} satisfies ExportedHandler<Env>));
+} satisfies ExportedHandler<Env>)));

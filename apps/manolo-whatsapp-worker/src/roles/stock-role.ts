@@ -1,13 +1,13 @@
 import type { RoleHandler, RoleHandlerContext, TenantContext } from "./contracts";
 import type { MoveKind, MovePeriod, StockAlert, StockItem, StockLineInput } from "../stock/bridge-contracts";
-import type { StockAnswer, StockClient } from "../stock/client";
+import type { StockAnswer, StockClient, StockReception } from "../stock/client";
 import { extractStock, type StockExtraction } from "../stock/extractor";
 
 export const STOCK_ROLE_KEY = "stock";
 /** While a Stock Cat conversation is open, the next messages stay with it. */
 export const STOCK_SESSION_MS = 30 * 60_000;
 
-type Pending = { kind: MoveKind; lines: StockLineInput[] };
+type Pending = { kind: MoveKind; lines: StockLineInput[]; supplier?: { name: string; ruc: string | null } | null };
 export type StockState = {
   v: 1;
   expiresAt: number;
@@ -48,6 +48,18 @@ export function formatAlerts(alerts: StockAlert[], companyName?: string | null):
   return `⚠️ *Se está acabando${companyName ? ` en ${companyName}` : ""}:*\n${lines.join("\n")}`;
 }
 
+/** «Con esto llegó completo el pedido OC-000003 de Textiles Lima.» (ADR-0016, point 12) */
+export function formatReceptions(receptions: StockReception[] | undefined): string {
+  if (!receptions?.length) return "";
+  return receptions.map((reception) => {
+    const code = `OC-${String(reception.number).padStart(6, "0")}`;
+    const what = reception.kind === "production" ? `la orden de producción ${code}` : `el pedido ${code}${reception.supplier ? ` de ${reception.supplier}` : ""}`;
+    return reception.complete
+      ? `📦 Con esto ${reception.kind === "production" ? "quedó terminada" : "llegó completo"} ${what}.`
+      : `📦 Llegó parte de ${what}. Falta: ${reception.missing.map((line) => `${quantityText(line.quantity)} ${line.item}`).join(", ")}.`;
+  }).join("\n");
+}
+
 export function formatPending(pending: Pending): string {
   const lines = pending.lines.map((line) => {
     const cost = line.unitCostCents !== null && line.unitCostCents !== undefined ? ` a ${soles(line.unitCostCents)} c/u` : "";
@@ -55,7 +67,7 @@ export function formatPending(pending: Pending): string {
       ? `• ${line.name}: hay ${quantityText(line.quantity)}`
       : `• ${quantityText(line.quantity)} × ${line.name}${cost}`;
   });
-  return [`*${KIND_LABEL[pending.kind]}*`, ...lines].join("\n");
+  return [`*${KIND_LABEL[pending.kind]}*${pending.supplier ? ` de ${pending.supplier.name}` : ""}`, ...lines].join("\n");
 }
 
 function itemLine(item: StockItem): string {
@@ -114,7 +126,16 @@ const ERROR_TEXT: Record<string, string> = {
 export class StockRoleHandler implements RoleHandler {
   readonly key = STOCK_ROLE_KEY;
 
-  constructor(private readonly clientFor: (context: RoleHandlerContext) => StockClient | null) {}
+  constructor(
+    private readonly clientFor: (context: RoleHandlerContext) => StockClient | null,
+    /** Reorder Cat (ADR-0016, point 17): offers to order what just ran low, when it is on. */
+    private readonly afterAlerts: ((context: RoleHandlerContext, companyId: string) => Promise<void>) | null = null,
+  ) {}
+
+  private async offerReorder(context: RoleHandlerContext, companyId: string, alerted: boolean) {
+    if (!alerted || !this.afterAlerts) return;
+    await this.afterAlerts(context, companyId).catch(() => undefined);
+  }
 
   configure(tenant: TenantContext): TenantContext {
     return { ...tenant, roleKey: STOCK_ROLE_KEY, temperature: 0 };
@@ -209,7 +230,10 @@ export class StockRoleHandler implements RoleHandler {
       items: items.ok ? items.data.items.map((item) => item.name) : [],
       unmatched: sync.ok ? sync.data.unmatched : [],
     }, context.log);
-    if (sync.ok && sync.data.alerts.length) await context.reply(formatAlerts(sync.data.alerts));
+    if (sync.ok && sync.data.alerts.length) {
+      await context.reply(formatAlerts(sync.data.alerts));
+      await this.offerReorder(context, companyId, true);
+    }
     if (!extraction) {
       await save();
       await context.reply("No te entendí bien. ¿Me lo dices de otra forma? Por ejemplo: «me llegaron 20 polos».");
@@ -232,6 +256,7 @@ export class StockRoleHandler implements RoleHandler {
         + "Dime a cuál de tu inventario corresponden, por ejemplo: «POLO BL M es el polo blanco M».");
     }
     if (notes.length) await context.reply(notes.join("\n\n"));
+    await this.offerReorder(context, companyId, sync.ok && sync.data.alerts.length > 0);
     const sent = await context.sendButtons?.(`${greeting} ¿Qué hacemos?`, [
       { id: "stock:query:low", title: "¿Qué se acaba?" },
       { id: "stock:query:moves", title: "Movimientos" },
@@ -293,6 +318,7 @@ export class StockRoleHandler implements RoleHandler {
             ...(extraction.intent === "in" && item.unitCost !== null ? { unitCostCents: Math.round(item.unitCost * 100) } : {}),
             ...(item.kind ? { kind: item.kind } : {}),
           })),
+          ...(extraction.intent === "in" && extraction.supplier ? { supplier: extraction.supplier } : {}),
         };
         await save();
         const summary = formatPending(state.pending);
@@ -322,6 +348,7 @@ export class StockRoleHandler implements RoleHandler {
           item.minQty === null ? `Quité el mínimo de ${item.name}.` : `Listo: te aviso cuando ${item.name} llegue a ${quantityText(item.minQty)} (hay ${quantityText(item.onHand)}).`,
           formatAlerts(result.data.alerts),
         ].filter(Boolean).join("\n\n"));
+        await this.offerReorder(context, companyId, result.data.alerts.length > 0);
         return;
       }
       case "query": {
@@ -379,7 +406,7 @@ export class StockRoleHandler implements RoleHandler {
       await context.reply("No hay nada pendiente de guardar. Cuéntame qué entró, salió o contaste.");
       return;
     }
-    const result = await client.move(companyId, pending.kind, pending.lines, null);
+    const result = await client.move(companyId, pending.kind, pending.lines, null, pending.supplier ?? null);
     if (!result.ok) {
       const details = result.details as { name?: string; onHand?: number } | undefined;
       await context.reply(result.code === "insufficient" && details?.name
@@ -392,7 +419,8 @@ export class StockRoleHandler implements RoleHandler {
     state.pending = null;
     await save();
     const lines = result.data.moved.map((move) => `• ${move.name}: quedan ${quantityText(move.onHand)}`);
-    await context.reply([`Guardado.\n${lines.join("\n")}`, formatAlerts(result.data.alerts)].filter(Boolean).join("\n\n"));
+    await context.reply([`Guardado.\n${lines.join("\n")}`, formatReceptions(result.data.received), formatAlerts(result.data.alerts)].filter(Boolean).join("\n\n"));
+    await this.offerReorder(context, companyId, result.data.alerts.length > 0);
   }
 }
 
