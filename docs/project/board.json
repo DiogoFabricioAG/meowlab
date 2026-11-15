@@ -1921,7 +1921,7 @@
       "status": "done",
       "updated": "2026-11-15",
       "notes": "ADR-0016. Desplegado el 15/11 desde 4892207 (meowlab) y 4377c8e (facturaya-ai); activo para CREACIONES J&D como cortesía. Acta: docs/operations/reorder-cat-2026-11-15.md. Plantilla pedido_reposicion_proveedor ajustada al texto del operador (encabezado con la empresa; cuerpo con proveedor, empresa y productos), Worker dab69833.",
-      "evidence": "2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa). Despliegue: cortes de FacturaYa y bridge verificados (reorder_view ajeno forbidden, purchase-orders/pdf sin token 401), Worker 13055d67, portal 489220796c85 con /agentes/reposicion 200, purchasing.settings de J&D creado. 15/11: ajuste de la plantilla desplegado (Worker dab69833, 696/696)."
+      "evidence": "2026-11-15: Worker 694/696 (fallan solo las 2 de RADAR que dependen de la hora) y tsc limpio; reorder-pg-check y stock-pg-check en verde; portal 48/48, typecheck y build; página revisada en local con bridge falso (escritorio y celular, guardar reglas); FacturaYa 195/196 en contenedor sin red (falla solo FiscalSetupProbe, previa). Despliegue: cortes de FacturaYa y bridge verificados (reorder_view ajeno forbidden, purchase-orders/pdf sin token 401), Worker 13055d67, portal 489220796c85 con /agentes/reposicion 200, purchasing.settings de J&D creado. 15/11: ajuste de la plantilla desplegado (Worker dab69833, 696/696). 15/11 13:30: envío real de la plantilla desde el Worker de producción aceptado por Meta (200), con un pedido de prueba en J&D que luego se borró."
     },
     {
       "id": "reorder-cat-2-20261115",
@@ -1965,6 +1965,17 @@
       "status": "todo",
       "updated": "2026-11-15",
       "notes": "El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.",
+      "evidence": ""
+    },
+    {
+      "id": "meowlab-mensajes-terceros-20261115",
+      "title": "MeowLab conversa con los negocios registrados y escribe a terceros (clientes, proveedores) a su nombre",
+      "area": "Plataforma",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-15",
+      "notes": "Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.",
       "evidence": ""
     }
   ]
