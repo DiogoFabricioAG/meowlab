@@ -43,7 +43,14 @@ export type PortalCompanyAction =
   | { action: "collections_view"; tenantId: string }
   | { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> }
   | { action: "reorder_view"; tenantId: string }
-  | { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> };
+  | { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> }
+  | { action: "support_view"; tenantId: string }
+  | { action: "support_faq"; tenantId: string; faq: SupportFaqChange };
+
+/** Support Cat (ADR-0017): add, edit or remove one frequent question. */
+export type SupportFaqChange = { id?: string; question?: string; answer?: string; remove?: boolean };
+/** Support Cat in the portal. Passed through as the bridge sends it. */
+export type SupportView = { enabled: false } | ({ enabled: true; owner: boolean } & Record<string, unknown>);
 
 /** What the company's agents did this week (Lima, Monday to Sunday). Real data only. */
 export type WeeklySummary = {
@@ -76,6 +83,7 @@ export type PortalCompanyResponse =
   | { status: "ok"; stock: StockView }
   | { status: "ok"; collections: CollectionsView }
   | { status: "ok"; reorder: ReorderView }
+  | { status: "ok"; support: SupportView }
   | { status: "invalid_settings" | "owner_only" };
 
 /** Reorder Cat's rules (ADR-0016): monthly budget and how long to wait for a supplier. */

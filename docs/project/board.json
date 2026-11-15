@@ -1977,6 +1977,28 @@
       "updated": "2026-11-15",
       "notes": "Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.",
       "evidence": ""
+    },
+    {
+      "id": "support-cat-1-nucleo-20261115",
+      "title": "Support Cat fase 1: postventa 24/7 en el número de la empresa, tickets a la titular, resumen diario y página en el portal",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-15",
+      "notes": "ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&D y la prueba real con un número que no sea del equipo.",
+      "evidence": "2026-11-15: Worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta). Despliegue: corte del bridge verificado (support_view ajeno forbidden), Worker 432dddd4, portal d932a980e1dc con /agentes/soporte 200, support.settings de J&D creado."
+    },
+    {
+      "id": "support-cat-2-20261115",
+      "title": "Support Cat fase 2: mensajes iniciados con plantillas, responder desde el portal, asignar casos y libro de reclamaciones",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-15",
+      "notes": "ADR-0017, Fases.",
+      "evidence": ""
     }
   ]
 }

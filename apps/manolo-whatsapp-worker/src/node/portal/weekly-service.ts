@@ -64,7 +64,7 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing, sales, stock, collections, reorder] = await Promise.all([
+    const [team, tender, invoicing, sales, stock, collections, reorder, support] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
@@ -72,6 +72,7 @@ export class PortalWeeklyService {
       this.stock(tenantId, day),
       this.collections(tenantId, limaDate(start), limaDate(day)),
       this.reorder(tenantId, now),
+      this.support(tenantId, start),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -83,6 +84,7 @@ export class PortalWeeklyService {
       stock,
       collections,
       reorder,
+      support,
     };
     return { status: "ok", weekly: summary };
   }
@@ -168,6 +170,27 @@ export class PortalWeeklyService {
       return { enabled: true, lowCount: Number(rows[0].low ?? 0), movesToday: Number(rows[0].moves ?? 0) };
     } catch {
       // Before migration 018 the schema does not exist: Stock Cat is simply off.
+      return off;
+    }
+  }
+
+  private async support(tenantId: string, weekStart: Date): Promise<WeeklySummary["support"]> {
+    const off = { enabled: false, customers: 0, answered: 0, escalated: 0, open: 0 };
+    try {
+      const { rows } = await this.query(
+        `SELECT (SELECT count(DISTINCT customer_phone) FROM support.events WHERE tenant_id = $1 AND created_at >= $2)::int AS customers,
+                (SELECT count(*) FROM support.events WHERE tenant_id = $1 AND created_at >= $2 AND kind IN ('answered', 'quoted'))::int AS answered,
+                (SELECT count(*) FROM support.tickets WHERE tenant_id = $1 AND created_at >= $2)::int AS escalated,
+                (SELECT count(*) FROM support.tickets WHERE tenant_id = $1 AND status = 'open')::int AS open
+           FROM support.settings
+          WHERE tenant_id = $1 AND enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP)`,
+        [tenantId, weekStart],
+      );
+      if (!rows.length) return off;
+      return { enabled: true, customers: Number(rows[0].customers ?? 0), answered: Number(rows[0].answered ?? 0),
+        escalated: Number(rows[0].escalated ?? 0), open: Number(rows[0].open ?? 0) };
+    } catch {
+      // Before migration 021 the schema does not exist: Support Cat is simply off.
       return off;
     }
   }

@@ -13,6 +13,7 @@ import type { PortalWeeklyService } from "./weekly-service";
 import type { PortalStockService } from "../stock/portal-stock-service";
 import type { PortalCollectionsService } from "../collections/portal-collections-service";
 import type { PortalReorderService } from "../reorder/portal-reorder-service";
+import type { PortalSupportService } from "../support/portal-support-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -88,6 +89,7 @@ export class PortalCompanyService {
     private readonly stock: Pick<PortalStockService, "handle"> | null = null,
     private readonly collections: Pick<PortalCollectionsService, "view" | "settings"> | null = null,
     private readonly reorder: Pick<PortalReorderService, "view" | "settings"> | null = null,
+    private readonly support: Pick<PortalSupportService, "view" | "faq"> | null = null,
   ) {}
 
   async handle(request: PortalCompanyRequest): Promise<PortalCompanyResponse> {
@@ -102,6 +104,12 @@ export class PortalCompanyService {
     }
     if (request.action === "collections_settings") {
       return this.collections ? this.collections.settings(request.portalUserId, request.tenantId, request.change) : { status: "unavailable" };
+    }
+    if (request.action === "support_view") {
+      return this.support ? this.support.view(request.portalUserId, request.tenantId) : { status: "unavailable" };
+    }
+    if (request.action === "support_faq") {
+      return this.support ? this.support.faq(request.portalUserId, request.tenantId, request.faq) : { status: "unavailable" };
     }
     if (request.action === "reorder_view") {
       return this.reorder ? this.reorder.view(request.portalUserId, request.tenantId) : { status: "unavailable" };

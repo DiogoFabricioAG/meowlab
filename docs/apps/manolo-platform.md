@@ -179,6 +179,23 @@ se quedan con él; `/salir` lo cierra (`src/index.ts`, `src/roles/sales-role.ts`
     (`SYSTEM_OPERATIONS`). En el portal: `/agentes/reposicion` y una línea en Inicio.
   - Se activa por empresa: `INSERT INTO purchasing.settings (tenant_id) VALUES ('<id>')`.
   - Pruebas: `test/reorder-role.test.ts` y `tools/reorder-pg-check.ts`.
+- **Support Cat (ADR-0017, fase 1):** postventa 24/7 en el número de WhatsApp de la empresa
+  (`support.settings.phone_number_id`; para CREACIONES J&D es el número de Manolo).
+  - Es cliente quien escribe a ese número sin rol propio, fuera de los gatos, sin ser del equipo de
+    ninguna empresa (ni enlazado al portal) y sin ser proveedor con pedido abierto
+    (`customer_context`). Responde con las preguntas frecuentes y el estado de sus cotizaciones y
+    ventas, y cotiza con el catálogo de Sales Cat (`SalesService.quoteForCustomer`, envía el PDF)
+    (`src/support/customer.ts`, `SALES_AI_MODEL`).
+  - Lo que no sabe, los reclamos (prioridad alta), los pedidos fuera del catálogo, «quiero una
+    persona» y un «no» a «¿te ayudé?» son tickets: la titular recibe el aviso con «Responder» y lo
+    que escribe va al cliente tal cual (`src/roles/support-role.ts`, `/support` o `/soporte`).
+  - Resumen diario a la titular a las 20:00 de Lima con el cron (`withSupportSummaries`).
+  - Datos en el esquema `support` (migración `021-support-cat.sql`). Ruta firmada
+    `/v1/support/execute`. En el portal: `/agentes/soporte` (preguntas frecuentes editables por la
+    titular, casos y números del día) y una línea en Inicio.
+  - Se activa por empresa con su número:
+    `INSERT INTO support.settings (tenant_id, phone_number_id) VALUES ('<id>', '<phone_number_id>')`.
+  - Pruebas: `test/support-role.test.ts` y `tools/support-pg-check.ts`.
 - **Comprobante:** tras guardar una venta ofrece factura o boleta con Invoice Cat de la
   misma empresa (FacturaYa) y enlaza el número a la venta. Al crédito, con descuento en
   varios productos o sin el documento del cliente, deriva a Invoice Cat.

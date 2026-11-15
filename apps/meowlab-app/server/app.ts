@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { Auth } from "./auth";
-import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction, ReorderSettings } from "./bridge";
+import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction, ReorderSettings, SupportFaqChange } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
 
@@ -286,6 +286,32 @@ export function createApp(deps: AppDeps) {
     return c.json(result.collections);
   });
 
+  // Support Cat (ADR-0017): cases and frequent questions; questions edited only by the owner.
+  app.get("/api/companies/:tenantId/support", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "support_view", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("support" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.support);
+  });
+
+  app.post("/api/companies/:tenantId/support/faq", async (c) => {
+    const tenantId = tenantParam(c);
+    const body = await c.req.json().catch(() => null) as { faq?: unknown } | null;
+    const faq = supportFaq(body?.faq);
+    if (!tenantId || !faq) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "support_faq", tenantId, faq });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden" || result.status === "owner_only") return c.json({ error: result.status }, 403);
+    if (result.status === "invalid_settings") return c.json({ error: "invalid_request" }, 400);
+    if (result.status !== "ok" || !("support" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.support);
+  });
+
   // Reorder Cat (ADR-0016): orders, suppliers and purchases; budget and waiting times only by the owner.
   app.get("/api/companies/:tenantId/reorder", async (c) => {
     const tenantId = tenantParam(c);
@@ -543,6 +569,20 @@ export function createApp(deps: AppDeps) {
 const COLLECTIONS_INTS: Record<string, [number, number]> = {
   defaultDueDays: [0, 365], remindBeforeDays: [0, 30], remindEveryDays: [1, 60], maxReminders: [1, 20], windowStartHour: [0, 23], windowEndHour: [1, 24],
 };
+
+/** A Support Cat frequent question to add, edit or remove; the bridge validates it again. */
+export function supportFaq(value: unknown): SupportFaqChange | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const faq = value as Record<string, unknown>;
+  if (Object.keys(faq).some((key) => !["id", "question", "answer", "remove"].includes(key))) return null;
+  const id = faq.id === undefined ? undefined : typeof faq.id === "string" && /^[0-9a-f-]{36}$/i.test(faq.id) ? faq.id : null;
+  if (id === null) return null;
+  if (faq.remove !== undefined) return faq.remove === true && id && faq.question === undefined && faq.answer === undefined ? { id, remove: true } : null;
+  const text = (input: unknown, max: number) => (typeof input === "string" && input.trim() && input.length <= max ? input.trim() : null);
+  const question = text(faq.question, 300);
+  const answer = text(faq.answer, 1500);
+  return question && answer ? { ...(id ? { id } : {}), question, answer } : null;
+}
 
 /** A Reorder Cat rules change; the bridge validates it again (the escalation after the follow-up). */
 export function reorderChange(value: unknown): Partial<ReorderSettings> | null {
