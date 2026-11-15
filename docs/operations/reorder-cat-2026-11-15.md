@@ -1,6 +1,6 @@
 # Despliegue de Reorder Cat fase 1
 
-Fecha: 15/11/2026, 12:04–12:20 hora de Lima (17:04–17:20 UTC). Servidor: alias SSH `meowlab`. Autorizado por el operador
+Fecha: 15/11/2026, 12:04–12:10 hora de Lima (17:04–17:10 UTC). Servidor: alias SSH `meowlab`. Autorizado por el operador
 («Sí, despliégalo»). Decisión: [ADR-0016](../decisions/0016-reorder-cat.md).
 
 ## Fuente
