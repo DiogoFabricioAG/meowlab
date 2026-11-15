@@ -1966,6 +1966,17 @@
       "updated": "2026-11-15",
       "notes": "El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.",
       "evidence": ""
+    },
+    {
+      "id": "meowlab-mensajes-terceros-20261115",
+      "title": "MeowLab conversa con los negocios registrados y escribe a terceros (clientes, proveedores) a su nombre",
+      "area": "Plataforma",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-15",
+      "notes": "Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.",
+      "evidence": ""
     }
   ]
 }
