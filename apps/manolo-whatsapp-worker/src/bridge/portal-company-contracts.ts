@@ -1,5 +1,16 @@
 import { isSettingsChange, type CollectionsSettings } from "../collections/bridge-contracts";
 import { isSettingsChange as isReorderSettingsChange, type Notice, type OrderSummary, type ReorderSettings } from "../reorder/bridge-contracts";
+import type { Ticket as SupportTicket } from "../support/bridge-contracts";
+
+export function isSupportFaqChange(value: unknown): value is SupportFaqChange {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const faq = value as Record<string, unknown>;
+  const id = faq.id === undefined || (typeof faq.id === "string" && /^[0-9a-f-]{36}$/i.test(faq.id));
+  const filled = (text: unknown, max: number) => typeof text === "string" && text.trim().length > 0 && text.length <= max;
+  if (!id || Object.keys(faq).some((key) => !["id", "question", "answer", "remove"].includes(key))) return false;
+  if (faq.remove !== undefined) return faq.remove === true && typeof faq.id === "string" && faq.question === undefined && faq.answer === undefined;
+  return filled(faq.question, 300) && filled(faq.answer, 1500);
+}
 
 /**
  * Companies created from the portal and the owner's invitations (ADR-0010, phases 1–2). Signed with the portal's own
@@ -32,7 +43,13 @@ export type PortalCompanyRequest =
   | (Base & { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> })
   // Reorder Cat (ADR-0016): orders, suppliers and purchases; budget and waiting times (owner only).
   | (Base & { action: "reorder_view"; tenantId: string })
-  | (Base & { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> });
+  | (Base & { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> })
+  // Support Cat (ADR-0017): FAQs, tickets and today's numbers; FAQs edited by the owner.
+  | (Base & { action: "support_view"; tenantId: string })
+  | (Base & { action: "support_faq"; tenantId: string; faq: SupportFaqChange });
+
+/** Add (no id), edit (id + texts) or remove (id + remove) one frequent question. */
+export type SupportFaqChange = { id?: string; question?: string; answer?: string; remove?: boolean };
 
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
@@ -53,6 +70,8 @@ export type WeeklySummary = {
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   /** Reorder Cat (ADR-0016): to approve, on their way, escalated this week, and the month's purchases. */
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
+  /** Support Cat (ADR-0017): customers this week, solved alone, passed to the owner, still open. */
+  support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
   /** Sales Cat (ADR-0011): sales registered today and this week. */
   sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
@@ -112,7 +131,20 @@ export type PortalCompanyResponse =
   | { status: "ok"; stock: PortalStockView }
   | { status: "ok"; collections: PortalCollectionsView }
   | { status: "ok"; reorder: PortalReorderView }
+  | { status: "ok"; support: PortalSupportView }
   | { status: "invalid_settings" | "owner_only" };
+
+export type PortalSupportView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    phoneNumberId: string | null;
+    faqs: Array<{ id: string; question: string; answer: string }>;
+    open: SupportTicket[];
+    recent: SupportTicket[];
+    today: { customers: number; answered: number; quoted: number; escalated: number; ratedYes: number; ratedNo: number; open: number };
+  };
 
 export type PortalReorderView =
   | { enabled: false }
@@ -209,6 +241,10 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
       return tenant(value.tenantId) && isSettingsChange(value.change);
     case "reorder_settings":
       return tenant(value.tenantId) && isReorderSettingsChange(value.change);
+    case "support_view":
+      return tenant(value.tenantId);
+    case "support_faq":
+      return tenant(value.tenantId) && isSupportFaqChange(value.faq);
     case "invite":
       return tenant(value.tenantId) && (value.access === "view" || value.access === "full")
         && (value.phone === undefined || (typeof value.phone === "string" && value.phone.length <= 32));

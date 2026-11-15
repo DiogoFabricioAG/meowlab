@@ -52,6 +52,9 @@ import { VpsCollectionsClient } from "./collections/client";
 import { REORDER_ROLE_KEY, ReorderRoleHandler, isReorderCommand, offerReorder, parseReorderState } from "./roles/reorder-role";
 import { VpsReorderClient } from "./reorder/client";
 import { handleSupplierMessage, runReorderFollowups } from "./reorder/supplier";
+import { SUPPORT_ROLE_KEY, SupportRoleHandler, isSupportCommand, isSupportOwnerInteraction, parseSupportState } from "./roles/support-role";
+import { VpsSupportClient } from "./support/client";
+import { handleCustomerMessage } from "./support/customer";
 import {
   PRINT_ADVISOR_PROVIDER,
   PRINT_ADVISOR_ROLE_KEY,
@@ -764,16 +767,22 @@ export async function processConversationTurn(
       const collectionsSignal = isCollectionsCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("collections:"));
       // Reorder Cat (ADR-0016) with `/reorder`; its button also comes from Stock Cat's alert.
       const reorderSignal = isReorderCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("reorder:"));
-      const reorderOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal
+      // Support Cat (ADR-0017), the owner's side: `/support` and the «Responder» buttons.
+      const supportSignal = isSupportCommand(activeMessage.text) || isSupportOwnerInteraction(activeMessage.interactionId);
+      const otherSignal = salesSignal || stockSignal || collectionsSignal || reorderSignal;
+      const supportOpen = persisted.contactId !== null && !otherSignal
+        && parseSupportState(await roleState.get(tenant.tenantId, persisted.contactId, SUPPORT_ROLE_KEY).catch(() => null)) !== null;
+      const supportTurn = persisted.contactId !== null && !otherSignal && (supportSignal || supportOpen);
+      const reorderOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal && !supportTurn
         && parseReorderState(await roleState.get(tenant.tenantId, persisted.contactId, REORDER_ROLE_KEY).catch(() => null)) !== null;
-      const reorderTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal && (reorderSignal || reorderOpen);
-      const collectionsOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn
+      const reorderTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !collectionsSignal && !supportTurn && (reorderSignal || reorderOpen);
+      const collectionsOpen = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn && !supportTurn
         && parseCollectionsState(await roleState.get(tenant.tenantId, persisted.contactId, COLLECTIONS_ROLE_KEY).catch(() => null)) !== null;
-      const collectionsTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn && (collectionsSignal || collectionsOpen);
-      const stockOpen = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn
+      const collectionsTurn = persisted.contactId !== null && !salesSignal && !stockSignal && !reorderTurn && !supportTurn && (collectionsSignal || collectionsOpen);
+      const stockOpen = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn && !supportTurn
         && parseStockState(await roleState.get(tenant.tenantId, persisted.contactId, STOCK_ROLE_KEY).catch(() => null)) !== null;
-      const stockTurn = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn && (stockSignal || stockOpen);
-      const salesTurn = persisted.contactId !== null && !stockTurn && !collectionsTurn && !reorderTurn && (
+      const stockTurn = persisted.contactId !== null && !salesSignal && !collectionsTurn && !reorderTurn && !supportTurn && (stockSignal || stockOpen);
+      const salesTurn = persisted.contactId !== null && !stockTurn && !collectionsTurn && !reorderTurn && !supportTurn && (
         salesSignal
         || parseSalesState(await roleState.get(tenant.tenantId, persisted.contactId, SALES_ROLE_KEY).catch(() => null)) !== null
       );
@@ -783,15 +792,23 @@ export async function processConversationTurn(
         : isSalesCommand(activeMessage.text) ? SALES_ROLE_KEY
         : isCollectionsCommand(activeMessage.text) ? COLLECTIONS_ROLE_KEY
         : isReorderCommand(activeMessage.text) || activeMessage.interactionId?.startsWith("reorder:open:") ? REORDER_ROLE_KEY
+        : isSupportCommand(activeMessage.text) || isSupportOwnerInteraction(activeMessage.interactionId) ? SUPPORT_ROLE_KEY
         : null;
       if (opened && persisted.contactId !== null) {
-        for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY, REORDER_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
+        for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY, REORDER_ROLE_KEY, SUPPORT_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
           await roleState.clear(tenant.tenantId, persisted.contactId, key).catch(() => false);
         }
       }
       const salesRole = new SalesRoleHandler((context) => bridgeClient
         ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
+      const supportClientFor = (contactId: number | null, seed: string) => bridgeClient
+        ? new VpsSupportClient(bridgeClient, tenant.tenantId, contactId, seed, logSafeEvent)
+        : null;
+      const supportRole = new SupportRoleHandler(
+        (context) => supportClientFor(context.persisted.contactId, bridgeRequestId),
+        (context) => ({ sendText: (to, body) => whatsappClient.sendText(to, body, context.tenant.phoneNumberId) }),
+      );
       const reorderClientFor = (contactId: number | null, seed: string) => bridgeClient
         ? new VpsReorderClient(bridgeClient, tenant.tenantId, contactId, seed, logSafeEvent)
         : null;
@@ -813,7 +830,9 @@ export async function processConversationTurn(
       const collectionsRole = new CollectionsRoleHandler((context) => bridgeClient
         ? new VpsCollectionsClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)
         : null);
-      const configuredTenant = reorderTurn
+      const configuredTenant = supportTurn
+        ? supportRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
+        : reorderTurn
         ? reorderRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
         : collectionsTurn
         ? collectionsRole.configure(roleRegistry.apply(tenant, roleResolution.roleKey))
@@ -983,7 +1002,7 @@ export async function processConversationTurn(
       // A supplier answering a Reorder Cat order (ADR-0016, point 9): only contacts without a role
       // of their own and outside any cat; anyone else goes on as usual.
       if (bridgeClient && persisted.contactId !== null && roleResolution.source === "tenant" && !activeMessage.interactionId
-        && !salesTurn && !stockTurn && !collectionsTurn && !reorderTurn && !activeMessage.text.trim().startsWith("/")) {
+        && !salesTurn && !stockTurn && !collectionsTurn && !reorderTurn && !supportTurn && !activeMessage.text.trim().startsWith("/")) {
         const system = reorderClientFor(null, `${bridgeRequestId}:supplier`)!;
         const matches = await system.supplierMatch(activeMessage.to);
         if (matches.ok && matches.data.length) {
@@ -1003,7 +1022,47 @@ export async function processConversationTurn(
         }
       }
 
-      const roleHandler = reorderTurn ? reorderRole : collectionsTurn ? collectionsRole : stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
+      // A customer of the company that owns this number (ADR-0017, points 1–2): anyone without a role
+      // of their own, outside any cat and not on any company's team. Their rating buttons come back here.
+      if (bridgeClient && persisted.contactId !== null && roleResolution.source === "tenant"
+        && (!activeMessage.interactionId || activeMessage.interactionId.startsWith("support:rate:"))
+        && !salesTurn && !stockTurn && !collectionsTurn && !reorderTurn && !supportTurn && !activeMessage.text.trim().startsWith("/")) {
+        const support = supportClientFor(null, `${bridgeRequestId}:customer`)!;
+        const context = await support.customerContext(tenant.phoneNumberId, activeMessage.to);
+        if (context.ok && context.data.mode === "customer") {
+          await handleCustomerMessage({
+            context: context.data,
+            text: activeMessage.text,
+            interactionId: activeMessage.interactionId,
+            messageId: activeMessage.id,
+            phone: activeMessage.to,
+            phoneNumberId: tenant.phoneNumberId,
+            contactId: persisted.contactId,
+            tenantId: tenant.tenantId,
+            history: conversationHistory.map((entry) => `${entry.role === "user" ? "cliente" : "asistente"}: ${entry.content}`),
+            client: support,
+            whatsapp: whatsappClient,
+            roleState,
+            reply: replyWithText,
+            sendButtons: async (body, buttons) => {
+              const sent = await whatsappClient.sendButtons(activeMessage.to, body, buttons, tenant.phoneNumberId);
+              await persistOutbound(body, sent, "interactive");
+              return sent;
+            },
+            sendDocument: async (pdf, filename, caption) => {
+              const sent = await whatsappClient.sendDocument(activeMessage.to, pdf, filename, caption, tenant.phoneNumberId);
+              await persistOutbound(`${filename}: ${caption}`, sent, "document");
+              return sent;
+            },
+            ai: createAiProvider("groq", { groqApiKey: env.GROQ_API_KEY }),
+            tenant: { ...effectiveTenant, aiProvider: "groq", aiModel: env.SALES_AI_MODEL?.trim() || "openai/gpt-oss-120b", temperature: 0 },
+            log: logSafeEvent,
+          });
+          return;
+        }
+      }
+
+      const roleHandler = supportTurn ? supportRole : reorderTurn ? reorderRole : collectionsTurn ? collectionsRole : stockTurn ? stockRole : salesTurn ? salesRole : roleRegistry.resolve(effectiveTenant.roleKey);
       if (blockCreation && (activeMessage.interactionId?.startsWith("enterprise_issue_invoice")
         || activeMessage.interactionId?.startsWith("enterprise_gre_confirm:")
         || activeMessage.interactionId?.startsWith("enterprise_credit_confirm:"))) {
@@ -1365,7 +1424,31 @@ export function withReorderFollowups<H extends ExportedHandler<Env>>(handler: H)
   } satisfies ExportedHandler<Env> as H;
 }
 
-export default withReorderFollowups(withRadarPresence(withRadarWindowReminders({
+/** Support Cat's daily summary rides on the same cron (ADR-0017, point 15). */
+export function withSupportSummaries<H extends ExportedHandler<Env>>(handler: H): H {
+  return { ...handler,
+    async scheduled(controller, env, ctx) {
+      if (handler.scheduled) await handler.scheduled(controller, env, ctx);
+      if (env.VPS_BRIDGE_ENABLED !== "true" && env.VPS_PLATFORM_SHADOW_ENABLED !== "true") return;
+      const bridge = new SignedVpsBridgeClient(env.VPS_BRIDGE_API_URL, env.VPS_BRIDGE_HMAC_SECRET, logSafeEvent);
+      const client = new VpsSupportClient(bridge, "cron", null, `cron:${controller.scheduledTime}`, logSafeEvent);
+      const whatsapp = createWhatsAppClient(env.META_ACCESS_TOKEN, env.META_GRAPH_API_VERSION, logSafeEvent, kapsoConfig(env));
+      ctx.waitUntil((async () => {
+        const due = await client.summaries();
+        if (!due.ok) return logSafeEvent("support_summaries_failed", { code: due.code });
+        for (const summary of due.data) {
+          if (!summary.phoneNumberId) continue;
+          for (const phone of summary.ownerPhones) {
+            const sent = await whatsapp.sendText(phone, summary.text, summary.phoneNumberId);
+            logSafeEvent("support_summary_sent", { status: sent.status });
+          }
+        }
+      })().catch(() => logSafeEvent("support_summaries_failed")));
+    },
+  } satisfies ExportedHandler<Env> as H;
+}
+
+export default withSupportSummaries(withReorderFollowups(withRadarPresence(withRadarWindowReminders({
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
 
@@ -1430,4 +1513,4 @@ export default withReorderFollowups(withRadarPresence(withRadarWindowReminders({
 
     return new Response(null, { status: 404 });
   },
-} satisfies ExportedHandler<Env>)));
+} satisfies ExportedHandler<Env>))));

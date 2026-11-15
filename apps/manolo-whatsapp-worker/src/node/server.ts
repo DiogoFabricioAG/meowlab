@@ -12,6 +12,8 @@ import { CollectionsService, FacturayaCreditDocumentReader } from "./collections
 import { PortalCollectionsService } from "./collections/portal-collections-service";
 import { FacturayaPurchaseOrderPdfRenderer, ReorderService } from "./reorder/reorder-service";
 import { PortalReorderService } from "./reorder/portal-reorder-service";
+import { SupportService } from "./support/support-service";
+import { PortalSupportService } from "./support/portal-support-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
@@ -102,7 +104,8 @@ async function readRequestBody(
  * answers 503 and the rest of the bridge is unaffected.
  */
 function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string,
-  stock: StockService | null = null, collections: CollectionsService | null = null, reorder: ReorderService | null = null) {
+  stock: StockService | null = null, collections: CollectionsService | null = null, reorder: ReorderService | null = null,
+  support: SupportService | null = null) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
   const authCodeSecret = optionalSecret("AUTH_CODE_HMAC_SECRET", "AUTH_CODE_HMAC_SECRET_FILE");
   const workerUrl = process.env.MANOLO_WORKER_URL?.trim().replace(/\/$/, "");
@@ -133,6 +136,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       collections ? new PortalCollectionsService(pool, collections, logSafeEvent) : null,
       // ADR-0016: Reorder Cat's page in the portal.
       reorder ? new PortalReorderService(pool, reorder, logSafeEvent) : null,
+      // ADR-0017: Support Cat's page in the portal.
+      support ? new PortalSupportService(pool, support, logSafeEvent) : null,
     ),
     // Plan per company: what a company paid for, until the end of the paid period.
     portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),
@@ -224,6 +229,9 @@ async function main(): Promise<void> {
     quotePdfToken ? new FacturayaQuotePdfRenderer(facturayaBaseUrl, quotePdfToken) : null,
     logSafeEvent,
   );
+  // Sales Cat (ADR-0011): its data and the public quote page; Support Cat quotes through it (ADR-0017).
+  const salesService = new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs);
+  const supportService = new SupportService(connection.pool, requestStore, logSafeEvent, salesService, quotePdfs);
   // ADR-0016: Reorder Cat; purchase orders drawn by FacturaYa with the single layout.
   const reorderService = new ReorderService(
     connection.pool,
@@ -256,13 +264,14 @@ async function main(): Promise<void> {
     facturayaService,
     radarSelectionService: new PgRadarSelectionService(connection.pool),
     // Sales Cat (ADR-0011): its data and the public quote page.
-    salesService: new SalesService(connection.pool, requestStore, logSafeEvent, undefined, undefined, quotePdfs),
+    salesService,
     quotePdfService: quotePdfs,
     stockService,
     collectionsService,
     reorderService,
+    supportService,
     ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService, collectionsService,
-      reorderService),
+      reorderService, supportService),
     log: logSafeEvent,
     healthCheck: async () => {
       try {

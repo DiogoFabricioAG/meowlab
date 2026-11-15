@@ -39,6 +39,12 @@ import {
   type ReorderBridgeRequest,
   type ReorderBridgeResponse,
 } from "../../reorder/bridge-contracts";
+import {
+  SUPPORT_BRIDGE_PATH,
+  isSupportBridgeResponse,
+  type SupportBridgeRequest,
+  type SupportBridgeResponse,
+} from "../../support/bridge-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import {
   FACTURAYA_BRIDGE_PATH,
@@ -240,6 +246,23 @@ export class SignedVpsBridgeClient {
       request,
       isReorderBridgeResponse,
       "reorder_operation",
+      this.timeoutMs,
+      (value) => value.request_id === requestId,
+      4 * 1024 * 1024,
+    );
+  }
+
+  /** Support Cat (ADR-0017). A quote PDF may travel in base64. */
+  async requestSupportOperation(
+    requestId: string,
+    request: SupportBridgeRequest,
+  ): Promise<SupportBridgeResponse | null> {
+    return this.requestSignedJson(
+      SUPPORT_BRIDGE_PATH,
+      requestId,
+      request,
+      isSupportBridgeResponse,
+      "support_operation",
       this.timeoutMs,
       (value) => value.request_id === requestId,
       4 * 1024 * 1024,

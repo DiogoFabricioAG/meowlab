@@ -23,7 +23,7 @@ const LIMA_OFFSET_MS = 5 * 3_600_000;
 const DAY_MS = 86_400_000;
 
 class SalesError extends Error {
-  constructor(readonly code: string) {
+  constructor(readonly code: string, readonly details?: unknown) {
     super(code);
   }
 }
@@ -102,7 +102,7 @@ export class SalesService {
     try {
       return { request_id: requestId, ok: true, data: await this.execute(request) };
     } catch (error) {
-      if (error instanceof SalesError) return { request_id: requestId, ok: false, error: { code: error.code } };
+      if (error instanceof SalesError) return { request_id: requestId, ok: false, error: { code: error.code, ...(error.details ? { details: error.details } : {}) } };
       this.log("vps_sales_operation_failed", { operation: request.operation, reason: error instanceof Error ? error.name : "unknown" });
       return { request_id: requestId, ok: false, error: { code: "internal_error" } };
     }
@@ -211,7 +211,7 @@ export class SalesService {
     }
   }
 
-  private async customer(client: QueryClient, companyId: string, contactId: number, input: SalesCustomerInput) {
+  private async customer(client: QueryClient, companyId: string, contactId: number | null, input: SalesCustomerInput) {
     if (!input) return { id: null as string | null, name: "Cliente varios" };
     const name = input.name.trim().slice(0, 200);
     const sql = input.docNumber
@@ -228,7 +228,7 @@ export class SalesService {
   }
 
   /** Lines resolve to products by name; unknown products are created on the fly (ADR-0011, point 6). */
-  private async lines(client: QueryClient, companyId: string, contactId: number, lines: SalesLineInput[]) {
+  private async lines(client: QueryClient, companyId: string, contactId: number | null, lines: SalesLineInput[]) {
     const resolved = [];
     for (const line of lines) {
       const description = line.description.trim().slice(0, 300);
@@ -278,7 +278,7 @@ export class SalesService {
     }
   }
 
-  private async createQuote(client: QueryClient, companyId: string, contactId: number, payload: Record<string, unknown>) {
+  private async createQuote(client: QueryClient, companyId: string, contactId: number | null, payload: Record<string, unknown>) {
     const customer = await this.customer(client, companyId, contactId, payload.customer as SalesCustomerInput);
     const lines = await this.lines(client, companyId, contactId, payload.lines as SalesLineInput[]);
     const totals = this.totals(lines, payload.discountCents);
@@ -359,8 +359,38 @@ export class SalesService {
     };
   }
 
+  /**
+   * A quote a customer asked Support Cat for (ADR-0017, point 4): only products of the
+   * catalog, at the catalog's price; nothing new is created in it. The customer is found or
+   * created by name and keeps their WhatsApp. Errors: `not_enabled`, `unknown_products`.
+   */
+  async quoteForCustomer(companyId: string, customer: { name: string; phone: string },
+    items: Array<{ product: string; quantity: number }>): Promise<{ number: number; totalCents: number; validUntil: string; lines: Array<{ name: string; quantity: number }> }> {
+    const enabled = await this.query("SELECT 1 FROM sales.settings WHERE tenant_id = $1 AND enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP)", [companyId]);
+    if (!enabled.rows.length) throw new SalesError("not_enabled");
+    const catalog = await this.query("SELECT name, unit_price_cents FROM commerce.products WHERE tenant_id = $1 AND active", [companyId]);
+    const prices = new Map(catalog.rows.map((row) => [String(row.name).toLowerCase(), { name: String(row.name), cents: Number(row.unit_price_cents) }]));
+    const unknown = items.filter((item) => !prices.has(item.product.trim().toLowerCase())).map((item) => item.product);
+    if (unknown.length) throw new SalesError("unknown_products", { products: unknown });
+    const lines = items.map((item) => {
+      const product = prices.get(item.product.trim().toLowerCase())!;
+      return { description: product.name, quantity: item.quantity, unitPriceCents: product.cents };
+    });
+    return this.transaction(async (client) => {
+      const created = await this.createQuote(client, companyId, null, {
+        customer: { docType: "0", docNumber: null, name: customer.name }, lines, notes: "Pedida por el cliente a Support Cat",
+      });
+      await client.query(
+        `UPDATE commerce.customers SET phone = COALESCE(phone, $3), updated_at = CURRENT_TIMESTAMP
+          WHERE tenant_id = $1 AND lower(name) = lower($2) AND doc_number IS NULL`,
+        [companyId, customer.name.trim().slice(0, 200), customer.phone]);
+      const { quote } = created as { quote: { number: number; totalCents: number; validUntil: string } };
+      return { number: quote.number, totalCents: quote.totalCents, validUntil: quote.validUntil, lines: lines.map((line) => ({ name: line.description, quantity: line.quantity })) };
+    });
+  }
+
   private async audit(db: { query(sql: string, values?: readonly unknown[]): Promise<unknown> }, companyId: string, entity: string,
-    entityId: string, action: string, contactId: number, details: Record<string, unknown>) {
+    entityId: string, action: string, contactId: number | null, details: Record<string, unknown>) {
     await db.query(
       `INSERT INTO sales.audit_log (tenant_id, entity, entity_id, action, contact_id, details) VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
       [companyId, entity, entityId, action, contactId, JSON.stringify(details)],
