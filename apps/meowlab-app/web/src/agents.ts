@@ -16,6 +16,7 @@ export type Weekly = {
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
+  support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
   sales?: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
   invoicing:
     | null
@@ -40,7 +41,7 @@ export const AGENTS: Array<{ key: AgentKey; name: string; does: string; icon: Ic
   { key: "sales", name: "Sales Cat", does: "Registra tus ventas y arma cotizaciones con enlace. Escríbele /sales en el chat.", icon: "chart" },
   { key: "stock", name: "Stock Cat", does: "Te avisa antes de que algo se acabe. Escríbele /stock en el chat.", icon: "package", detail: "/agentes/stock" },
   { key: "reorder", name: "Reorder Cat", does: "Pide lo que se acaba a tu proveedor cuando tú lo apruebas. Escríbele /reorder en el chat.", icon: "refresh", detail: "/agentes/reposicion" },
-  { key: "support", name: "Support Cat", does: "Responde a tus clientes las preguntas de siempre.", icon: "message" },
+  { key: "support", name: "Support Cat", does: "Atiende a tus clientes las 24 horas en tu WhatsApp y te pasa lo que no sabe. Escríbele /support en el chat.", icon: "message", detail: "/agentes/soporte" },
   { key: "collections", name: "Collections Cat", does: "Lleva lo que te deben y cobra por ti. Escríbele /collections en el chat.", icon: "cash", detail: "/agentes/cobranza" },
 ];
 
@@ -81,6 +82,13 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
     if (!stock?.enabled) return "";
     if (stock.lowCount) return `${plural(stock.lowCount, "producto está", "productos están")} en su mínimo o por debajo.`;
     return stock.movesToday ? `Hoy registró ${plural(stock.movesToday, "movimiento", "movimientos")}; nada se está acabando.` : "Nada se está acabando.";
+  }
+  if (key === "support") {
+    const support = weekly.support;
+    if (!support?.enabled) return "";
+    if (!support.customers && !support.open) return "Esta semana ningún cliente escribió.";
+    const solved = `${plural(support.customers, "cliente escribió", "clientes escribieron")} esta semana; resolvió ${support.answered} solo`;
+    return `${solved}${support.open ? `. ${plural(support.open, "caso espera", "casos esperan")} tu respuesta` : ""}.`;
   }
   if (key === "reorder") {
     const reorder = weekly.reorder;
@@ -123,6 +131,7 @@ export function agentState(key: AgentKey, company: Membership, weekly: Weekly | 
   if (key === "stock" && weekly?.stock?.enabled) return { kind: "active", today: todayLine("stock", weekly) };
   if (key === "collections" && weekly?.collections?.enabled) return { kind: "active", today: todayLine("collections", weekly) };
   if (key === "reorder" && weekly?.reorder?.enabled) return { kind: "active", today: todayLine("reorder", weekly) };
+  if (key === "support" && weekly?.support?.enabled) return { kind: "active", today: todayLine("support", weekly) };
   if (listed?.available) return { kind: "available", priceCents: listed.priceCents };
   return { kind: "soon", priceCents: listed?.priceCents ?? null };
 }

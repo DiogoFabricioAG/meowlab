@@ -11,10 +11,11 @@ import { AgentsPage, TenderPanel } from "./AgentsPage";
 import { StockPanel } from "./StockPanel";
 import { CollectionsPanel } from "./CollectionsPanel";
 import { ReorderPanel } from "./ReorderPanel";
+import { SupportPanel } from "./SupportPanel";
 import type { CatalogAgent, Weekly } from "./agents";
 import { Icon, type IconName } from "./icons";
 
-type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "collections" | "reorder" | "plan" | "settings" | "team" | "business";
+type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "collections" | "reorder" | "support" | "plan" | "settings" | "team" | "business";
 
 /** Each section has its own address, so Back works and a link can point at it. */
 const ROUTES: Record<string, Section> = {
@@ -26,13 +27,14 @@ const ROUTES: Record<string, Section> = {
   "/agentes/stock": "stock",
   "/agentes/cobranza": "collections",
   "/agentes/reposicion": "reorder",
+  "/agentes/soporte": "support",
   "/plan": "plan",
   "/ajustes": "settings",
   "/ajustes/equipo": "team",
   "/negocio": "business",
 };
 const TITLES: Record<Section, string> = {
-  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", stock: "Stock Cat", collections: "Collections Cat", reorder: "Reorder Cat", plan: "Plan",
+  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", stock: "Stock Cat", collections: "Collections Cat", reorder: "Reorder Cat", support: "Support Cat", plan: "Plan",
   settings: "Configuración", team: "Equipo", business: "Negocio",
 };
 const sectionOf = (path: string): Section => ROUTES[path.replace(/\/+$/, "") || "/"] ?? "home";
@@ -115,7 +117,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
 
   const nav: NavItem[] = [
     { path: "/inicio", label: "Inicio", icon: "home", matches: ["home"] },
-    { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender", "stock", "collections", "reorder"] },
+    { path: "/agentes", label: "Tus agentes", icon: "grid", matches: ["agents", "invoice", "tender", "stock", "collections", "reorder", "support"] },
     { path: "/plan", label: "Plan", icon: "card", matches: ["plan"] },
     { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team"] },
   ];
@@ -208,6 +210,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "stock" && <StockPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "collections" && <CollectionsPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "reorder" && <ReorderPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
+        {company && section === "support" && <SupportPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "plan" && <PlanPanel key={company.id} email={me.user.email} company={company} />}
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
