@@ -41,3 +41,14 @@ cd /opt/meowlab-app/deploy && MEOWLAB_APP_TAG=369472f15e95 docker compose up -d
 ```
 
 Worker: `npx wrangler rollback a825cfc8 --env production`. La migración 020 puede quedarse; el código anterior no la usa.
+
+## Nota del 15/11/2026, 17:58 UTC: variables de la plantilla
+
+El operador pasó el texto de `pedido_reposicion_proveedor` (encabezado «Pedido de …», cuerpo con proveedor, empresa y productos).
+Se ajustó el envío: encabezado con la empresa y tres variables en el cuerpo (proveedor, empresa, productos), sin el código del
+pedido. Commit publicado `3b65f9ea5d06705e56fc53e5bfd2fdcadbfae481` en `origin/fix/reorder-template`; Worker versión
+`dab69833-1e4f-4f97-af34-de44abff89a4` (antes `13055d67`), `/health` 200. Worker 696/696 y tsc limpio. Sin cambios en
+bridge, portal, FacturaYa ni base de datos. Rollback: `npx wrangler rollback 13055d67 --env production`.
+
+Si el encabezado fuera texto fijo y no una variable, Meta rechaza el envío y la titular ve «No pude enviarle el pedido»; en ese
+caso se quita el parámetro del encabezado.
