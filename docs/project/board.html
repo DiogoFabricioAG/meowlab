@@ -216,7 +216,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 191</span>
+      <span class="summary">Abiertas: 82 · Total: 191</span>
     </div>
   </div>
 </header>
@@ -1080,7 +1080,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">6</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1116,17 +1116,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="support cat fase 1: postventa 24/7 en el número de la empresa, tickets a la titular, resumen diario y página en el portal manolo adr-0017. código listo y sin desplegar en la rama feat/support-cat (migración 021, bridge, worker, portal). para creaciones j&amp;d el número de la empresa es el de manolo (phone_number_id 1266091906580349): al activarlo, los desconocidos que escriban a manolo serán atendidos como clientes de j&amp;d. orden: migración 021, bridge, worker, portal; activar j&amp;d con su número. 2026-11-15: worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta).">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Support Cat fase 1: postventa 24/7 en el número de la empresa, tickets a la titular, resumen diario y página en el portal</h3>
-          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-15: Worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta).</p>
-          <p class="card-notes">ADR-0017. Código listo y sin desplegar en la rama feat/support-cat (migración 021, bridge, Worker, portal). Para CREACIONES J&amp;D el número de la empresa es el de Manolo (phone_number_id 1266091906580349): al activarlo, los desconocidos que escriban a Manolo serán atendidos como clientes de J&amp;D. Orden: migración 021, bridge, Worker, portal; activar J&amp;D con su número.</p>
-          <p class="card-meta">Actualizado: 2026-11-15</p>
-          <code class="card-id">support-cat-1-nucleo-20261115</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1154,7 +1143,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">108</span>
+          <span class="count">109</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="conectar la landing con la plataforma web (app.meowlab.tech) landing reemplazar los botones de whatsapp de la navegación y secciones principales de la landing por enlaces y botones de acceso directo a la plataforma web app.meowlab.tech (ingresar a la plataforma e iniciar sesión). pnpm build ok (4 páginas). botones de navbar (desktop y móvil), hero, supervisión, faq, modales de detalle de agentes y footer actualizados con enlaces a https://app.meowlab.tech.">
@@ -2047,6 +2036,17 @@
           <p class="card-notes">ADR-0016. Desplegado el 15/11 desde 4892207 (meowlab) y 4377c8e (facturaya-ai); activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/reorder-cat-2026-11-15.md. Plantilla pedido_reposicion_proveedor ajustada al texto del operador (encabezado con la empresa; cuerpo con proveedor, empresa y productos), Worker dab69833.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">reorder-cat-1-nucleo-20261115</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="support cat fase 1: postventa 24/7 en el número de la empresa, tickets a la titular, resumen diario y página en el portal manolo adr-0017. desplegado el 15/11 desde d932a98; activo para creaciones j&amp;d con el número de manolo (1266091906580349). acta: docs/operations/support-cat-2026-11-15.md. faltan las preguntas frecuentes de j&amp;d y la prueba real con un número que no sea del equipo. 2026-11-15: worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta). despliegue: corte del bridge verificado (support_view ajeno forbidden), worker 432dddd4, portal d932a980e1dc con /agentes/soporte 200, support.settings de j&amp;d creado.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Support Cat fase 1: postventa 24/7 en el número de la empresa, tickets a la titular, resumen diario y página en el portal</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 2026-11-15: Worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta). Despliegue: corte del bridge verificado (support_view ajeno forbidden), Worker 432dddd4, portal d932a980e1dc con /agentes/soporte 200, support.settings de J&amp;D creado.</p>
+          <p class="card-notes">ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&amp;D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&amp;D y la prueba real con un número que no sea del equipo.</p>
+          <p class="card-meta">Actualizado: 2026-11-15</p>
+          <code class="card-id">support-cat-1-nucleo-20261115</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. desplegado en el vps: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo http/2 200 con el nuevo bundle index-dhgs6wmb.js y contenedor en estado healthy. tests vitest 16/16, typecheck y build limpios. acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md">
           <div class="card-top">

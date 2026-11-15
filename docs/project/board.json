@@ -1984,10 +1984,10 @@
       "area": "Manolo",
       "owner": "",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-15",
-      "notes": "ADR-0017. Código listo y sin desplegar en la rama feat/support-cat (migración 021, bridge, Worker, portal). Para CREACIONES J&D el número de la empresa es el de Manolo (phone_number_id 1266091906580349): al activarlo, los desconocidos que escriban a Manolo serán atendidos como clientes de J&D. Orden: migración 021, bridge, Worker, portal; activar J&D con su número.",
-      "evidence": "2026-11-15: Worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta)."
+      "notes": "ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&D y la prueba real con un número que no sea del equipo.",
+      "evidence": "2026-11-15: Worker 707/707 y tsc limpio; support-pg-check, sales-pg-check y reorder-pg-check en verde; portal 52/52, typecheck y build; página revisada en local con bridge falso (escritorio y celular, agregar pregunta). Despliegue: corte del bridge verificado (support_view ajeno forbidden), Worker 432dddd4, portal d932a980e1dc con /agentes/soporte 200, support.settings de J&D creado."
     },
     {
       "id": "support-cat-2-20261115",
