@@ -2,7 +2,7 @@ import type { RoleHandler, RoleHandlerContext, TenantContext } from "./contracts
 import type { OrderSummary, ReorderSettings } from "../reorder/bridge-contracts";
 import type { ReorderAnswer, ReorderClient, ReorderOverview } from "../reorder/client";
 import { extractReorder, type ReorderExtraction } from "../reorder/extractor";
-import { SUPPLIER_TEMPLATE, openLine, orderCode, orderText, quantityText, soles, supplierTemplateParameters } from "../reorder/messages";
+import { SUPPLIER_TEMPLATE, openLine, orderCode, orderText, quantityText, soles, supplierTemplateParameters, type SupplierTemplateParameters } from "../reorder/messages";
 import type { StockClient } from "../stock/client";
 import type { WhatsAppSendResult } from "../whatsapp/contracts";
 
@@ -22,7 +22,7 @@ export type ReorderState = {
 /** Writes to someone who is not in this chat: the supplier, from MeowLab's number (ADR-0016, point 7). */
 export type ReorderOutbound = {
   phoneNumberId: string;
-  sendTemplate(to: string, template: string, language: string, parameters: readonly string[]): Promise<WhatsAppSendResult>;
+  sendTemplate(to: string, template: string, language: string, parameters: SupplierTemplateParameters): Promise<WhatsAppSendResult>;
 };
 
 const HELP = [

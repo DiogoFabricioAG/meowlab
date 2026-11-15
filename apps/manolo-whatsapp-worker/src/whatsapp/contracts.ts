@@ -72,8 +72,8 @@ export interface WhatsAppClient extends WhatsAppMediaClient {
   ): Promise<WhatsAppSendResult>;
   /**
    * An approved template, the only way to open a conversation outside the 24-hour window
-   * (Reorder Cat writes to suppliers this way, ADR-0016). Body parameters in order; each
-   * one a single line. Optional: older fakes omit it.
+   * (Reorder Cat writes to suppliers this way, ADR-0016). Body and text-header parameters in
+   * order; each one a single line. Optional: older fakes omit it.
    */
   sendTemplate?(
     to: string,
@@ -81,6 +81,7 @@ export interface WhatsAppClient extends WhatsAppMediaClient {
     language: string,
     bodyParameters: readonly string[],
     phoneNumberId: string,
+    headerParameters?: readonly string[],
   ): Promise<WhatsAppSendResult>;
   sendList(
     to: string,

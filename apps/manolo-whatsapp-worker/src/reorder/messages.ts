@@ -1,8 +1,9 @@
 import type { OrderSummary } from "./bridge-contracts";
 
 /**
- * The supplier template approved in Meta for MeowLab's number (ADR-0016, point 7). Its body
- * parameters, in order: supplier, company, what is ordered, order code.
+ * The supplier template approved in Meta for MeowLab's number (ADR-0016, point 7):
+ * header «Pedido de {{1}}» (company); body «Hola {{1}}, le escribimos de parte de {{2}}. …
+ * Queremos reponer estos productos: {{3}} …» (supplier, company, what is ordered).
  */
 export const SUPPLIER_TEMPLATE = { name: "pedido_reposicion_proveedor", language: "es_PE" } as const;
 
@@ -17,8 +18,10 @@ const shortDate = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}
 export const itemsLine = (order: OrderSummary) =>
   order.lines.map((line) => `${quantityText(line.quantity)} ${line.item}`).join(", ");
 
-export function supplierTemplateParameters(order: OrderSummary, companyName: string): string[] {
-  return [order.supplier?.name ?? "proveedor", companyName, itemsLine(order), orderCode(order.number)];
+export type SupplierTemplateParameters = { header: string[]; body: string[] };
+
+export function supplierTemplateParameters(order: OrderSummary, companyName: string): SupplierTemplateParameters {
+  return { header: [companyName], body: [order.supplier?.name ?? "proveedor", companyName, itemsLine(order)] };
 }
 
 const STATUS_LABEL: Record<OrderSummary["status"], string> = {

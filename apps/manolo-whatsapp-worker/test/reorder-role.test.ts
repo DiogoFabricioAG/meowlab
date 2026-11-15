@@ -128,9 +128,12 @@ describe("Reorder Cat contracts", () => {
   });
 
   it("fills the supplier template in one line per parameter", () => {
-    expect(supplierTemplateParameters(ORDER, "CREACIONES J&D")).toEqual(["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L", "OC-000002"]);
-    const payload = templatePayload("51987654321", "pedido_reposicion_proveedor", "es_PE", ["Línea 1\nLínea 2", "  mucho     espacio "]);
-    expect(payload.template.components?.[0].parameters.map((p) => p.text)).toEqual(["Línea 1 Línea 2", "mucho espacio"]);
+    expect(supplierTemplateParameters(ORDER, "CREACIONES J&D")).toEqual({
+      header: ["CREACIONES J&D"], body: ["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L"] });
+    const payload = templatePayload("51987654321", "pedido_reposicion_proveedor", "es_PE", ["Línea 1\nLínea 2", "  mucho     espacio "], ["CREACIONES J&D"]);
+    expect(payload.template.components?.map((c) => [c.type, c.parameters.map((p) => p.text)])).toEqual([
+      ["header", ["CREACIONES J&D"]], ["body", ["Línea 1 Línea 2", "mucho espacio"]]]);
+    expect(templatePayload("51987654321", "x", "es_PE", []).template).toEqual({ name: "x", language: { code: "es_PE" } });
     expect(orderText(ORDER)).toContain("Pedido a Textiles Lima · OC-000002");
   });
 });
@@ -152,7 +155,7 @@ describe("Reorder Cat in the chat", () => {
     const { promise, calls, outbound } = run({ interactionId: `reorder:approve:${ORDER_ID}`, client, state: memoryState() });
     await promise;
     expect(outbound!.sendTemplate).toHaveBeenCalledWith("51987654321", "pedido_reposicion_proveedor", "es_PE",
-      ["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L", "OC-000002"]);
+      { header: ["CREACIONES J&D"], body: ["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L"] });
     expect(client.markSent).toHaveBeenCalledWith("org_jd", ORDER_ID, true, "pn");
     expect(calls.sendDocument.mock.calls[0][0].caption).toContain("le pedí a Textiles Lima");
   });
@@ -250,7 +253,7 @@ describe("Reorder Cat with suppliers", () => {
     const wa = whatsapp();
     await runReorderFollowups(client, wa, null, vi.fn());
     expect(wa.sendTemplate).toHaveBeenCalledWith("51987654321", "pedido_reposicion_proveedor", "es_PE",
-      ["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L", "OC-000002"], "pn");
+      ["Textiles Lima", "CREACIONES J&D", "45 Polo blanco M, 16 Polo negro L"], "pn", ["CREACIONES J&D"]);
     expect(wa.sendText).toHaveBeenCalledWith("51911111111", "🛒 *Reorder Cat · CREACIONES J&D*\nTextiles Lima no respondió.", "pn");
     expect(client.noticesDelivered).toHaveBeenCalledWith("org_jd", ["n3"]);
   });
