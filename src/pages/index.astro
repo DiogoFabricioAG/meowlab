@@ -2,349 +2,172 @@
 import LandingLayout from '../layouts/LandingLayout.astro';
 import LandingNav from '../components/landing/LandingNav.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
-import WaChat from '../components/landing/WaChat.astro';
+import Phone from '../components/landing/Phone.astro';
+import { heroChat, tourChats, teamChat } from '../components/landing/chats';
+import '../styles/home.css';
 
 const portal = 'https://app.meowlab.tech';
 
-const heroChat = [
-  { from: 'out', time: '18:41', text: 'Emite una factura a Distribuidora Rímac: 12 cajas de papel bond A4 a S/ 100 cada una, más IGV.' },
-  { from: 'in', time: '18:41', text: 'Factura lista: 12 cajas de papel bond A4. Subtotal S/ 1,200.00, IGV S/ 216.00, <b>total S/ 1,416.00</b>. ¿La emito?', buttons: ['Emitir', 'Corregir'] },
-  { from: 'out', time: '18:42', text: 'Emitir' },
-  { from: 'in', time: '18:42', text: 'Factura F001-248 emitida y aceptada por SUNAT.', doc: { name: 'F001-248.pdf', detail: '1 página · PDF' } },
-] as const;
-
-const guideChat = [
-  { from: 'out', time: '09:12', text: 'Guía de remisión para llevar 30 cajas de papel a nuestro almacén de Ate, mañana a las 8.' },
-  { from: 'in', time: '09:12', text: 'Guía lista: 30 cajas de papel bond A4, traslado a Ate mañana a las 8:00. Faltan la placa del vehículo y el DNI del conductor.' },
-  { from: 'out', time: '09:14', text: 'Placa B7Q-218, conductor Julio Quispe, DNI en su ficha.' },
-  { from: 'in', time: '09:14', text: 'Guía T001-87 emitida ante SUNAT.', doc: { name: 'T001-87.pdf', detail: '1 página · PDF' } },
-] as const;
-
-const tenderChat = [
-  { from: 'in', time: '07:30', text: '<b>Tender Cat</b> encontró 2 licitaciones del SEACE que encajan con tu negocio: útiles de oficina y papel bond para una entidad de Lima. Te las dejé en el portal.' },
-  { from: 'out', time: '07:52', text: '¿Cuándo cierra la de papel bond?' },
-  { from: 'in', time: '07:52', text: 'El registro de participantes cierra el viernes 20. La tienes marcada como interesante en el portal.' },
-] as const;
-
-// Support Cat with a customer at night: a quote from Sales Cat with the stock,
-// and a question it cannot answer, sent to the owner with a button. All of it works today (ADR-0017).
-const supportChat = [
-  { from: 'out', time: '23:05', text: 'Quiero 5 cajas de papel bond A4' },
-  { from: 'in', time: '23:05', text: 'Tu cotización N.° 58: <b>S/ 590.00</b> con IGV, válida hasta el 22/11.', doc: { name: 'Cotizacion-000058.pdf', detail: '1 página · PDF' } },
-  { from: 'out', time: '23:06', text: '¿Tienen papel A3?' },
-  { from: 'in', time: '23:06', text: 'Déjame consultarlo con el equipo; te respondo por aquí.' },
-  { from: 'in', time: '23:11', text: 'De parte del equipo: sí, tenemos papel A3 de 75 g.' },
-] as const;
-
-const teamChat = [
-  { from: 'in', time: '10:05', text: 'Rosa te invitó a su equipo en MeowLab. Abre el enlace para unirte.', buttons: ['Unirme al equipo'] },
-] as const;
-
-const agents = [
-  { name: 'Invoice Cat', price: 'S/ 39', img: 'gato-facturas', logo: 'invoice-cat', live: true },
-  { name: 'Tender Cat', price: 'S/ 35', img: 'gato-licitaciones', logo: 'tender-cat', live: true },
-  { name: 'Sales Cat', price: 'S/ 59', img: 'gato-ventas', logo: 'sales-cat', live: true },
-  { name: 'Stock Cat', price: 'S/ 29', img: 'gato-busca', logo: 'stock-cat', live: true },
-  { name: 'Reorder Cat', price: 'S/ 25', img: 'gato-laptop', logo: 'reorder-cat', live: true },
-  { name: 'Support Cat', price: 'S/ 39', img: 'gato-maulla', logo: 'support-cat', live: true },
-  { name: 'Collections Cat', price: 'S/ 25', img: 'gato-listo', logo: 'collections-cat', live: true },
+// The seven cats of the tour, in the order a business meets them. Each line says only what the cat
+// does today (ADR-0011 to ADR-0017).
+const cats = [
+  { key: 'invoice', name: 'Invoice Cat', job: 'Factura', text: 'Emite facturas, boletas, notas de crédito y guías de remisión ante SUNAT. Tú confirmas el borrador y recibes el PDF.' },
+  { key: 'sales', name: 'Sales Cat', job: 'Vende', text: 'Registra tus ventas al contado o al crédito y arma cotizaciones en PDF para que se las reenvíes a tus clientes.' },
+  { key: 'stock', name: 'Stock Cat', job: 'Cuida tu stock', text: 'Lleva tu inventario. Las entradas se las dices o le mandas la foto de la factura; las salidas bajan solas con tus ventas.' },
+  { key: 'reorder', name: 'Reorder Cat', job: 'Repone', text: 'Cuando algo baja del mínimo te propone el pedido y, si lo apruebas, le escribe al proveedor a nombre de tu negocio.' },
+  { key: 'collections', name: 'Collections Cat', job: 'Cobra', text: 'Lleva lo que te deben, lee las capturas de pago y te prepara los recordatorios, que envías con un botón.' },
+  { key: 'support', name: 'Support Cat', job: 'Atiende', text: 'Responde a tus clientes las 24 horas en el WhatsApp de tu empresa. Lo que no sabe te lo pregunta a ti.' },
+  { key: 'tender', name: 'Tender Cat', job: 'Busca licitaciones', text: 'Revisa el SEACE por ti y te avisa cuando sale una licitación de lo que vendes.' },
 ];
 
-// The five cats that joined Invoice Cat and Tender Cat (ADR-0011 to ADR-0017). Each text says only
-// what the cat does today; nothing from a later phase.
-const moreCats = [
-  { name: 'Sales Cat', logo: 'sales-cat', where: '/sales', text: 'Registra tus ventas al contado o al crédito y arma cotizaciones que compartes con un enlace y en PDF.' },
-  { name: 'Stock Cat', logo: 'stock-cat', where: '/stock', text: 'Lleva tu inventario. Las entradas se las dices en el chat o le mandas la foto de la factura del proveedor, y las salidas bajan solas con tus comprobantes. Te avisa cuando algo baja del mínimo y te acompaña en los conteos.' },
-  { name: 'Collections Cat', logo: 'collections-cat', where: '/collections', text: 'Lleva lo que te deben: ventas y facturas a crédito, o lo que le cuentas en el chat. Acepta pagos parciales, lee las capturas de pago para que una persona las valide y prepara recordatorios en tres tonos que tu equipo envía con un botón. Te dice a qué clientes tienes que hablarles tú.' },
-  { name: 'Reorder Cat', logo: 'reorder-cat', where: '/reorder', text: 'Cuando algo baja del mínimo te propone el pedido. Lo apruebas y el gato le escribe al proveedor por WhatsApp a nombre de tu negocio, insiste a las 24 horas y te avisa si no logra cerrar. Arma la orden de compra en PDF y, para tus productos propios, la orden de producción.' },
-  { name: 'Support Cat', logo: 'support-cat', where: 'Tu WhatsApp', text: 'Atiende a tus clientes las 24 horas, todos los días. Responde las preguntas frecuentes que tú cargas y el estado de sus cotizaciones y ventas, y cotiza con el catálogo de Sales Cat. Lo que no sabe y los reclamos te los pasa a ti. Al final pregunta «¿te ayudé?» y te manda un resumen diario.' },
+// What the panel shows on its home screen today, one line per cat (as WeeklyHome in apps/meowlab-app).
+const today = [
+  { logo: 'invoice-cat', name: 'Invoice Cat', line: '3 comprobantes por S/ 820.00' },
+  { logo: 'sales-cat', name: 'Sales Cat', line: '18 ventas esta semana' },
+  { logo: 'collections-cat', name: 'Collections Cat', line: 'Te deben S/ 1,650.00' },
+  { logo: 'reorder-cat', name: 'Reorder Cat', line: '2 pedidos en camino' },
+  { logo: 'support-cat', name: 'Support Cat', line: '12 clientes atendidos, 9 sin ti' },
+  { logo: 'stock-cat', name: 'Stock Cat', line: '1 producto bajo el mínimo' },
 ];
+
+const chats = { hero: heroChat, tour: tourChats, team: teamChat };
 ---
 
 <LandingLayout
   title="MeowLab: agentes de IA en WhatsApp para mypes del Perú"
-  description="Le escribes a MeowLab por WhatsApp y sus gatos emiten tus comprobantes ante SUNAT, registran ventas, llevan tu stock y tus cobros, piden a tus proveedores, atienden a tus clientes y te avisan de licitaciones del SEACE. Desde S/ 25 al mes con IGV."
+  description="Le escribes a MeowLab por WhatsApp y sus gatos facturan ante SUNAT, registran ventas, llevan tu stock y tus cobros, le piden a tus proveedores, atienden a tus clientes y te avisan de licitaciones del SEACE."
 >
-  <!-- type: software (page type software, site-kind software)
-       deal: hero split, nav nav-centre, close close-type, footer footer-columns, rhythm surface-pairs,
-       buttons tonal, mark ring (replaced by the client's own cat mark), ground sand, grounds none, effect none
-       palette: start.mjs brand (#ffffff ground, #f0f9f5 surface, #111816 ink, #0c493c forest accent): the brand's own colours
-       type: chivo dealt, replaced by the brand's faces Blinker (titles) and Actor (text)
-       moments: iris-opens in #portal (the portal's ground arrives through a circle as the reader reaches the product),
-                word-highlight in #un-chat (the one sentence the page stands on: every cat works in the same chat) -->
   <LandingNav />
 
   <main id="top">
-    <section class="hero hero--split" data-enter aria-labelledby="hero-h">
+    <section class="hero hero--split ml-hero" data-enter aria-labelledby="hero-h">
       <div class="wrap">
         <div class="hero-text grid hero__grid">
-          <div class="hero__text span-5">
-            <p class="hero__kicker">S/ 39 al mes por Invoice Cat, IGV incluido</p>
+          <div class="hero__text span-6">
             <h1 id="hero-h">Agentes de IA en WhatsApp para mypes peruanas</h1>
-            <p class="hero__lead">Le escribes a MeowLab por WhatsApp y el gato que corresponde lo hace: emite tus comprobantes ante SUNAT, registra ventas y cotizaciones, lleva tu stock y tus cobros, le pide a tus proveedores, atiende a tus clientes y te avisa de licitaciones del SEACE.</p>
+            <p class="hero__lead">Le escribes a MeowLab como a alguien de tu equipo y el gato que corresponde lo hace: factura, vende, cobra, repone y atiende a tus clientes.</p>
             <div class="btn-row">
-              <a class="btn btn--primary" href={portal}>Entrar al portal<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8" /><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" /></svg></a>
-              <a class="btn btn--secondary" href="#agentes">Ver los agentes</a>
+              <a class="btn btn--primary" href={portal}>Entrar al portal</a>
+              <a class="btn btn--secondary" href="#gatos">Conoce a los gatos</a>
             </div>
           </div>
-          <div class="hero__media wa-stage span-6 start-7" data-enter-media>
-            <div class="stage stage--fade-b">
-              <div class="at-rise wa-rise">
-                <WaChat eager label="Chat de WhatsApp con MeowLab: el dueño pide una factura, Invoice Cat la prepara, el dueño confirma y recibe el PDF aceptado por SUNAT." messages={heroChat as any} />
-              </div>
-            </div>
+          <div class="ml-hero__art span-5 start-8">
+            <Phone id="hero-phone" eager label="Chat de WhatsApp con MeowLab: pides una factura y puedes tocar Emitir o Corregir." name={heroChat.name} sub={heroChat.sub} avatar={heroChat.avatar} />
+            <p class="ml-hint" id="hero-hint">Toca un botón del chat</p>
+            <button class="ml-again" type="button" id="hero-again" hidden>Volver a empezar</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section ground-surface" id="portal" data-moment="iris-opens" data-moment-opts='{"from": "base"}' aria-labelledby="portal-h">
+    <section class="section ml-tour" id="gatos" aria-labelledby="gatos-h">
       <div class="wrap">
-        <div class="grid">
-          <h2 class="span-5" id="portal-h">Todo lo que hicieron tus gatos hoy</h2>
-          <div class="span-6 start-7 portal-intro">
-            <p class="t-lead">En app.meowlab.tech entras con tu correo o con Google. Ves lo que se emitió, lo que pide tu atención, como un rechazo de SUNAT, y descargas cada PDF.</p>
-            <a class="link" href="#equipo">Ver cómo invitar a tu equipo</a>
-          </div>
+        <div class="ml-tour__intro">
+          <p class="t-label">Los gatos</p>
+          <h2 id="gatos-h">Siete gatos, cada uno con su oficio</h2>
+          <p class="t-lead">Un gato es un agente de IA que se encarga de una parte de tu negocio. No instalas nada: todos trabajan en tu WhatsApp y contratas solo los que necesitas.</p>
         </div>
-        <div class="ui app fill" role="img" aria-label="El portal app.meowlab.tech: la lista de lo que hicieron los agentes hoy, con una factura abierta lista para descargar en PDF.">
-          <div class="app__pane app__pane--list">
-            <div class="pt-bar"><span class="pt-dots"><i></i><i></i><i></i></span><span class="pt-url">app.meowlab.tech</span></div>
-            <div class="pt-list">
-              <div class="pt-side">
-                <span class="is-on">Hoy</span>
-                <span>Atención <b>2</b></span>
-                <span>Documentos</span>
-                <span>Licitaciones</span>
-                <span>Equipo</span>
-              </div>
-              <div class="pt-rows">
-                <div class="pt-rows__head">Hoy</div>
-                <div class="pt-row is-open"><time>18:42</time><span class="pt-row__what"><span>Factura F001-248</span><span>Invoice Cat · Distribuidora Rímac</span></span><span class="pt-chip pt-chip--ok">Aceptada</span></div>
-                <div class="pt-row"><time>17:55</time><span class="pt-row__what"><span>Boleta B001-1032</span><span>Invoice Cat · S/ 64.90</span></span><span class="pt-chip pt-chip--ok">Aceptada</span></div>
-                <div class="pt-row"><time>15:02</time><span class="pt-row__what"><span>Factura F001-247</span><span>Invoice Cat · revisa el RUC del cliente</span></span><span class="pt-chip pt-chip--warn">Rechazada</span></div>
-                <div class="pt-row"><time>12:20</time><span class="pt-row__what"><span>Guía de remisión T001-87</span><span>Invoice Cat · traslado a Ate</span></span><span class="pt-chip pt-chip--ok">Aceptada</span></div>
-                <div class="pt-row"><time>07:30</time><span class="pt-row__what"><span>Papel bond A4, Lima</span><span>Tender Cat · cierra el viernes 20</span></span><span class="pt-chip pt-chip--tender">Interesante</span></div>
-                <div class="pt-row"><time>07:30</time><span class="pt-row__what"><span>Útiles de oficina, Lima</span><span>Tender Cat · cierra el martes 24</span></span><span class="pt-chip pt-chip--tender">Interesante</span></div>
-                <div class="pt-row"><time>Ayer</time><span class="pt-row__what"><span>Boleta B001-1031</span><span>Invoice Cat · S/ 23.60</span></span><span class="pt-chip pt-chip--ok">Aceptada</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="app__pane app__pane--open">
-            <div class="pt-doc">
-              <div class="pt-doc__head">
-                <span class="pt-doc__title"><span>Factura F001-248</span><span>Pedida por WhatsApp a las 18:41</span></span>
-                <span class="pt-doc__actions"><span class="pt-btn pt-btn--main">Descargar PDF</span></span>
-              </div>
-              <div class="pt-paper">
-                <div class="pt-paper__row"><span>Cliente</span><span>Distribuidora Rímac</span></div>
-                <div class="pt-paper__row"><span>Estado en SUNAT</span><span class="pt-chip pt-chip--ok">Aceptada</span></div>
-                <div class="pt-paper__lines">
-                  <div><span>Descripción</span><span>Cant.</span><span>Importe</span></div>
-                  <div><span>Papel bond A4, caja de 5 paquetes</span><span>12</span><span>S/ 1,200.00</span></div>
-                </div>
-                <div class="pt-paper__total">
-                  <div><span>Subtotal</span><span>S/ 1,200.00</span></div>
-                  <div><span>IGV 18 %</span><span>S/ 216.00</span></div>
-                  <div><span>Total</span><span>S/ 1,416.00</span></div>
-                </div>
-              </div>
-              <p class="pt-note">Emitida por Invoice Cat con FacturaYa.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="facturas" aria-labelledby="facturas-h">
-      <div class="wrap">
-        <div class="grid fill">
-          <div class="span-5 split-col">
-            <h2 id="facturas-h">Invoice Cat emite tus comprobantes desde WhatsApp</h2>
-            <p class="t-lead">Escribes qué vendiste o qué trasladas. Invoice Cat arma el comprobante, te lo muestra para que lo confirmes, lo emite ante SUNAT con FacturaYa y te devuelve el PDF.</p>
-            <a class="link split-col__end" href="#agentes">Ver los agentes</a>
-          </div>
-          <div class="frame frame--fill wa-frame span-6 start-7">
-            <div class="stage stage--fade-b">
-              <div class="at-rise">
-                <WaChat label="Chat de WhatsApp con MeowLab: el dueño pide una guía de remisión, completa la placa y el conductor, y recibe la guía T001-87 en PDF." day="Hoy" messages={guideChat as any} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section statement" id="un-chat" data-moment="word-highlight" aria-label="Qué es MeowLab">
-      <div class="wrap">
-        <p class="t-label">Qué es MeowLab</p>
-        <p class="mo-wh__text">Un equipo de siete gatos que trabaja para tu negocio en el <strong>mismo chat</strong> de WhatsApp. Le escribes a MeowLab y responde el gato que corresponde: todos comparten tus datos y tú confirmas lo importante.</p>
-        <div class="statement__cats">
-          {agents.map((a) => <span><img src={`/assets/agents/${a.logo}.webp`} alt={a.name} width="48" height="48" loading="lazy" /></span>)}
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="licitaciones" style="--hm: 2" aria-labelledby="licitaciones-h">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 id="licitaciones-h">Tender Cat revisa el SEACE por ti. <span class="muted">Te escribe cuando sale una licitación de lo que vendes.</span></h2>
-        </div>
-        <div class="grid">
-          <article class="card card--row card--open span-6">
-            <h3>Te avisa por WhatsApp</h3>
-            <p>Te resume en el chat con MeowLab cada licitación nueva de tu rubro.</p>
-            <div class="panel">
-              <div class="stage stage--fade-b">
-                <div class="at-rise fit" style="--fit-max: 400px; --ax: max(24px, 50% - 200px); --ay: 40px; --ay-sm: 24px">
-                  <WaChat label="Chat de WhatsApp con MeowLab: Tender Cat avisa de dos licitaciones del SEACE y responde cuándo cierra una." day="Hoy" messages={tenderChat as any} />
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card card--row card--open span-6">
-            <h3>Las guarda en el portal de MeowLab</h3>
-            <p>Ves las que marcó como interesantes y su fecha de cierre.</p>
-            <div class="panel">
-              <div class="stage stage--fade-b">
-                <div class="at-rise fit" style="--fit-max: 420px; --ax: max(24px, 50% - 210px); --ay: 40px; --ay-sm: 24px">
-                  <div class="ui tl" role="img" aria-label="La lista de licitaciones del portal: tres marcadas como interesantes y una descartada.">
-                    <div class="tl__head"><span>Licitaciones</span><span>Esta semana</span></div>
-                    <div class="tl__row"><span>Papel bond A4</span><span>Entidad de Lima · cierra el viernes 20</span><span class="pt-chip pt-chip--tender">Interesante</span></div>
-                    <div class="tl__row"><span>Útiles de oficina</span><span>Entidad de Lima · cierra el martes 24</span><span class="pt-chip pt-chip--tender">Interesante</span></div>
-                    <div class="tl__row"><span>Mobiliario de oficina</span><span>Entidad de Arequipa · fuera de tu rubro</span><span class="pt-chip">Descartada</span></div>
-                    <div class="tl__row"><span>Tóner para impresoras</span><span>Entidad de Lima · cierra el jueves 26</span><span class="pt-chip pt-chip--tender">Interesante</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section ground-surface" id="gatos" style="--hm: 2" aria-labelledby="gatos-h">
-      <div class="wrap">
-        <div class="grid fill">
-          <div class="span-5 split-col">
-            <h2 id="gatos-h">Ventas, stock, cobros y compras en el mismo chat</h2>
-            <p class="t-lead">Cada gato tiene su comando en el chat con MeowLab y su página en app.meowlab.tech. Support Cat, además, atiende a tus clientes en el WhatsApp de tu empresa.</p>
-            <div class="gatos-art split-col__end" role="img" aria-label="Los logos de Sales Cat, Stock Cat, Collections Cat, Reorder Cat y Support Cat.">
-              {moreCats.map((c) => <span><img src={`/assets/agents/${c.logo}.webp`} alt="" width="72" height="72" loading="lazy" /></span>)}
-            </div>
-          </div>
-          <ul class="rows gatos-rows span-6 start-7">
-            {moreCats.map((c) => (
-              <li>
-                <span class="rows__name">{c.name}</span>
-                <span class="rows__value">{c.where}</span>
+        <div class="ml-tour__body">
+          <ol class="ml-tour__steps">
+            {cats.map((c, i) => (
+              <li class="ml-step" id={`gato-${c.key}`} data-cat={c.key}>
+                <span class="ml-step__logo"><img src={`/assets/agents/${c.key}-cat.webp`} alt="" width="64" height="64" loading="lazy" /></span>
+                <span class="ml-step__n">{String(i + 1).padStart(2, '0')} · {c.job}</span>
+                <h3>{c.name}</h3>
                 <p>{c.text}</p>
               </li>
             ))}
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="juntos" aria-labelledby="juntos-h">
-      <div class="wrap">
-        <div class="grid fill">
-          <div class="span-5 split-col">
-            <h2 id="juntos-h">Los gatos trabajan juntos, aunque sean las 11 de la noche</h2>
-            <p class="t-lead">Una clienta le escribe al WhatsApp de tu empresa. Support Cat responde las preguntas frecuentes y le pide la cotización a Sales Cat, que revisa tu stock con Stock Cat. Lo que no sabe te lo pregunta con un botón, y le pasa tu respuesta tal cual.</p>
-            <div class="juntos-cats split-col__end" role="img" aria-label="Support Cat, Sales Cat y Stock Cat atienden juntos a la clienta.">
-              {['support-cat', 'sales-cat', 'stock-cat'].map((logo) => <span><img src={`/assets/agents/${logo}.webp`} alt="" width="48" height="48" loading="lazy" /></span>)}
-            </div>
-          </div>
-          <div class="frame frame--fill wa-frame span-6 start-7">
-            <div class="stage stage--fade-b">
-              <div class="at-rise">
-                <WaChat label="Chat de WhatsApp de una clienta con tu empresa: Support Cat envía la cotización N.° 58 en PDF y le pasa la respuesta del equipo sobre el papel A3." name="Tu empresa" state="cuenta de empresa" day="Hoy" messages={supportChat as any} />
-              </div>
-            </div>
+          </ol>
+          <div class="ml-tour__stage">
+            <Phone id="tour-phone" label="Chat de WhatsApp que muestra al gato de cada paso en acción." name="MeowLab" sub="en línea" avatar="mark" />
+            <nav class="ml-rail" aria-label="Ir a un gato">
+              {cats.map((c) => <a href={`#gato-${c.key}`} data-cat={c.key} aria-label={c.name}><img src={`/assets/agents/${c.key}-cat.webp`} alt="" width="32" height="32" loading="lazy" /></a>)}
+            </nav>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="equipo" aria-labelledby="equipo-h">
+    <section class="section ml-team" id="juntos" aria-labelledby="juntos-h">
       <div class="wrap">
-        <div class="grid fill">
-          <div class="span-5 split-col">
-            <h2 id="equipo-h">Invita a tu equipo con un enlace de WhatsApp</h2>
-            <p class="t-lead">Desde el portal mandas una invitación por WhatsApp a quien te ayuda en la tienda o en la oficina. MeowLab está pensado para equipos de dos o tres personas.</p>
-            <a class="link split-col__end" href="#portal">Ver el portal</a>
+        <div class="ml-team__grid">
+          <div class="ml-team__text">
+            <p class="t-label">En equipo</p>
+            <h2 id="juntos-h">Los gatos trabajan juntos</h2>
+            <p class="t-lead">Una clienta escribe a las 11 de la noche. Mira lo que pasa por dentro.</p>
+            <ol class="ml-hands" id="team-hands" aria-live="polite"></ol>
+            <button class="ml-again" type="button" id="team-again" hidden>Ver de nuevo</button>
           </div>
-          <div class="frame frame--fill wa-frame span-6 start-7">
-            <div class="stage stage--fade-b">
-              <div class="at-rise team-rise">
-                <div class="ui tm" role="img" aria-label="La pantalla Equipo del portal: dos personas en la empresa y el enlace de invitación para enviar por WhatsApp.">
-                  <div class="pt-bar"><span class="pt-dots"><i></i><i></i><i></i></span><span class="pt-url">app.meowlab.tech</span></div>
-                  <div class="tm__body">
-                    <div class="tm__title">Equipo</div>
-                    <div class="tm__row"><span class="tm__av">R</span><span class="tm__who"><span>Rosa Huamán</span><span>Dueña</span></span><span class="pt-chip pt-chip--ok">Activa</span></div>
-                    <div class="tm__row"><span class="tm__av">L</span><span class="tm__who"><span>Luis Ccori</span><span>Ventas</span></span><span class="pt-chip pt-chip--ok">Activo</span></div>
-                    <div class="tm__invite">
-                      <span class="tm__label">Invitar a tu equipo</span>
-                      <span>Quien abra el enlace se une a tu empresa en MeowLab.</span>
-                      <span class="inv__link">app.meowlab.tech/invitacion</span>
-                      <span class="inv__acts"><span>Copiar enlace</span><span>Enviar por WhatsApp</span></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="ml-team__stage">
+            <Phone id="team-phone" label="Chat de WhatsApp de una clienta con la empresa: pide una cotización y pregunta por papel A3." name={teamChat.name} sub={teamChat.sub} avatar={teamChat.avatar} />
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="agentes" style="--hm: 2" aria-labelledby="agentes-h">
+    <section class="section ground-surface ml-panel-sec" id="panel" aria-labelledby="panel-h">
       <div class="wrap">
-        <div class="section-head">
-          <h2 id="agentes-h">Los agentes y sus precios. <span class="muted">Al mes, con IGV, por Mercado Pago.</span></h2>
+        <div class="ml-panel-sec__head">
+          <h2 id="panel-h">Y todo queda en tu panel</h2>
+          <p class="t-lead">Entras con tu correo o con Google y ves lo que hizo cada gato hoy, lo que necesita tu atención y cada PDF.</p>
         </div>
-        <div class="grid fill">
-          <ul class="rows span-6">
-            {agents.map((a) => (
-              <li>
-                <span class="rows__name"><span class="agent-logo"><img src={`/assets/agents/${a.logo}.webp`} alt="" width="28" height="28" loading="lazy" /></span>{a.name} <span class={`tag ${a.live ? 'tag--live' : 'tag--soon'}`}>{a.live ? 'Disponible' : 'Próximamente'}</span></span>
-                <span class="rows__value">{a.price} al mes</span>
-              </li>
-            ))}
-          </ul>
-          <div class="frame frame--split wa-frame plan-frame span-6 start-7">
-            <div class="stage stage--fade-b">
-              <div class="at-rise plan-rise">
-                <div class="ui plan-ui" role="img" aria-label="El plan en el portal: Invoice Cat y Tender Cat con 10 % de descuento por dos agentes, S/ 66.60 al mes con Mercado Pago.">
-                  <div class="plan-ui__head"><span class="cat"><img src="/assets/agents/invoice-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="cat"><img src="/assets/agents/tender-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="tm__title">Tu plan</span></div>
-                  <div class="plan-ui__row"><span>Invoice Cat</span><span>S/ 39.00</span></div>
-                  <div class="plan-ui__row"><span>Tender Cat</span><span>S/ 35.00</span></div>
-                  <div class="plan-ui__row plan-ui__row--off"><span>Descuento por 2 agentes, 10 %</span><span>− S/ 7.40</span></div>
-                  <div class="plan-ui__row plan-ui__row--total"><span>Total al mes, con IGV</span><span>S/ 66.60</span></div>
-                  <span class="pt-btn pt-btn--main plan-ui__pay">Suscribirme con Mercado Pago</span>
-                  <div class="plan-ui__tiers"><span>3 o 4 agentes: 15 % menos</span><span>5 o 6 agentes: 20 % menos</span></div>
-                </div>
-              </div>
+        <div class="ml-app" role="img" aria-label="El panel de MeowLab: el resumen de hoy con lo que hizo cada gato y un comprobante que pide tu atención.">
+          <aside class="ml-app__side">
+            <span class="ml-app__logo"><img src="/assets/landing/meowlab-mark.png" alt="" width="22" height="22" loading="lazy" /><span>meow<b>lab</b></span></span>
+            <span class="is-on">Inicio</span>
+            <span>Tus agentes</span>
+            <span>Plan</span>
+            <span>Configuración</span>
+            <span class="ml-app__co"><b>Moda Killa</b>Rosa Huamán · Dueña</span>
+          </aside>
+          <div class="ml-app__main">
+            <div class="ml-app__today">
+              <small>Domingo 16 de noviembre</small>
+              <b class="ml-app__hello">Hola, Rosa</b>
+              <span>Esto hicieron hoy tus agentes para Moda Killa</span>
+              <ul>
+                {today.map((t, i) => (
+                  <li style={`--i: ${i}`}><span class="ml-app__logo-cat"><img src={`/assets/agents/${t.logo}.webp`} alt="" width="36" height="36" loading="lazy" /></span><span><b>{t.name}</b>{t.line}</span></li>
+                ))}
+              </ul>
+            </div>
+            <div class="ml-app__attn">
+              <b>Para atender</b>
+              <div class="ml-app__item"><span><b>F001-247 rechazado por SUNAT</b>Distribuidora Rímac · revisa el RUC del cliente</span><span class="ml-app__btn">Ver en Invoice Cat</span></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="preguntas" style="--hm: 2" aria-labelledby="preguntas-h">
+    <section class="section ml-faq" id="preguntas" aria-labelledby="preguntas-h">
       <div class="wrap">
-        <div class="grid fill">
-          <div class="span-5 split-col">
-            <h2 id="preguntas-h">Preguntas sobre los agentes</h2>
-            <a class="link" href="/contacto">Escribir a MeowLab</a>
-            <div class="faq-cat split-col__end"><img src="/assets/landing/gato-maulla.webp" alt="Ilustración del gato de MeowLab maullando" width="180" height="180" loading="lazy" /></div>
+        <div class="ml-faq__grid">
+          <div>
+            <h2 id="preguntas-h">Preguntas frecuentes</h2>
+            <p class="t-lead">¿Otra duda? <a class="link" href="/contacto">Escríbenos</a></p>
           </div>
-          <div class="faq span-6 start-7">
-            <div class="faq__item"><h3>¿Necesito otro número de WhatsApp?</h3><p>No. Tú y tu equipo les hablan a todos los gatos en el mismo chat con MeowLab. Support Cat es el único que, además, atiende a tus clientes, y lo hace en el WhatsApp de tu empresa.</p></div>
-            <div class="faq__item"><h3>¿Los comprobantes de Invoice Cat valen ante SUNAT?</h3><p>Sí. Invoice Cat los emite ante SUNAT con FacturaYa, después de que confirmas el borrador en el chat.</p></div>
-            <div class="faq__item"><h3>¿Cómo pago los agentes?</h3><p>Con una suscripción mensual de Mercado Pago. Los precios ya incluyen IGV.</p></div>
-            <div class="faq__item"><h3>¿Qué agentes funcionan hoy?</h3><p>Los siete: Invoice Cat, Tender Cat, Sales Cat, Stock Cat, Collections Cat, Reorder Cat y Support Cat. Contratas solo los que necesitas.</p></div>
+          <div class="ml-faq__list">
+            <details open>
+              <summary>¿Necesito otro número de WhatsApp?</summary>
+              <p>No. Tú y tu equipo le escriben a MeowLab en un solo chat y responde el gato que corresponde. Support Cat es el único que, además, atiende a tus clientes, y lo hace en el WhatsApp de tu empresa.</p>
+            </details>
+            <details>
+              <summary>¿Tengo que instalar algo?</summary>
+              <p>No. Los gatos trabajan en WhatsApp y tu panel se abre en el navegador, con tu correo o tu cuenta de Google.</p>
+            </details>
+            <details>
+              <summary>¿Los comprobantes valen ante SUNAT?</summary>
+              <p>Sí. Invoice Cat los emite ante SUNAT con FacturaYa, después de que confirmas el borrador en el chat.</p>
+            </details>
+            <details>
+              <summary>¿Cuánto cuesta?</summary>
+              <p>Cada gato cuesta de S/ 25 a S/ 59 al mes, con IGV, y pagas menos si llevas varios. Pagas con una suscripción de Mercado Pago. <a class="link" href="/precios">Ver los precios</a></p>
+            </details>
+            <details>
+              <summary>¿Puedo empezar con un solo gato?</summary>
+              <p>Sí. Contratas solo los que necesitas y sumas otros cuando quieras.</p>
+            </details>
           </div>
         </div>
       </div>
@@ -352,4 +175,61 @@ const moreCats = [
   </main>
 
   <LandingFooter />
+
+  <script type="application/json" id="ml-chats" set:html={JSON.stringify(chats)} />
+  <script>
+    import { Player, handoffCard } from '../scripts/chat';
+    import type { Chat } from '../components/landing/chats';
+
+    const data = JSON.parse(document.getElementById('ml-chats')!.textContent!) as { hero: Chat; tour: Record<string, Chat>; team: Chat };
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+    // Hero: plays once it is on screen; the visitor's tap moves it on.
+    const heroAgain = $<HTMLButtonElement>('hero-again');
+    const hero = new Player($('hero-phone'), { onEnd: () => { heroAgain.hidden = false; $('hero-hint').hidden = true; } });
+    const playHero = () => { heroAgain.hidden = true; $('hero-hint').hidden = false; hero.run(data.hero); };
+    heroAgain.addEventListener('click', playHero);
+    playHero();
+
+    // Tour: the step in the middle of the screen chooses the conversation of the sticky phone.
+    const tourPhone = $('tour-phone');
+    const tour = new Player(tourPhone);
+    const steps = [...document.querySelectorAll<HTMLElement>('.ml-step')];
+    let current = '';
+    const pick = (key: string) => {
+      if (key === current) return;
+      current = key;
+      steps.forEach((s) => s.classList.toggle('is-on', s.dataset.cat === key));
+      document.querySelectorAll<HTMLElement>('.ml-rail a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.cat === key));
+      tour.header(data.tour[key]);
+      tour.run(data.tour[key]);
+    };
+    const tourIO = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) pick((e.target as HTMLElement).dataset.cat!); });
+    }, { rootMargin: window.matchMedia('(max-width: 639px)').matches ? '-72% 0px -18% 0px' : '-45% 0px -45% 0px' });
+    steps.forEach((s) => tourIO.observe(s));
+    // the phone is never empty: the first cat plays as soon as the tour comes into view
+    new IntersectionObserver((entries, io) => {
+      if (entries.some((e) => e.isIntersecting)) { if (!current) pick(steps[0].dataset.cat!); io.disconnect(); }
+    }, { threshold: 0.2 }).observe(tourPhone);
+
+    // The cats working together: plays when the section comes into view, once; «Ver de nuevo» replays it.
+    const hands = $('team-hands');
+    const teamAgain = $<HTMLButtonElement>('team-again');
+    const team = new Player($('team-phone'), {
+      onHandoff: (h) => { hands.append(handoffCard(h)); },
+      onEnd: () => { teamAgain.hidden = false; },
+    });
+    const playTeam = () => { hands.innerHTML = ''; teamAgain.hidden = true; team.run(data.team); };
+    teamAgain.addEventListener('click', playTeam);
+    let teamPlayed = false;
+    new IntersectionObserver((entries, io) => {
+      if (entries.some((e) => e.isIntersecting) && !teamPlayed) { teamPlayed = true; playTeam(); io.disconnect(); }
+    }, { threshold: 0.35 }).observe($('juntos'));
+
+    // The panel: its lines arrive one after the other when it comes into view.
+    new IntersectionObserver((entries, io) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.disconnect(); } });
+    }, { threshold: 0.3 }).observe(document.querySelector('.ml-app')!);
+  </script>
 </LandingLayout>

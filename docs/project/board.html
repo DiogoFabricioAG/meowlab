@@ -216,7 +216,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 82 · Total: 193</span>
+      <span class="summary">Abiertas: 83 · Total: 195</span>
     </div>
   </div>
 </header>
@@ -225,7 +225,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">77</span>
+          <span class="count">78</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -921,6 +921,17 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-2-20261115</code>
         </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="portal: el inicio todavía dice «chat de manolo» portal apps/meowlab-app/web/src/weeklyhome.tsx dice «en el chat de manolo» y «le escribió … a manolo». la landing y la presentación ya lo llaman meowlab; decidir si el portal también cambia. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Portal: el Inicio todavía dice «chat de Manolo»</h3>
+          
+          <p class="card-notes">apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia.</p>
+          <p class="card-meta">Actualizado: 2026-11-16</p>
+          <code class="card-id">portal-inicio-nombre-meowlab-20261116</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -1143,9 +1154,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">111</span>
+          <span class="count">112</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Landing" data-text="landing: rediseño con whatsapp interactivo, recorrido de los gatos y precios en /precios landing pedido del operador tras revisar la landing publicada. rama feat/landing-rediseno. hero sin precio, con un celular de whatsapp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el inicio real del portal, sin barra de url. se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. preguntas en acordeón y cierre en un bloque verde con botones normales. sin desplegar. astro build ok (5 páginas). capturas con chrome headless a 1440x900, 768x1024 y 390x844: sin desborde horizontal; el celular del recorrido cambia de conversación por paso y el hero responde al toque de «emitir».">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Landing: rediseño con WhatsApp interactivo, recorrido de los gatos y precios en /precios</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> astro build OK (5 páginas). Capturas con Chrome headless a 1440x900, 768x1024 y 390x844: sin desborde horizontal; el celular del recorrido cambia de conversación por paso y el hero responde al toque de «Emitir».</p>
+          <p class="card-notes">Pedido del operador tras revisar la landing publicada. Rama feat/landing-rediseno. Hero sin precio, con un celular de WhatsApp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el Inicio real del portal, sin barra de URL. Se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. Preguntas en acordeón y cierre en un bloque verde con botones normales. Sin desplegar.</p>
+          <p class="card-meta">Actualizado: 2026-11-16 · Responsable: Claude</p>
+          <code class="card-id">landing-rediseno-interactivo-20261116</code>
+        </article>
         <article class="card" data-priority="high" data-area="Landing" data-text="landing: «qué es meowlab», caso de uso de los gatos juntos y el chat como meowlab landing rama feat/landing-7-gatos, con la información de la presentación. #un-chat pasa a explicar qué es meowlab; nueva sección #juntos (support cat, sales cat y stock cat atienden a una clienta de noche y lo que no saben se lo preguntan al dueño), con enlace en el menú; el chat se llama meowlab en vez de manolo en la página, wachat, privacidad y términos. se quedan los siete gatos. docs/apps/landing.md actualizado. fusionado en main (pr #8, 7a058ca8a4c5) y desplegado el 2026-11-16 como meowlab-web:7a058ca8a4c5; acta en docs/operations/landing-siete-gatos-2026-11-16.md. astro build ok (4 páginas). revisión en navegador a 1440x900, 768x1024 y 375x812: #juntos, #un-chat y #gatos caben en su pantalla, sin desborde horizontal; en teléfono #juntos crece a 1176 px para que el chat de 5 mensajes entre sin pisar #equipo.">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
