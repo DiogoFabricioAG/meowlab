@@ -1,0 +1,61 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import LandingNav from '../components/landing/LandingNav.astro';
+import LandingFooter from '../components/landing/LandingFooter.astro';
+
+// The seven cats and their monthly price with IGV (the portal's plan is the source: apps/meowlab-app).
+const agents = [
+  { name: 'Invoice Cat', price: 'S/ 39', logo: 'invoice-cat' },
+  { name: 'Tender Cat', price: 'S/ 35', logo: 'tender-cat' },
+  { name: 'Sales Cat', price: 'S/ 59', logo: 'sales-cat' },
+  { name: 'Stock Cat', price: 'S/ 29', logo: 'stock-cat' },
+  { name: 'Reorder Cat', price: 'S/ 25', logo: 'reorder-cat' },
+  { name: 'Support Cat', price: 'S/ 39', logo: 'support-cat' },
+  { name: 'Collections Cat', price: 'S/ 25', logo: 'collections-cat' },
+];
+---
+
+<LandingLayout
+  title="Precios de MeowLab: los siete gatos, al mes con IGV"
+  description="Cada gato de MeowLab cuesta de S/ 25 a S/ 59 al mes, con IGV, y pagas hasta 20 % menos si llevas varios. Suscripción mensual con Mercado Pago."
+  path="/precios"
+>
+  <LandingNav />
+
+  <main id="top">
+    <section class="section" id="agentes" style="--hm: 2" aria-labelledby="agentes-h">
+      <div class="wrap">
+        <div class="section-head">
+          <h1 id="agentes-h">Precios. <span class="muted">Al mes por gato, con IGV, por Mercado Pago.</span></h1>
+        </div>
+        <div class="grid fill">
+          <ul class="rows span-6">
+            {agents.map((a) => (
+              <li>
+                <span class="rows__name"><span class="agent-logo"><img src={`/assets/agents/${a.logo}.webp`} alt="" width="28" height="28" loading="lazy" /></span>{a.name} <span class="tag tag--live">Disponible</span></span>
+                <span class="rows__value">{a.price} al mes</span>
+              </li>
+            ))}
+          </ul>
+          <div class="frame frame--split wa-frame plan-frame span-6 start-7">
+            <div class="stage stage--fade-b">
+              <div class="at-rise plan-rise">
+                <div class="ui plan-ui" role="img" aria-label="El plan en el portal: Invoice Cat y Tender Cat con 10 % de descuento por dos agentes, S/ 66.60 al mes con Mercado Pago.">
+                  <div class="plan-ui__head"><span class="cat"><img src="/assets/agents/invoice-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="cat"><img src="/assets/agents/tender-cat.webp" alt="" width="40" height="40" loading="lazy" /></span><span class="tm__title">Tu plan</span></div>
+                  <div class="plan-ui__row"><span>Invoice Cat</span><span>S/ 39.00</span></div>
+                  <div class="plan-ui__row"><span>Tender Cat</span><span>S/ 35.00</span></div>
+                  <div class="plan-ui__row plan-ui__row--off"><span>Descuento por 2 agentes, 10 %</span><span>− S/ 7.40</span></div>
+                  <div class="plan-ui__row plan-ui__row--total"><span>Total al mes, con IGV</span><span>S/ 66.60</span></div>
+                  <span class="pt-btn pt-btn--main plan-ui__pay">Suscribirme con Mercado Pago</span>
+                  <div class="plan-ui__tiers"><span>3 o 4 agentes: 15 % menos</span><span>5 o más agentes: 20 % menos</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <LandingFooter />
+</LandingLayout>

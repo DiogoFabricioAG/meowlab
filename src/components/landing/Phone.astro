@@ -1,0 +1,54 @@
+---
+/*
+  A phone with WhatsApp open, drawn in HTML. The conversation is played by src/scripts/chat.ts:
+  the wall starts empty and the script adds each message, as WhatsApp would.
+*/
+interface Props {
+  id: string;
+  label: string;
+  name: string;
+  sub: string;
+  avatar: string;
+  eager?: boolean;
+}
+
+const { id, label, name, sub, avatar, eager = false } = Astro.props;
+---
+
+<div class="ml-phone" id={id} role="group" aria-label={label}>
+  <div class="ml-phone__screen">
+    <div class="ml-status" aria-hidden="true">
+      <span>9:41</span>
+      <span class="ml-status__icons">
+        <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="2.5" width="3" height="9.5" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+        <i class="ml-status__bat"></i>
+      </span>
+    </div>
+    <div class="ml-head">
+      <svg class="ml-head__back" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <span class="ml-head__av" data-avatar>
+        {avatar === 'mark'
+          ? <img src="/assets/landing/meowlab-mark.png" alt="" width="36" height="36" loading={eager ? 'eager' : 'lazy'} />
+          : <span>{avatar}</span>}
+      </span>
+      <span class="ml-head__who"><b data-name>{name}</b><span data-sub>{sub}</span></span>
+      <span class="ml-head__acts" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9" /><path d="m15.5 10.5 5-3v9l-5-3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" /></svg>
+        <svg viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.2-2 1.4a11 11 0 0 0 6.1 6.1l1.4-2 4.2 1.6v2.6a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" /></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="12" cy="18.5" r="1.8" /></svg>
+      </span>
+    </div>
+    <div class="ml-wall" data-wall aria-live="polite"><span class="ml-day">Hoy</span></div>
+    <div class="ml-composer" aria-hidden="true">
+      <span class="ml-composer__pill">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="10" r="1.2" /><circle cx="15" cy="10" r="1.2" /><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+        <span class="ml-composer__text" data-typed>Mensaje</span>
+        <svg viewBox="0 0 24 24"><path d="m15.5 7-7.3 7.3a2 2 0 0 0 2.8 2.8l7.6-7.6a3.8 3.8 0 0 0-5.4-5.4L5.6 11.7a5.6 5.6 0 0 0 7.9 7.9l5.7-5.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+      </span>
+      <span class="ml-composer__send" data-send>
+        <svg class="ml-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" /></svg>
+        <svg class="ml-arrow" viewBox="0 0 24 24"><path d="M4 20.5 21 12 4 3.5l1.6 7L15 12l-9.4 1.5z" /></svg>
+      </span>
+    </div>
+  </div>
+</div>

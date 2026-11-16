@@ -22,6 +22,7 @@ runtime con Manolo.
 | URL | Archivo |
 | --- | --- |
 | `/` | `src/pages/index.astro` con `src/layouts/LandingLayout.astro` |
+| `/precios` | `src/pages/precios.astro` con `src/layouts/LandingLayout.astro` |
 | `/contacto` | `src/pages/contacto.astro` |
 | `/privacidad` | `src/pages/privacidad.astro` (datos en `src/data/legal.ts`) |
 | `/terminos` | `src/pages/terminos.astro` (datos en `src/data/legal.ts`) |
@@ -30,7 +31,7 @@ Las páginas internas usan `src/layouts/Layout.astro` con `Navbar.astro` y
 `Footer.astro`, que repiten la navegación y las columnas del inicio. Las legales
 usan `src/components/LegalPage.astro`.
 
-## Inicio (rediseño 2026-11-13, método taste-skill)
+## Inicio (rediseño 2026-11-16 sobre el kit taste-skill)
 
 Tipo de página: software (`data-type`, `page-type` y `site-kind` = software).
 Acción principal: «Entrar al portal» → `https://app.meowlab.tech` (en la barra,
@@ -38,22 +39,29 @@ el hero y el cierre).
 
 | Sección | Contenido | Visual |
 | --- | --- | --- |
-| hero (`split`) | h1 «Agentes de IA en WhatsApp para mypes peruanas», precio de Invoice Cat | chat de WhatsApp con MeowLab en HTML |
-| `#portal` | qué muestra app.meowlab.tech | ventana del portal (lista del día y una factura abierta); momento `iris-opens` |
-| `#facturas` | Invoice Cat: facturas, boletas y guías ante SUNAT con FacturaYa | chat de una guía de remisión |
-| `#un-chat` | qué es MeowLab: siete gatos en el mismo chat; le escribes a MeowLab y responde el gato que corresponde | frase con momento `word-highlight` y los siete gatos |
-| `#licitaciones` | Tender Cat y el SEACE | aviso en el chat y lista del portal |
-| `#gatos` | Sales, Stock, Collections y Reorder Cat (comando del chat de cada uno) y Support Cat en el WhatsApp de la empresa | tarjetas con el logo de cada gato (`public/assets/agents/`) |
-| `#juntos` | caso de uso: una clienta escribe de noche al WhatsApp de la empresa; Support Cat le pide la cotización a Sales Cat (con el stock de Stock Cat) y lo que no sabe se lo pregunta al dueño | chat de la clienta (nombre «Tu empresa») y los logos de los tres gatos; en teléfono la sección crece para que entre el chat |
-| `#equipo` | invitar al equipo con un enlace de WhatsApp | invitación del portal y chat |
-| `#agentes` | los siete agentes, todos «Disponible», con su precio mensual con IGV (lo que hace cada uno va en `#facturas`, `#licitaciones` y `#gatos`), descuentos por paquete, Mercado Pago | logos de los gatos y el plan del portal |
-| `#preguntas` | preguntas frecuentes | — |
-| pie (`footer.closing`) | cierre «Empieza con Invoice Cat por S/ 39 al mes» y columnas | — |
+| hero (`split`) | h1 «Agentes de IA en WhatsApp para mypes peruanas», qué hace MeowLab en una línea, «Entrar al portal» y «Conoce a los gatos» | celular con WhatsApp en HTML: el visitante toca «Emitir» o «Corregir» y la conversación sigue |
+| `#gatos` | qué es un gato y los siete, uno por paso (Invoice, Sales, Stock, Reorder, Collections, Support y Tender Cat) | recorrido con scroll: el paso del centro de la pantalla elige la conversación del celular fijo (`position: sticky`); fila de logos para saltar a un gato |
+| `#juntos` | los gatos trabajan juntos: una clienta escribe de noche, Support Cat le pide la cotización a Sales Cat, que revisa el stock con Stock Cat, y lo que no sabe se lo pregunta al dueño | chat de la clienta y, al lado, las tarjetas «de quién a quién» que aparecen al ritmo del chat; «Ver de nuevo» |
+| `#panel` | qué ves en el panel | el Inicio del portal como lo dibuja `apps/meowlab-app` (barra lateral, «Hola, Rosa», una línea por gato y «Para atender»), sin barra de URL |
+| `#preguntas` | cinco preguntas en acordeón (`details`), con enlace a `/precios` | — |
+| pie (`footer.closing`) | bloque verde «Empieza con un gato y suma los que necesites» con «Entrar al portal» y «Ver los precios», y columnas | los siete logos |
 
-Componentes en `src/components/landing/` (`LandingNav`, `LandingFooter`,
-`WaChat`). CSS de página en `src/styles/landing.css` (solo lo que va dentro de
-los visuales). Las ilustraciones derivadas de los gatos de la marca están en
-`public/assets/landing/` (WebP pequeños generados desde los PNG del repo).
+Los precios viven en `/precios` (`src/pages/precios.astro`): la lista de los siete
+gatos con su precio mensual con IGV y el plan de ejemplo con los descuentos del
+portal (10 % por 2, 15 % por 3 o 4, 20 % por 5 o más; `migrations-postgres/0003_billing.sql`).
+
+Las conversaciones están en `src/components/landing/chats.ts` y solo dicen lo que
+cada gato hace hoy. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
+movimiento reducido los mensajes aparecen sin animación y los botones siguen
+respondiendo. Fuera de los celulares la página usa tres colores: blanco, tinta y
+el verde de la marca (con el menta como su tono claro); dentro, la paleta de
+WhatsApp.
+
+Componentes en `src/components/landing/` (`LandingNav`, `LandingFooter`, `Phone`,
+`chats.ts`). CSS: `src/styles/home.css` (inicio) y `src/styles/landing.css`
+(barra, pie y `/precios`). Las ilustraciones derivadas de los gatos de la marca
+están en `public/assets/landing/` y los logos de los gatos en
+`public/assets/agents/`.
 
 En la landing el chat se llama «MeowLab» (antes «Manolo»), como en la presentación
 del 2026-11-16; el Worker y la documentación técnica conservan el nombre Manolo.

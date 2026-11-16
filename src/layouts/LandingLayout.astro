@@ -9,9 +9,10 @@ import '../styles/landing.css';
 interface Props {
   title: string;
   description: string;
+  path?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, path = '/' } = Astro.props;
 const site = 'https://meowlab.tech';
 ---
 
@@ -30,7 +31,7 @@ const site = 'https://meowlab.tech';
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="canonical" href={`${site}/`} />
+    <link rel="canonical" href={`${site}${path}`} />
     <meta name="site-kind" content="software" />
     <meta name="page-type" content="software" />
     <meta name="generator" content={Astro.generator} />
