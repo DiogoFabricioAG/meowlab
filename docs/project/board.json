@@ -23,7 +23,7 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-16",
-      "notes": "Pedido del operador tras revisar la landing publicada. Rama feat/landing-rediseno. Hero sin precio, con un celular de WhatsApp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el Inicio real del portal, sin barra de URL. Se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. Preguntas en acordeón y cierre en un bloque verde con botones normales. Sin desplegar.",
+      "notes": "Pedido del operador tras revisar la landing publicada. Rama feat/landing-rediseno. Hero sin precio, con un celular de WhatsApp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el Inicio real del portal, sin barra de URL. Se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. Preguntas en acordeón y cierre en un bloque verde con botones normales. Con e2b8d, celulares de 340 px y secciones que crecen con zoom de 90 %. Fusionado (PR #10, b2cb2a2967f0) y desplegado el 2026-11-16 como meowlab-web:b2cb2a2967f0; acta en docs/operations/landing-rediseno-2026-11-16.md.",
       "evidence": "astro build OK (5 páginas). Capturas con Chrome headless a 1440x900, 768x1024 y 390x844: sin desborde horizontal; el celular del recorrido cambia de conversación por paso y el hero responde al toque de «Emitir»."
     },
     {
