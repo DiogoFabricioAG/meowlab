@@ -23,7 +23,7 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-16",
-      "notes": "Rama feat/landing-7-gatos, con la información de la presentación. #un-chat pasa a explicar qué es MeowLab; nueva sección #juntos (Support Cat, Sales Cat y Stock Cat atienden a una clienta de noche y lo que no saben se lo preguntan al dueño), con enlace en el menú; el chat se llama MeowLab en vez de Manolo en la página, WaChat, privacidad y términos. Se quedan los siete gatos. docs/apps/landing.md actualizado. Sin desplegar.",
+      "notes": "Rama feat/landing-7-gatos, con la información de la presentación. #un-chat pasa a explicar qué es MeowLab; nueva sección #juntos (Support Cat, Sales Cat y Stock Cat atienden a una clienta de noche y lo que no saben se lo preguntan al dueño), con enlace en el menú; el chat se llama MeowLab en vez de Manolo en la página, WaChat, privacidad y términos. Se quedan los siete gatos. docs/apps/landing.md actualizado. Fusionado en main (PR #8, 7a058ca8a4c5) y desplegado el 2026-11-16 como meowlab-web:7a058ca8a4c5; acta en docs/operations/landing-siete-gatos-2026-11-16.md.",
       "evidence": "astro build OK (4 páginas). Revisión en navegador a 1440x900, 768x1024 y 375x812: #juntos, #un-chat y #gatos caben en su pantalla, sin desborde horizontal; en teléfono #juntos crece a 1176 px para que el chat de 5 mensajes entre sin pisar #equipo."
     },
     {
