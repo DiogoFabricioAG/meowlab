@@ -219,3 +219,10 @@
   #gatos .gatos-art span { width: 120px; height: 120px; border-radius: 26px; }
   #gatos .gatos-art img { width: 90px; height: 90px; }
 }
+
+/* ---------------------------------------------------------------- the cats working together (#juntos) */
+.juntos-cats { display: flex; gap: var(--s-3); align-items: flex-end; }
+.juntos-cats span { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: #d8f0e5; }
+.juntos-cats img { width: 48px; height: 48px; mix-blend-mode: multiply; }
+/* a phone stacks the text over the chat: the chat keeps the height its five messages need, and the section grows past one screen */
+@media (max-width: 639px) { #juntos .grid.fill { flex: 1 0 auto; } #juntos .wa-frame { min-height: 600px; } }

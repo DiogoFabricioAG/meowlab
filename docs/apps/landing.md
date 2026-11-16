@@ -3,7 +3,7 @@
 ## Propósito
 
 La aplicación raíz es la presencia comercial de MeowLab (meowlab.tech). Presenta
-los agentes ("gatos") que trabajan dentro del mismo chat de WhatsApp con Manolo y
+los agentes ("gatos") que trabajan dentro del mismo chat de WhatsApp con MeowLab y
 lleva al portal `https://app.meowlab.tech`. No procesa webhooks ni comparte
 runtime con Manolo.
 
@@ -38,12 +38,13 @@ el hero y el cierre).
 
 | Sección | Contenido | Visual |
 | --- | --- | --- |
-| hero (`split`) | h1 «Agentes de IA en WhatsApp para mypes peruanas», precio de Invoice Cat | chat de WhatsApp con Manolo en HTML |
+| hero (`split`) | h1 «Agentes de IA en WhatsApp para mypes peruanas», precio de Invoice Cat | chat de WhatsApp con MeowLab en HTML |
 | `#portal` | qué muestra app.meowlab.tech | ventana del portal (lista del día y una factura abierta); momento `iris-opens` |
 | `#facturas` | Invoice Cat: facturas, boletas y guías ante SUNAT con FacturaYa | chat de una guía de remisión |
-| `#un-chat` | todos los gatos en el mismo chat | frase con momento `word-highlight` y los siete gatos |
+| `#un-chat` | qué es MeowLab: siete gatos en el mismo chat; le escribes a MeowLab y responde el gato que corresponde | frase con momento `word-highlight` y los siete gatos |
 | `#licitaciones` | Tender Cat y el SEACE | aviso en el chat y lista del portal |
 | `#gatos` | Sales, Stock, Collections y Reorder Cat (comando del chat de cada uno) y Support Cat en el WhatsApp de la empresa | tarjetas con el logo de cada gato (`public/assets/agents/`) |
+| `#juntos` | caso de uso: una clienta escribe de noche al WhatsApp de la empresa; Support Cat le pide la cotización a Sales Cat (con el stock de Stock Cat) y lo que no sabe se lo pregunta al dueño | chat de la clienta (nombre «Tu empresa») y los logos de los tres gatos; en teléfono la sección crece para que entre el chat |
 | `#equipo` | invitar al equipo con un enlace de WhatsApp | invitación del portal y chat |
 | `#agentes` | los siete agentes, todos «Disponible», con su precio mensual con IGV (lo que hace cada uno va en `#facturas`, `#licitaciones` y `#gatos`), descuentos por paquete, Mercado Pago | logos de los gatos y el plan del portal |
 | `#preguntas` | preguntas frecuentes | — |
@@ -54,11 +55,14 @@ Componentes en `src/components/landing/` (`LandingNav`, `LandingFooter`,
 los visuales). Las ilustraciones derivadas de los gatos de la marca están en
 `public/assets/landing/` (WebP pequeños generados desde los PNG del repo).
 
+En la landing el chat se llama «MeowLab» (antes «Manolo»), como en la presentación
+del 2026-11-16; el Worker y la documentación técnica conservan el nombre Manolo.
+
 Hechos que la página puede afirmar (actualizado el 2026-11-15; fuente: ADR-0011,
 0013, 0014, 0015, 0016 y 0017):
 
 - Funcionan los siete gatos y cada uno tiene su página en app.meowlab.tech. Todos
-  trabajan en el mismo chat de Manolo, salvo Support Cat, que atiende a los
+  trabajan en el mismo chat de MeowLab, salvo Support Cat, que atiende a los
   clientes de la empresa en el WhatsApp de la propia empresa.
 - Invoice Cat: facturas, boletas, notas de crédito y guías de remisión ante SUNAT
   desde el chat, con FacturaYa.

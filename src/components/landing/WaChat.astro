@@ -1,6 +1,6 @@
 ---
 /*
-  A WhatsApp conversation with Manolo, drawn as live HTML (the product's own interface).
+  A WhatsApp conversation with MeowLab, drawn as live HTML (the product's own interface).
   Every agent works inside this one chat; nothing here is a screenshot.
 */
 export interface WaMessage {
@@ -20,7 +20,7 @@ interface Props {
   eager?: boolean;
 }
 
-const { label, eager = false, day = 'Hoy', messages, name = 'Manolo · MeowLab', state = 'en línea' } = Astro.props;
+const { label, eager = false, day = 'Hoy', messages, name = 'MeowLab', state = 'en línea' } = Astro.props;
 ---
 
 <div class="ui wa" role="img" aria-label={label}>
