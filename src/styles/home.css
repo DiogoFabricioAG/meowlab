@@ -8,7 +8,7 @@
   --ph: min(640px, calc(100svh - 150px));
   --wa-head: #008069; --wa-teal: #00a884; --wa-wall: #efeae2; --wa-in: #ffffff; --wa-out: #d9fdd3;
   --wa-ink: #111b21; --wa-meta: #667781; --wa-link: #027eb5; --wa-tick: #53bdeb;
-  position: relative; height: var(--ph); min-height: 460px; aspect-ratio: 330 / 680; width: auto;
+  position: relative; width: min(340px, 100%); height: var(--ph); min-height: 500px;
   padding: 6px; border-radius: 48px; background: #101413;
   box-shadow: 0 0 0 1.5px #2c3331 inset, 0 40px 80px -36px rgb(12 73 60 / .55);
   font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; letter-spacing: 0;
@@ -74,6 +74,8 @@ button.ml-btn:focus-visible { outline: 3px solid var(--wa-teal); outline-offset:
 .ml-composer { display: flex; align-items: flex-end; gap: 6px; flex: none; padding: 6px 8px 16px; }
 .ml-composer__pill { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 44px; padding: 10px 12px; border-radius: 24px; background: #ffffff; color: #8696a0; font-size: 15px; line-height: 20px; box-shadow: 0 1px .5px rgb(11 20 26 / .13); }
 .ml-composer__pill svg { width: 22px; height: 22px; flex: none; fill: #8696a0; color: #8696a0; }
+/* while typing the clip makes room for the text, as WhatsApp does */
+.ml-composer__text.is-typing ~ svg { display: none; }
 .ml-composer__text { display: -webkit-box; flex: 1; min-width: 0; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .ml-composer__text.is-typing { color: var(--wa-ink); }
 .ml-composer__text.is-typing::after { content: ""; display: inline-block; width: 2px; height: 18px; margin-left: 1px; vertical-align: -3px; background: var(--wa-teal); animation: ml-caret 1s steps(1) infinite; }
@@ -139,10 +141,12 @@ main > section.section.ml-tour { height: auto; min-height: 0; }
 .ml-team .ml-again { justify-self: start; }
 
 /* ---------------------------------------------------------------- the panel (as apps/meowlab-app draws it) */
+/* the panel and the team section keep at least one screen and grow past it on a short screen */
+main > section.section.ml-panel-sec, main > section.section.ml-team { height: auto; min-height: 100svh; }
 .ml-panel-sec .wrap { display: flex; flex-direction: column; }
 .ml-panel-sec__head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-6); align-items: end; }
 .ml-panel-sec__head .t-lead { margin: 0; }
-.ml-app { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr); margin-top: var(--s-7); overflow: hidden; border-radius: 22px; background: #ffffff; box-shadow: 0 40px 80px -48px rgb(12 73 60 / .6), 0 0 0 1px rgb(17 24 22 / .06); font-size: 15px; }
+.ml-app { flex: none; display: grid; grid-template-columns: 210px minmax(0, 1fr); margin-top: var(--s-7); overflow: hidden; border-radius: 22px; background: #ffffff; box-shadow: 0 40px 80px -48px rgb(12 73 60 / .6), 0 0 0 1px rgb(17 24 22 / .06); font-size: 15px; }
 .ml-app__side { display: flex; flex-direction: column; gap: 4px; padding: 20px 14px; background: #0c493c; color: #e2f3ec; }
 .ml-app__side > span { padding: 10px 12px; border-radius: 12px; }
 .ml-app__side > span.is-on { background: #d8f0e5; color: #0c493c; font-weight: 600; }
@@ -205,7 +209,7 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
 
 /* ---------------------------------------------------------------- phone */
 @media (max-width: 639px) {
-  .ml-phone { --ph: min(600px, calc(100svh - 120px)); min-height: 440px; }
+  .ml-phone { --ph: min(600px, calc(100svh - 120px)); min-height: 460px; }
   .ml-hero .ml-phone { --ph: 560px; }
   .ml-hero__art::before { width: 118%; }
   /* the tour: the phone stays at the top, each step passes under it */
@@ -215,7 +219,7 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
   .ml-rail { max-width: none; flex-wrap: nowrap; }
   .ml-rail a { width: 30px; height: 30px; border-radius: 9px; }
   .ml-rail a img { width: 24px; height: 24px; }
-  .ml-tour .ml-phone { aspect-ratio: auto; width: min(330px, 100%); height: var(--ph); min-height: 0; border-radius: 36px; padding: 5px; }
+  .ml-tour .ml-phone { min-height: 0; border-radius: 36px; padding: 5px; }
   .ml-tour .ml-phone__screen { border-radius: 31px; }
   .ml-tour .ml-phone::before { top: 11px; width: 70px; height: 20px; }
   .ml-step { min-height: 46svh; align-content: start; padding-top: 12px; max-width: none; }
@@ -237,3 +241,7 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
   .ml-btn.is-hint, .ml-hint::before { animation: none; }
   .ml-step { transition: none; }
 }
+
+/* the team's phone sits in an auto column: it takes the phone's width itself */
+.ml-team__stage { width: 340px; max-width: 100%; }
+.ml-team__stage .ml-phone { width: 100%; }

@@ -54,7 +54,7 @@
 .ml-close h2 { margin: 0; color: #ffffff; max-width: 18ch; }
 .ml-close p { margin: 0; color: #d8f0e5; font-size: 19px; }
 .ml-close__btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--s-3); }
-.ml-close__btns a { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; border-radius: 12px; font: 600 16px/1 var(--font-text); letter-spacing: 0; text-decoration: none; }
+.ml-close .ml-close__btns a { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; border-radius: 12px; font: 600 16px/1 var(--font-text); letter-spacing: 0; text-decoration: none; }
 .ml-close__main { background: #ffffff; color: #0c493c; }
 .ml-close__main:hover { background: #d8f0e5; }
 .ml-close__alt { border: 1.5px solid rgb(255 255 255 / .45); color: #ffffff; }
@@ -73,3 +73,8 @@
 .plan-ui .tm__title { font-size: 16px; font-weight: 500; }
 .pt-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid transparent; font-weight: 500; }
 .pt-btn--main { background: #0c493c; color: #ffffff; }
+
+/* the close and the footer grow with their content: on a short screen (or with the browser's zoom)
+   a one-screen footer laid its links over the green block */
+footer.footer.closing { height: auto; min-height: 0; }
+footer.footer.closing > .wrap { height: auto; grid-template-rows: auto auto; row-gap: var(--s-9); }
