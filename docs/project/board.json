@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15",
+  "updatedAt": "2026-11-16",
   "columns": [
     {
       "id": "todo",
@@ -15,6 +15,28 @@
     }
   ],
   "tasks": [
+    {
+      "id": "landing-meowlab-caso-uso-20261116",
+      "title": "Landing: «Qué es MeowLab», caso de uso de los gatos juntos y el chat como MeowLab",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-16",
+      "notes": "Rama feat/landing-7-gatos, con la información de la presentación. #un-chat pasa a explicar qué es MeowLab; nueva sección #juntos (Support Cat, Sales Cat y Stock Cat atienden a una clienta de noche y lo que no saben se lo preguntan al dueño), con enlace en el menú; el chat se llama MeowLab en vez de Manolo en la página, WaChat, privacidad y términos. Se quedan los siete gatos. docs/apps/landing.md actualizado. Sin desplegar.",
+      "evidence": "astro build OK (4 páginas). Revisión en navegador a 1440x900, 768x1024 y 375x812: #juntos, #un-chat y #gatos caben en su pantalla, sin desborde horizontal; en teléfono #juntos crece a 1176 px para que el chat de 5 mensajes entre sin pisar #equipo."
+    },
+    {
+      "id": "landing-siete-gatos-20261115",
+      "title": "Landing: los siete gatos disponibles, sin «Próximamente»",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-15",
+      "notes": "Rama feat/landing-7-gatos. Sales, Stock, Collections, Reorder y Support Cat pasan a «Disponible» en #agentes (lista de precios); nueva sección #gatos con lo que hace cada uno (ADR-0011, 0013-0017); hero, descripción, preguntas, menú, pies y /contacto sin «llegan pronto». docs/apps/landing.md actualiza los hechos que la página puede afirmar. Sin desplegar.",
+      "evidence": "pnpm build OK (4 páginas). taste-skill copy-lint: 0 FAIL, 0 WARN. consistency.mjs (1440, 1024, 820, 768, 390): 17 FAIL contra 8 de origin/main 8e64a; los nuevos son de tablet y teléfono (aire entre secciones a 820, fila de logos de #gatos a 768/820, poca superficie visual de #gatos a 390, un aviso de copy-headings a 1440). Revisión en navegador a 1024, 768 y 375/390 px: sin desborde horizontal."
+    },
     {
       "id": "app-portal-auth-transition-20261112",
       "title": "Portal: transición suave en el toggle y formulario de Iniciar sesión y Crear cuenta",
