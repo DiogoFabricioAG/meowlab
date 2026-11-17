@@ -23,7 +23,7 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-16",
-      "notes": "Pedido del operador: la landing seguía sin demostrar la capacidad de cada gato; eligió el enfoque por actor. Rama feat/landing-gatos-por-actor. Quince conversaciones (gato × actor) con su tipo de participación; las que no están construidas llevan «Próximamente» y lo que el gato hace hoy. Las pestañas avanzan solas y se pueden tocar; las tarjetas de lo que pasa entre gatos aparecen bajo las pestañas. Sin desplegar.",
+      "notes": "Pedido del operador: la landing seguía sin demostrar la capacidad de cada gato; eligió el enfoque por actor. Rama feat/landing-gatos-por-actor. Catorce conversaciones (gato × actor) con su tipo de participación; las que no están construidas llevan «Próximamente» y lo que el gato hace hoy. Las pestañas avanzan solas y se pueden tocar; las tarjetas de lo que pasa entre gatos aparecen bajo las pestañas. Fusionado (PR #15, 0b66b18e71af) y desplegado el 2026-11-16 como meowlab-web:0b66b18e71af; acta en docs/operations/landing-gatos-por-actor-2026-11-16.md.",
       "evidence": "astro build OK. Capturas con Chrome headless a 1440x900 (Sales cliente → dueño por avance automático, Stock proveedor y Reorder proveedor por clic) y a 390x844, sin desborde horizontal."
     },
     {
