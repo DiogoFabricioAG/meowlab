@@ -1,6 +1,8 @@
 /*
-  The conversations the home page plays in its WhatsApp phones. Each one says only what the cat
-  does today (ADR-0011 to ADR-0017): nothing from a later phase.
+  The conversations the home page plays in its WhatsApp phones. Each one shows what the cat does
+  today (ADR-0011 to ADR-0017), end to end. The one exception is Sales Cat's tour chat: by the
+  operator's decision (2026-11-16) it shows Sales Cat's phase 2 with the customer, and the page
+  marks that step «Próximamente».
 
   A step waits `d` milliseconds after the previous one, then:
   - out: a message the person sends (typed letter by letter in the composer first);
@@ -8,6 +10,7 @@
     and reply buttons;
   - wait: the buttons wait for the visitor's tap; branches[i] runs after button i;
   - tap: the buttons are tapped by themselves (button i);
+  - photo: a picture the person sends (a supplier's invoice or a Yape capture), drawn in HTML;
   - handoff: what happens inside, shown beside the phone in the "Los gatos trabajan juntos" section.
 */
 
@@ -23,6 +26,7 @@ export interface Step {
   branches?: Step[][];
   tap?: number;
   handoff?: [Actor, Actor, string, string?];
+  photo?: { kind: 'invoice' | 'yape'; lines: string[] };
 }
 
 export interface Chat {
@@ -70,57 +74,70 @@ export const heroChat: Chat = {
 export const tourChats: Record<string, Chat> = {
   invoice: {
     ...owner, time: '10:12', steps: [
-      { d: 300, out: 'Boleta a María Torres: 2 polos blancos M a S/ 25' },
-      { d: 300, in: 'Boleta para *María Torres*\n2 polos blancos M\n*Total S/ 50.00*, con IGV\n\n¿La emito?', buttons: ['Emitir', 'Corregir'] },
-      { d: 1200, tap: 0 },
+      { d: 300, out: 'Boleta al DNI 45781236: 3 polos blancos M a S/ 25' },
+      { d: 300, in: 'Boleta para *María Torres* (DNI 45781236)\n3 polos blancos M\n*Total S/ 75.00*, con IGV\n\n¿La emito?', buttons: ['Emitir', 'Cambiar datos'] },
+      { d: 1300, tap: 0 },
       { d: 300, in: 'Boleta B001-1032 aceptada por SUNAT ✅', doc: ['B001-1032.pdf', '1 página · PDF · 48 kB'] },
-    ],
-  },
-  tender: {
-    ...owner, time: '07:30', steps: [
-      { d: 300, in: '🏛️ *2 licitaciones nuevas* de tu rubro en el SEACE:\n\n• Papel bond A4 · entidad de Lima · cierra el viernes 20\n• Útiles de oficina · entidad de Lima · cierra el martes 24\n\nTe las dejé en tu panel.' },
-      { d: 1200, out: '¿Cuándo cierra la de papel bond?' },
-      { d: 300, in: 'El registro de participantes cierra el *viernes 20*. La marqué como interesante.' },
+      { d: 900, in: '📦 Le pasé la salida a Stock Cat: los *polos blancos M* bajaron a 6 y tu mínimo es 10.', buttons: ['Pedir reposición'] },
     ],
   },
   sales: {
-    ...owner, time: '11:05', steps: [
-      { d: 300, out: '/sales vendí 10 polos blancos M a Bodega Rosita, al crédito hasta el 15' },
-      { d: 300, in: 'Venta N.° 128 registrada ✅\n10 polos blancos M · *S/ 250.00*\nAl crédito hasta el 15/12. Se la pasé a Collections Cat.' },
-      { d: 1000, out: 'Cotiza 50 polos para el Colegio San Martín' },
-      { d: 300, in: 'Cotización N.° 57 para *Colegio San Martín*: S/ 1,250.00 con IGV. Reenvíasela tal cual.', doc: ['Cotizacion-000057.pdf', '1 página · PDF · 46 kB'] },
+    ...shop, time: '16:20', steps: [
+      { d: 300, out: 'Hola, ¿tienen polos blancos talla M?' },
+      { d: 300, in: '¡Hola! Sí, tenemos polos blancos M a *S/ 25.00*. ¿Cuántos necesitas?' },
+      { d: 900, out: '10, para el viernes' },
+      { d: 300, in: 'Tu cotización N.° 57: 10 polos blancos M · *S/ 250.00* con IGV. ¿La confirmo?', doc: ['Cotizacion-000057.pdf', '1 página · PDF · 46 kB'], buttons: ['Confirmar', 'Cambiar'] },
+      { d: 1200, tap: 0 },
+      { d: 300, in: '¡Listo! ¿Cómo quieres pagar?', buttons: ['Yape', 'Link de pago', 'Al crédito'] },
+      { d: 1200, tap: 0 },
+      { d: 300, in: 'Yapea *S/ 250.00* al 987 654 321 (Moda Killa) y mándame la captura.' },
+      { d: 1000, out: '', photo: { kind: 'yape', lines: ['¡Yapeaste!', 'S/ 250', 'Moda Killa', 'Op. 41756321'] } },
+      { d: 300, in: 'Pago recibido ✅ Aquí tienes tu boleta. Tu pedido sale el viernes.', doc: ['B001-1033.pdf', '1 página · PDF · 48 kB'] },
     ],
   },
   stock: {
     ...owner, time: '09:40', steps: [
-      { d: 300, out: '/stock llegaron 20 rollos de tela jersey' },
-      { d: 300, in: 'Guardado. Ahora tienes *24 rollos* de tela jersey.' },
-      { d: 1400, in: '⚠️ *Polos blancos M* bajaron a 6. Tu mínimo es 10.' },
+      { d: 300, out: '/stock', },
+      { d: 600, out: '', photo: { kind: 'invoice', lines: ['TEXTILES LIMA S.A.C.', 'RUC 20512345678', 'Factura F002-881', '20 rollos tela jersey blanca', 'Total S/ 3,600.00'] } },
+      { d: 300, in: 'Leí la factura de *Textiles Lima* (RUC 20512345678):\n20 rollos de tela jersey blanca a S/ 180.00\n\n¿La guardo como entrada?', buttons: ['Guardar', 'Cancelar'] },
+      { d: 1300, tap: 0 },
+      { d: 300, in: 'Guardado. Tienes *24 rollos* de tela jersey.\nLlegó completo el pedido OC-000014 ✅' },
+      { d: 900, out: '¿Qué se acaba?' },
+      { d: 300, in: 'Bajo tu mínimo:\n• Polos blancos M: 6 (mínimo 10)\n• Hilo blanco: 3 conos (mínimo 5)' },
     ],
   },
   reorder: {
     ...owner, time: '11:10', steps: [
-      { d: 300, in: '🛒 La *tela jersey* bajó a 4 rollos (mínimo 10).\n¿Le pido 20 rollos a *Textiles Lima*?', buttons: ['Aprobar', 'Cambiar'] },
+      { d: 300, in: '🛒 La *tela jersey* bajó a 4 rollos (mínimo 10).\n¿Le pido 20 rollos a *Textiles Lima*?', buttons: ['Aprobar', 'Cambiar', 'Descartar'] },
       { d: 1300, tap: 0 },
-      { d: 300, in: 'Listo. Le escribí a Textiles Lima por WhatsApp a nombre de tu negocio.', doc: ['Orden-de-compra-000014.pdf', '1 página · PDF · 48 kB'] },
-      { d: 1600, in: '✅ *Textiles Lima aceptó*: S/ 180.00 el rollo. Llega el jueves 20/11.' },
+      { d: 300, in: 'Listo. Le escribí a Textiles Lima por WhatsApp a nombre de tu negocio. Si no responde, le insisto mañana.', doc: ['Orden-de-compra-000014.pdf', '1 página · PDF · 48 kB'] },
+      { d: 1600, in: '✅ *Textiles Lima aceptó*: S/ 180.00 el rollo. Llega el jueves 20/11.\nCuando llegue, la sumo a tu stock con su factura.' },
     ],
   },
   collections: {
     ...owner, time: '17:20', steps: [
-      { d: 300, out: '/collections' },
-      { d: 300, in: '*Te deben S/ 1,650.00*\nAl día: S/ 900.00 · Vencido: S/ 750.00\n\nBodega Rosita debe S/ 250.00 desde el 15/11. Te preparé el recordatorio.', buttons: ['Enviar recordatorio'] },
-      { d: 1400, tap: 0 },
-      { d: 300, in: 'Recordatorio enviado a Bodega Rosita ✅' },
+      { d: 300, out: '', photo: { kind: 'yape', lines: ['¡Te yapearon!', 'S/ 250', 'Bodega Rosita', 'Op. 41756321'] } },
+      { d: 300, in: 'Leí la captura: *S/ 250.00* por Yape de *Bodega Rosita* (op. 41756321).\nCoincide con su venta N.° 128 al crédito. ¿La valido?', buttons: ['Validar', 'Rechazar'] },
+      { d: 1300, tap: 0 },
+      { d: 300, in: 'Pago aplicado ✅ Bodega Rosita ya no te debe nada.\n\nTe deben *S/ 1,400.00*. *Juan Pérez* tiene S/ 300.00 vencidos hace 12 días: te preparé un recordatorio firme.', buttons: ['Enviar por WhatsApp'] },
+      { d: 1300, tap: 0 },
     ],
   },
   support: {
     ...shop, time: '23:04', steps: [
-      { d: 300, out: 'Hola, ¿hacen delivery a San Miguel?' },
+      { d: 300, out: '¿Hacen delivery a San Miguel?' },
       { d: 300, in: '¡Hola! Sí, en Lima Metropolitana por *S/ 10*. Llega en 24 a 48 horas.' },
-      { d: 1000, out: '¿Y abren los domingos?' },
-      { d: 300, in: 'Atendemos de lunes a sábado. Por aquí te respondo a cualquier hora 🙂\n\n¿Te ayudé?', buttons: ['Sí, gracias', 'No'] },
-      { d: 1300, tap: 0 },
+      { d: 900, out: 'Mi pedido de ayer llegó con una mancha 😕' },
+      { d: 300, in: 'Lo siento mucho. Le pasé tu caso al equipo de Moda Killa como urgente; te respondemos por aquí.' },
+      { d: 1600, in: 'De parte del equipo de Moda Killa: te cambiamos el polo mañana, sin costo.\n\n¿Te ayudé?', buttons: ['Sí, gracias', 'No'] },
+      { d: 1200, tap: 0 },
+    ],
+  },
+  tender: {
+    ...owner, time: '07:30', steps: [
+      { d: 300, in: '🏛️ *Licitación nueva de tu rubro* en el SEACE:\nPapel bond A4 y útiles de oficina · entidad de Lima\nRegistro de participantes hasta el *viernes 20*.', buttons: ['Me interesa', 'Evaluar si participo', 'Descartar'] },
+      { d: 1300, tap: 1 },
+      { d: 300, in: 'Encaja con lo que vendes y piden entregas en Lima. Antes del viernes 20 revisa tu RNP vigente.\nLa dejé en *Guardadas* para que veas las bases completas en la app.' },
     ],
   },
 };

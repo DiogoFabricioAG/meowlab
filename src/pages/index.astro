@@ -8,16 +8,16 @@ import '../styles/home.css';
 
 const portal = 'https://app.meowlab.tech';
 
-// The seven cats of the tour, in the order a business meets them. Each line says only what the cat
-// does today (ADR-0011 to ADR-0017).
-const cats = [
-  { key: 'invoice', name: 'Invoice Cat', job: 'Factura', text: 'Emite facturas, boletas, notas de crédito y guías de remisión ante SUNAT. Tú confirmas el borrador y recibes el PDF.' },
-  { key: 'sales', name: 'Sales Cat', job: 'Vende', text: 'Registra tus ventas al contado o al crédito y arma cotizaciones en PDF para que se las reenvíes a tus clientes.' },
-  { key: 'stock', name: 'Stock Cat', job: 'Cuida tu stock', text: 'Lleva tu inventario. Las entradas se las dices o le mandas la foto de la factura; las salidas bajan solas con tus ventas.' },
-  { key: 'reorder', name: 'Reorder Cat', job: 'Repone', text: 'Cuando algo baja del mínimo te propone el pedido y, si lo apruebas, le escribe al proveedor a nombre de tu negocio.' },
-  { key: 'collections', name: 'Collections Cat', job: 'Cobra', text: 'Lleva lo que te deben, lee las capturas de pago y te prepara los recordatorios, que envías con un botón.' },
-  { key: 'support', name: 'Support Cat', job: 'Atiende', text: 'Responde a tus clientes las 24 horas en el WhatsApp de tu empresa. Lo que no sabe te lo pregunta a ti.' },
-  { key: 'tender', name: 'Tender Cat', job: 'Busca licitaciones', text: 'Revisa el SEACE por ti y te avisa cuando sale una licitación de lo que vendes.' },
+// The seven cats of the tour, in the order a business meets them. Each line says what the cat does
+// today (ADR-0011 to ADR-0017); Sales Cat shows its phase 2, marked «Próximamente», with what it does today.
+const cats: { key: string; name: string; job: string; text: string; soon?: string }[] = [
+  { key: 'invoice', name: 'Invoice Cat', job: 'Factura', text: 'Emite facturas, boletas, notas de crédito y guías de remisión ante SUNAT. Busca el nombre del cliente por su DNI y, al emitir, le pasa la salida a Stock Cat.' },
+  { key: 'sales', name: 'Sales Cat', job: 'Vende', text: 'La primera cara de tu negocio: atiende al cliente, le cotiza con tu catálogo, confirma el pedido, cobra y le manda su boleta.', soon: 'Hoy le cotiza al cliente con tu catálogo, junto con Support Cat, y tú registras la venta y emites la boleta desde el chat. Cerrar la venta solo con el cliente llega pronto.' },
+  { key: 'stock', name: 'Stock Cat', job: 'Cuida tu stock', text: 'Lee la foto de la factura de tu proveedor, guarda la entrada y te dice si llegó completo el pedido. Las salidas bajan solas con tus comprobantes.' },
+  { key: 'reorder', name: 'Reorder Cat', job: 'Repone', text: 'Cuando algo baja del mínimo te propone el pedido. Si lo apruebas, le escribe al proveedor a nombre de tu negocio, le manda la orden de compra e insiste si no responde.' },
+  { key: 'collections', name: 'Collections Cat', job: 'Cobra', text: 'Lee las capturas de Yape, Plin o transferencia, las cruza con lo que te deben y te pide validarlas. Te prepara los recordatorios, que envías con un botón.' },
+  { key: 'support', name: 'Support Cat', job: 'Atiende', text: 'Atiende a tus clientes las 24 horas en el WhatsApp de tu empresa: responde, cotiza, recibe reclamos y lo que no sabe te lo pregunta a ti.' },
+  { key: 'tender', name: 'Tender Cat', job: 'Busca licitaciones', text: 'Revisa el SEACE por ti, te avisa cuando sale una licitación de lo que vendes y te ayuda a decidir si participas.' },
 ];
 
 // What the panel shows on its home screen today, one line per cat (as WeeklyHome in apps/meowlab-app).
@@ -72,9 +72,10 @@ const chats = { hero: heroChat, tour: tourChats, team: teamChat };
             {cats.map((c, i) => (
               <li class="ml-step" id={`gato-${c.key}`} data-cat={c.key}>
                 <span class="ml-step__logo"><img src={`/assets/agents/${c.key}-cat.webp`} alt="" width="64" height="64" loading="lazy" /></span>
-                <span class="ml-step__n">{String(i + 1).padStart(2, '0')} · {c.job}</span>
+                <span class="ml-step__n">{String(i + 1).padStart(2, '0')} · {c.job}{c.soon && <span class="ml-soon">Próximamente</span>}</span>
                 <h3>{c.name}</h3>
                 <p>{c.text}</p>
+                {c.soon && <p class="ml-step__today">{c.soon}</p>}
               </li>
             ))}
           </ol>

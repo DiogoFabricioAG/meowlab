@@ -216,7 +216,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 195</span>
+      <span class="summary">Abiertas: 83 · Total: 196</span>
     </div>
   </div>
 </header>
@@ -1154,7 +1154,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">112</span>
+          <span class="count">113</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="landing: rediseño con whatsapp interactivo, recorrido de los gatos y precios en /precios landing pedido del operador tras revisar la landing publicada. rama feat/landing-rediseno. hero sin precio, con un celular de whatsapp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el inicio real del portal, sin barra de url. se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. preguntas en acordeón y cierre en un bloque verde con botones normales. con e2b8d, celulares de 340 px y secciones que crecen con zoom de 90 %. fusionado (pr #10, b2cb2a2967f0) y desplegado el 2026-11-16 como meowlab-web:b2cb2a2967f0; acta en docs/operations/landing-rediseno-2026-11-16.md. astro build ok (5 páginas). capturas con chrome headless a 1440x900, 768x1024 y 390x844: sin desborde horizontal; el celular del recorrido cambia de conversación por paso y el hero responde al toque de «emitir».">
@@ -2091,6 +2091,17 @@
           <p class="card-notes">ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&amp;D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&amp;D y la prueba real con un número que no sea del equipo.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-1-nucleo-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: cada gato del recorrido a su máxima capacidad; sales cat como cara del negocio (próximamente) landing pedido del operador: los ejemplos no mostraban la capacidad de cada gato. rama feat/landing-gatos-al-maximo. conversaciones nuevas con cadenas reales (dni → boleta → stock; foto de factura del proveedor; captura de yape validada; reclamo con respuesta del equipo; evaluación de licitación). sales cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por yape y manda la boleta) con etiqueta «próximamente» y lo que hace hoy, por decisión del operador. burbujas de foto dibujadas en html. sin desplegar. astro build ok. capturas con chrome headless a 1440x900 de los siete pasos al terminar su conversación y del paso de sales a 390x844, sin desborde horizontal.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: cada gato del recorrido a su máxima capacidad; Sales Cat como cara del negocio (Próximamente)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> astro build OK. Capturas con Chrome headless a 1440x900 de los siete pasos al terminar su conversación y del paso de Sales a 390x844, sin desborde horizontal.</p>
+          <p class="card-notes">Pedido del operador: los ejemplos no mostraban la capacidad de cada gato. Rama feat/landing-gatos-al-maximo. Conversaciones nuevas con cadenas reales (DNI → boleta → Stock; foto de factura del proveedor; captura de Yape validada; reclamo con respuesta del equipo; evaluación de licitación). Sales Cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por Yape y manda la boleta) con etiqueta «Próximamente» y lo que hace hoy, por decisión del operador. Burbujas de foto dibujadas en HTML. Sin desplegar.</p>
+          <p class="card-meta">Actualizado: 2026-11-16 · Responsable: Claude</p>
+          <code class="card-id">landing-gatos-al-maximo-20261116</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transición suave en el toggle y formulario de iniciar sesión y crear cuenta portal transición fluida y animada entre iniciar sesión y crear cuenta en authpage (app.meowlab.tech): píldora deslizante con aceleración por hardware en el selector y transición suave de opacidad y altura en los campos del formulario. desplegado en el vps: meowlab-app:04f107c72db8 desde commit 04f107c. https://app.meowlab.tech/ respondiendo http/2 200 con el nuevo bundle index-dhgs6wmb.js y contenedor en estado healthy. tests vitest 16/16, typecheck y build limpios. acta: docs/operations/portal-auth-transicion-despliegue-2026-11-12.md">
           <div class="card-top">

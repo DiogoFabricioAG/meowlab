@@ -77,13 +77,20 @@ export class Player {
     this.send.classList.toggle('is-send', on);
   }
 
-  private bubble(from: 'in' | 'out', step: Pick<Step, 'in' | 'out' | 'doc'>) {
+  private bubble(from: 'in' | 'out', step: Pick<Step, 'in' | 'out' | 'doc' | 'photo'>) {
     const row = document.createElement('div');
     row.className = `ml-row ml-row--${from}`;
     const text = (from === 'in' ? step.in : step.out) ?? '';
     const doc = step.doc
       ? `<span class="ml-doc"><span class="ml-doc__icon">PDF</span><span class="ml-doc__name"><b>${esc(step.doc[0])}</b><small>${esc(step.doc[1])}</small></span></span>`
       : '';
+    if (step.photo) {
+      // a picture the person sends: a supplier's invoice or a Yape capture, drawn in HTML
+      const [first, ...rest] = step.photo.lines;
+      row.innerHTML = `<div class="ml-bub ml-bub--pic"><span class="ml-photo ml-photo--${step.photo.kind}" role="img" aria-label="${esc(step.photo.lines.join(', '))}"><b>${esc(first)}</b>${rest.map((l) => `<span>${esc(l)}</span>`).join('')}</span><span class="ml-meta">${this.time()}${from === 'out' ? TICKS : ''}</span></div>`;
+      this.add(row);
+      return row;
+    }
     row.innerHTML = `<div class="ml-bub">${doc}<span class="ml-bub__text">${format(text)}</span><span class="ml-meta">${this.time()}${from === 'out' ? TICKS : ''}</span></div>`;
     this.add(row);
     return row;
@@ -128,7 +135,7 @@ export class Player {
       if (!(await this.sleep(step.d ?? 0, id))) return false;
       if (step.handoff) { this.opts.onHandoff?.(step.handoff); continue; }
       if (step.out !== undefined) {
-        if (!(await this.typeOut(step.out, id))) return false;
+        if (!step.photo && !(await this.typeOut(step.out, id))) return false;
         this.composer('');
         this.bubble('out', step);
         this.minute += 1;
