@@ -40,7 +40,7 @@ el hero y el cierre).
 | Sección | Contenido | Visual |
 | --- | --- | --- |
 | hero (`split`) | h1 «Agentes de IA en WhatsApp para mypes peruanas», qué hace MeowLab en una línea, «Entrar al portal» y «Conoce a los gatos» | celular con WhatsApp en HTML: el visitante toca «Emitir» o «Corregir» y la conversación sigue |
-| `#gatos` | qué es un gato y los siete, uno por paso (Invoice, Sales, Stock, Reorder, Collections, Support y Tender Cat) | recorrido con scroll: el paso del centro de la pantalla elige la conversación del celular fijo (`position: sticky`); fila de logos para saltar a un gato |
+| `#gatos` | qué es un gato y los siete, uno por paso; cada paso tiene una pestaña por actor con el que trabaja el gato (cliente, dueño, proveedor) y su tipo de participación, según [`project/matriz-participacion.md`](../project/matriz-participacion.md) | recorrido con scroll: el paso del centro elige el gato y su pestaña elige la conversación del celular fijo; sin tocar, las pestañas avanzan solas al terminar cada conversación; bajo las pestañas aparecen las tarjetas de lo que pasa entre gatos; fila de logos para saltar a un gato |
 | `#juntos` | los gatos trabajan juntos: una clienta escribe de noche, Support Cat le pide la cotización a Sales Cat, que revisa el stock con Stock Cat, y lo que no sabe se lo pregunta al dueño | chat de la clienta y, al lado, las tarjetas «de quién a quién» que aparecen al ritmo del chat; «Ver de nuevo» |
 | `#panel` | qué ves en el panel | el Inicio del portal como lo dibuja `apps/meowlab-app` (barra lateral, «Hola, Rosa», una línea por gato y «Para atender»), sin barra de URL |
 | `#preguntas` | cinco preguntas en acordeón (`details`), con enlace a `/precios` | — |
@@ -50,14 +50,14 @@ Los precios viven en `/precios` (`src/pages/precios.astro`): la lista de los sie
 gatos con su precio mensual con IGV y el plan de ejemplo con los descuentos del
 portal (10 % por 2, 15 % por 3 o 4, 20 % por 5 o más; `migrations-postgres/0003_billing.sql`).
 
-Las conversaciones están en `src/components/landing/chats.ts`. Cada una muestra
-de punta a punta lo que el gato hace hoy: Invoice Cat busca el nombre por DNI y le
-pasa la salida a Stock Cat; Stock Cat lee la foto de la factura del proveedor;
-Collections Cat lee la captura de Yape y pide validarla; Support Cat recibe un
-reclamo y pasa la respuesta del equipo. La excepción es Sales Cat: por decisión del
-operador (2026-11-16) su paso muestra la fase 2 de la ADR-0011 (el cliente cotiza,
-confirma, paga y recibe su boleta), con la etiqueta «Próximamente» y una línea con
-lo que hace hoy. Cuando la fase 2 esté en producción, se quita la etiqueta. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
+Las conversaciones están en `src/components/landing/chats.ts`, una por gato y actor
+(`invoice-dueno`, `sales-cliente`, …). Las pestañas siguen la matriz de
+participación. Una pestaña cuya conversación aún no existe en producción lleva la
+etiqueta «Próximamente» y una línea con lo que el gato hace hoy; es decisión del
+operador del 2026-11-16. Hoy son: Sales con el cliente y con el dueño, Invoice con
+el cliente, Stock consultado al cotizar, Collections con el cliente y la parte
+proactiva de Support con el cliente. Cuando una de ellas llegue a producción, se
+quita su `soon` en `src/pages/index.astro`. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
 movimiento reducido los mensajes aparecen sin animación y los botones siguen
 respondiendo. Fuera de los celulares la página usa tres colores: blanco, tinta y
 el verde de la marca (con el menta como su tono claro); dentro, la paleta de

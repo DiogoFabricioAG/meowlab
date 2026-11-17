@@ -8,16 +8,42 @@ import '../styles/home.css';
 
 const portal = 'https://app.meowlab.tech';
 
-// The seven cats of the tour, in the order a business meets them. Each line says what the cat does
-// today (ADR-0011 to ADR-0017); Sales Cat shows its phase 2, marked «Próximamente», with what it does today.
-const cats: { key: string; name: string; job: string; text: string; soon?: string }[] = [
-  { key: 'invoice', name: 'Invoice Cat', job: 'Factura', text: 'Emite facturas, boletas, notas de crédito y guías de remisión ante SUNAT. Busca el nombre del cliente por su DNI y, al emitir, le pasa la salida a Stock Cat.' },
-  { key: 'sales', name: 'Sales Cat', job: 'Vende', text: 'La primera cara de tu negocio: atiende al cliente, le cotiza con tu catálogo, confirma el pedido, cobra y le manda su boleta.', soon: 'Hoy le cotiza al cliente con tu catálogo, junto con Support Cat, y tú registras la venta y emites la boleta desde el chat. Cerrar la venta solo con el cliente llega pronto.' },
-  { key: 'stock', name: 'Stock Cat', job: 'Cuida tu stock', text: 'Lee la foto de la factura de tu proveedor, guarda la entrada y te dice si llegó completo el pedido. Las salidas bajan solas con tus comprobantes.' },
-  { key: 'reorder', name: 'Reorder Cat', job: 'Repone', text: 'Cuando algo baja del mínimo te propone el pedido. Si lo apruebas, le escribe al proveedor a nombre de tu negocio, le manda la orden de compra e insiste si no responde.' },
-  { key: 'collections', name: 'Collections Cat', job: 'Cobra', text: 'Lee las capturas de Yape, Plin o transferencia, las cruza con lo que te deben y te pide validarlas. Te prepara los recordatorios, que envías con un botón.' },
-  { key: 'support', name: 'Support Cat', job: 'Atiende', text: 'Atiende a tus clientes las 24 horas en el WhatsApp de tu empresa: responde, cotiza, recibe reclamos y lo que no sabe te lo pregunta a ti.' },
-  { key: 'tender', name: 'Tender Cat', job: 'Busca licitaciones', text: 'Revisa el SEACE por ti, te avisa cuando sale una licitación de lo que vendes y te ayuda a decidir si participas.' },
+// The seven cats of the tour and, for each, one tab per actor it works with (cliente, dueño,
+// proveedor), as in docs/project/matriz-participacion.md. A tab with `soon` shows a conversation
+// that is not built yet: the page marks it «Próximamente» and shows `soon`, what the cat does today.
+type Actor = 'cliente' | 'dueno' | 'proveedor';
+type Mode = 'Proactivo' | 'Reactivo' | 'Proactivo y reactivo' | 'Consultado';
+const actorLabel: Record<Actor, string> = { cliente: 'Con el cliente', dueno: 'Con el dueño', proveedor: 'Con el proveedor' };
+const modeClass: Record<Mode, string> = { 'Proactivo': 'pro', 'Reactivo': 're', 'Proactivo y reactivo': 'pro', 'Consultado': 'con' };
+const cats: { key: string; name: string; job: string; text: string; tabs: { actor: Actor; mode: Mode; soon?: string }[] }[] = [
+  { key: 'invoice', name: 'Invoice Cat', job: 'Factura', text: 'Emite facturas, boletas, notas de crédito y guías de remisión ante SUNAT, y le avisa a Stock Cat lo que salió.', tabs: [
+    { actor: 'dueno', mode: 'Reactivo' },
+    { actor: 'cliente', mode: 'Proactivo', soon: 'Hoy el comprobante te llega a ti y tú se lo reenvías al cliente.' },
+  ] },
+  { key: 'sales', name: 'Sales Cat', job: 'Vende', text: 'La primera cara de tu negocio con el cliente: atiende, cotiza con tu catálogo, confirma y cobra.', tabs: [
+    { actor: 'cliente', mode: 'Reactivo', soon: 'Hoy el cliente recibe la cotización con tu catálogo a través de Support Cat. Cerrar la venta y cobrar en el chat llega pronto.' },
+    { actor: 'dueno', mode: 'Proactivo', soon: 'Hoy registras tus ventas, cotizas y pides el resumen del día. Que te avise de posibles ventas llega pronto.' },
+  ] },
+  { key: 'stock', name: 'Stock Cat', job: 'Cuida tu stock', text: 'Lleva tu inventario con las fotos de tus facturas, te avisa lo que se acaba y responde cuando otro gato le pregunta.', tabs: [
+    { actor: 'dueno', mode: 'Proactivo y reactivo' },
+    { actor: 'cliente', mode: 'Consultado', soon: 'Hoy la cotización al cliente usa tu catálogo, pero todavía no consulta el stock.' },
+    { actor: 'proveedor', mode: 'Consultado' },
+  ] },
+  { key: 'reorder', name: 'Reorder Cat', job: 'Repone', text: 'Arma el pedido, le escribe al proveedor a nombre de tu negocio con la orden de compra y te avisa cuando acepta.', tabs: [
+    { actor: 'dueno', mode: 'Proactivo' },
+    { actor: 'proveedor', mode: 'Proactivo' },
+  ] },
+  { key: 'collections', name: 'Collections Cat', job: 'Cobra', text: 'Cobra lo que te deben: lee las capturas de pago, te pide validarlas y prepara los recordatorios.', tabs: [
+    { actor: 'dueno', mode: 'Proactivo y reactivo' },
+    { actor: 'cliente', mode: 'Proactivo', soon: 'Hoy te prepara el recordatorio y tú lo envías con un botón. Escribirle al cliente por su cuenta llega pronto.' },
+  ] },
+  { key: 'support', name: 'Support Cat', job: 'Atiende', text: 'La cara de tu postventa: atiende a tus clientes las 24 horas en el WhatsApp de tu empresa y te pasa lo que no sabe.', tabs: [
+    { actor: 'cliente', mode: 'Proactivo', soon: 'Hoy responde, cotiza y recibe reclamos las 24 horas. Escribirle primero al cliente, como el aviso de envío, llega pronto.' },
+    { actor: 'dueno', mode: 'Proactivo y reactivo' },
+  ] },
+  { key: 'tender', name: 'Tender Cat', job: 'Busca licitaciones', text: 'Revisa el SEACE por ti, te avisa cuando sale una licitación de lo que vendes y te ayuda a decidir si participas.', tabs: [
+    { actor: 'dueno', mode: 'Proactivo' },
+  ] },
 ];
 
 // What the panel shows on its home screen today, one line per cat (as WeeklyHome in apps/meowlab-app).
@@ -72,10 +98,20 @@ const chats = { hero: heroChat, tour: tourChats, team: teamChat };
             {cats.map((c, i) => (
               <li class="ml-step" id={`gato-${c.key}`} data-cat={c.key}>
                 <span class="ml-step__logo"><img src={`/assets/agents/${c.key}-cat.webp`} alt="" width="64" height="64" loading="lazy" /></span>
-                <span class="ml-step__n">{String(i + 1).padStart(2, '0')} · {c.job}{c.soon && <span class="ml-soon">Próximamente</span>}</span>
+                <span class="ml-step__n">{String(i + 1).padStart(2, '0')} · {c.job}</span>
                 <h3>{c.name}</h3>
                 <p>{c.text}</p>
-                {c.soon && <p class="ml-step__today">{c.soon}</p>}
+                <div class="ml-tabs" role="tablist" aria-label={`Con quién trabaja ${c.name}`}>
+                  {c.tabs.map((t, j) => (
+                    <button type="button" role="tab" class="ml-tab" data-chat={`${c.key}-${t.actor}`} data-soon={t.soon ?? ''} aria-selected={j === 0 ? 'true' : 'false'}>
+                      <span class="ml-tab__who">{actorLabel[t.actor]}</span>
+                      <span class={`ml-mode ml-mode--${modeClass[t.mode]}`}>{t.mode}</span>
+                      {t.soon && <span class="ml-tab__soon">Próximamente</span>}
+                    </button>
+                  ))}
+                </div>
+                <p class="ml-step__today" hidden></p>
+                <ol class="ml-hands ml-step__hands" aria-live="polite"></ol>
               </li>
             ))}
           </ol>
@@ -192,26 +228,63 @@ const chats = { hero: heroChat, tour: tourChats, team: teamChat };
     heroAgain.addEventListener('click', playHero);
     playHero();
 
-    // Tour: the step in the middle of the screen chooses the conversation of the sticky phone.
+    // Tour: the step in the middle of the screen chooses the cat; its tabs choose the actor. The phone
+    // plays that conversation, and what happens between cats appears as cards under the step's tabs.
+    // Without a tap, each tab moves on to the next one when its conversation ends.
     const tourPhone = $('tour-phone');
-    const tour = new Player(tourPhone);
     const steps = [...document.querySelectorAll<HTMLElement>('.ml-step')];
-    let current = '';
-    const pick = (key: string) => {
-      if (key === current) return;
-      current = key;
-      steps.forEach((s) => s.classList.toggle('is-on', s.dataset.cat === key));
-      document.querySelectorAll<HTMLElement>('.ml-rail a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.cat === key));
-      tour.header(data.tour[key]);
-      tour.run(data.tour[key]);
+    let active: HTMLElement | null = null;
+    let token = 0;
+    const tabsOf = (st: HTMLElement) => [...st.querySelectorAll<HTMLButtonElement>('.ml-tab')];
+    const tour = new Player(tourPhone, {
+      onHandoff: (h) => {
+        const list = active?.querySelector('.ml-step__hands');
+        if (!list) return;
+        list.append(handoffCard(h));
+        while (list.children.length > 3) list.firstElementChild!.remove();
+      },
+      onEnd: () => {
+        const st = active;
+        if (!st || st.dataset.manual) return;
+        const tabs = tabsOf(st);
+        const i = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+        if (i < tabs.length - 1) {
+          const mine = ++token;
+          setTimeout(() => { if (mine === token && active === st) selectTab(st, i + 1, false); }, 2600);
+        }
+      },
+    });
+    const selectTab = (st: HTMLElement, i: number, manual: boolean) => {
+      token++;
+      if (manual) st.dataset.manual = '1';
+      const tabs = tabsOf(st);
+      tabs.forEach((t, j) => t.setAttribute('aria-selected', String(j === i)));
+      const tab = tabs[i];
+      const today = st.querySelector<HTMLElement>('.ml-step__today')!;
+      today.textContent = tab.dataset.soon ?? '';
+      today.hidden = !tab.dataset.soon;
+      st.querySelector('.ml-step__hands')!.innerHTML = '';
+      const chat = data.tour[tab.dataset.chat!];
+      tour.header(chat);
+      tour.run(chat);
     };
+    const activate = (st: HTMLElement) => {
+      if (st === active) return false;
+      if (active) { active.querySelector('.ml-step__hands')!.innerHTML = ''; delete active.dataset.manual; }
+      active = st;
+      steps.forEach((s) => s.classList.toggle('is-on', s === st));
+      document.querySelectorAll<HTMLElement>('.ml-rail a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.cat === st.dataset.cat));
+      return true;
+    };
+    const pick = (st: HTMLElement) => { if (activate(st)) selectTab(st, 0, false); };
+    steps.forEach((st) => tabsOf(st).forEach((tab, i) => tab.addEventListener('click', () => { activate(st); selectTab(st, i, true); })));
     const tourIO = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) pick((e.target as HTMLElement).dataset.cat!); });
+      entries.forEach((e) => { if (e.isIntersecting) pick(e.target as HTMLElement); });
     }, { rootMargin: window.matchMedia('(max-width: 639px)').matches ? '-72% 0px -18% 0px' : '-45% 0px -45% 0px' });
     steps.forEach((s) => tourIO.observe(s));
     // the phone is never empty: the first cat plays as soon as the tour comes into view
     new IntersectionObserver((entries, io) => {
-      if (entries.some((e) => e.isIntersecting)) { if (!current) pick(steps[0].dataset.cat!); io.disconnect(); }
+      if (entries.some((e) => e.isIntersecting)) { if (!active) pick(steps[0]); io.disconnect(); }
     }, { threshold: 0.2 }).observe(tourPhone);
 
     // The cats working together: plays when the section comes into view, once; «Ver de nuevo» replays it.
