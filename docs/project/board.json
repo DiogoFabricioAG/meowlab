@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "matriz-participacion-gatos-20261116",
+      "title": "Documentar la matriz de participación de los gatos (cliente, dueño, proveedor)",
+      "area": "Producto",
+      "owner": "Claude",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-16",
+      "notes": "Visión del operador: el papel de cada gato con cada actor (proactivo, reactivo, consultado o sin participación), con su diagrama y la distancia con lo construido. Las casillas pendientes son Sales con el cliente, Invoice con el cliente, Stock consultado al cotizar, y Collections y Support proactivos con el cliente.",
+      "evidence": "docs/project/matriz-participacion.md y matriz-participacion.png; enlazada desde docs/README.md."
+    },
+    {
       "id": "landing-gatos-al-maximo-20261116",
       "title": "Landing: cada gato del recorrido a su máxima capacidad; Sales Cat como cara del negocio (Próximamente)",
       "area": "Landing",

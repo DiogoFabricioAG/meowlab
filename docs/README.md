@@ -13,6 +13,7 @@ docs/
 │  ├─ status.md
 │  ├─ board.json
 │  ├─ board.html
+│  ├─ matriz-participacion.md
 │  └─ repository-map.md
 ├─ architecture/
 │  └─ current-system.md
@@ -32,6 +33,8 @@ docs/
 ## Cómo navegar
 
 - Estado real y pendientes: [`project/status.md`](project/status.md).
+- Visión de producto: qué papel cumple cada gato con el cliente, el dueño y el
+  proveedor, y cuánto falta para llegar ahí: [`project/matriz-participacion.md`](project/matriz-participacion.md).
 - Proyectos registrados explícitamente: [`project/projects.json`](project/projects.json).
   Es un catálogo documental incremental, no un registro de roles ni un inventario exhaustivo.
 - RADAR (escritorio de licitaciones y futura integración de alertas compartidas):

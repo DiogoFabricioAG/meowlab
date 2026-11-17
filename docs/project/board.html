@@ -202,6 +202,7 @@
           <option value="Ops">Ops</option>
           <option value="Plataforma">Plataforma</option>
           <option value="Portal">Portal</option>
+          <option value="Producto">Producto</option>
           <option value="Pruebas">Pruebas</option>
           <option value="TUI">TUI</option>
           <option value="Tests">Tests</option>
@@ -216,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 196</span>
+      <span class="summary">Abiertas: 83 · Total: 197</span>
     </div>
   </div>
 </header>
@@ -1154,7 +1155,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">113</span>
+          <span class="count">114</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Landing" data-text="landing: rediseño con whatsapp interactivo, recorrido de los gatos y precios en /precios landing pedido del operador tras revisar la landing publicada. rama feat/landing-rediseno. hero sin precio, con un celular de whatsapp realista y botones que el visitante toca. #gatos: recorrido con scroll y celular fijo, un paso por gato. #juntos: tarjetas animadas al ritmo del chat. #panel: el inicio real del portal, sin barra de url. se quitan #facturas, #un-chat, #licitaciones, #equipo y #agentes de la portada; los precios pasan a /precios. preguntas en acordeón y cierre en un bloque verde con botones normales. con e2b8d, celulares de 340 px y secciones que crecen con zoom de 90 %. fusionado (pr #10, b2cb2a2967f0) y desplegado el 2026-11-16 como meowlab-web:b2cb2a2967f0; acta en docs/operations/landing-rediseno-2026-11-16.md. astro build ok (5 páginas). capturas con chrome headless a 1440x900, 768x1024 y 390x844: sin desborde horizontal; el celular del recorrido cambia de conversación por paso y el hero responde al toque de «emitir».">
@@ -2091,6 +2092,17 @@
           <p class="card-notes">ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&amp;D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&amp;D y la prueba real con un número que no sea del equipo.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-1-nucleo-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Producto" data-text="documentar la matriz de participación de los gatos (cliente, dueño, proveedor) producto visión del operador: el papel de cada gato con cada actor (proactivo, reactivo, consultado o sin participación), con su diagrama y la distancia con lo construido. las casillas pendientes son sales con el cliente, invoice con el cliente, stock consultado al cotizar, y collections y support proactivos con el cliente. docs/project/matriz-participacion.md y matriz-participacion.png; enlazada desde docs/readme.md.">
+          <div class="card-top">
+            <span class="badge area-other">Producto</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Documentar la matriz de participación de los gatos (cliente, dueño, proveedor)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/project/matriz-participacion.md y matriz-participacion.png; enlazada desde docs/README.md.</p>
+          <p class="card-notes">Visión del operador: el papel de cada gato con cada actor (proactivo, reactivo, consultado o sin participación), con su diagrama y la distancia con lo construido. Las casillas pendientes son Sales con el cliente, Invoice con el cliente, Stock consultado al cotizar, y Collections y Support proactivos con el cliente.</p>
+          <p class="card-meta">Actualizado: 2026-11-16 · Responsable: Claude</p>
+          <code class="card-id">matriz-participacion-gatos-20261116</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="landing: cada gato del recorrido a su máxima capacidad; sales cat como cara del negocio (próximamente) landing pedido del operador: los ejemplos no mostraban la capacidad de cada gato. rama feat/landing-gatos-al-maximo. conversaciones nuevas con cadenas reales (dni → boleta → stock; foto de factura del proveedor; captura de yape validada; reclamo con respuesta del equipo; evaluación de licitación). sales cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por yape y manda la boleta) con etiqueta «próximamente» y lo que hace hoy, por decisión del operador. burbujas de foto dibujadas en html. fusionado (pr #12, 98dff71bf357) y desplegado el 2026-11-16 como meowlab-web:98dff71bf357; acta en docs/operations/landing-gatos-al-maximo-2026-11-16.md. astro build ok. capturas con chrome headless a 1440x900 de los siete pasos al terminar su conversación y del paso de sales a 390x844, sin desborde horizontal.">
           <div class="card-top">
