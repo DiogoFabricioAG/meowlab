@@ -57,7 +57,11 @@ etiqueta «Próximamente» y una línea con lo que el gato hace hoy; es decisió
 operador del 2026-11-16. Hoy son: Sales con el cliente y con el dueño, Invoice con
 el cliente, Stock consultado al cotizar, Collections con el cliente y la parte
 proactiva de Support con el cliente. Cuando una de ellas llegue a producción, se
-quita su `soon` en `src/pages/index.astro`. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
+quita su `soon` en `src/pages/index.astro`.
+
+Las capturas de Yape de los chats usan la imagen de la demo
+(`public/assets/landing/yape-captura.webp`: datos de ejemplo, María Fernanda C.,
+S/ 250, operación 41756321). La factura del proveedor sigue dibujada en HTML. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
 movimiento reducido los mensajes aparecen sin animación y los botones siguen
 respondiendo. Fuera de los celulares la página usa tres colores: blanco, tinta y
 el verde de la marca (con el menta como su tono claro); dentro, la paleta de
