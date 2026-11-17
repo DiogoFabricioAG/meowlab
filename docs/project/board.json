@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-yape-captura-real-20261116",
+      "title": "Landing: la captura real de Yape (la de la demo) en los chats",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "low",
+      "status": "done",
+      "updated": "2026-11-16",
+      "notes": "Pedido del operador: usar la imagen de Yape que pasó para la demo, más profesional que la burbuja dibujada. Rama feat/landing-yape-real. La usan Sales y Collections con el cliente y Collections con el dueño; los textos pasan a María Fernanda Castro y la operación 41756321 para coincidir con la imagen. Sin desplegar.",
+      "evidence": "astro build OK; la imagen carga (420 px de ancho natural) en el chat de Collections con el dueño y en el de Sales con el cliente, capturas a 1440x900."
+    },
+    {
       "id": "landing-gatos-por-actor-20261116",
       "title": "Landing: cada gato con una pestaña por actor (cliente, dueño, proveedor) según la matriz",
       "area": "Landing",

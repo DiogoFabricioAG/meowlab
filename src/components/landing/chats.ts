@@ -10,7 +10,7 @@
     and reply buttons;
   - wait: the buttons wait for the visitor's tap; branches[i] runs after button i;
   - tap: the buttons are tapped by themselves (button i);
-  - photo: a picture the person sends (a supplier's invoice or a Yape capture), drawn in HTML;
+  - photo: a picture the person sends: a supplier's invoice drawn in HTML, or the Yape capture image;
   - handoff: what happens inside, shown beside the phone in the "Los gatos trabajan juntos" section.
 */
 
@@ -26,6 +26,7 @@ export interface Step {
   branches?: Step[][];
   tap?: number;
   handoff?: [Actor, Actor, string, string?];
+  // kind 'yape' shows the real capture (public/assets/landing/yape-captura.webp) and lines is its alt text
   photo?: { kind: 'invoice' | 'yape'; lines: string[] };
 }
 
@@ -105,7 +106,7 @@ export const tourChats: Record<string, Chat> = {
       { d: 300, in: '¡Listo! ¿Cómo quieres pagar?', buttons: ['Yape', 'Link de pago', 'Al crédito'] },
       { d: 1200, tap: 0 },
       { d: 300, in: 'Yapea *S/ 250.00* al 987 654 321 (Moda Killa) y mándame la captura.' },
-      { d: 1000, out: '', photo: { kind: 'yape', lines: ['¡Yapeaste!', 'S/ 250', 'Moda Killa', 'Op. 41756321'] } },
+      { d: 1000, out: '', photo: { kind: 'yape', lines: ['Captura de Yape: te yapearon S/ 250 de María Fernanda C., operación 41756321'] } },
       { d: 200, handoff: ['sales', 'invoice', 'Venta N.° 129 pagada', 'Boleta B001-1033'] },
       { d: 300, in: 'Pago recibido ✅ Aquí tienes tu boleta. Tu pedido sale el viernes.', doc: ['B001-1033.pdf', '1 página · PDF · 48 kB'] },
     ],
@@ -164,10 +165,10 @@ export const tourChats: Record<string, Chat> = {
   },
   'collections-dueno': {
     ...owner, time: '17:20', steps: [
-      { d: 300, out: '', photo: { kind: 'yape', lines: ['¡Te yapearon!', 'S/ 250', 'Bodega Rosita', 'Op. 41756321'] } },
-      { d: 300, in: 'Leí la captura: *S/ 250.00* por Yape de *Bodega Rosita* (op. 41756321).\nCoincide con su venta N.° 128 al crédito. ¿La valido?', buttons: ['Validar', 'Rechazar'] },
+      { d: 300, out: '', photo: { kind: 'yape', lines: ['Captura de Yape: te yapearon S/ 250 de María Fernanda C., operación 41756321'] } },
+      { d: 300, in: 'Leí la captura: *S/ 250.00* por Yape de *María Fernanda Castro* (op. 41756321).\nCoincide con su venta N.° 128 al crédito. ¿La valido?', buttons: ['Validar', 'Rechazar'] },
       { d: 1300, tap: 0 },
-      { d: 300, in: 'Pago aplicado ✅ Bodega Rosita ya no te debe nada.\n\nTe deben *S/ 1,400.00*. *Juan Pérez* tiene S/ 300.00 vencidos hace 12 días: te preparé un recordatorio firme.', buttons: ['Enviar por WhatsApp'] },
+      { d: 300, in: 'Pago aplicado ✅ María Fernanda Castro ya no te debe nada.\n\nTe deben *S/ 1,400.00*. *Juan Pérez* tiene S/ 300.00 vencidos hace 12 días: te preparé un recordatorio firme.', buttons: ['Enviar por WhatsApp'] },
       { d: 1300, tap: 0 },
     ],
   },
@@ -176,9 +177,9 @@ export const tourChats: Record<string, Chat> = {
       { d: 300, in: 'Hola María Fernanda 👋 Te recordamos que tu pago de *S/ 250.00* (boleta B001-1033) vence el *15/12*.\n\nPuedes pagar por Yape al 987 654 321.', buttons: ['Ya pagué'] },
       { d: 1200, tap: 0 },
       { d: 300, in: '¡Gracias! Mándame la captura, por favor.' },
-      { d: 900, out: '', photo: { kind: 'yape', lines: ['¡Yapeaste!', 'S/ 250', 'Moda Killa', 'Op. 41756398'] } },
+      { d: 900, out: '', photo: { kind: 'yape', lines: ['Captura de Yape: te yapearon S/ 250 de María Fernanda C., operación 41756321'] } },
       { d: 200, handoff: ['collections', 'owner', '¿Te llegó el Yape de S/ 250?', 'Esperando tu confirmación'] },
-      { d: 300, in: 'Recibí tu Yape (op. 41756398). Lo confirmo con Moda Killa en un momento.' },
+      { d: 300, in: 'Recibí tu Yape (op. 41756321). Lo confirmo con Moda Killa en un momento.' },
       { d: 1300, handoff: ['owner', 'collections', 'Sí, me llegó'] },
       { d: 300, in: 'Pago confirmado ✅ Tu deuda quedó en S/ 0.00. ¡Gracias!' },
     ],

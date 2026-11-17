@@ -87,7 +87,11 @@ export class Player {
     if (step.photo) {
       // a picture the person sends: a supplier's invoice or a Yape capture, drawn in HTML
       const [first, ...rest] = step.photo.lines;
-      row.innerHTML = `<div class="ml-bub ml-bub--pic"><span class="ml-photo ml-photo--${step.photo.kind}" role="img" aria-label="${esc(step.photo.lines.join(', '))}"><b>${esc(first)}</b>${rest.map((l) => `<span>${esc(l)}</span>`).join('')}</span><span class="ml-meta">${this.time()}${from === 'out' ? TICKS : ''}</span></div>`;
+      const shot = step.photo.kind === 'yape';
+      const pic = shot
+        ? `<img class="ml-photo-img" src="/assets/landing/yape-captura.webp" alt="${esc(step.photo.lines.join(' '))}" width="420" height="746" />`
+        : `<span class="ml-photo ml-photo--${step.photo.kind}" role="img" aria-label="${esc(step.photo.lines.join(', '))}"><b>${esc(first)}</b>${rest.map((l) => `<span>${esc(l)}</span>`).join('')}</span>`;
+      row.innerHTML = `<div class="ml-bub ml-bub--pic${shot ? ' ml-bub--shot' : ''}">${pic}<span class="ml-meta">${this.time()}${from === 'out' ? TICKS : ''}</span></div>`;
       this.add(row);
       return row;
     }
