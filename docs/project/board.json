@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-gatos-al-maximo-20261116",
+      "title": "Landing: cada gato del recorrido a su máxima capacidad; Sales Cat como cara del negocio (Próximamente)",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-16",
+      "notes": "Pedido del operador: los ejemplos no mostraban la capacidad de cada gato. Rama feat/landing-gatos-al-maximo. Conversaciones nuevas con cadenas reales (DNI → boleta → Stock; foto de factura del proveedor; captura de Yape validada; reclamo con respuesta del equipo; evaluación de licitación). Sales Cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por Yape y manda la boleta) con etiqueta «Próximamente» y lo que hace hoy, por decisión del operador. Burbujas de foto dibujadas en HTML. Sin desplegar.",
+      "evidence": "astro build OK. Capturas con Chrome headless a 1440x900 de los siete pasos al terminar su conversación y del paso de Sales a 390x844, sin desborde horizontal."
+    },
+    {
       "id": "landing-rediseno-interactivo-20261116",
       "title": "Landing: rediseño con WhatsApp interactivo, recorrido de los gatos y precios en /precios",
       "area": "Landing",

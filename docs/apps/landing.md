@@ -50,8 +50,14 @@ Los precios viven en `/precios` (`src/pages/precios.astro`): la lista de los sie
 gatos con su precio mensual con IGV y el plan de ejemplo con los descuentos del
 portal (10 % por 2, 15 % por 3 o 4, 20 % por 5 o más; `migrations-postgres/0003_billing.sql`).
 
-Las conversaciones están en `src/components/landing/chats.ts` y solo dicen lo que
-cada gato hace hoy. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
+Las conversaciones están en `src/components/landing/chats.ts`. Cada una muestra
+de punta a punta lo que el gato hace hoy: Invoice Cat busca el nombre por DNI y le
+pasa la salida a Stock Cat; Stock Cat lee la foto de la factura del proveedor;
+Collections Cat lee la captura de Yape y pide validarla; Support Cat recibe un
+reclamo y pasa la respuesta del equipo. La excepción es Sales Cat: por decisión del
+operador (2026-11-16) su paso muestra la fase 2 de la ADR-0011 (el cliente cotiza,
+confirma, paga y recibe su boleta), con la etiqueta «Próximamente» y una línea con
+lo que hace hoy. Cuando la fase 2 esté en producción, se quita la etiqueta. `src/scripts/chat.ts` las reproduce en `Phone.astro`; con
 movimiento reducido los mensajes aparecen sin animación y los botones siguen
 respondiendo. Fuera de los celulares la página usa tres colores: blanco, tinta y
 el verde de la marca (con el menta como su tono claro); dentro, la paleta de
