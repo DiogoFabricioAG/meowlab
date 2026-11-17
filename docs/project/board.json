@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "landing-gatos-por-actor-20261116",
+      "title": "Landing: cada gato con una pestaña por actor (cliente, dueño, proveedor) según la matriz",
+      "area": "Landing",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-16",
+      "notes": "Pedido del operador: la landing seguía sin demostrar la capacidad de cada gato; eligió el enfoque por actor. Rama feat/landing-gatos-por-actor. Quince conversaciones (gato × actor) con su tipo de participación; las que no están construidas llevan «Próximamente» y lo que el gato hace hoy. Las pestañas avanzan solas y se pueden tocar; las tarjetas de lo que pasa entre gatos aparecen bajo las pestañas. Sin desplegar.",
+      "evidence": "astro build OK. Capturas con Chrome headless a 1440x900 (Sales cliente → dueño por avance automático, Stock proveedor y Reorder proveedor por clic) y a 390x844, sin desborde horizontal."
+    },
+    {
       "id": "matriz-participacion-gatos-20261116",
       "title": "Documentar la matriz de participación de los gatos (cliente, dueño, proveedor)",
       "area": "Producto",

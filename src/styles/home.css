@@ -121,13 +121,31 @@ main > section.section.ml-tour { height: auto; min-height: 0; }
 .ml-tour__intro { display: grid; gap: var(--s-4); max-width: 46rem; }
 .ml-tour__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); margin-top: var(--s-7); }
 .ml-tour__steps { margin: 0; padding: 0; list-style: none; }
-.ml-step { display: grid; align-content: center; gap: var(--s-3); min-height: 78svh; max-width: 30rem; opacity: .28; transition: opacity .4s; }
+.ml-step { display: grid; align-content: center; gap: var(--s-3); min-height: 92svh; max-width: 30rem; opacity: .28; transition: opacity .4s; }
 .ml-step.is-on { opacity: 1; }
 .ml-step__logo { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 20px; background: #d8f0e5; }
 .ml-step__logo img { width: 56px; height: 56px; mix-blend-mode: multiply; }
 .ml-step__n { color: var(--accent); font-size: 15px; font-weight: 600; letter-spacing: .02em; }
 .ml-soon { display: inline-block; margin-left: 10px; padding: 3px 10px; border-radius: 999px; background: #0c493c; color: #ffffff; font-size: 12.5px; font-weight: 600; letter-spacing: .02em; vertical-align: 1px; }
 .ml-step p.ml-step__today { padding-left: 14px; border-left: 3px solid #d8f0e5; font-size: 16px; }
+/* the tabs of a step: one per actor, with how the cat takes part (matriz de participación) */
+.ml-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--s-2); }
+.ml-tab { display: grid; gap: 4px; justify-items: start; padding: 10px 14px; border: 1.5px solid color-mix(in oklab, var(--ink) 14%, transparent); border-radius: 14px; background: #ffffff; color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color .2s, background .2s; }
+.ml-tab:hover { border-color: var(--accent); }
+.ml-tab[aria-selected="true"] { border-color: var(--accent); background: #f0f9f5; box-shadow: 0 0 0 1px var(--accent) inset; }
+.ml-tab:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ml-tab__who { font-weight: 600; font-size: 15px; }
+.ml-mode { padding: 2px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+.ml-mode--pro { background: #0c493c; color: #ffffff; }
+.ml-mode--re { background: #d8f0e5; color: #0c493c; }
+.ml-mode--con { border: 1px dashed #0c493c; color: #0c493c; }
+.ml-tab__soon { font-size: 12px; font-weight: 600; color: #8a5a00; }
+.ml-tab__soon::before { content: "● "; }
+.ml-step__hands { min-height: 0; margin-top: var(--s-2); }
+.ml-step__hands .ml-hand { padding: 8px 12px 8px 8px; gap: 10px; }
+.ml-step__hands .ml-hand__faces img, .ml-step__hands .ml-you { width: 32px; height: 32px; border-radius: 10px; }
+.ml-step__hands .ml-hand__text b { font-size: 14px; }
+.ml-step:not(.is-on) .ml-tabs { pointer-events: auto; }
 .ml-step h3 { margin: 0; font: var(--display-weight) clamp(30px, 2vw + 18px, 46px)/1.05 var(--font-display); letter-spacing: var(--display-tracking); }
 .ml-step p { margin: 0; color: var(--muted); font-size: 19px; line-height: 1.5; }
 .ml-tour__stage { position: sticky; top: calc((100svh - var(--stage-h)) / 2 + 4px); --stage-h: min(600px, calc(100svh - 200px)); align-self: start; display: grid; justify-items: center; gap: 18px; margin-top: 8svh; }
