@@ -23,7 +23,7 @@
       "priority": "medium",
       "status": "done",
       "updated": "2026-11-16",
-      "notes": "Pedido del operador: los ejemplos no mostraban la capacidad de cada gato. Rama feat/landing-gatos-al-maximo. Conversaciones nuevas con cadenas reales (DNI → boleta → Stock; foto de factura del proveedor; captura de Yape validada; reclamo con respuesta del equipo; evaluación de licitación). Sales Cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por Yape y manda la boleta) con etiqueta «Próximamente» y lo que hace hoy, por decisión del operador. Burbujas de foto dibujadas en HTML. Sin desplegar.",
+      "notes": "Pedido del operador: los ejemplos no mostraban la capacidad de cada gato. Rama feat/landing-gatos-al-maximo. Conversaciones nuevas con cadenas reales (DNI → boleta → Stock; foto de factura del proveedor; captura de Yape validada; reclamo con respuesta del equipo; evaluación de licitación). Sales Cat muestra su fase 2 con el cliente (cotiza, confirma, cobra por Yape y manda la boleta) con etiqueta «Próximamente» y lo que hace hoy, por decisión del operador. Burbujas de foto dibujadas en HTML. Fusionado (PR #12, 98dff71bf357) y desplegado el 2026-11-16 como meowlab-web:98dff71bf357; acta en docs/operations/landing-gatos-al-maximo-2026-11-16.md.",
       "evidence": "astro build OK. Capturas con Chrome headless a 1440x900 de los siete pasos al terminar su conversación y del paso de Sales a 390x844, sin desborde horizontal."
     },
     {
