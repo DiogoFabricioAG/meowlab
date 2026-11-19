@@ -12,7 +12,8 @@ import { StockPanel } from "./StockPanel";
 import { CollectionsPanel } from "./CollectionsPanel";
 import { ReorderPanel } from "./ReorderPanel";
 import { SupportPanel } from "./SupportPanel";
-import type { CatalogAgent, Weekly } from "./agents";
+import { AGENTS, agentLogo, agentState, type CatalogAgent, type Weekly } from "./agents";
+import { agentPulse, attentionItems, PULSE_LABEL } from "./attention";
 import { Icon, type IconName } from "./icons";
 
 type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "collections" | "reorder" | "support" | "plan" | "settings" | "team" | "business";
@@ -59,9 +60,9 @@ const writeCompany = (id: string) => {
 type NavItem = { path: string; label: string; icon: IconName; matches: Section[] };
 
 /**
- * The signed-in portal: a fixed menu (side on desktop, bottom on phones) with Inicio,
- * Tus agentes, Plan and Configuración. Every agent lives in the same Manolo chat; the
- * portal shows what each one did and what it still needs.
+ * The signed-in portal: a light fixed menu (side on desktop, bottom on phones) with Inicio,
+ * Tus agentes, Plan and Configuración, and the business's cats with how each is doing. The
+ * forest green is kept for what matters: the current page, the actions and the states.
  */
 export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const [leaving, setLeaving] = useState(false);
@@ -121,6 +122,11 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     { path: "/plan", label: "Plan", icon: "card", matches: ["plan"] },
     { path: "/ajustes", label: "Configuración", icon: "settings", matches: ["settings", "team"] },
   ];
+  const pending = attentionItems(weekly).length;
+  const cats = company
+    ? AGENTS.filter((agent) => agentState(agent.key, company, weekly, catalog).kind === "active")
+      .map((agent) => ({ agent, pulse: agentPulse(agent.key, weekly) }))
+    : [];
   const adminNav: NavItem[] = me.isAdmin ? [{ path: "/negocio", label: "Negocio", icon: "chart", matches: ["business"] }] : [];
 
   async function signOut() {
@@ -141,66 +147,91 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
     ) : null;
 
   return (
-    <div className="min-h-dvh bg-white lg:pl-72">
+    <div className="min-h-dvh bg-white lg:pl-64">
       <a href="#contenido" className="sr-only z-50 rounded-lg bg-forest px-4 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Saltar al contenido
       </a>
 
-      {/* Desktop: fixed side menu. */}
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col bg-forest px-4 py-6 text-mint-text lg:flex" aria-label="Menú">
-        <div className="px-3 pb-8"><Logo light /></div>
-        <nav className="flex flex-1 flex-col gap-1" aria-label="Secciones">
+      {/* Desktop: fixed side menu, light, with the cats and how each is doing. */}
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col overflow-y-auto border-r border-line bg-white px-3 py-5 lg:flex" aria-label="Menú">
+        <div className="px-3 pb-5"><Logo /></div>
+        {company && (
+          <div className="mx-1 mb-4 space-y-0.5 rounded-xl border border-line px-3 py-2.5">
+            <span className="block text-xs font-semibold text-ink-muted">Empresa</span>
+            {companyPicker("") ?? <span className="block truncate text-sm font-semibold text-ink">{company.name}</span>}
+          </div>
+        )}
+        <nav className="flex flex-col gap-0.5" aria-label="Secciones">
           {[...nav, ...adminNav].map((item) => {
             const current = item.matches.includes(section);
+            const count = item.path === "/inicio" ? pending : 0;
             return (
               <a key={item.path} href={item.path} aria-current={current ? "page" : undefined}
                 onClick={(event) => {
                   event.preventDefault();
                   go(item.path);
                 }}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors focus-visible:outline-mint ${
-                  current ? "bg-mint text-forest" : "text-mint-text hover:bg-forest-card hover:text-white"
+                className={`flex items-center gap-3 rounded-[10px] px-3 py-2 text-[15px] font-semibold transition-colors ${
+                  current ? "bg-mint-subtle text-forest" : "text-ink-2 hover:bg-surface-subtle hover:text-ink"
                 }`}>
                 <Icon name={item.icon} />
                 {item.label}
+                {count > 0 && (
+                  <span className="ml-auto rounded-full bg-forest px-2 text-xs font-semibold leading-5 text-white tabular-nums">
+                    {count}<span className="sr-only"> pendientes</span>
+                  </span>
+                )}
               </a>
             );
           })}
         </nav>
-        <div className="mt-4 space-y-3 border-t border-forest-card pt-4">
-          {company && (
-            <div className="space-y-1 rounded-xl bg-forest-card px-3 py-3">
-              <span className="block text-xs font-semibold text-mint">Empresa</span>
-              {companyPicker("") ?? <span className="block text-sm font-semibold text-white">{company.name}</span>}
-            </div>
-          )}
-          <div className="flex items-center gap-3 px-1">
-            <Avatar name={me.user.name} image={me.user.image} />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold text-white">{me.user.name}</div>
-              <div className="truncate text-xs text-mint">{me.user.email}</div>
-            </div>
-            <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
-              className="grid h-11 w-11 place-items-center rounded-lg text-mint hover:bg-forest-card hover:text-white focus-visible:outline-mint">
-              <Icon name="logout" />
-            </button>
+        {cats.length > 0 && (
+          <div className="mt-5">
+            <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-muted">Tus gatos</p>
+            <ul className="flex flex-col gap-0.5">
+              {cats.map(({ agent, pulse }) => (
+                <li key={agent.key}>
+                  <a href={agent.detail ?? "/agentes"} title={PULSE_LABEL[pulse]}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      go(agent.detail ?? "/agentes");
+                    }}
+                    className="flex items-center gap-2.5 rounded-[10px] px-3 py-1.5 text-sm text-ink-2 transition-colors hover:bg-surface-subtle hover:text-ink">
+                    <img src={agentLogo(agent.key)} alt="" width={20} height={20} className="h-5 w-5 mix-blend-multiply" decoding="async" />
+                    <span className="truncate">{agent.name}</span>
+                    <span aria-hidden="true" className={`ml-auto h-2 w-2 shrink-0 rounded-full ${pulse === "needs" ? "bg-amber-500" : pulse === "working" ? "bg-forest" : "bg-line-mint"}`} />
+                    <span className="sr-only">{PULSE_LABEL[pulse]}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
+        )}
+        <div className="mt-auto flex items-center gap-3 border-t border-line px-2 pt-4">
+          <Avatar name={me.user.name} image={me.user.image} />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-ink">{me.user.name}</div>
+            <div className="truncate text-xs text-ink-muted">{me.user.email}</div>
+          </div>
+          <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
+            className="grid h-10 w-10 place-items-center rounded-lg text-ink-muted hover:bg-surface-subtle hover:text-ink">
+            <Icon name="logout" />
+          </button>
         </div>
       </aside>
-
       {/* Phones: slim top bar; the menu sits at the bottom, after the content. */}
-      <header className="flex h-16 items-center justify-between gap-2 bg-forest px-4 lg:hidden">
-        <Logo light />
+      <header className="flex h-16 items-center justify-between gap-2 border-b border-line bg-white px-4 lg:hidden">
+        <Logo />
         <div className="flex items-center gap-1">
           {companyPicker("max-w-[9rem]")}
           <button type="button" onClick={signOut} disabled={leaving} aria-label="Salir de MeowLab"
-            className="grid h-11 w-11 place-items-center rounded-lg text-mint focus-visible:outline-mint">
+            className="grid h-11 w-11 place-items-center rounded-lg text-ink-muted">
             <Icon name="logout" />
           </button>
         </div>
       </header>
 
-      <main id="contenido" className="mx-auto max-w-5xl px-4 pb-28 pt-8 sm:px-6 lg:px-10 lg:pb-16 lg:pt-12">
+      <main id="contenido" className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:pb-16 lg:pt-10">
         {company && section === "home" && (
           <WeeklyHome me={me} company={company} weekly={weekly} failed={weeklyFailed} catalog={catalog} go={go} />
         )}
@@ -241,7 +272,14 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
               }}
               className={`relative flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${current ? "text-forest" : "text-ink-muted"}`}>
               {current && <span aria-hidden="true" className="absolute inset-x-6 top-0 h-[3px] rounded-b-full bg-forest" />}
-              <Icon name={item.icon} />
+              <span className="relative">
+                <Icon name={item.icon} />
+                {item.path === "/inicio" && pending > 0 && (
+                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-forest px-1 text-center text-[10px] leading-4 text-white tabular-nums">
+                    {pending}<span className="sr-only"> pendientes</span>
+                  </span>
+                )}
+              </span>
               {item.label}
             </a>
           );
