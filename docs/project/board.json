@@ -24,7 +24,7 @@
       "status": "done",
       "updated": "2026-11-19",
       "notes": "Desplegado el 19 de noviembre. Portal y bridge 3ed0fef5ab64, RADAR 394b1fa1550a. Cuenta piloto vinculada a su empresa. Ruta /agentes/licitaciones y recursos públicos verificados. Acta en docs/operations/tender-cat-portal-2026-11-19.md.",
-      "evidence": "Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos."
+      "evidence": "Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos. Actualización 1fde2b38cfa7 publicada con títulos breves por IA, descripción oficial desplegable, 3 pruebas de títulos y comprobación de las cinco destacadas reales."
     },
     {
       "id": "portal-centro-de-mando-20261119",
