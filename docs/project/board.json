@@ -16,14 +16,36 @@
   ],
   "tasks": [
     {
+      "id": "facturaya-pdf-emisor-desde-xml-20261119",
+      "title": "FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML",
+      "area": "FacturaYa",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-19",
+      "notes": "InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.",
+      "evidence": ""
+    },
+    {
+      "id": "jd-legal-name-padron-20261119",
+      "title": "FacturaYa: legal_name de CREACIONES J&D igual al padrón y CREACIONES J&D como nombre comercial",
+      "area": "FacturaYa",
+      "owner": "",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-19",
+      "notes": "El legal_name de J&D (RUC 10) guarda su nombre comercial, distinto del nombre del padrón, y va al XML como razón social. Hay que poner en legal_name el nombre del padrón y dejar CREACIONES J&D en trade_name. Es un cambio de datos en producción y requiere autorización del operador.",
+      "evidence": "Aplicado el 2026-11-19 05:57 UTC con autorización: legal_name igual al padrón y trade_name CREACIONES J&D. F001-00000027 generada en memoria con los dos nombres en la cabecera. Acta: docs/deployment-2026-11-19-nombres-padron-pdf.md, en facturaya-ai."
+    },
+    {
       "id": "invoice-cat-nombre-padron-20261119",
       "title": "Invoice Cat: usar siempre el nombre del padrón de SUNAT para el RUC o DNI del cliente",
       "area": "Manolo",
       "owner": "Claude",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-19",
-      "notes": "La factura F001-00000027 de CREACIONES J&D salió con el nombre del cliente escrito a mano. Invoice Cat solo consultaba el RUC cuando no había nombre. Rama fix/invoice-cat-consulta-padron: consulta el RUC (factura) o el DNI (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerChecked). En FacturaYa, rama fix/nombres-padron-pdf: etiqueta «Nombre» o «Razón social» según el documento, y nombre comercial y legal del emisor en el PDF. Pendiente: desplegar el Worker y FacturaYa, y corregir los datos de J&D (legal_name igual al padrón, trade_name CREACIONES J&D).",
+      "notes": "La factura F001-00000027 de CREACIONES J&D salió con el nombre del cliente escrito a mano. Invoice Cat solo consultaba el RUC cuando no había nombre. Rama fix/invoice-cat-consulta-padron: consulta el RUC (factura) o el DNI (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerChecked). En FacturaYa, rama fix/nombres-padron-pdf: etiqueta «Nombre» o «Razón social» según el documento, y nombre comercial y legal del emisor en el PDF. Fusionado (meowlab#20, facturaya-ai#1) y desplegado el 2026-11-19: Worker 34da882d desde 0151f y FacturaYa nombres-padron-pdf-20261119T055023Z desde 74972b0; acta en docs/operations/invoice-cat-nombre-padron-2026-11-19.md. La corrección de datos de J&D sigue en la tarea jd-legal-name-padron-20261119.",
       "evidence": "Worker: tsc OK; 230 pruebas de Invoice Cat y FacturaYa OK, 4 nuevas; suite completa 709/711 (fallan las 2 de RADAR por reloj, conocidas). FacturaYa: FiscalPdfPaginationTest 6/6, 3 nuevas; suite completa con las mismas 2 fallas que la base desplegada (manifiesto de Vite y FiscalSetupProbe)."
     },
     {
