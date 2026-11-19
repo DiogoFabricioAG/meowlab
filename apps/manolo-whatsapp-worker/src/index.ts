@@ -78,7 +78,7 @@ const FALLBACK_REPLY =
   "Miau 🐱 Estoy tomando una siesta sobre el teclado. Intenta escribirme de nuevo en un momento.";
 const MAX_INCOMING_MESSAGE_LENGTH = 4_000;
 const MAX_REPLY_LENGTH = 3_500;
-const MAX_DOCUMENT_BYTES = 12 * 1024 * 1024;
+const MAX_DOCUMENT_BYTES = 15 * 1024 * 1024;
 const DEFAULT_VISION_MODEL = "gpt-6-luna";
 
 type JsonObject = Record<string, unknown>;
@@ -1079,7 +1079,7 @@ export async function processConversationTurn(
         quoteNumberAllocator,
         roleState,
         radar: new D1RadarContactService(env.DB, effectiveTenant.tenantId, activeMessage.phoneNumberId, activeMessage.to,
-          () => Date.now(), new RadarSelectionGateway(new RadarSyncBridgeClient(env, logSafeEvent))),
+          () => Date.now(), new RadarSelectionGateway(new RadarSyncBridgeClient(env, logSafeEvent)), env.ENTERPRISE_DOCUMENTS),
         storeDesigner,
         storeCommerce,
         facturaya,
