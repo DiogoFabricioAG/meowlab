@@ -23,7 +23,7 @@
       "priority": "low",
       "status": "done",
       "updated": "2026-11-16",
-      "notes": "Pedido del operador: usar la imagen de Yape que pasó para la demo, más profesional que la burbuja dibujada. Rama feat/landing-yape-real. La usan Sales y Collections con el cliente y Collections con el dueño; los textos pasan a María Fernanda Castro y la operación 41756321 para coincidir con la imagen. Sin desplegar.",
+      "notes": "Pedido del operador: usar la imagen de Yape que pasó para la demo, más profesional que la burbuja dibujada. Rama feat/landing-yape-real. La usan Sales y Collections con el cliente y Collections con el dueño; los textos pasan a María Fernanda Castro y la operación 41756321 para coincidir con la imagen. Fusionado (PR #17, 130f6c1215c3) y desplegado el 2026-11-16 como meowlab-web:130f6c1215c3; acta en docs/operations/landing-yape-captura-2026-11-16.md.",
       "evidence": "astro build OK; la imagen carga (420 px de ancho natural) en el chat de Collections con el dueño y en el de Sales con el cliente, capturas a 1440x900."
     },
     {
