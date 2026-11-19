@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "portal-tipografia-crete-figtree-20261119",
+      "title": "Portal: títulos en Crete Round y textos y montos en Figtree",
+      "area": "Portal",
+      "owner": "Claude",
+      "priority": "medium",
+      "status": "done",
+      "updated": "2026-11-19",
+      "notes": "Decisión del operador tras comparar tres combinaciones (HTML en su escritorio). Rama feat/portal-tipografia. Títulos en Crete Round, que tiene un solo peso (font-synthesis: none para evitar la negrita falsa). Textos, botones y montos en Figtree: Crete Round tiene cifras de estilo antiguo. El logotipo conserva Blinker (font-brand). Actor deja de usarse. La landing no cambia. Sin desplegar.",
+      "evidence": "apps/meowlab-app: typecheck OK, vite build OK, vitest 52/52. Pantalla de ingreso revisada con Chrome headless: títulos en Crete Round con font-synthesis none y cuerpo en Figtree."
+    },
+    {
       "id": "facturaya-pdf-emisor-desde-xml-20261119",
       "title": "FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML",
       "area": "FacturaYa",

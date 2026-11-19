@@ -82,7 +82,7 @@ export function Logo({ light = false }: { light?: boolean }) {
         className={`h-9 w-9 shrink-0 object-contain ${light ? "mix-blend-screen" : "mix-blend-multiply"}`}
         decoding="async"
       />
-      <span className={`font-title text-xl font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>
+      <span className={`font-brand text-xl font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>
         meow<span className={light ? "font-normal text-mint" : "font-bold text-forest"}>lab</span>
       </span>
     </span>

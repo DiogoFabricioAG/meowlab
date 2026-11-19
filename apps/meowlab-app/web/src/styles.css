@@ -20,8 +20,11 @@
   --color-ink-faint: #bdc7c2;
   --color-whatsapp: #25d366;
 
-  --font-sans: "Actor", sans-serif;
-  --font-title: "Blinker", sans-serif;
+  /* Titles in Crete Round (one weight), text and amounts in Figtree; the wordmark keeps Blinker. */
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-title: "Crete Round", Georgia, serif;
+  --font-brand: "Blinker", sans-serif;
+  --tracking-tight: -0.01em;
 
   --radius-xl: 10px;
   --radius-2xl: 14px;
@@ -46,7 +49,12 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-title);
+    font-weight: 400;
     text-wrap: balance;
+  }
+  /* Crete Round has a single weight: never let the browser fake a bold one. */
+  h1, h2, h3, h4, .font-title {
+    font-synthesis: none;
   }
   p {
     text-wrap: pretty;

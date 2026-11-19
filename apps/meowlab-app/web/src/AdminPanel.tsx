@@ -61,7 +61,7 @@ export function AdminPanel() {
         {tiles.map((tile) => (
           <div key={tile.label} className="rounded-2xl border border-line bg-white p-5 shadow-soft">
             <dt className="text-sm font-semibold text-ink-muted">{tile.label}</dt>
-            <dd className="mt-1 font-title text-4xl font-bold tracking-tight text-ink tabular-nums">{tile.value}</dd>
+            <dd className="mt-1 font-sans text-4xl font-semibold tracking-tight text-ink tabular-nums">{tile.value}</dd>
             <dd className="mt-1 text-sm text-ink-muted">{tile.note}</dd>
           </div>
         ))}
@@ -78,7 +78,7 @@ export function AdminPanel() {
             ].map((tile) => (
               <div key={tile.label} className="rounded-2xl border border-line bg-white p-5 shadow-soft">
                 <dt className="text-sm font-semibold text-ink-muted">{tile.label}</dt>
-                <dd className="mt-1 font-title text-3xl font-bold tracking-tight text-ink tabular-nums">{tile.value}</dd>
+                <dd className="mt-1 font-sans text-3xl font-semibold tracking-tight text-ink tabular-nums">{tile.value}</dd>
                 <dd className="mt-1 text-sm text-ink-muted">{tile.note}</dd>
               </div>
             ))}
@@ -104,7 +104,7 @@ function ProviderRow({ label, users, total }: { label: string; users: number; to
     <div className="flex items-baseline justify-between gap-4 rounded-xl bg-surface-subtle px-4 py-3">
       <span className="text-ink-2">{label}</span>
       <span className="tabular-nums">
-        <strong className="font-title text-2xl font-bold text-ink">{users}</strong>{" "}
+        <strong className="font-sans text-2xl font-semibold text-ink tabular-nums">{users}</strong>{" "}
         <span className="text-sm text-ink-muted">{percent(users, total)}</span>
       </span>
     </div>

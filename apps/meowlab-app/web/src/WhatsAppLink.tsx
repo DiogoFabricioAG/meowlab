@@ -151,7 +151,7 @@ export function WhatsAppLink({ whatsapp, onChange }: { whatsapp: Me["whatsapp"];
               <label className="block space-y-1.5">
                 <span className="text-sm font-semibold text-ink-2">Código</span>
                 <input
-                  className="field w-44 bg-white text-center font-title text-2xl tracking-[0.35em]"
+                  className="field w-44 bg-white text-center font-sans text-2xl font-semibold tabular-nums tracking-[0.35em]"
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   pattern="\d{6}"

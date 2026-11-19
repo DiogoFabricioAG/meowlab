@@ -149,7 +149,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">
               <h3 id="sub-title" className="text-lg font-bold text-ink">{names(sub.agents)}</h3>
-              <p className="font-title text-3xl font-bold tabular-nums text-ink">
+              <p className="font-sans text-3xl font-semibold tabular-nums text-ink">
                 {soles(sub.amountCents)} <span className="text-base font-normal text-ink-muted">al mes</span>
               </p>
             </div>
@@ -250,7 +250,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
               <p className="text-sm text-ink-muted">
                 {price.percent > 0 ? `Subtotal ${soles(price.subtotal)} · descuento por equipo ${price.percent} %` : "Descuento de 10 % a 20 % al sumar agentes"}
               </p>
-              <p className="font-title text-3xl font-bold tabular-nums text-ink">
+              <p className="font-sans text-3xl font-semibold tabular-nums text-ink">
                 {soles(price.total)} <span className="text-base font-normal text-ink-muted">al mes</span>
               </p>
             </div>

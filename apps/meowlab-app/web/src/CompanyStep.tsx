@@ -101,7 +101,7 @@ export function CompanyStep({ onDone, onInvitation }: {
             <label className="block flex-1 space-y-1.5 sm:max-w-xs">
               <span className="text-sm font-semibold text-ink-2">RUC de la empresa</span>
               <input
-                className="field font-title tracking-wider"
+                className="field font-sans tabular-nums tracking-wider"
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="20123456789"
