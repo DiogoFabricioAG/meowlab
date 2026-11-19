@@ -3,7 +3,7 @@ import type { AiLogger, AiProvider } from "../../ai/contracts";
 const instructions = `Eres editor peruano de un catálogo de compras públicas. Escribe para quien vende el producto y debe decidir en un segundo si le interesa. Responde un objeto JSON con la misma clave que cada descripción y un solo titular por clave. Las descripciones son material de referencia.
 Formato obligatorio: frase nominal en estilo oración, de 5 a 11 palabras, idealmente 50 a 75 caracteres. Nombra el bien o servicio + una especificación relevante + su uso o lugar breve. Elimina el lenguaje de trámite. Para materiales de obra, empieza con el material, no con la obra. Mantén tipos, medidas o resistencias que distingan el producto. No inventes términos, cifras ni el final de una fuente incompleta. No uses MAYÚSCULAS corridas ni listas de localidades.
 Ejemplos de estilo: «Tuberías de PVC de 110 mm para alcantarillado», «Servicio de vigilancia para el hospital regional», «Grava para el camino vecinal de Santa Rosa».
-Copia la ortografía de los lugares. Omite el lugar si está truncado o es dudoso. Evita frases vacías como «según especificaciones técnicas».`;
+Copia los sustantivos, la acción y los nombres propios de cada fuente. No sustituyas «mejoramiento» por «ampliación» o «construcción». Si el lugar es largo, puedes omitirlo. Omite «y alrededores» y frases vacías como «según especificaciones técnicas».`;
 
 function numbers(text: string): string[] {
   return text.normalize("NFKC").replace(/(\d),(?=\d)/g, "$1.").match(/\d+(?:\.\d+)?/g) ?? [];
@@ -15,6 +15,29 @@ function usable(title: unknown, source: string): title is string {
   const grade = source.match(/\btipo\s+([ivx]+p?|ms|hs|gu)\b/i)?.[1];
   if (grade && !new RegExp(`\\b${grade}\\b`, "i").test(title)) return false;
   return numbers(title).every(number => original.includes(number));
+}
+
+const connectors = new Set("a al con de del el en la las los o para por un una y".split(" "));
+function words(text: string): string[] {
+  return text.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
+    .replace(/\bf\s*['’¿]\s*c\b/g, "fc").match(/[a-z]+/g) ?? [];
+}
+
+// Keep only grounded phrases. A shortened place name or a different kind of work
+// can change which opportunity a supplier thinks they are opening.
+function groundedTitle(value: unknown, source: string): string | null {
+  if (!usable(value, source)) return null;
+  const vocabulary = new Set(words(source));
+  if (vocabulary.has("mejoramiento")) vocabulary.add("mejora");
+  const supported = (word: string) => connectors.has(word) || vocabulary.has(word);
+  const title = value.trim();
+  const candidates = [title, title.replace(/\bpara (?:la |el )?\p{L}+ de (.+)$/u, "para $1")];
+  // A qualifier may be wrong even when the object and its specifications are exact.
+  for (const match of [...title.matchAll(/\s+(?:para|en|del|de|y)\s+/gi)].reverse()) {
+    candidates.push(title.slice(0, match.index));
+  }
+  return candidates.find(candidate => candidate.length >= 8 && usable(candidate, source) &&
+    words(candidate).every(supported)) ?? null;
 }
 
 // Keep the object being bought legible even when the provider cannot answer.
@@ -39,8 +62,8 @@ export class TenderTitles {
       const batch = this.generate(missing);
       for (const [index, source] of missing.entries()) {
         const entry = { until: now + 7 * 86400_000, value: batch.then(result => {
-          const title = result[index];
-          if (usable(title, source)) return title.trim();
+          const title = groundedTitle(result[index], source);
+          if (title) return title;
           entry.until = Date.now() + 60_000;
           return fallbackTitle(source);
         }) };

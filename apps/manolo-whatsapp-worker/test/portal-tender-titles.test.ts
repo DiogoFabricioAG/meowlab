@@ -27,4 +27,15 @@ describe("Tender Cat display titles", () => {
     expect(result[1]).toMatch(/^Concreto/i);
     expect(await titles.forDescriptions(["IMPRESIÓN DE AFICHES"])).toEqual(["Impresión de afiches"]);
   });
+
+  it("drops unsupported actions and misspelled locations from otherwise usable titles", async () => {
+    const titles = new TenderTitles({ complete: async () => JSON.stringify({
+      0: "Concreto premezclado para ampliación de la escuela",
+      1: "Cemento Portland tipo IP para movilidad urbana en Jayllihua",
+    }) }, vi.fn());
+    expect(await titles.forDescriptions([
+      "CONCRETO PREMEZCLADO PARA MEJORAMIENTO DE LA ESCUELA",
+      "CEMENTO PORTLAND TIPO IP PARA MOVILIDAD URBANA EN JAYLLIHUAYA",
+    ])).toEqual(["Concreto premezclado para la escuela", "Cemento Portland tipo IP para movilidad urbana"]);
+  });
 });
