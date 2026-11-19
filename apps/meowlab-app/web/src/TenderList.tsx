@@ -6,6 +6,7 @@ type TenderHighlight = Weekly["tender"]["highlights"][number];
 type TenderFilter = "all" | "saved";
 
 const ISO_DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/i;
 
 function formatWeekRange(start?: string | null, end?: string | null): string | null {
   const s = typeof start === "string" ? ISO_DAY_RE.exec(start.trim()) : null;
@@ -22,6 +23,18 @@ function formatDeadline(raw?: string | null): string | null {
     const parsed = new Date(`${value}T12:00:00Z`);
     if (!Number.isNaN(parsed.getTime())) {
       return parsed.toLocaleDateString("es-PE", { day: "numeric", month: "short", timeZone: "UTC" });
+    }
+  }
+  if (ISO_DATETIME_RE.test(value)) {
+    const parsed = new Date(value.replace(" ", "T"));
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString("es-PE", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "America/Lima",
+      });
     }
   }
   return value;
@@ -100,7 +113,7 @@ export function TenderList({
       {weekly && !tender?.enabled && (
         <section className="rounded-2xl border border-dashed border-line-mint bg-white px-5 py-6">
           <p className="text-ink-2">
-            Activa Tender Cat en tu chat con Manolo para recibir avisos semanales de licitaciones.
+            Cuando Tender Cat esté activo para esta empresa, verás aquí las licitaciones encontradas.
           </p>
         </section>
       )}
@@ -207,7 +220,7 @@ export function TenderList({
                           </span>
                           <span className="min-w-0 space-y-1">
                             <span className="flex flex-wrap items-center gap-2">
-                              <span className="font-semibold text-ink">{title}</span>
+                              <span className="wrap-anywhere font-semibold text-ink">{title}</span>
                               {item.interesting && (
                                 <span className="chip border border-line-mint bg-mint-light text-forest">
                                   Guardada
@@ -215,7 +228,7 @@ export function TenderList({
                               )}
                             </span>
                             {meta.length > 0 && (
-                              <span className="block text-sm text-ink-muted">
+                              <span className="block wrap-anywhere text-sm text-ink-muted">
                                 {meta.join(" · ")}
                               </span>
                             )}
