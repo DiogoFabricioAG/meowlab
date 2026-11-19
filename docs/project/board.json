@@ -16,6 +16,28 @@
   ],
   "tasks": [
     {
+      "id": "portal-centro-de-mando-20261119",
+      "title": "Portal: Inicio como centro de mando y barra lateral clara",
+      "area": "Portal",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-19",
+      "notes": "Propuesta del análisis de diseño, pasos 1 y 2. Rama feat/portal-centro-de-mando. Barra lateral blanca con el contador de pendientes en Inicio y Tus gatos con su estado (te necesita, trabajó hoy, sin novedades). Inicio con la semana en cuatro cifras con su comparación, «Para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de SUNAT, stock bajo, licitaciones interesantes) y Tus gatos hoy. Todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. Las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. Contenido más ancho (max-w-6xl). Sin desplegar.",
+      "evidence": "apps/meowlab-app: typecheck OK, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build OK. Capturas a 1440x900 y 390x844 con Chrome headless y la API respondida con datos de ejemplo, sin desborde horizontal."
+    },
+    {
+      "id": "portal-inicio-series-y-actividad-20261119",
+      "title": "Portal: series diarias y registro de actividad para el Inicio",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-19",
+      "notes": "Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos).",
+      "evidence": ""
+    },
+    {
       "id": "portal-tipografia-crete-figtree-20261119",
       "title": "Portal: títulos en Crete Round y textos y montos en Figtree",
       "area": "Portal",
