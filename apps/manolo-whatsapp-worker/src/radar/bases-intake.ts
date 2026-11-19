@@ -5,11 +5,16 @@ const MAX_BASES_BYTES = 15 * 1024 * 1024;
 const PDF_MIME = "application/pdf";
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-function sanitizeFilename(raw: string, fallbackExt: "pdf" | "docx"): string {
+function sanitizeFilename(raw: string, ext: "pdf" | "docx"): string {
+  const suffix = `.${ext}`;
   const base = raw.split(/[/\\]/).pop() ?? "";
-  const cleaned = base.replace(/[\u0000-\u001f<>:"|?*]/gu, "").replace(/\s+/gu, " ").trim().slice(0, 180);
-  if (!cleaned) return `bases.${fallbackExt}`;
-  return cleaned;
+  const cleaned = base.replace(/[\u0000-\u001f<>:"|?*]/gu, "").replace(/\s+/gu, " ").trim();
+  if (!cleaned) return `bases${suffix}`;
+  const stem = cleaned.toLowerCase().endsWith(suffix)
+    ? cleaned.slice(0, -suffix.length).trim()
+    : cleaned;
+  if (!stem) return `bases${suffix}`;
+  return `${stem.slice(0, 180 - suffix.length)}${suffix}`;
 }
 
 export function validateBasesBinary(document: IncomingDocument): {
