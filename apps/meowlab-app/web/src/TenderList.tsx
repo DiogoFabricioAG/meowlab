@@ -1,44 +1,10 @@
 import { useState } from "react";
 import { agentLogo, type Weekly } from "./agents";
+import { formatDeadline, formatWeekRange } from "./tenderDates";
 import { Icon } from "./icons";
 
 type TenderHighlight = Weekly["tender"]["highlights"][number];
 type TenderFilter = "all" | "saved";
-
-const ISO_DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/i;
-
-function formatWeekRange(start?: string | null, end?: string | null): string | null {
-  const s = typeof start === "string" ? ISO_DAY_RE.exec(start.trim()) : null;
-  const e = typeof end === "string" ? ISO_DAY_RE.exec(end.trim()) : null;
-  if (!s || !e) return null;
-  return `Semana del ${s[3]}/${s[2]} al ${e[3]}/${e[2]}`;
-}
-
-function formatDeadline(raw?: string | null): string | null {
-  if (typeof raw !== "string") return null;
-  const value = raw.trim();
-  if (!value) return null;
-  if (ISO_DAY_RE.test(value)) {
-    const parsed = new Date(`${value}T12:00:00Z`);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString("es-PE", { day: "numeric", month: "short", timeZone: "UTC" });
-    }
-  }
-  if (ISO_DATETIME_RE.test(value)) {
-    const parsed = new Date(value.replace(" ", "T"));
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleString("es-PE", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "America/Lima",
-      });
-    }
-  }
-  return value;
-}
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -59,6 +25,7 @@ export function TenderList({
 
   const tender = weekly?.tender ?? null;
   const highlights = tender?.highlights ?? [];
+  const showActivity = tender && (tender.enabled || tender.found > 0 || highlights.length > 0);
   const savedItems = highlights.filter((item) => item.interesting);
   const visible = filter === "saved" ? savedItems : highlights;
   const weekLabel = weekly ? formatWeekRange(weekly.week?.start, weekly.week?.end) : null;
@@ -91,7 +58,7 @@ export function TenderList({
           <p className="text-ink-muted">
             {!weekly
               ? "Revisando las licitaciones de esta semana…"
-              : !tender?.enabled
+              : !showActivity
                 ? "Tender Cat no está activo para esta empresa."
                 : tender.found === 0
                   ? "Esta semana no encontró licitaciones nuevas."
@@ -110,7 +77,7 @@ export function TenderList({
         </div>
       )}
 
-      {weekly && !tender?.enabled && (
+      {weekly && !showActivity && (
         <section className="rounded-2xl border border-dashed border-line-mint bg-white px-5 py-6">
           <p className="text-ink-2">
             Cuando Tender Cat esté activo para esta empresa, verás aquí las licitaciones encontradas.
@@ -118,7 +85,7 @@ export function TenderList({
         </section>
       )}
 
-      {weekly && tender?.enabled && (
+      {weekly && showActivity && (
         <>
           <section aria-label="Resumen semanal">
             <dl className="grid grid-cols-2 overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-3">

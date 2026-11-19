@@ -1,4 +1,5 @@
 import { agentLogo, type Weekly } from "./agents";
+import { formatDeadline } from "./tenderDates";
 import { Icon } from "./icons";
 
 export type TenderHighlight = Weekly["tender"]["highlights"][number];
@@ -37,18 +38,14 @@ export function TenderCase({
   const documentsHref = safeWorkspaceHref(workspaceUrl("documents"));
   const hasWorkspace = Boolean(quoteHref || documentsHref);
 
-  const factsNote = !seaceUrl && !hasWorkspace
-    ? item.interesting
-      ? "La ficha web de esta convocatoria no está disponible."
-      : "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
-    : !seaceUrl
-    ? "Sin enlace directo a OECE; continúa en Preparar propuesta abajo."
-    : item.interesting
-    ? "Guardada por tu equipo desde la alerta de Tender Cat."
-    : "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa.";
+  const factsNote = !item.interesting
+    ? "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
+    : hasWorkspace
+      ? "Guardada por tu equipo desde WhatsApp."
+      : "El acceso a la propuesta de esta convocatoria aún no está disponible.";
 
   return (
-    <article className="space-y-6" aria-labelledby="tender-case-title">
+    <article className="space-y-6 wrap-anywhere" aria-labelledby="tender-case-title">
       <button
         type="button"
         onClick={onBack}
@@ -87,7 +84,7 @@ export function TenderCase({
           id="tender-case-title"
           className="text-2xl tracking-tight text-ink sm:text-3xl"
         >
-          {item.description}
+          {item.description?.trim() || "Licitación sin título"}
         </h1>
       </header>
 
@@ -106,7 +103,7 @@ export function TenderCase({
               rel="noopener noreferrer"
               className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-line px-3.5 text-sm font-semibold text-forest transition-colors hover:border-forest"
             >
-              Ver en OECE
+              Ver en SEACE
               <Icon name="external" className="h-4 w-4" />
               <span className="sr-only">(se abre en otra pestaña)</span>
             </a>
@@ -124,7 +121,7 @@ export function TenderCase({
           <div className="min-w-0 border-t border-line px-5 py-4 sm:border-l sm:border-t-0">
             <dt className="text-sm text-ink-muted">Plazo / Cierre</dt>
             <dd className="mt-1 text-base font-semibold text-ink tabular-nums">
-              {item.deadline || "No especificado"}
+              {formatDeadline(item.deadline) || "No especificado"}
             </dd>
           </div>
 
@@ -175,7 +172,7 @@ export function TenderCase({
                 className="btn-secondary min-h-11 w-full border border-line bg-white hover:bg-surface-subtle sm:w-auto"
               >
                 <Icon name="radar" className="h-4 w-4" />
-                Expediente
+                Expediente para OECE
                 <Icon name="external" className="h-4 w-4" />
                 <span className="sr-only">(se abre en otra pestaña)</span>
               </a>
@@ -183,7 +180,7 @@ export function TenderCase({
           </div>
 
           <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
-            Carga las bases en RADAR desde Expediente. El envío del PDF por WhatsApp («Me interesa» → confirmación y enlace → WhatsApp dedicado) sigue pendiente.
+            Si faltan las bases, RADAR te pedirá que adjuntes el archivo al abrir la propuesta.
           </p>
         </section>
       )}
