@@ -23,7 +23,7 @@
       "priority": "high",
       "status": "done",
       "updated": "2026-11-19",
-      "notes": "Integración local 3f380 sobre el portal desplegado 4b35a. Lista semanal, filtro de guardadas y ficha. Para propuestas, RADAR 394b1 abre la etapa elegida tras autenticar. Pendiente de publicación coordinada y de configurar el vínculo de la cuenta piloto con su empresa.",
+      "notes": "Desplegado el 19 de noviembre. Portal y bridge 3ed0fef5ab64, RADAR 394b1fa1550a. Cuenta piloto vinculada a su empresa. Ruta /agentes/licitaciones y recursos públicos verificados. Acta en docs/operations/tender-cat-portal-2026-11-19.md.",
       "evidence": "Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos."
     },
     {
