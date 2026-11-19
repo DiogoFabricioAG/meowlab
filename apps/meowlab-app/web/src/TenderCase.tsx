@@ -84,8 +84,14 @@ export function TenderCase({
           id="tender-case-title"
           className="text-2xl tracking-tight text-ink sm:text-3xl"
         >
-          {item.description?.trim() || "Licitación sin título"}
+          {item.displayTitle || item.description?.trim() || "Licitación sin título"}
         </h1>
+        {item.displayTitle && item.description && item.description !== item.displayTitle && (
+          <details className="text-sm text-ink-muted">
+            <summary className="w-fit cursor-pointer font-medium text-forest">Ver descripción oficial</summary>
+            <p className="mt-2 leading-relaxed">{item.description}</p>
+          </details>
+        )}
       </header>
 
       <section

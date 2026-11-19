@@ -1,5 +1,6 @@
 import type { PortalCompanyResponse, WeeklySummary } from "../../bridge/portal-company-contracts";
 import type { RoleLog } from "../../roles/contracts";
+import type { TenderTitles } from "./tender-titles";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 export type WeeklyPool = { query(sql: string, values?: readonly unknown[]): Promise<unknown> };
@@ -44,6 +45,7 @@ export class PortalWeeklyService {
     private readonly now: () => Date = () => new Date(),
     // Wrapped: a stored `fetch` called as a method can lose its binding.
     private readonly fetchImpl: typeof fetch = (input, init) => fetch(input, init),
+    private readonly titles?: TenderTitles,
   ) {}
 
   private async query(sql: string, values: readonly unknown[]): Promise<Rows> {
@@ -269,17 +271,21 @@ export class PortalWeeklyService {
       [tenantId, start, end],
     );
     const text = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
+    const highlights = rows.slice(0, 5);
+    const descriptions = highlights.map(row => text((row.alert as Record<string, unknown> | null)?.description, 800));
+    const titles = await this.titles?.forDescriptions(descriptions);
     return {
       enabled: enabled.rows.length > 0,
       found: rows.length,
       foundToday: rows.filter((row) => new Date(row.published_at as string | Date).getTime() >= day.getTime()).length,
       interesting: rows.filter((row) => row.state === "interesting").length,
-      highlights: rows.slice(0, 5).map((row) => {
+      highlights: highlights.map((row, index) => {
         const alert = (row.alert ?? {}) as Record<string, unknown>;
         const url = text(alert.sourceUrl, 1000);
         return {
           ocid: text(row.ocid, 200),
-          description: text(alert.description, 240),
+          description: descriptions[index],
+          displayTitle: titles?.[index],
           buyer: text(alert.buyer, 160),
           deadline: text(alert.deadline, 100),
           amount: text(alert.amount, 60),

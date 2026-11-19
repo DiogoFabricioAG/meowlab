@@ -136,6 +136,7 @@ export class GroqAdapter implements AiProvider, AudioTranscriber {
     try {
       const response = await fetch(GROQ_CHAT_URL, {
         method: "POST",
+        signal: request.signal,
         headers: {
           Authorization: `Bearer ${this.apiKey}`,
           "Content-Type": "application/json",

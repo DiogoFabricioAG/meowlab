@@ -59,7 +59,7 @@ export type WeeklySummary = {
   tender: {
     found: number;
     interesting: number;
-    highlights: Array<{ ocid?: string; description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
+    highlights: Array<{ ocid?: string; displayTitle?: string; description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
   invoicing:
     | null

@@ -56,7 +56,7 @@ export function attentionItems(weekly: Weekly | null): AttentionItem[] {
   }
   for (const tender of weekly.tender.highlights.filter((item) => item.interesting)) {
     items.push({ key: `tender-${tender.description}-${tender.deadline}`, agent: "tender", tone: "opportunity",
-      title: tender.description,
+      title: tender.displayTitle || tender.description,
       text: `${tender.buyer} · cierra ${tender.deadline}${tender.amount ? ` · ${tender.amount}` : ""}`,
       action: tender.sourceUrl ? { label: "Ver en SEACE", href: tender.sourceUrl } : null });
   }
