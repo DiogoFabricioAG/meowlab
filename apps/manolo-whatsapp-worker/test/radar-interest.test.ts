@@ -82,28 +82,121 @@ it("persists selection before confirmation, skips duplicate button deliveries, a
   expect(failed.reply).toHaveBeenCalledWith(expect.stringContaining("volver a tocar"));
 });
 
-it("lets the model save explicit natural-language intent with only a state argument", async () => {
+it("lets the model save explicit natural-language intent with only a state argument and confirms with bases", async () => {
   const ctx = roleContext(), deliveryId = (await ctx.radar!.latestAlert!())!.deliveryId!, role = new RadarRoleHandler();
+  const basesUrl = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=2a8b3a42-4378-40f0-b069-4f08b911a549";
+  ctx.radar!.latestAlert = vi.fn(async () => ({
+    deliveryId,
+    alert,
+    evidence: {
+      sourceUrl: "https://prod4.seace.gob.pe/openegocio/#/ficha/idProceso/tipo/1258591/2",
+      observedAt: "2026-10-31T15:00:00Z",
+      items: [],
+      documents: [{ title: "Bases integradas", url: basesUrl }],
+    },
+    sentAt: Date.now(),
+    expiresAt: Date.now() + 3600000,
+  }));
+  ctx.sendButtons = vi.fn(async () => ({ status: "sent" as const, metaMessageId: "b" }));
   ctx.message.text = "Guarda esta oportunidad, sí me interesa";
   const first = { content: null, toolCalls: [{ id: "call_interest", name: "set_opportunity_interest",
     arguments: JSON.stringify({ state: "interesting" }) }] };
-  const completeWithTools = vi.fn().mockResolvedValueOnce(first).mockResolvedValueOnce({
-    content: "Listo, quedó guardada como de tu interés.", toolCalls: [],
-  });
+  const completeWithTools = vi.fn().mockResolvedValueOnce(first);
   ctx.ai = { key: "test", complete: vi.fn(), completeWithTools } as unknown as RoleHandlerContext["ai"];
   await role.handle(ctx);
-  expect(completeWithTools).toHaveBeenCalledTimes(2);
+  expect(completeWithTools).toHaveBeenCalledTimes(1);
   expect(completeWithTools.mock.calls[0]![0]).toMatchObject({ toolChoice: "auto", tools: [{ function: {
     name: "set_opportunity_interest", parameters: { required: ["state"], additionalProperties: false,
       properties: { state: { enum: ["interesting", "dismissed"] } } },
   } }] });
   expect(JSON.stringify(completeWithTools.mock.calls[0]![0].tools)).not.toMatch(/ocid|recipient|account|delivery/i);
   expect(ctx.radar!.setInterest).toHaveBeenCalledWith(deliveryId, "interesting", "wamid.click");
-  expect(completeWithTools.mock.calls[1]![0].messages.slice(-2)).toEqual([
-    { role: "assistant", content: null, toolCalls: [first.toolCalls[0]] },
-    { role: "tool", name: "set_opportunity_interest", toolCallId: "call_interest", content: JSON.stringify({ ok: true, state: "interesting" }) },
-  ]);
-  expect(ctx.reply).toHaveBeenCalledWith("Listo, quedó guardada como de tu interés.");
+  expect(ctx.sendButtons).not.toHaveBeenCalled();
+  const reply = vi.mocked(ctx.reply).mock.calls[0]![0];
+  expect(reply).toContain("Guardé esta oportunidad como de tu interés");
+  expect(reply).toContain("Bases integradas");
+  expect(reply).toContain(basesUrl);
+  expect(reply).toContain("este mismo chat");
+  expect(reply).not.toMatch(/escritorio|resumen|analiz/i);
+});
+
+it("confirms button interest with exact deliveryId bases, handles missing/ambiguous/expired context, and updates memory", async () => {
+  const role = new RadarRoleHandler();
+  const targetId = crypto.randomUUID();
+  const otherId = crypto.randomUUID();
+  const basesUrl = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+  const fichaUrl = "https://prod4.seace.gob.pe/openegocio/#/ficha/idProceso/tipo/1258591/2";
+
+  // 1. Button resolves exact deliveryId via alertById (not latestAlert) and updates roleState memory
+  const ctx = roleContext();
+  ctx.message.interactionId = `radar:alert:${targetId}:interest`;
+  ctx.radar!.latestAlert = vi.fn(async () => ({
+    deliveryId: otherId, alert, sentAt: Date.now(), expiresAt: Date.now() + 3600000,
+  }));
+  ctx.radar!.alertById = vi.fn(async (id: string) => id === targetId ? ({
+    deliveryId: targetId,
+    alert,
+    evidence: {
+      sourceUrl: fichaUrl,
+      observedAt: "2026-10-31T15:00:00Z",
+      items: [],
+      documents: [{ title: "Bases administrativas", url: basesUrl }],
+    },
+    sentAt: Date.now(),
+    expiresAt: Date.now() + 3600000,
+  }) : null);
+  let savedMemory = "";
+  ctx.roleState = {
+    get: vi.fn(async () => null),
+    set: vi.fn(async (_t, _c, _k, val) => { savedMemory = val; }),
+    clear: vi.fn(),
+  } as unknown as RoleHandlerContext["roleState"];
+
+  await role.handle(ctx);
+  expect(ctx.radar!.alertById).toHaveBeenCalledWith(targetId);
+  expect(ctx.radar!.latestAlert).not.toHaveBeenCalled();
+  const reply1 = vi.mocked(ctx.reply).mock.calls[0]![0];
+  expect(reply1).toContain("Bases administrativas");
+  expect(reply1).toContain(basesUrl);
+  expect(reply1).toContain("este mismo chat");
+  expect(JSON.parse(savedMemory).deliveryId).toBe(targetId);
+
+  // 2. Ambiguous bases (2 bases without a unique Bases integradas) -> official ficha, never called PDF
+  const ambiguous = roleContext();
+  ambiguous.message.interactionId = `radar:alert:${targetId}:interest`;
+  ambiguous.radar!.alertById = vi.fn(async () => ({
+    deliveryId: targetId,
+    alert,
+    evidence: {
+      sourceUrl: fichaUrl,
+      observedAt: "2026-10-31T15:00:00Z",
+      items: [],
+      documents: [
+        { title: "Bases administrativas", url: basesUrl },
+        { title: "Bases estándar", url: "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=11111111-2222-4333-8444-555555555555" },
+      ],
+    },
+    sentAt: Date.now(),
+    expiresAt: Date.now() + 3600000,
+  }));
+  await role.handle(ambiguous);
+  const reply2 = vi.mocked(ambiguous.reply).mock.calls[0]![0];
+  expect(reply2).toContain("Ficha oficial");
+  expect(reply2).toContain(fichaUrl);
+  expect(reply2).not.toContain(basesUrl);
+  expect(reply2).not.toMatch(/PDF/i);
+
+  // 3. Expired alert_context -> still confirms durable save without inventing links
+  const expired = roleContext();
+  expired.message.interactionId = `radar:alert:${targetId}:interest`;
+  expired.radar!.alertById = vi.fn(async () => ({
+    deliveryId: targetId, alert, sentAt: Date.now() - 200_000_000, expiresAt: Date.now() - 1000,
+  }));
+  await role.handle(expired);
+  const reply3 = vi.mocked(expired.reply).mock.calls[0]![0];
+  expect(reply3).toContain("Guardé esta oportunidad como de tu interés");
+  expect(reply3).toContain("este mismo chat");
+  expect(reply3).not.toContain("http");
 });
 
 it("does not save without a model tool call, rejects tool arguments with extra fields, and never claims a failed save", async () => {

@@ -3,6 +3,7 @@ import type { RoleHandlerContext } from "./contracts";
 import type { RadarAlertContext } from "../radar/presentation";
 import { FOLLOW_UP_ACTIONS, followUpButtons, parseFollowUp } from "../radar/follow-up";
 import { actionAnswer, opportunityDetail } from "../radar/action-answer";
+import { buildInterestConfirmation } from "../radar/interest-confirmation";
 
 type Turn = { role: "user" | "assistant"; content: string };
 type Memory = { version: 1; channel: string; expiresAt: number; lastMessageId: string | null; deliveryId?: string; turns: Turn[] };
@@ -52,11 +53,11 @@ export async function radarDialogue(context: RoleHandlerContext): Promise<void> 
     return;
   }
   if (action?.action === "interest" || action?.action === "dismiss") {
-    const state = action.action === "interest" ? "interesting" : "dismissed";
+    const selectedState = action.action === "interest" ? "interesting" : "dismissed";
     let result;
     try {
       result = context.message.id && context.radar?.setInterest
-        ? await context.radar.setInterest(action.deliveryId, state, context.message.id)
+        ? await context.radar.setInterest(action.deliveryId, selectedState, context.message.id)
         : null;
     } catch {
       context.log("radar_selection_persistence_failed");
@@ -67,9 +68,44 @@ export async function radarDialogue(context: RoleHandlerContext): Promise<void> 
       await context.reply("No pude confirmar esta selección en RADAR. Revisa tu conexión e inténtalo otra vez.");
       return;
     }
-    await context.reply(state === "interesting"
-      ? "Guardé esta oportunidad como de tu interés en RADAR. La evaluación detallada y los documentos están en el escritorio."
-      : "Guardé que descartaste esta oportunidad en RADAR.");
+    let alertContext: RadarAlertContext | null = null;
+    if (selectedState === "interesting" && context.radar?.alertById) {
+      try {
+        const fetched = await context.radar.alertById(action.deliveryId);
+        if (fetched && (!fetched.deliveryId || fetched.deliveryId === action.deliveryId) && fetched.expiresAt > now) {
+          alertContext = fetched;
+        }
+      } catch {
+        context.log("radar_role_alert_context_failed");
+      }
+    }
+    const confirmationReply = selectedState === "interesting"
+      ? buildInterestConfirmation(alertContext)
+      : "Guardé que descartaste esta oportunidad en RADAR.";
+    await context.reply(confirmationReply);
+    if (state && contact) {
+      const priorTurns = memory?.deliveryId === action.deliveryId ? memory.turns : [];
+      const next: Memory = {
+        version: 1,
+        channel: context.message.phoneNumberId,
+        expiresAt: now + 86_400_000,
+        lastMessageId: context.message.id,
+        deliveryId: action.deliveryId,
+        turns: [
+          ...priorTurns,
+          { role: "user", content: FOLLOW_UP_ACTIONS[action.action].prompt },
+          { role: "assistant", content: confirmationReply.slice(0, 1000) },
+        ].slice(-8) as Turn[],
+      };
+      try {
+        const stored = state.compareAndSet
+          ? await state.compareAndSet(context.tenant.tenantId, contact, "radar", raw, JSON.stringify(next))
+          : await state.set(context.tenant.tenantId, contact, "radar", JSON.stringify(next));
+        if (!stored) context.log("radar_role_memory_not_saved");
+      } catch {
+        context.log("radar_role_memory_write_failed");
+      }
+    }
     return;
   }
   const selectedId = action?.deliveryId ?? memory?.deliveryId;
@@ -101,61 +137,58 @@ export async function radarDialogue(context: RoleHandlerContext): Promise<void> 
   const messages: AiMessage[] = [{ role: "system", content: instructions }, ...(memory?.turns ?? []),
     { role: "user", content: userText }];
   let answer: string | null = null;
+  let selectionSaved = false;
   try {
-    answer = showDetail && latest ? opportunityDetail(latest)
-      : action?.action === "source" && latest
-      ? actionAnswer(latest, "source")
-      : context.ai
-      ? latest?.deliveryId && !interactionId && context.ai.completeWithTools
-        ? await (async () => {
-          const result = await context.ai!.completeWithTools!({ model: context.tenant.aiModel,
-            temperature: context.tenant.temperature, maxTokens: context.tenant.maxTokens,
-            reasoningEffort: context.tenant.aiReasoningEffort, messages, tools: [interestTool], toolChoice: "auto" },
-          (event, details) => logAiEvent(context, event, details));
-          const call = result?.toolCalls?.[0];
-          if (call) {
-            const requestedState = interestToolState(call);
-            if (!requestedState || !call.id || !latest!.deliveryId || !context.message.id || !context.radar?.setInterest) {
-              context.log("radar_selection_tool_rejected");
-              return "No pude validar esa selección. Puedes usar los botones del aviso para guardarla.";
-            }
+    if (showDetail && latest) {
+      answer = opportunityDetail(latest);
+    } else if (action?.action === "source" && latest) {
+      answer = actionAnswer(latest, "source");
+    } else if (context.ai) {
+      if (latest?.deliveryId && !interactionId && context.ai.completeWithTools) {
+        const result = await context.ai.completeWithTools({ model: context.tenant.aiModel,
+          temperature: context.tenant.temperature, maxTokens: context.tenant.maxTokens,
+          reasoningEffort: context.tenant.aiReasoningEffort, messages, tools: [interestTool], toolChoice: "auto" },
+        (event, details) => logAiEvent(context, event, details));
+        const call = result?.toolCalls?.[0];
+        if (call) {
+          const requestedState = interestToolState(call);
+          if (!requestedState || !call.id || !latest.deliveryId || !context.message.id || !context.radar?.setInterest) {
+            context.log("radar_selection_tool_rejected");
+            answer = "No pude validar esa selección. Puedes usar los botones del aviso para guardarla.";
+          } else {
             try {
-              const saved = await context.radar.setInterest(latest!.deliveryId!, requestedState, context.message.id);
+              const saved = await context.radar.setInterest(latest.deliveryId, requestedState, context.message.id);
               if (saved.status !== "ok") {
                 context.log("radar_selection_tool_not_confirmed");
-                return "No pude confirmar tu selección en RADAR. Puedes intentarlo otra vez con los botones del aviso.";
+                answer = "No pude confirmar tu selección en RADAR. Puedes intentarlo otra vez con los botones del aviso.";
+              } else {
+                selectionSaved = true;
+                answer = requestedState === "interesting"
+                  ? buildInterestConfirmation(latest)
+                  : "Guardé que descartaste esta oportunidad en RADAR.";
               }
-              const confirmed = requestedState === "interesting"
-                ? "Guardé esta oportunidad como de tu interés en RADAR. La evaluación detallada y los documentos están en el escritorio."
-                : "Guardé que descartaste esta oportunidad en RADAR.";
-              const toolMessages: AiMessage[] = [...messages,
-                { role: "assistant", content: null, toolCalls: [call] },
-                { role: "tool", name: call.name, toolCallId: call.id,
-                  content: JSON.stringify({ ok: true, state: requestedState }) }];
-              try {
-                const final = await context.ai!.completeWithTools!({ model: context.tenant.aiModel,
-                  temperature: context.tenant.temperature, maxTokens: context.tenant.maxTokens,
-                  reasoningEffort: context.tenant.aiReasoningEffort, messages: toolMessages,
-                  tools: [interestTool], toolChoice: "none" }, (event, details) => logAiEvent(context, event, details));
-                return final?.content?.trim() || confirmed;
-              } catch { return confirmed; }
             } catch {
               context.log("radar_selection_persistence_failed");
-              return "No pude confirmar tu selección en RADAR. Puedes intentarlo otra vez con los botones del aviso.";
+              answer = "No pude confirmar tu selección en RADAR. Puedes intentarlo otra vez con los botones del aviso.";
             }
           }
-          return result?.content ?? null;
-        })()
-        : await context.ai.complete({ model: context.tenant.aiModel, temperature: context.tenant.temperature,
-        maxTokens: context.tenant.maxTokens, reasoningEffort: context.tenant.aiReasoningEffort, messages },
-      (event, details) => logAiEvent(context, event, details))
-      : await context.generateAiReply();
+        } else {
+          answer = result?.content ?? null;
+        }
+      } else {
+        answer = await context.ai.complete({ model: context.tenant.aiModel, temperature: context.tenant.temperature,
+          maxTokens: context.tenant.maxTokens, reasoningEffort: context.tenant.aiReasoningEffort, messages },
+        (event, details) => logAiEvent(context, event, details));
+      }
+    } else {
+      answer = await context.generateAiReply();
+    }
   } catch { context.log("radar_role_reply_failed"); }
   let reply = answer?.trim().slice(0, 3500) || (latest
     ? actionAnswer(latest, action?.action)
     : "Soy RADAR. Todavía no tengo un aviso vigente en esta conversación. Busco desde tu equipo cuando está conectado; las oportunidades que elijas aquí aparecerán en Guardadas. Para consultar tu vinculación, escribe RADAR ESTADO.");
-  const buttons = latest?.deliveryId ? followUpButtons(latest.deliveryId, action?.action) : [];
-  if (!showDetail && context.sendButtons && buttons.length) {
+  const buttons = !selectionSaved && latest?.deliveryId ? followUpButtons(latest.deliveryId, action?.action) : [];
+  if (!showDetail && !selectionSaved && context.sendButtons && buttons.length) {
     const sent = await context.sendButtons(reply.slice(0, 1024), buttons);
     if (sent.status !== "sent") { context.log("radar_role_buttons_not_sent"); return; }
   } else { await context.reply(reply); }
