@@ -367,3 +367,48 @@ it("sends idempotent preparation-notices only for accepted deliveries and open 2
   expect(closed.status).toBe(409);
   expect(await closed.json()).toEqual({ status: "window_closed" });
 });
+
+it("preserves .pdf/.docx within 180 chars and avoids duplicating summary heading or portalUrl", async () => {
+  const reg = await setupLinkedInstallation();
+  await call("/alerts", reg.token, alert1);
+  const service = new D1RadarContactService(env.DB, "manolo", phone, user, () => clock, undefined, env.ENTERPRISE_DOCUMENTS);
+  const role = new RadarRoleHandler();
+
+  const longName = `${"bases_integradas_".repeat(14)}.pdf`;
+  await role.handle(makeRoleContext(service, {
+    document: { bytes: pdfBytes(), mimeType: "application/pdf", filename: longName },
+  }));
+  clock += 1000;
+  await role.handle(makeRoleContext(service, {
+    document: {
+      bytes: docxBytes(),
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      filename: "anexo_sin_extension",
+    },
+  }));
+
+  const pendingRes = await call("/bases/pending?limit=10", reg.token);
+  const { uploads } = await pendingRes.json() as { uploads: Array<{ filename: string }> };
+  expect(uploads.length).toBe(2);
+  expect(uploads[0]!.filename.length).toBeLessThanOrEqual(180);
+  expect(uploads[0]!.filename.endsWith(".pdf")).toBe(true);
+  expect(uploads[1]!.filename).toBe("anexo_sin_extension.docx");
+
+  // preparation-notices with summary already containing code on first line and portalUrl -> no duplicate heading or URL
+  const fetchMock = vi.mocked(globalThis.fetch);
+  fetchMock.mockClear();
+  const portalUrl = "https://radar.meowlab.tech/app";
+  const summaryWithHeaderAndLink = `*${alert1.code}* · Programa Warmi Nan\n\n• 500 chalecos\n\nVer en la plataforma:\n${portalUrl}`;
+  const res = await call("/preparation-notices", reg.token, {
+    ocid: alert1.ocid,
+    code: alert1.code,
+    jobFingerprint: "c".repeat(64),
+    status: "ready",
+    summary: summaryWithHeaderAndLink,
+    portalUrl,
+  });
+  expect(res.status).toBe(200);
+  expect(await res.json()).toEqual({ status: "accepted" });
+  const sentBody = JSON.parse(String(fetchMock.mock.calls[0]![1]?.body)) as { text: { body: string } };
+  expect(sentBody.text.body).toBe(summaryWithHeaderAndLink);
+});

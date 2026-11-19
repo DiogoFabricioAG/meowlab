@@ -274,7 +274,14 @@ export async function radarBasesHttp(
       : prepStatus === "partial"
         ? `*Resumen parcial · ${code}*`
         : `*No pude completar el análisis · ${code}*`;
-    const bodyText = [heading, summary, portalUrl ? `Ver en la plataforma:\n${portalUrl}` : null]
+    const firstLine = summary.split(/\r?\n/, 1)[0] ?? "";
+    const includeHeading = !firstLine.toLowerCase().includes(code.toLowerCase());
+    const includePortalUrl = Boolean(portalUrl && !summary.includes(portalUrl));
+    const bodyText = [
+      includeHeading ? heading : null,
+      summary,
+      includePortalUrl ? `Ver en la plataforma:\n${portalUrl}` : null,
+    ]
       .filter(Boolean)
       .join("\n\n");
 
