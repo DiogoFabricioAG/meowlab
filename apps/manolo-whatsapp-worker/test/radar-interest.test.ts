@@ -113,7 +113,7 @@ it("lets the model save explicit natural-language intent with only a state argum
   expect(ctx.radar!.setInterest).toHaveBeenCalledWith(deliveryId, "interesting", "wamid.click");
   expect(ctx.sendButtons).not.toHaveBeenCalled();
   const reply = vi.mocked(ctx.reply).mock.calls[0]![0];
-  expect(reply).toContain("Guardé esta oportunidad como de tu interés");
+  expect(reply).toContain(`Guardé ${alert.code} como de tu interés`);
   expect(reply).toContain("Bases integradas");
   expect(reply).toContain(basesUrl);
   expect(reply).toContain("este mismo chat");
@@ -197,6 +197,69 @@ it("confirms button interest with exact deliveryId bases, handles missing/ambigu
   expect(reply3).toContain("Guardé esta oportunidad como de tu interés");
   expect(reply3).toContain("este mismo chat");
   expect(reply3).not.toContain("http");
+});
+
+it("selects Bases Integradas over Administrativas, rejects absolucion/consultas false positives, and keeps alert.code", async () => {
+  const role = new RadarRoleHandler();
+  const targetId = crypto.randomUUID();
+  const fichaUrl = "https://prod4.seace.gob.pe/openegocio/#/ficha/idProceso/tipo/1258591/2";
+  const adminUrl = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=11111111-1111-4111-8111-111111111111";
+  const adminUrl2 = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=22222222-2222-4222-8222-222222222222";
+  const integratedUrl = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=33333333-3333-4333-8333-333333333333";
+  const absolucionUrl = "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=44444444-4444-4444-8444-444444444444";
+
+  const runWithDocs = async (documents: Array<{ title: string; url: string }>) => {
+    const ctx = roleContext();
+    ctx.message.interactionId = `radar:alert:${targetId}:interest`;
+    ctx.radar!.alertById = vi.fn(async () => ({
+      deliveryId: targetId,
+      alert,
+      evidence: { sourceUrl: fichaUrl, observedAt: "2026-10-31T15:00:00Z", items: [], documents },
+      sentAt: Date.now(),
+      expiresAt: Date.now() + 3600000,
+    }));
+    await role.handle(ctx);
+    return vi.mocked(ctx.reply).mock.calls[0]![0];
+  };
+
+  // Bases Administrativas + Bases Integradas (formato real tipoDocumento — nombreArchivo) -> elige Bases Integradas
+  const withIntegrated = await runWithDocs([
+    { title: "Bases Administrativas — bases_admin.pdf", url: adminUrl },
+    { title: "Bases Integradas — bases_integradas.pdf", url: integratedUrl },
+  ]);
+  expect(withIntegrated).toContain(`¡Listo! Guardé ${alert.code} como de tu interés.`);
+  expect(withIntegrated).toContain("Bases Integradas — bases_integradas.pdf");
+  expect(withIntegrated).toContain(integratedUrl);
+  expect(withIntegrated).not.toContain(adminUrl);
+
+  // Dos Bases Administrativas sin Bases Integradas -> ambigüedad, cae a Ficha oficial
+  const twoAdmin = await runWithDocs([
+    { title: "Bases Administrativas — bases_tramo_1.pdf", url: adminUrl },
+    { title: "Bases Administrativas — bases_tramo_2.pdf", url: adminUrl2 },
+  ]);
+  expect(twoAdmin).toContain(`¡Listo! Guardé ${alert.code} como de tu interés.`);
+  expect(twoAdmin).toContain(`Ficha oficial (${alert.code}):`);
+  expect(twoAdmin).toContain(fichaUrl);
+  expect(twoAdmin).not.toContain(adminUrl);
+  expect(twoAdmin).not.toContain(adminUrl2);
+
+  // Absolución de consultas y observaciones e integración de bases (solo) -> no se clasifica como bases, cae a Ficha oficial
+  const absolucionOnly = await runWithDocs([
+    { title: "Absolución de consultas y observaciones e integración de bases — pliego.pdf", url: absolucionUrl },
+  ]);
+  expect(absolucionOnly).toContain(`¡Listo! Guardé ${alert.code} como de tu interés.`);
+  expect(absolucionOnly).toContain(`Ficha oficial (${alert.code}):`);
+  expect(absolucionOnly).toContain(fichaUrl);
+  expect(absolucionOnly).not.toContain(absolucionUrl);
+
+  // Absolución + una sola Bases Administrativas -> no confunde al selector, elige Bases Administrativas
+  const absolucionPlusOne = await runWithDocs([
+    { title: "Absolución de consultas y observaciones e integración de bases — pliego.pdf", url: absolucionUrl },
+    { title: "Bases Administrativas — bases_admin.pdf", url: adminUrl },
+  ]);
+  expect(absolucionPlusOne).toContain("Bases Administrativas — bases_admin.pdf");
+  expect(absolucionPlusOne).toContain(adminUrl);
+  expect(absolucionPlusOne).not.toContain(absolucionUrl);
 });
 
 it("does not save without a model tool call, rejects tool arguments with extra fields, and never claims a failed save", async () => {
