@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 86 · Total: 204</span>
+      <span class="summary">Abiertas: 86 · Total: 205</span>
     </div>
   </div>
 </header>
@@ -229,17 +229,6 @@
           <span class="count">81</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="FacturaYa" data-text="facturaya: legal_name de creaciones j&amp;d igual al padrón y creaciones j&amp;d como nombre comercial facturaya el legal_name de j&amp;d (ruc 10) guarda su nombre comercial, distinto del nombre del padrón, y va al xml como razón social. hay que poner en legal_name el nombre del padrón y dejar creaciones j&amp;d en trade_name. es un cambio de datos en producción y requiere autorización del operador. ">
-          <div class="card-top">
-            <span class="badge area-other">FacturaYa</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">FacturaYa: legal_name de CREACIONES J&amp;D igual al padrón y CREACIONES J&amp;D como nombre comercial</h3>
-          
-          <p class="card-notes">El legal_name de J&amp;D (RUC 10) guarda su nombre comercial, distinto del nombre del padrón, y va al XML como razón social. Hay que poner en legal_name el nombre del padrón y dejar CREACIONES J&amp;D en trade_name. Es un cambio de datos en producción y requiere autorización del operador.</p>
-          <p class="card-meta">Actualizado: 2026-11-19</p>
-          <code class="card-id">jd-legal-name-padron-20261119</code>
-        </article>
         <article class="card" data-priority="high" data-area="Docs" data-text="poner al día docs/project/status.md con lo publicado del 13 al 18/11 docs status.md termina el 12/11. falta: collections, reorder y support fase 1, el portal, facturaya y los cambios de la landing. fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -547,6 +536,17 @@
           <p class="card-notes">Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="FacturaYa" data-text="facturaya: el pdf de un comprobante emitido debe tomar el nombre del emisor de su xml facturaya invoicepdfservice arma la cabecera con los datos actuales de la empresa. tras corregir el legal_name de j&amp;d, los comprobantes emitidos antes muestran el nombre nuevo, aunque su xml firmado diga creaciones j&amp;d. la representación de un comprobante emitido debería leer la razón social y el nombre comercial de su xml. ">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML</h3>
+          
+          <p class="card-notes">InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&amp;D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&amp;D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.</p>
+          <p class="card-meta">Actualizado: 2026-11-19</p>
+          <code class="card-id">facturaya-pdf-emisor-desde-xml-20261119</code>
         </article>
         <article class="card" data-priority="medium" data-area="VPS" data-text="versionar el script de staging de releases del bridge vps el script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/. ">
           <div class="card-top">
@@ -1188,9 +1188,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">118</span>
+          <span class="count">119</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="FacturaYa" data-text="facturaya: legal_name de creaciones j&amp;d igual al padrón y creaciones j&amp;d como nombre comercial facturaya el legal_name de j&amp;d (ruc 10) guarda su nombre comercial, distinto del nombre del padrón, y va al xml como razón social. hay que poner en legal_name el nombre del padrón y dejar creaciones j&amp;d en trade_name. es un cambio de datos en producción y requiere autorización del operador. aplicado el 2026-11-19 05:57 utc con autorización: legal_name igual al padrón y trade_name creaciones j&amp;d. f001-00000027 generada en memoria con los dos nombres en la cabecera. acta: docs/deployment-2026-11-19-nombres-padron-pdf.md, en facturaya-ai.">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">FacturaYa: legal_name de CREACIONES J&amp;D igual al padrón y CREACIONES J&amp;D como nombre comercial</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Aplicado el 2026-11-19 05:57 UTC con autorización: legal_name igual al padrón y trade_name CREACIONES J&amp;D. F001-00000027 generada en memoria con los dos nombres en la cabecera. Acta: docs/deployment-2026-11-19-nombres-padron-pdf.md, en facturaya-ai.</p>
+          <p class="card-notes">El legal_name de J&amp;D (RUC 10) guarda su nombre comercial, distinto del nombre del padrón, y va al XML como razón social. Hay que poner en legal_name el nombre del padrón y dejar CREACIONES J&amp;D en trade_name. Es un cambio de datos en producción y requiere autorización del operador.</p>
+          <p class="card-meta">Actualizado: 2026-11-19</p>
+          <code class="card-id">jd-legal-name-padron-20261119</code>
+        </article>
         <article class="card" data-priority="high" data-area="Manolo" data-text="invoice cat: usar siempre el nombre del padrón de sunat para el ruc o dni del cliente manolo la factura f001-00000027 de creaciones j&amp;d salió con el nombre del cliente escrito a mano. invoice cat solo consultaba el ruc cuando no había nombre. rama fix/invoice-cat-consulta-padron: consulta el ruc (factura) o el dni (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerchecked). en facturaya, rama fix/nombres-padron-pdf: etiqueta «nombre» o «razón social» según el documento, y nombre comercial y legal del emisor en el pdf. fusionado (meowlab#20, facturaya-ai#1) y desplegado el 2026-11-19: worker 34da882d desde 0151f y facturaya nombres-padron-pdf-20261119t055023z desde 74972b0; acta en docs/operations/invoice-cat-nombre-padron-2026-11-19.md. la corrección de datos de j&amp;d sigue en la tarea jd-legal-name-padron-20261119. worker: tsc ok; 230 pruebas de invoice cat y facturaya ok, 4 nuevas; suite completa 709/711 (fallan las 2 de radar por reloj, conocidas). facturaya: fiscalpdfpaginationtest 6/6, 3 nuevas; suite completa con las mismas 2 fallas que la base desplegada (manifiesto de vite y fiscalsetupprobe).">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>

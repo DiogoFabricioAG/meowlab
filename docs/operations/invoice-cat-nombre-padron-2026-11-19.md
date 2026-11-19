@@ -37,10 +37,14 @@ La factura F001-00000027 de CREACIONES J&D salió con el nombre del cliente escr
   - La etiqueta del cliente es «Nombre».
   - Ya no aparece «Razón social».
 
+## Corrección de datos de J&D (05:57 UTC, autorizada)
+
+En FacturaYa, el `legal_name` de CREACIONES J&D (RUC 10410461248) pasó al nombre registrado en el padrón. «CREACIONES J&D» quedó como `trade_name`. Desde ahora, los comprobantes nuevos llevan el nombre legal en el XML y en el PDF, con la marca arriba. Detalle en el acta de FacturaYa.
+
 ## Pendiente
 
-- **Corregir los datos de J&D en FacturaYa.** Su `legal_name` guarda el nombre comercial, distinto del nombre del padrón, y eso va al XML como razón social. Requiere una autorización aparte.
-- **Emitir una factura de prueba** con un nombre escrito a mano y comprobar el aviso y el nombre del padrón.
+- **Comprobantes ya emitidos:** el PDF se arma con los datos actuales de la empresa, así que ahora muestran el nombre legal nuevo, aunque su XML firmado diga «CREACIONES J&D». Va en la tarea `facturaya-pdf-emisor-desde-xml-20261119`.
+- **Factura de prueba:** emitir una con un nombre escrito a mano y comprobar el aviso, el nombre del padrón y el emisor en el XML.
 
 ## Rollback
 
