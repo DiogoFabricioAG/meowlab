@@ -26,6 +26,7 @@ export type AiMessage = {
 };
 
 export type AiCompletionRequest = {
+  signal?: AbortSignal;
   model: string;
   messages: readonly AiMessage[];
   temperature: number;

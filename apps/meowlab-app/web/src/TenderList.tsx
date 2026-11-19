@@ -163,14 +163,14 @@ export function TenderList({
             ) : (
               <ul className="divide-y divide-line">
                 {visible.map((item, index) => {
-                  const title = item.description?.trim() || "Licitación sin título";
+                  const title = item.displayTitle || item.description?.trim() || "Licitación sin título";
                   const buyer = item.buyer?.trim() || "";
                   const deadline = formatDeadline(item.deadline);
                   const amount = item.amount?.trim() || "";
                   const meta = [buyer, deadline ? `Cierra ${deadline}` : "", amount].filter(Boolean);
 
                   return (
-                    <li key={`${index}-${title}-${item.deadline ?? ""}`}>
+                    <li key={item.ocid || `${index}-${item.description}`}>
                       <button
                         type="button"
                         onClick={() => onSelect(item)}
@@ -185,7 +185,7 @@ export function TenderList({
                           >
                             <Icon name={item.interesting ? "star" : "radar"} className="h-4 w-4" />
                           </span>
-                          <span className="min-w-0 space-y-1">
+                          <span className="block min-w-0 space-y-1.5">
                             <span className="flex flex-wrap items-center gap-2">
                               <span className="wrap-anywhere font-semibold text-ink">{title}</span>
                               {item.interesting && (
