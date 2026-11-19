@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "portal-tender-vistas-20261119",
+      "title": "Tender Cat en el centro de mando",
+      "area": "Portal",
+      "owner": "OPS 1, OPS 2 y Control",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-19",
+      "notes": "Integración local 3f380 sobre el portal desplegado 4b35a. Lista semanal, filtro de guardadas y ficha. Para propuestas, RADAR 394b1 abre la etapa elegida tras autenticar. Pendiente de publicación coordinada y de configurar el vínculo de la cuenta piloto con su empresa.",
+      "evidence": "Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos."
+    },
+    {
       "id": "portal-centro-de-mando-20261119",
       "title": "Portal: Inicio como centro de mando y barra lateral clara",
       "area": "Portal",
