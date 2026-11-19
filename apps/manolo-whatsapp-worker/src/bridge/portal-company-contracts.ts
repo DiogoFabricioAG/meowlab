@@ -62,7 +62,7 @@ export type WeeklySummary = {
     found: number;
     foundToday: number;
     interesting: number;
-    highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
+    highlights: Array<{ ocid?: string; description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
   /** Stock Cat (ADR-0014): items at or below their minimum, and today's moves. */
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
