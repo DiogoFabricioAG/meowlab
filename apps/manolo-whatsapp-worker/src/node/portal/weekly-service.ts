@@ -278,12 +278,13 @@ export class PortalWeeklyService {
         const alert = (row.alert ?? {}) as Record<string, unknown>;
         const url = text(alert.sourceUrl, 1000);
         return {
+          ocid: text(row.ocid, 200),
           description: text(alert.description, 240),
           buyer: text(alert.buyer, 160),
           deadline: text(alert.deadline, 100),
           amount: text(alert.amount, 60),
           // Only links to the public SEACE register leave the bridge.
-          sourceUrl: url.startsWith("https://prod2.seace.gob.pe/") ? url : null,
+          sourceUrl: /^https:\/\/prod[24]\.seace\.gob\.pe\//i.test(url) ? url : null,
           interesting: row.state === "interesting",
         };
       }),
