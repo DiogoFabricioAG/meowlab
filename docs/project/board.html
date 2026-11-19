@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 85 · Total: 202</span>
+      <span class="summary">Abiertas: 86 · Total: 203</span>
     </div>
   </div>
 </header>
@@ -1114,9 +1114,20 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">6</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Manolo" data-text="invoice cat: usar siempre el nombre del padrón de sunat para el ruc o dni del cliente manolo la factura f001-00000027 de creaciones j&amp;d salió con el nombre del cliente escrito a mano. invoice cat solo consultaba el ruc cuando no había nombre. rama fix/invoice-cat-consulta-padron: consulta el ruc (factura) o el dni (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerchecked). en facturaya, rama fix/nombres-padron-pdf: etiqueta «nombre» o «razón social» según el documento, y nombre comercial y legal del emisor en el pdf. pendiente: desplegar el worker y facturaya, y corregir los datos de j&amp;d (legal_name igual al padrón, trade_name creaciones j&amp;d). worker: tsc ok; 230 pruebas de invoice cat y facturaya ok, 4 nuevas; suite completa 709/711 (fallan las 2 de radar por reloj, conocidas). facturaya: fiscalpdfpaginationtest 6/6, 3 nuevas; suite completa con las mismas 2 fallas que la base desplegada (manifiesto de vite y fiscalsetupprobe).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Invoice Cat: usar siempre el nombre del padrón de SUNAT para el RUC o DNI del cliente</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Worker: tsc OK; 230 pruebas de Invoice Cat y FacturaYa OK, 4 nuevas; suite completa 709/711 (fallan las 2 de RADAR por reloj, conocidas). FacturaYa: FiscalPdfPaginationTest 6/6, 3 nuevas; suite completa con las mismas 2 fallas que la base desplegada (manifiesto de Vite y FiscalSetupProbe).</p>
+          <p class="card-notes">La factura F001-00000027 de CREACIONES J&amp;D salió con el nombre del cliente escrito a mano. Invoice Cat solo consultaba el RUC cuando no había nombre. Rama fix/invoice-cat-consulta-padron: consulta el RUC (factura) o el DNI (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerChecked). En FacturaYa, rama fix/nombres-padron-pdf: etiqueta «Nombre» o «Razón social» según el documento, y nombre comercial y legal del emisor en el PDF. Pendiente: desplegar el Worker y FacturaYa, y corregir los datos de J&amp;D (legal_name igual al padrón, trade_name CREACIONES J&amp;D).</p>
+          <p class="card-meta">Actualizado: 2026-11-19 · Responsable: Claude</p>
+          <code class="card-id">invoice-cat-nombre-padron-20261119</code>
+        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>

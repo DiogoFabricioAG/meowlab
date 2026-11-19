@@ -1433,6 +1433,129 @@ describe("enterprise-advisor role", () => {
     expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("20557288016"));
   });
 
+  it("uses the registry name for a factura even when a name was typed, and says so", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomer.mockResolvedValue({
+      ok: true,
+      data: { ruc: "10773925360", name: "DORADO ORTIZ PAOLA YANINA", source: "api_peru", status: "ACTIVO", condition: "HABIDO" },
+    });
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: draft });
+    const complete = vi.fn()
+      .mockResolvedValueOnce(JSON.stringify({
+        action: "invoice",
+        customer_ruc: "10773925360",
+        customer_name: "Paola Dorado",
+        issue_date: null,
+        tax_mode: "included",
+        products_text: "16 polos con bordados a S/ 24",
+        invoice_number: null,
+        reason_code: null,
+        reason_description: null,
+      }))
+      .mockImplementation(async () => null);
+    const ai: AiProvider = { key: "openai", complete };
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    await startBilling(handler, state, documents, facturaya, ai);
+    const context = makeContext(state, documents, facturaya, ai, {
+      text: "Factura a Paola Dorado RUC 10773925360, 16 polos con bordados a S/ 24",
+    });
+    await handler.handle(context);
+
+    expect(facturaya.lookupCustomer).toHaveBeenCalledExactlyOnceWith("10773925360");
+    expect(context.reply).toHaveBeenCalledWith(
+      "Usé el nombre registrado en SUNAT para el RUC 10773925360: DORADO ORTIZ PAOLA YANINA.",
+    );
+    expect((await savedCheckpoint(state)).billing).toEqual(expect.objectContaining({
+      customerRuc: "10773925360",
+      customerName: "DORADO ORTIZ PAOLA YANINA",
+      customerChecked: "10773925360",
+    }));
+  });
+
+  it("does not warn when the typed name is the registry name in another order or case", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomer.mockResolvedValue({
+      ok: true,
+      data: { ruc: "10773925360", name: "DORADO ORTIZ PAOLA YANINA", source: "api_peru", status: "ACTIVO", condition: "HABIDO" },
+    });
+    const complete = vi.fn()
+      .mockResolvedValueOnce(JSON.stringify({
+        action: "invoice", customer_ruc: "10773925360", customer_name: "Paola Yanina Dorado Ortiz",
+        issue_date: null, tax_mode: null, products_text: null, invoice_number: null, reason_code: null, reason_description: null,
+      }))
+      .mockImplementation(async () => null);
+    const ai: AiProvider = { key: "openai", complete };
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    await startBilling(handler, state, documents, facturaya, ai);
+    const context = makeContext(state, documents, facturaya, ai, { text: "Paola Yanina Dorado Ortiz RUC 10773925360" });
+    await handler.handle(context);
+
+    expect(facturaya.lookupCustomer).toHaveBeenCalledOnce();
+    expect(context.reply).not.toHaveBeenCalledWith(expect.stringContaining("Usé el nombre registrado"));
+    expect((await savedCheckpoint(state)).billing?.customerName).toBe("DORADO ORTIZ PAOLA YANINA");
+  });
+
+  it("keeps the typed name when the RUC cannot be checked, and does not ask the registry again next turn", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomer.mockResolvedValue({ ok: false, reason: "api_error", message: "caído" });
+    const complete = vi.fn()
+      .mockResolvedValueOnce(JSON.stringify({
+        action: "invoice", customer_ruc: "20557288016", customer_name: "Empresa Escrita S.A.C.",
+        issue_date: null, tax_mode: null, products_text: null, invoice_number: null, reason_code: null, reason_description: null,
+      }))
+      .mockResolvedValueOnce(JSON.stringify({
+        action: "invoice", customer_ruc: null, customer_name: null,
+        issue_date: null, tax_mode: "excluded", products_text: null, invoice_number: null, reason_code: null, reason_description: null,
+      }))
+      .mockImplementation(async () => null);
+    const ai: AiProvider = { key: "openai", complete };
+    const handler = new EnterpriseAdvisorRoleHandler();
+
+    await startBilling(handler, state, documents, facturaya, ai);
+    await handler.handle(makeContext(state, documents, facturaya, ai, { text: "Empresa Escrita S.A.C. RUC 20557288016" }));
+    await handler.handle(makeContext(state, documents, facturaya, ai, { text: "los precios son sin IGV" }));
+
+    expect(facturaya.lookupCustomer).toHaveBeenCalledOnce();
+    expect((await savedCheckpoint(state)).billing).toEqual(expect.objectContaining({
+      customerName: "Empresa Escrita S.A.C.",
+      customerChecked: "20557288016",
+    }));
+  });
+
+  it("uses the registry name for a boleta even when a name was typed with the DNI", async () => {
+    const state = new MemoryState();
+    const documents = new MemoryDocuments();
+    const facturaya = new FakeFacturaya();
+    facturaya.lookupCustomerByDni.mockResolvedValue({ ok: true, data: { ruc: "12345678", name: "TORRES QUISPE MARIA", document_type: "1" } as never });
+    facturaya.importInvoiceDraft.mockResolvedValue({ ok: true, data: draft });
+    const complete = vi.fn()
+      .mockResolvedValueOnce(JSON.stringify({
+        action: "receipt", customer_document: "12345678", customer_name: "maria torres",
+        issue_date: null, tax_mode: "included", products_text: "2 polos a S/ 25", invoice_number: null, reason_code: null, reason_description: null,
+      }))
+      .mockImplementation(async () => null);
+    const ai: AiProvider = { key: "openai", complete };
+    const handler = new EnterpriseAdvisorRoleHandler();
+    await handler.handle(makeContext(state, documents, facturaya, ai, { text: "hola" }));
+    await handler.handle(makeContext(state, documents, facturaya, ai, { interactionId: "enterprise_billing", text: "enterprise_billing" }));
+    await handler.handle(makeContext(state, documents, facturaya, ai, { interactionId: "enterprise_receipt", text: "enterprise_receipt" }));
+
+    const context = makeContext(state, documents, facturaya, ai, { text: "Boleta a maria torres DNI 12345678, 2 polos a S/ 25" });
+    await handler.handle(context);
+
+    expect(facturaya.lookupCustomerByDni).toHaveBeenCalledExactlyOnceWith("12345678");
+    expect(context.reply).toHaveBeenCalledWith("Usé el nombre registrado en SUNAT para el DNI 12345678: TORRES QUISPE MARIA.");
+    expect((await savedCheckpoint(state)).billing?.customerName).toBe("TORRES QUISPE MARIA");
+  });
+
   it("preserves the checkpoint without guessing invoice fields when the AI provider fails", async () => {
     const state = new MemoryState();
     const documents = new MemoryDocuments();
