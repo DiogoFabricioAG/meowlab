@@ -35,6 +35,17 @@ export function TenderCase({
   const seaceUrl = safeHttpsUrl(item.sourceUrl);
   const quoteHref = safeWorkspaceHref(workspaceUrl("quote"));
   const documentsHref = safeWorkspaceHref(workspaceUrl("documents"));
+  const hasWorkspace = Boolean(quoteHref || documentsHref);
+
+  const factsNote = !seaceUrl && !hasWorkspace
+    ? item.interesting
+      ? "La ficha web de esta convocatoria no está disponible."
+      : "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
+    : !seaceUrl
+    ? "Sin enlace directo a OECE; continúa en Preparar propuesta abajo."
+    : item.interesting
+    ? "Guardada por tu equipo desde la alerta de Tender Cat."
+    : "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa.";
 
   return (
     <article className="space-y-6" aria-labelledby="tender-case-title">
@@ -88,7 +99,7 @@ export function TenderCase({
           <h2 id="tender-facts-heading" className="text-xl text-ink">
             Datos de la convocatoria
           </h2>
-          {seaceUrl ? (
+          {seaceUrl && (
             <a
               href={seaceUrl}
               target="_blank"
@@ -99,8 +110,6 @@ export function TenderCase({
               <Icon name="external" className="h-4 w-4" />
               <span className="sr-only">(se abre en otra pestaña)</span>
             </a>
-          ) : (
-            <span className="text-sm text-ink-muted">Sin enlace OECE</span>
           )}
         </div>
 
@@ -128,73 +137,56 @@ export function TenderCase({
         </dl>
 
         <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
-          {seaceUrl
-            ? item.interesting
-              ? "Guardada por tu equipo desde la alerta de Tender Cat."
-              : "Para guardarla, respóndele «Me interesa» a Tender Cat en el chat de WhatsApp."
-            : "Esta ficha no incluye un enlace HTTPS directo a OECE; sigue desde Cotización o Expediente abajo, o revisa la alerta original en WhatsApp."}
+          {factsNote}
         </p>
       </section>
 
-      <section
-        aria-labelledby="tender-workspace-heading"
-        className="overflow-hidden rounded-2xl border border-line bg-white"
-      >
-        <div className="border-b border-line px-5 py-3.5">
-          <h2 id="tender-workspace-heading" className="text-xl text-ink">
-            Acciones OECE
-          </h2>
-        </div>
+      {hasWorkspace && (
+        <section
+          aria-labelledby="tender-workspace-heading"
+          className="overflow-hidden rounded-2xl border border-line bg-white"
+        >
+          <div className="border-b border-line px-5 py-3.5">
+            <h2 id="tender-workspace-heading" className="text-xl text-ink">
+              Preparar propuesta
+            </h2>
+          </div>
 
-        <div className="space-y-4 px-5 py-4">
-          <p className="text-sm text-ink-muted">
-            Acceso web vigente para trabajar la licitación en tu espacio autenticado:
+          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap">
+            {quoteHref && (
+              <a
+                href={quoteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary min-h-11 w-full sm:w-auto"
+              >
+                <Icon name="invoice" className="h-4 w-4" />
+                Cotización
+                <Icon name="external" className="h-4 w-4" />
+                <span className="sr-only">(se abre en otra pestaña)</span>
+              </a>
+            )}
+
+            {documentsHref && (
+              <a
+                href={documentsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary min-h-11 w-full border border-line bg-white hover:bg-surface-subtle sm:w-auto"
+              >
+                <Icon name="radar" className="h-4 w-4" />
+                Expediente
+                <Icon name="external" className="h-4 w-4" />
+                <span className="sr-only">(se abre en otra pestaña)</span>
+              </a>
+            )}
+          </div>
+
+          <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
+            Carga las bases en RADAR desde Expediente. El envío del PDF por WhatsApp («Me interesa» → confirmación y enlace → WhatsApp dedicado) sigue pendiente.
           </p>
-
-          {(quoteHref || documentsHref) ? (
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {quoteHref && (
-                <a
-                  href={quoteHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary min-h-11 w-full sm:w-auto"
-                >
-                  <Icon name="invoice" className="h-4 w-4" />
-                  Cotización
-                  <Icon name="external" className="h-4 w-4" />
-                  <span className="sr-only">(se abre en otra pestaña)</span>
-                </a>
-              )}
-
-              {documentsHref && (
-                <a
-                  href={documentsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary min-h-11 w-full border border-line bg-white hover:bg-surface-subtle sm:w-auto"
-                >
-                  <Icon name="radar" className="h-4 w-4" />
-                  Expediente
-                  <Icon name="external" className="h-4 w-4" />
-                  <span className="sr-only">(se abre en otra pestaña)</span>
-                </a>
-              )}
-            </div>
-          ) : (
-            <p className="text-sm text-ink-muted">
-              Los enlaces de Cotización y Expediente no están disponibles para esta ficha en este momento.
-            </p>
-          )}
-        </div>
-
-        <div className="border-t border-line bg-surface-subtle px-5 py-3 text-xs leading-relaxed text-ink-muted">
-          <strong className="font-semibold text-ink">
-            Bases en PDF por WhatsApp (en desarrollo, aún no operativo):
-          </strong>{" "}
-          el flujo previsto será responder «Me interesa» → el gato confirma y comparte un enlace para el PDF → adjuntas el documento por el WhatsApp dedicado. Mientras tanto, usa el acceso web vigente en Cotización y Expediente.
-        </div>
-      </section>
+        </section>
+      )}
     </article>
   );
 }
