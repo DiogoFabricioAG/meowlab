@@ -4,6 +4,7 @@ import type { RadarAlertContext } from "../radar/presentation";
 import { FOLLOW_UP_ACTIONS, followUpButtons, parseFollowUp } from "../radar/follow-up";
 import { actionAnswer, opportunityDetail } from "../radar/action-answer";
 import { buildInterestConfirmation } from "../radar/interest-confirmation";
+import { handleRadarDocumentIntake } from "../radar/bases-intake";
 
 type Turn = { role: "user" | "assistant"; content: string };
 type Memory = { version: 1; channel: string; expiresAt: number; lastMessageId: string | null; deliveryId?: string; turns: Turn[] };
@@ -46,6 +47,34 @@ export async function radarDialogue(context: RoleHandlerContext): Promise<void> 
   }
   let memory = readMemory(raw, context.message.phoneNumberId, now);
   if (context.message.id && memory?.lastMessageId === context.message.id) return;
+  if (context.message.inputType === "document") {
+    const intake = await handleRadarDocumentIntake(context, memory?.deliveryId ?? null);
+    if (intake.reply) {
+      await context.reply(intake.reply);
+    }
+    if (state && contact && intake.deliveryId) {
+      const priorTurns = memory?.deliveryId === intake.deliveryId ? memory.turns : [];
+      const next: Memory = {
+        version: 1,
+        channel: context.message.phoneNumberId,
+        expiresAt: now + 86_400_000,
+        lastMessageId: context.message.id,
+        deliveryId: intake.deliveryId,
+        turns: [
+          ...priorTurns,
+          { role: "user", content: `[Documento: ${context.document?.filename || "archivo"}]` },
+          ...(intake.reply ? [{ role: "assistant" as const, content: intake.reply.slice(0, 1000) }] : []),
+        ].slice(-8) as Turn[],
+      };
+      try {
+        const stored = state.compareAndSet
+          ? await state.compareAndSet(context.tenant.tenantId, contact, "radar", raw, JSON.stringify(next))
+          : await state.set(context.tenant.tenantId, contact, "radar", JSON.stringify(next));
+        if (!stored) context.log("radar_role_memory_not_saved");
+      } catch { context.log("radar_role_memory_write_failed"); }
+    }
+    return;
+  }
   const interactionId = context.message.interactionId ?? "";
   const action = parseFollowUp(interactionId);
   if (interactionId.startsWith("radar:") && !action) {
