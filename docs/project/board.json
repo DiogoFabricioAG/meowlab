@@ -16,6 +16,39 @@
   ],
   "tasks": [
     {
+      "id": "traspaso-agentes-20261118",
+      "title": "Documento de traspaso para agentes de IA y reparto en Herdr",
+      "area": "Docs",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-18",
+      "notes": "Pedido del operador para delegar en otros agentes. docs/agents/traspaso-2026-11-18.md: producto, matriz, arquitectura, producción al 18/11, qué hace cada gato hoy, sesión del 13 al 18/11, reglas, procedimientos, trampas, pendientes priorizados, reparto en paneles de Herdr, contrato de handoff y prompt de arranque.",
+      "evidence": "docs/agents/traspaso-2026-11-18.md; enlazado desde docs/README.md y docs/agents/orchestration.md; rutas, migración 021 y comprobaciones citadas verificadas en el repo."
+    },
+    {
+      "id": "status-md-puesta-al-dia-20261118",
+      "title": "Poner al día docs/project/status.md con lo publicado del 13 al 18/11",
+      "area": "Docs",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-18",
+      "notes": "status.md termina el 12/11. Falta: Collections, Reorder y Support fase 1, el portal, FacturaYa y los cambios de la landing. Fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/.",
+      "evidence": ""
+    },
+    {
+      "id": "bridge-staging-script-20261118",
+      "title": "Versionar el script de staging de releases del bridge",
+      "area": "VPS",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-18",
+      "notes": "El script que arma /opt/manolo-platform/releases/<id> (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-<id>) quedó fuera de git. Reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/.",
+      "evidence": ""
+    },
+    {
       "id": "landing-yape-captura-real-20261116",
       "title": "Landing: la captura real de Yape (la de la demo) en los chats",
       "area": "Landing",
