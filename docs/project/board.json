@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "invoice-cat-nombre-padron-20261119",
+      "title": "Invoice Cat: usar siempre el nombre del padrón de SUNAT para el RUC o DNI del cliente",
+      "area": "Manolo",
+      "owner": "Claude",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-19",
+      "notes": "La factura F001-00000027 de CREACIONES J&D salió con el nombre del cliente escrito a mano. Invoice Cat solo consultaba el RUC cuando no había nombre. Rama fix/invoice-cat-consulta-padron: consulta el RUC (factura) o el DNI (boleta) aunque venga un nombre, usa el del padrón, avisa si era distinto y no repite la consulta en cada turno (customerChecked). En FacturaYa, rama fix/nombres-padron-pdf: etiqueta «Nombre» o «Razón social» según el documento, y nombre comercial y legal del emisor en el PDF. Pendiente: desplegar el Worker y FacturaYa, y corregir los datos de J&D (legal_name igual al padrón, trade_name CREACIONES J&D).",
+      "evidence": "Worker: tsc OK; 230 pruebas de Invoice Cat y FacturaYa OK, 4 nuevas; suite completa 709/711 (fallan las 2 de RADAR por reloj, conocidas). FacturaYa: FiscalPdfPaginationTest 6/6, 3 nuevas; suite completa con las mismas 2 fallas que la base desplegada (manifiesto de Vite y FiscalSetupProbe)."
+    },
+    {
       "id": "traspaso-agentes-20261118",
       "title": "Documento de traspaso para agentes de IA y reparto en Herdr",
       "area": "Docs",

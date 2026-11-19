@@ -54,6 +54,8 @@ type AuthorizedFacturayaTenantAccess = Extract<
 type BillingState = PaymentSelection & {
   customerRuc: string;
   customerName: string;
+  /** The RUC or DNI already looked up in FacturaYa's registry (found or not), so it is not repeated every turn. */
+  customerChecked?: string;
   issueDate: string;
   taxMode: "included" | "excluded";
   productsText: string;
@@ -261,6 +263,12 @@ function customerDocumentFromText(value: string, kind: BillingDocumentKind): str
   const pattern = kind === "receipt" ? "\\d{8}|\\d{11}" : "\\d{11}";
   const match = value.match(new RegExp(`(?<!\\d)(${pattern})(?!\\d)`));
   return match ? parseCustomerDocument(match[1]) : null;
+}
+
+/** Same person or company for the registry check: ignores case, accents, punctuation and word order. */
+function comparableName(value: string): string {
+  return value.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase().replace(/[^A-Z0-9 ]+/g, " ")
+    .split(/\s+/).filter(Boolean).sort().join(" ");
 }
 
 function customerNameFromText(value: string): string | null {
@@ -534,6 +542,8 @@ function parseState(raw: string | null): EnterpriseState | null {
       ? {
           customerRuc: storedCustomerDocument ?? "",
           customerName: normalizeCustomerName(value.billing.customerName, billingDocumentKind === "receipt"),
+          ...(storedCustomerDocument && parseCustomerDocument(value.billing.customerChecked) === storedCustomerDocument
+            ? { customerChecked: storedCustomerDocument } : {}),
           issueDate: parseDate(value.billing.issueDate) ?? today(),
           taxMode: value.billing.taxMode === "excluded" ? "excluded" as const : "included" as const,
           paymentMethod: value.billing.paymentMethod === "contado" || value.billing.paymentMethod === "credito"
@@ -1849,6 +1859,9 @@ async function handleBilling(
     customerRuc: intent.clearCustomerDocument ? "" : intent.customerRuc || state.billing?.customerRuc || "",
     customerName: intent.customerName || (intent.customerRuc && intent.customerRuc !== state.billing?.customerRuc
       ? "" : state.billing?.customerName || ""),
+    ...(!intent.customerName && !intent.clearCustomerDocument && state.billing?.customerChecked
+      && state.billing.customerChecked === (intent.customerRuc || state.billing.customerRuc)
+      ? { customerChecked: state.billing.customerChecked } : {}),
     issueDate: intent.issueDate || state.billing?.issueDate || today(),
     taxMode: intent.taxMode || state.billing?.taxMode || "included",
     productsText,
@@ -1881,36 +1894,42 @@ async function handleBilling(
   const detectedCustomerDocument = intent.modelInterpreted ? null : customerDocumentFromText(context.message.text, kind);
   if (!billing.customerRuc && detectedCustomerDocument) billing.customerRuc = detectedCustomerDocument;
   let dniResolved = false;
-  if (kind === "receipt" && /^\d{8}$/.test(billing.customerRuc) && (!billing.customerName || lookupRequested)) {
-    const customer = await client.lookupCustomerByDni(billing.customerRuc);
+  let registryNotice: string | null = null;
+  // SUNAT's registry names the customer: a factura or boleta carries the name registered for its
+  // RUC or DNI, never one typed in the chat. Look it up whenever the document or a typed name is new.
+  const receiptDni = kind === "receipt" && /^\d{8}$/.test(billing.customerRuc);
+  const invoiceRuc = kind === "invoice" && /^\d{11}$/.test(billing.customerRuc);
+  if ((receiptDni || invoiceRuc) && (billing.customerChecked !== billing.customerRuc || lookupRequested)) {
+    const typedName = billing.customerName;
+    const customer = receiptDni
+      ? await client.lookupCustomerByDni(billing.customerRuc)
+      : await client.lookupCustomer(billing.customerRuc);
+    billing.customerChecked = billing.customerRuc;
     if (customer.ok) {
       billing.customerName = customer.data.name;
-      dniResolved = true;
-      context.log("whatsapp_facturaya_customer_resolved", { documentType: "1" });
-    } else {
-      context.log("whatsapp_facturaya_customer_lookup_failed", { documentType: "1", reason: customer.reason });
-      await saveState(context, touch({ ...state, billing }));
-      await context.reply(customer.reason === "not_found"
-        ? "FacturaYa no encontró el nombre para ese DNI. Conservé los demás datos; indícame el nombre correcto para continuar."
-        : "La consulta de DNI en FacturaYa no está disponible ahora. Conservé los demás datos; puedes indicar el nombre correcto o intentar la consulta después.");
-      return;
-    }
-  }
-  if (kind === "invoice" && billing.customerRuc && !billing.customerName) {
-    const customer = await client.lookupCustomer(billing.customerRuc);
-    if (customer.ok) {
-      billing.customerName = customer.data.name;
-      context.log("whatsapp_facturaya_customer_resolved", {
+      dniResolved = receiptDni;
+      if (typedName && comparableName(typedName) !== comparableName(customer.data.name)) {
+        registryNotice = `Usé el nombre registrado en SUNAT para el ${receiptDni ? "DNI" : "RUC"} ${billing.customerRuc}: ${customer.data.name}.`;
+      }
+      context.log("whatsapp_facturaya_customer_resolved", receiptDni ? { documentType: "1", replacedTypedName: Boolean(registryNotice) } : {
         source: customer.data.source || "unknown",
         provider: customer.data.provider || "unknown",
         status: customer.data.status || "unknown",
+        replacedTypedName: Boolean(registryNotice),
       });
     } else {
-      context.log("whatsapp_facturaya_customer_lookup_failed", {
-        reason: customer.reason,
-      });
+      context.log("whatsapp_facturaya_customer_lookup_failed", receiptDni
+        ? { documentType: "1", reason: customer.reason } : { reason: customer.reason });
+      if (receiptDni && !typedName) {
+        await saveState(context, touch({ ...state, billing }));
+        await context.reply(customer.reason === "not_found"
+          ? "FacturaYa no encontró el nombre para ese DNI. Conservé los demás datos; indícame el nombre correcto para continuar."
+          : "La consulta de DNI en FacturaYa no está disponible ahora. Conservé los demás datos; puedes indicar el nombre correcto o intentar la consulta después.");
+        return;
+      }
     }
   }
+  if (registryNotice) await context.reply(registryNotice);
 
   if (context.document) {
     if (!context.documentStore || context.persisted.contactId === null) {
