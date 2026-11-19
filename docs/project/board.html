@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 86 · Total: 205</span>
+      <span class="summary">Abiertas: 86 · Total: 206</span>
     </div>
   </div>
 </header>
@@ -1188,7 +1188,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">119</span>
+          <span class="count">120</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="FacturaYa" data-text="facturaya: legal_name de creaciones j&amp;d igual al padrón y creaciones j&amp;d como nombre comercial facturaya el legal_name de j&amp;d (ruc 10) guarda su nombre comercial, distinto del nombre del padrón, y va al xml como razón social. hay que poner en legal_name el nombre del padrón y dejar creaciones j&amp;d en trade_name. es un cambio de datos en producción y requiere autorización del operador. aplicado el 2026-11-19 05:57 utc con autorización: legal_name igual al padrón y trade_name creaciones j&amp;d. f001-00000027 generada en memoria con los dos nombres en la cabecera. acta: docs/deployment-2026-11-19-nombres-padron-pdf.md, en facturaya-ai.">
@@ -2169,6 +2169,17 @@
           <p class="card-notes">ADR-0017. Desplegado el 15/11 desde d932a98; activo para CREACIONES J&amp;D con el número de Manolo (1266091906580349). Acta: docs/operations/support-cat-2026-11-15.md. Faltan las preguntas frecuentes de J&amp;D y la prueba real con un número que no sea del equipo.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-1-nucleo-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: títulos en crete round y textos y montos en figtree portal decisión del operador tras comparar tres combinaciones (html en su escritorio). rama feat/portal-tipografia. títulos en crete round, que tiene un solo peso (font-synthesis: none para evitar la negrita falsa). textos, botones y montos en figtree: crete round tiene cifras de estilo antiguo. el logotipo conserva blinker (font-brand). actor deja de usarse. la landing no cambia. sin desplegar. apps/meowlab-app: typecheck ok, vite build ok, vitest 52/52. pantalla de ingreso revisada con chrome headless: títulos en crete round con font-synthesis none y cuerpo en figtree.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: títulos en Crete Round y textos y montos en Figtree</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> apps/meowlab-app: typecheck OK, vite build OK, vitest 52/52. Pantalla de ingreso revisada con Chrome headless: títulos en Crete Round con font-synthesis none y cuerpo en Figtree.</p>
+          <p class="card-notes">Decisión del operador tras comparar tres combinaciones (HTML en su escritorio). Rama feat/portal-tipografia. Títulos en Crete Round, que tiene un solo peso (font-synthesis: none para evitar la negrita falsa). Textos, botones y montos en Figtree: Crete Round tiene cifras de estilo antiguo. El logotipo conserva Blinker (font-brand). Actor deja de usarse. La landing no cambia. Sin desplegar.</p>
+          <p class="card-meta">Actualizado: 2026-11-19 · Responsable: Claude</p>
+          <code class="card-id">portal-tipografia-crete-figtree-20261119</code>
         </article>
         <article class="card" data-priority="medium" data-area="Producto" data-text="documentar la matriz de participación de los gatos (cliente, dueño, proveedor) producto visión del operador: el papel de cada gato con cada actor (proactivo, reactivo, consultado o sin participación), con su diagrama y la distancia con lo construido. las casillas pendientes son sales con el cliente, invoice con el cliente, stock consultado al cotizar, y collections y support proactivos con el cliente. docs/project/matriz-participacion.md y matriz-participacion.png; enlazada desde docs/readme.md.">
           <div class="card-top">
