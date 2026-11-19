@@ -1,6 +1,7 @@
 # Orquestación de agentes
 
-`AGENTS.md` define qué debe leer y respetar cada agente. Herdr u otra herramienta
+`AGENTS.md` define qué debe leer y respetar cada agente. Para retomar el trabajo
+hecho hasta el 18/11/2026, lee también [`traspaso-2026-11-18.md`](traspaso-2026-11-18.md). Herdr u otra herramienta
 solo coordina terminales; no cambia la propiedad de los archivos ni las reglas
 arquitectónicas.
 

@@ -25,7 +25,8 @@ docs/
 ├─ operations/
 │  └─ deployment.md
 ├─ agents/
-│  └─ orchestration.md
+│  ├─ orchestration.md
+│  └─ traspaso-2026-11-18.md
 └─ decisions/
    └─ README.md
 ```
@@ -33,6 +34,8 @@ docs/
 ## Cómo navegar
 
 - Estado real y pendientes: [`project/status.md`](project/status.md).
+- Traspaso para agentes de IA (estado al 18/11/2026, reglas y reparto en Herdr):
+  [`agents/traspaso-2026-11-18.md`](agents/traspaso-2026-11-18.md).
 - Visión de producto: qué papel cumple cada gato con el cliente, el dueño y el
   proveedor, y cuánto falta para llegar ahí: [`project/matriz-participacion.md`](project/matriz-participacion.md).
 - Proyectos registrados explícitamente: [`project/projects.json`](project/projects.json).

@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 199</span>
+      <span class="summary">Abiertas: 85 · Total: 202</span>
     </div>
   </div>
 </header>
@@ -226,9 +226,20 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">78</span>
+          <span class="count">80</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Docs" data-text="poner al día docs/project/status.md con lo publicado del 13 al 18/11 docs status.md termina el 12/11. falta: collections, reorder y support fase 1, el portal, facturaya y los cambios de la landing. fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/. ">
+          <div class="card-top">
+            <span class="badge area-docs">Docs</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Poner al día docs/project/status.md con lo publicado del 13 al 18/11</h3>
+          
+          <p class="card-notes">status.md termina el 12/11. Falta: Collections, Reorder y Support fase 1, el portal, FacturaYa y los cambios de la landing. Fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/.</p>
+          <p class="card-meta">Actualizado: 2026-11-18</p>
+          <code class="card-id">status-md-puesta-al-dia-20261118</code>
+        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -525,6 +536,17 @@
           <p class="card-notes">Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="VPS" data-text="versionar el script de staging de releases del bridge vps el script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/. ">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Versionar el script de staging de releases del bridge</h3>
+          
+          <p class="card-notes">El script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. Reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/.</p>
+          <p class="card-meta">Actualizado: 2026-11-18</p>
+          <code class="card-id">bridge-staging-script-20261118</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -1155,9 +1177,20 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">116</span>
+          <span class="count">117</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Docs" data-text="documento de traspaso para agentes de ia y reparto en herdr docs pedido del operador para delegar en otros agentes. docs/agents/traspaso-2026-11-18.md: producto, matriz, arquitectura, producción al 18/11, qué hace cada gato hoy, sesión del 13 al 18/11, reglas, procedimientos, trampas, pendientes priorizados, reparto en paneles de herdr, contrato de handoff y prompt de arranque. docs/agents/traspaso-2026-11-18.md; enlazado desde docs/readme.md y docs/agents/orchestration.md; rutas, migración 021 y comprobaciones citadas verificadas en el repo.">
+          <div class="card-top">
+            <span class="badge area-docs">Docs</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Documento de traspaso para agentes de IA y reparto en Herdr</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/agents/traspaso-2026-11-18.md; enlazado desde docs/README.md y docs/agents/orchestration.md; rutas, migración 021 y comprobaciones citadas verificadas en el repo.</p>
+          <p class="card-notes">Pedido del operador para delegar en otros agentes. docs/agents/traspaso-2026-11-18.md: producto, matriz, arquitectura, producción al 18/11, qué hace cada gato hoy, sesión del 13 al 18/11, reglas, procedimientos, trampas, pendientes priorizados, reparto en paneles de Herdr, contrato de handoff y prompt de arranque.</p>
+          <p class="card-meta">Actualizado: 2026-11-18 · Responsable: Claude</p>
+          <code class="card-id">traspaso-agentes-20261118</code>
+        </article>
         <article class="card" data-priority="high" data-area="Landing" data-text="landing: cada gato con una pestaña por actor (cliente, dueño, proveedor) según la matriz landing pedido del operador: la landing seguía sin demostrar la capacidad de cada gato; eligió el enfoque por actor. rama feat/landing-gatos-por-actor. catorce conversaciones (gato × actor) con su tipo de participación; las que no están construidas llevan «próximamente» y lo que el gato hace hoy. las pestañas avanzan solas y se pueden tocar; las tarjetas de lo que pasa entre gatos aparecen bajo las pestañas. fusionado (pr #15, 0b66b18e71af) y desplegado el 2026-11-16 como meowlab-web:0b66b18e71af; acta en docs/operations/landing-gatos-por-actor-2026-11-16.md. astro build ok. capturas con chrome headless a 1440x900 (sales cliente → dueño por avance automático, stock proveedor y reorder proveedor por clic) y a 390x844, sin desborde horizontal.">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
