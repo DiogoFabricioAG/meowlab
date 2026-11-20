@@ -8,6 +8,7 @@ import threading
 
 from .database import Base, engine, SessionLocal
 from .opportunity_discovery import DiscoveryWorker
+from .security import read_secret
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
     if args.force and not args.once:
         parser.error("--force requires --once; continuous discovery respects its six-hour interval")
     owner = os.getenv("RADAR_WEB_ACCOUNT", "").strip()
-    if not owner or len(owner) > 100 or not os.getenv("RADAR_MEOWLAB_TOKEN", "").strip():
+    if not owner or len(owner) > 100 or not read_secret("RADAR_MEOWLAB_TOKEN"):
         parser.error("Configure the pilot account and its server-only MeowLab credential")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)

@@ -20,6 +20,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
 from .preparation_sources import discover_alert_documents
+from .security import read_secret
 from .workspace import MEOWLAB, WebOpportunity
 from .business_profile import WebBusiness
 
@@ -139,7 +140,7 @@ def search_seace(query, category):
 
 
 def meowlab(path, body=None):
-    token = os.getenv("RADAR_MEOWLAB_TOKEN", "").strip()
+    token = read_secret("RADAR_MEOWLAB_TOKEN")
     if not token or path not in ("/status", "/candidates", "/alerts"):
         raise ValueError("meowlab_not_configured")
     return read_json(MEOWLAB + path, method="GET" if body is None else "POST", token=token, body=body, maximum=65_536)

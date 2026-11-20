@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import database, main, preparation as prep, tender_market, workspace
+from app import bases_rag, database, main, preparation as prep, security, tender_market, workspace
 from app.workspace_bases import UploadedBases
 
 TOKEN = "native-tender-secret-token"
@@ -39,6 +39,10 @@ def service_client(monkeypatch):
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     database.Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    monkeypatch.setattr(database, "engine", engine)
+    monkeypatch.setattr(database, "SessionLocal", factory)
+    monkeypatch.setattr(main, "engine", engine)
+    monkeypatch.setattr(main, "SessionLocal", factory)
 
     def override_get_db():
         db = factory()
@@ -111,11 +115,21 @@ def test_health_and_fail_closed_auth(service_client, monkeypatch, tmp_path):
     monkeypatch.delenv("TENDER_SERVICE_TOKEN")
     assert client.get("/api/workspace/opportunities", headers=_headers()).status_code == 503
 
-    # *_FILE Docker Secret support
+    # *_FILE Docker Secret support (TENDER_SERVICE_TOKEN_FILE, RADAR_MEOWLAB_TOKEN_FILE, RADAR_OPENAI_API_KEY_FILE)
     secret_file = tmp_path / "tender_token"
     secret_file.write_text("file-secret-123\n", encoding="utf-8")
     monkeypatch.setenv("TENDER_SERVICE_TOKEN_FILE", str(secret_file))
     assert client.get("/api/workspace/opportunities", headers=_headers(token="file-secret-123")).status_code == 200
+
+    meowlab_file = tmp_path / "meowlab_token"
+    meowlab_file.write_text("meowlab-file-secret\n", encoding="utf-8")
+    monkeypatch.setenv("RADAR_MEOWLAB_TOKEN_FILE", str(meowlab_file))
+    assert security.read_secret("RADAR_MEOWLAB_TOKEN") == "meowlab-file-secret"
+
+    openai_file = tmp_path / "openai_key"
+    openai_file.write_text("sk-file-secret\n", encoding="utf-8")
+    monkeypatch.setenv("RADAR_OPENAI_API_KEY_FILE", str(openai_file))
+    assert bases_rag._openai_api_key() == "sk-file-secret"
 
 
 def test_cross_account_ownership_by_key_returns_404(service_client):
@@ -269,3 +283,76 @@ def test_full_native_lifecycle_bases_preparation_work_market_and_exports(service
     del_resp = client.delete(f"/api/workspace/opportunities/{key}/bases/{base_id}", headers=h)
     assert del_resp.status_code == 200
     assert del_resp.json()["basesUploaded"] is False
+
+
+def test_sync_preserves_preexisting_row_cursor_work_and_bases(service_client, monkeypatch):
+    client, factory, _ = service_client
+    ocid = "ocds-dgv273-seacev3-777"
+    legacy_key = hashlib.sha256(f"{OWNER}\0{ocid}".encode()).hexdigest()
+    pdf = _pdf_bytes("Bases preexistentes")
+    digest = hashlib.sha256(pdf).hexdigest()
+    base_id = hashlib.sha256(f"{OWNER}:{legacy_key}:{digest}".encode()).hexdigest()
+    saved_work = {
+        "notes": "Notas previas del equipo",
+        "document": "",
+        "quotes": [],
+        "documentEdits": {"doc-1": "Borrador guardado"},
+        "checklist": ["doc-1"],
+    }
+
+    with factory() as db:
+        db.add(workspace.WebAccount(id=OWNER, cursor=5))
+        db.add(
+            workspace.WebOpportunity(
+                key=legacy_key,
+                account=OWNER,
+                ocid=ocid,
+                revision=4,
+                selection="dismissed",
+                candidate={"alert": {"ocid": ocid, "code": "AS-777-OLD"}},
+                work=saved_work,
+                work_version=3,
+                hidden=True,
+            )
+        )
+        db.add(
+            UploadedBases(
+                id=base_id,
+                account=OWNER,
+                opportunity=legacy_key,
+                filename="bases_previas.pdf",
+                sha256=digest,
+                body=pdf,
+                created_at=100,
+            )
+        )
+        db.commit()
+
+    sync_page = _sync_payload(ocid=ocid, seq=6)
+    sync_page["changes"][0]["candidate"]["alert"]["code"] = "AS-777-NEW"
+    monkeypatch.setattr(workspace, "pull_changes", lambda cursor: sync_page if cursor == 5 else {"status": "ok", "cursor": cursor, "changes": []})
+
+    resp = client.post("/api/workspace/sync", headers=_headers())
+    assert resp.status_code == 200
+    assert resp.json() == {"updated": 1, "more": False}
+
+    with factory() as db:
+        all_opps = db.scalars(select(workspace.WebOpportunity)).all()
+        assert len(all_opps) == 1
+        row = all_opps[0]
+        assert row.key == legacy_key
+        assert row.revision == 6
+        assert row.selection == "interesting"
+        assert row.hidden is False
+        assert row.candidate["alert"]["code"] == "AS-777-NEW"
+        assert row.work == saved_work
+        assert row.work_version == 3
+        assert db.get(workspace.WebAccount, OWNER).cursor == 6
+        assert db.get(UploadedBases, base_id) is not None
+        assert db.scalar(select(prep.PreparationJob)) is not None
+
+    # Verify safe_source rejects non-SEACE hosts and custom ports
+    assert workspace.safe_source("https://prod4.seace.gob.pe/openegocio/#/ficha/idProceso/tipo/777/2") is not None
+    assert workspace.safe_source("https://prod4.seace.gob.pe:8086/api/test") is None
+    assert workspace.safe_source("https://evil.seace.gob.pe/test") is None
+

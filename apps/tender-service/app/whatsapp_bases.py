@@ -16,6 +16,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from .database import Base
 from .preparation import KINDS, PreparationJob, enqueue_selected, job_id, memory_for
+from .security import read_secret
 from .workspace import MEOWLAB, WebOpportunity
 from .workspace_bases import MAX_BYTES, MAX_FILES, MAX_TOTAL_BYTES, UploadedBases, files_for, has_bases, validate_file
 
@@ -58,7 +59,7 @@ def _clean(value: Any, limit: int = 300) -> str:
 
 
 def _meowlab_headers(accept: str = "application/json") -> dict[str, str]:
-    token = os.getenv("RADAR_MEOWLAB_TOKEN", "").strip()
+    token = read_secret("RADAR_MEOWLAB_TOKEN")
     if not token:
         raise ValueError("meowlab_not_configured")
     return {

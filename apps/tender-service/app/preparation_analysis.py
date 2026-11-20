@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Iterable
 
 from .ai_client import provider_events as default_provider_events, tool
+from .security import read_secret
 
 logger = logging.getLogger(__name__)
 
@@ -840,7 +841,7 @@ def analyze_section(
         }
 
     if provider is None:
-        if not os.getenv("RADAR_OPENAI_API_KEY", "").strip():
+        if not read_secret("RADAR_OPENAI_API_KEY"):
             return {
                 "status": "failed",
                 "summary": "El análisis asistido no está configurado en el servidor. Revisa directamente los documentos oficiales del expediente.",

@@ -47,19 +47,22 @@ class WebOpportunity(Base):
     hidden: Mapped[bool] = mapped_column(default=False)
 
 
-def safe_source(url):
-    if not isinstance(url, str) or len(url) > 2048 or any(ord(c) < 32 for c in url):
+def safe_source(value):
+    if not isinstance(value, str) or len(value) > 2048:
         return None
     try:
-        parsed = urlsplit(url.strip())
+        parsed = urlsplit(value)
+        return (
+            value
+            if parsed.scheme == "https"
+            and parsed.hostname in ("prod1.seace.gob.pe", "prod2.seace.gob.pe", "prod4.seace.gob.pe")
+            and not parsed.username
+            and not parsed.password
+            and parsed.port in (None, 443)
+            else None
+        )
     except ValueError:
         return None
-    if parsed.scheme != "https" or parsed.username or parsed.password:
-        return None
-    host = (parsed.hostname or "").lower()
-    if not (host == "seace.gob.pe" or host.endswith(".seace.gob.pe")):
-        return None
-    return url.strip()
 
 
 def pull_changes(cursor: int):
@@ -67,6 +70,7 @@ def pull_changes(cursor: int):
     if not token:
         raise HTTPException(503, "Falta conectar la cuenta de WhatsApp del piloto.")
     url = f"{MEOWLAB}/sync?after={cursor}&limit=100"
+    # Fixed destination; credentials are never accepted from the browser.
     with httpx.Client(timeout=25, follow_redirects=False) as client:
         with client.stream(
             "GET",
@@ -78,6 +82,7 @@ def pull_changes(cursor: int):
             },
         ) as response:
             if response.status_code != 200:
+                # Preserve the authorization contract used by the preparation worker.
                 raise HTTPError(url, response.status_code, "meowlab_sync_failed", {}, None)
             chunks, size = [], 0
             for chunk in response.iter_bytes():
@@ -93,14 +98,22 @@ def apply_page(db: Session, owner: str, data: dict):
     if not state:
         state = WebAccount(id=owner, cursor=0)
         db.add(state)
-    previous, cursor, changes = state.cursor, data.get("cursor"), data.get("changes", [])
-    if data.get("status") != "ok" or type(cursor) is not int or cursor < previous or not isinstance(changes, list):
-        raise ValueError("invalid_sync_payload")
+    changes = data.get("changes")
+    cursor = data.get("cursor")
+    if (
+        data.get("status") != "ok"
+        or not isinstance(changes, list)
+        or len(changes) > 100
+        or type(cursor) is not int
+        or cursor < state.cursor
+    ):
+        raise ValueError("invalid_sync_page")
+    previous = state.cursor
     for change in changes:
-        if not isinstance(change, dict):
-            raise ValueError("invalid_change")
-        seq, ocid, candidate = change.get("seq"), change.get("ocid"), change.get("candidate")
-        alert = candidate.get("alert", {}) if isinstance(candidate, dict) else {}
+        seq = change.get("seq")
+        candidate = change.get("candidate", {})
+        alert = candidate.get("alert", {})
+        ocid = change.get("ocid")
         if (
             type(seq) is not int
             or seq <= previous
@@ -110,33 +123,33 @@ def apply_page(db: Session, owner: str, data: dict):
             or alert.get("ocid") != ocid
             or change.get("state") not in ("interesting", "dismissed")
         ):
-            raise ValueError("invalid_change")
-        key = hashlib.sha256(f"{owner}:{ocid}".encode()).hexdigest()
-        existing = db.scalar(
-            select(WebOpportunity).where(WebOpportunity.key == key, WebOpportunity.account == owner).with_for_update()
-        )
-        if existing:
-            if seq > existing.revision:
-                existing.revision, existing.selection, existing.candidate = seq, change["state"], candidate
-                if change["state"] == "interesting":
-                    existing.hidden = False
-        else:
-            db.add(
-                WebOpportunity(
-                    key=key,
-                    account=owner,
-                    ocid=ocid,
-                    revision=seq,
-                    selection=change["state"],
-                    candidate=candidate,
-                    work={},
-                    work_version=0,
-                    hidden=False,
-                )
+            raise ValueError("invalid_sync_change")
+        previous = seq
+        key = hashlib.sha256(f"{owner}\0{ocid}".encode()).hexdigest()
+        item = db.get(WebOpportunity, key)
+        if not item:
+            item = WebOpportunity(
+                key=key,
+                account=owner,
+                ocid=ocid,
+                revision=0,
+                selection="dismissed",
+                candidate={},
+                work={},
+                work_version=0,
+                hidden=False,
             )
+            db.add(item)
+        if seq > item.revision:
+            item.candidate, item.revision, item.selection = candidate, seq, change["state"]
+            if change["state"] == "interesting":
+                item.hidden = False
+    if previous != cursor:
+        raise ValueError("invalid_sync_cursor")
     state.cursor = cursor
+    db.flush()
     from .preparation import enqueue_selected
-    enqueue_selected(db, owner, None if cursor > previous else [])
+    enqueue_selected(db, owner)
     db.commit()
     return len(changes)
 

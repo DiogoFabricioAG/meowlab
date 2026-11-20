@@ -8,6 +8,7 @@ from .database import Base, engine, SessionLocal
 from . import bases_rag  # noqa: F401 - register RAG chunks table before create_all
 from . import whatsapp_bases  # noqa: F401 - register notice table before create_all
 from .preparation import PreparationWorker, poll_selections
+from .security import read_secret
 
 
 def main():
@@ -16,7 +17,7 @@ def main():
     parser.add_argument("--poll-only", action="store_true", help="Import selections and enqueue only; no downloads or AI calls")
     args = parser.parse_args()
     owner = os.getenv("RADAR_WEB_ACCOUNT", "").strip()
-    if not owner or len(owner) > 100 or not os.getenv("RADAR_MEOWLAB_TOKEN", "").strip():
+    if not owner or len(owner) > 100 or not read_secret("RADAR_MEOWLAB_TOKEN"):
         parser.error("Configure the pilot account and its server-only MeowLab bearer")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     Base.metadata.create_all(engine)

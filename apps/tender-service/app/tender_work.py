@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from .workspace import WebOpportunity, account, get_db, router
 from .workspace_bases import require_bases
 from .preparation import PreparationJob, job_id, memory_for
+from .security import read_secret
 
 
 def stable_id(*parts):
@@ -637,7 +638,7 @@ def edit_document_with_ai(key: str, payload: EditDocumentAiRequest, owner: str =
     if not current_content.strip():
         raise HTTPException(400, 'El documento está vacío.')
 
-    api_key = os.getenv("RADAR_OPENAI_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+    api_key = read_secret("RADAR_OPENAI_API_KEY") or read_secret("OPENAI_API_KEY")
     if not api_key:
         raise HTTPException(503, 'El servicio de IA editorial no está configurado en el servidor.')
 

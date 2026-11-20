@@ -18,6 +18,7 @@ from sqlalchemy import BigInteger, Integer, JSON, String, Text, delete, select, 
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from .database import Base
+from .security import read_secret
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +235,7 @@ def build_thematic_chunks(sources_section: dict[str, Any]) -> list[dict[str, Any
 
 
 def _openai_api_key() -> str:
-    return (os.getenv("RADAR_OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY") or "").strip()
+    return read_secret("RADAR_OPENAI_API_KEY") or read_secret("OPENAI_API_KEY")
 
 
 def embed_texts(texts: list[str]) -> list[list[float]] | None:

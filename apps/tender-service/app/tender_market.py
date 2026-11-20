@@ -18,6 +18,7 @@ from .database import Base
 from .workspace import account, get_db, router
 from .tender_work import current_workspace
 from .ai_client import provider_events
+from .security import read_secret
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ def price_in_quote(price, currency, quote):
 
 def search_prices(items, provider=None):
     """One web-research response for the complete set of supplied requirements."""
-    if not os.getenv('RADAR_OPENAI_API_KEY') and provider is None:
+    if not read_secret('RADAR_OPENAI_API_KEY') and provider is None:
         raise HTTPException(503,'La búsqueda de precios todavía no está configurada. Puedes ingresar una cotización propia.')
     run=provider or provider_events
     payload={'model':os.getenv('RADAR_OPENAI_MODEL','gpt-6-luna'),'store':False,'stream':True,'tool_choice':'auto',
