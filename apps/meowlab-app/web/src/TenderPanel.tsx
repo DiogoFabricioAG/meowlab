@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Weekly } from "./agents";
 import { tenderApi, type TenderOpportunity } from "./tenderApi";
+import { TenderPreferences } from "./TenderPreferences";
 import { TenderList } from "./TenderList";
 import { TenderCase, type TenderHighlight, type TenderWorkspaceStage } from "./TenderCase";
 
@@ -156,6 +157,7 @@ export function TenderPanel({
           onSelectOpportunity={openOpportunity}
           onBack={onBack}
         />
+        {weekly?.tender.enabled && <TenderPreferences key={companyId} company={companyId} />}
       </>
     );
   }

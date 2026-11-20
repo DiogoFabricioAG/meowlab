@@ -476,7 +476,6 @@ export function createApp(deps: AppDeps) {
     const role = await companyRole(c.get("session").user.id, company);
     if (!role) return c.json({ error: "forbidden" }, 403);
     const suffix = c.req.path.replace(/^\/api\/companies\/[^/]+\/tender\//, "");
-    if (suffix === "business" && c.req.method === "PUT" && role !== "owner") return c.json({ error: "forbidden" }, 403);
     return deps.tender(company, suffix, c.req.raw);
   });
 
