@@ -18,6 +18,12 @@ La API del piloto devolvió el estado de cotización y PostgreSQL registró la e
 
 El script de reversión está en `/opt/manolo-platform/releases/tender-prices-19df5ac88224/rollback.sh` y recupera la configuración previa y sus imágenes.
 
+## Ficha y documentos para participar
+
+El portal y el servicio se desplegaron desde el commit privado `887bba550816`. Las comprobaciones confirmaron el JavaScript publicado, los 14 recursos de imagen, el acceso restringido por sesión y empresa, y la descarga de bases y ZIP de un expediente activo. El reemplazo de archivos se probó en Chrome con bases de ensayo.
+
+La reversión está en `/opt/manolo-platform/releases/tender-ficha-887bba550816/rollback.sh` y restaura ambas imágenes de `19df5ac88224`.
+
 Construir desde el mismo commit la imagen `meowlab-app:<commit>` con el contexto `apps/meowlab-app` y la imagen `meowlab-tender-service:<commit>` con `apps/tender-service`. Usar las redes y la base PostgreSQL existentes del piloto para conservar expedientes, archivos y versiones. El servicio tiene acceso privado a la base documental. El navegador solo necesita el dominio del portal.
 
 En el directorio de despliegue crear `secrets/tender_service_token` con un secreto aleatorio del servidor y permisos de lectura restringidos. Definir `MEOWLAB_APP_TAG`, `TENDER_DB_NETWORK` (nombre real de la red Docker del PostgreSQL documental) y `TENDER_ENV_FILE` (ruta absoluta a un archivo privado con permisos 600). Este último contiene `DATABASE_URL`, `RADAR_PORTAL_COMPANY_ID`, `RADAR_WEB_ACCOUNT`, `RADAR_MEOWLAB_TOKEN` y las credenciales del proveedor IA del piloto. Mantener un solo consumidor de cada cola. El override deja el procesamiento y el descubrimiento a los workers actuales.
