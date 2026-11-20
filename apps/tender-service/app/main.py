@@ -16,7 +16,10 @@ from .workspace import router as workspace_router
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(engine)
+    # SQLite is used for isolated local runs. The pilot uses the existing
+    # PostgreSQL schema and its current migration owner.
+    if engine.dialect.name == "sqlite":
+        Base.metadata.create_all(engine)
     worker = None
     if os.getenv("RADAR_PREPARATION_ENABLED") == "1":
         owner = os.getenv("RADAR_WEB_ACCOUNT", "").strip()
