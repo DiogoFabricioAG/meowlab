@@ -81,12 +81,13 @@ describe("TenderDocuments participation list", () => {
       ],
     };
 
-    const { platformDrafts, userDocuments } = partitionParticipationItems(data);
+    const { platformDrafts, savedDrafts, userDocuments } = partitionParticipationItems(data);
     expect(platformDrafts.map((d) => d.id)).toEqual(["index", "doc-anexo-1"]);
+    expect(savedDrafts).toEqual([]);
     expect(userDocuments.map((c) => c.id)).toEqual(["chk-rnp"]);
   });
 
-  it("handles bases without extracted formats without fabricating suggested annexes", () => {
+  it("handles bases without extracted formats and keeps saved historical drafts in auxiliary group", () => {
     const data: TenderData = {
       status: "partial",
       generation: "gen-2",
@@ -99,6 +100,22 @@ describe("TenderDocuments participation list", () => {
           title: "00. Índice del expediente",
           body: "Índice",
           stage: "Organización del expediente",
+          partial: true,
+          evidence: [],
+        },
+        {
+          id: "anexo1_datos",
+          title: "02. Declaración Jurada de Datos del Postor (Anexo N° 1)",
+          body: "Texto original",
+          stage: "Trabajo guardado",
+          partial: true,
+          evidence: [],
+        },
+        {
+          id: "legacy",
+          title: "Borrador anterior",
+          body: "Texto anterior",
+          stage: "Trabajo guardado",
           partial: true,
           evidence: [],
         },
@@ -115,8 +132,9 @@ describe("TenderDocuments participation list", () => {
       ],
     };
 
-    const { platformDrafts, userDocuments } = partitionParticipationItems(data);
+    const { platformDrafts, savedDrafts, userDocuments } = partitionParticipationItems(data);
     expect(platformDrafts.map((d) => d.id)).toEqual(["index"]);
+    expect(savedDrafts.map((d) => d.id)).toEqual(["anexo1_datos", "legacy"]);
     expect(userDocuments.map((c) => c.id)).toEqual(["chk-ficha"]);
   });
 });

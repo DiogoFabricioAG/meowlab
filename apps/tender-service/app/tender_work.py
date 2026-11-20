@@ -537,6 +537,34 @@ def current_workspace(db, owner, key):
         })
 
     alert = item.candidate.get('alert', {})
+    saved_edits = item.work.get('documentEdits') if isinstance(item.work, dict) else None
+    if isinstance(saved_edits, dict) and saved_edits:
+        existing_ids = {f['id'] for f in forms} | {'index', 'legacy'}
+        if any(doc_id not in existing_ids for doc_id in saved_edits):
+            proposal_docs = generate_proposal_dossier(
+                key, alert, requirements, item.work.get('quotes', []), memory_for(db, owner)
+            )
+            proposal_by_id = {draft['id']: draft for draft in proposal_docs}
+            for doc_id, edited_body in saved_edits.items():
+                if doc_id in existing_ids or not isinstance(edited_body, str):
+                    continue
+                if doc_id in proposal_by_id:
+                    draft = dict(proposal_by_id[doc_id])
+                    draft['partial'] = True
+                    draft['stage'] = 'Trabajo guardado'
+                    draft['reason'] = 'Borrador guardado en ediciones previas; verifica su aplicación en las bases.'
+                    forms.append(draft)
+                else:
+                    forms.append({
+                        'id': doc_id,
+                        'title': f'Borrador guardado ({doc_id[:8]})',
+                        'body': edited_body,
+                        'partial': True,
+                        'stage': 'Trabajo guardado',
+                        'reason': 'Borrador guardado en ediciones previas.',
+                        'evidence': [],
+                    })
+                existing_ids.add(doc_id)
 
     index = 'CARÁTULA E ÍNDICE DE FOLIACIÓN DEL EXPEDIENTE DE POSTULACIÓN\n\n'
     index += f'PROCESO: {alert.get("code", "Convocatoria")}\n'

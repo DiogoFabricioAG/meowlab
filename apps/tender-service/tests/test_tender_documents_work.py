@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import hashlib
+import io
 
 import fitz
+from docx import Document
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -94,5 +96,40 @@ def test_current_workspace_without_format_does_not_fabricate_suggested_annexes()
             assert [d["id"] for d in view["documents"]] == ["index"]
             assert len(view["checks"]) == 1
             assert view["checks"][0]["documentId"] is None
+    finally:
+        engine.dispose()
+
+
+def test_current_workspace_preserves_only_historically_edited_drafts_with_same_ids_and_exports():
+    engine, factory, owner, key = _setup(with_format=False)
+    try:
+        with factory() as db:
+            opp = db.get(workspace.WebOpportunity, key)
+            opp.work = {
+                "document": "Texto legacy guardado",
+                "documentEdits": {
+                    "index": "Indice editado por usuario",
+                    "legacy": "Legacy editado por usuario",
+                    "anexo1_datos": "Anexo 1 editado previamente",
+                },
+            }
+            db.commit()
+
+            item, view = tender_work.current_workspace(db, owner, key)
+            ids = [d["id"] for d in view["documents"]]
+            assert ids == ["index", "anexo1_datos", "legacy"]
+            # Unedited suggested annexes (anexo6_cotizacion, etc.) are NOT fabricated.
+            assert "anexo6_cotizacion" not in ids
+            anexo1 = next(d for d in view["documents"] if d["id"] == "anexo1_datos")
+            assert anexo1["stage"] == "Trabajo guardado"
+
+            exported = {
+                f["id"]: "\n".join(p.text for p in Document(io.BytesIO(content)).paragraphs)
+                for f, content in tender_work.exported_forms(item, view)
+            }
+            assert list(exported.keys()) == ["index", "anexo1_datos", "legacy"]
+            assert "Indice editado por usuario" in exported["index"]
+            assert "Anexo 1 editado previamente" in exported["anexo1_datos"]
+            assert "Legacy editado por usuario" in exported["legacy"]
     finally:
         engine.dispose()

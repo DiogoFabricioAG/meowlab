@@ -36,11 +36,15 @@ export type TenderCheckItem = TenderData["checks"][number];
  */
 export function partitionParticipationItems(data: TenderData | null): {
   platformDrafts: TenderDocument[];
+  savedDrafts: TenderDocument[];
   userDocuments: TenderCheckItem[];
 } {
-  if (!data) return { platformDrafts: [], userDocuments: [] };
+  if (!data) return { platformDrafts: [], savedDrafts: [], userDocuments: [] };
 
-  const platformDrafts = data.documents.filter((doc) => !isLaterStage(doc.stage));
+  const savedDrafts = data.documents.filter((doc) => doc.stage === "Trabajo guardado");
+  const platformDrafts = data.documents.filter(
+    (doc) => doc.stage !== "Trabajo guardado" && !isLaterStage(doc.stage),
+  );
   const draftIds = new Set(platformDrafts.map((doc) => doc.id));
   const draftTitles = new Set(platformDrafts.map((doc) => normalizeLabel(doc.title)));
   const seenChecks = new Set<string>();
@@ -56,7 +60,7 @@ export function partitionParticipationItems(data: TenderData | null): {
     userDocuments.push(check);
   }
 
-  return { platformDrafts, userDocuments };
+  return { platformDrafts, savedDrafts, userDocuments };
 }
 
 const AI_CHIPS = [
@@ -103,8 +107,9 @@ export function TenderDocuments({
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
 
-  const { platformDrafts, userDocuments } = partitionParticipationItems(data);
-  const current = platformDrafts.find((d) => d.id === selected) ?? platformDrafts[0];
+  const { platformDrafts, savedDrafts, userDocuments } = partitionParticipationItems(data);
+  const allDrafts = [...platformDrafts, ...savedDrafts];
+  const current = allDrafts.find((d) => d.id === selected) ?? allDrafts[0];
   const text = current ? (work.documentEdits?.[current.id] ?? current.body) : "";
   const checks = work.checklist ?? [];
   const base = tenderBase(companyId);
@@ -160,7 +165,7 @@ export function TenderDocuments({
 
   const prepRunning = Boolean(data && ["queued", "running"].includes(data.status));
   const prepFailed = data?.status === "failed";
-  const hasAnyDownloadable = platformDrafts.length > 0;
+  const hasAnyDownloadable = allDrafts.length > 0;
   const checkByDocId = new Map(
     (data?.checks ?? [])
       .filter((c) => Boolean(c.documentId))
@@ -366,6 +371,49 @@ export function TenderDocuments({
               </p>
             )}
           </div>
+
+          {savedDrafts.length > 0 && (
+            <div className="space-y-2.5 border-t border-line pt-4">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-base font-semibold text-ink">Borradores guardados</h3>
+                <span className="text-xs font-semibold text-ink-muted tabular-nums">
+                  {savedDrafts.length}
+                </span>
+              </div>
+              <p className="text-xs text-ink-muted">
+                Ediciones previas conservadas en esta convocatoria; no representan una exigencia automática de las bases.
+              </p>
+              <ul className="space-y-2" role="list">
+                {savedDrafts.map((doc) => {
+                  const isSelected = current?.id === doc.id;
+                  return (
+                    <li
+                      key={doc.id}
+                      className={`rounded-xl border transition-colors ${
+                        isSelected
+                          ? "border-forest bg-mint-light/50"
+                          : "border-line bg-surface-subtle/40 hover:border-line-mint"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => setSelected(doc.id)}
+                        className="w-full p-3 text-left"
+                      >
+                        <span className="block text-sm font-semibold text-ink wrap-anywhere">
+                          {doc.title}
+                        </span>
+                        <span className="mt-1 inline-flex chip border border-line bg-white px-2 py-0.5 text-[11px] text-ink-2">
+                          Guardado previamente
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {Boolean(data?.missing.length) && (
             <details className="border-t border-line pt-3 text-sm text-ink-muted">
