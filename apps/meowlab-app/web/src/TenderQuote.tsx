@@ -226,6 +226,7 @@ export function TenderQuote({
   }
 
   async function searchOne(requirement: Requirement) {
+    if (autoPending) return;
     setSearching(requirement.id);
     setProblem("");
     try {
@@ -248,6 +249,7 @@ export function TenderQuote({
   }
 
   async function searchAll() {
+    if (autoPending) return;
     setSearching("all");
     setProblem("");
     setSearchNote("");
@@ -316,7 +318,16 @@ export function TenderQuote({
   }
 
   const prepRunning = Boolean(data && ["queued", "running"].includes(data.status));
+  const autoPending = Boolean(automaticStatus && PENDING_MARKET_STATUSES.has(automaticStatus));
   const marketNotice = automaticStatusNotice(automaticStatus);
+  const manualSearchAvailable = !automaticStatus || automaticStatus === "disabled";
+  const globalSearchLabel = autoPending
+    ? "Búsqueda automática en curso"
+    : automaticStatus === "complete"
+      ? (searching === "all" ? "Actualizando precios…" : "Actualizar precios")
+      : automaticStatus === "failed"
+        ? (searching === "all" ? "Reintentando…" : "Reintentar búsqueda")
+        : (searching === "all" ? "Investigando precios…" : "Buscar precios con IA");
 
   return (
     <div className="space-y-5">
@@ -341,11 +352,11 @@ export function TenderQuote({
             </button>
             <button
               type="button"
-              disabled={!!searching || !requirements.length}
+              disabled={!!searching || !requirements.length || autoPending}
               onClick={() => void searchAll()}
-              className="btn-primary min-h-10 px-4 py-2 text-sm"
+              className={`${manualSearchAvailable ? "btn-primary" : "btn-secondary"} min-h-10 px-4 py-2 text-sm`}
             >
-              {searching === "all" ? "Investigando precios…" : "Buscar precios con IA"}
+              {globalSearchLabel}
             </button>
           </div>
         </header>
@@ -472,11 +483,15 @@ export function TenderQuote({
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          disabled={!!searching}
+                          disabled={!!searching || autoPending}
                           onClick={() => void searchOne(r)}
                           className="btn-secondary min-h-10 px-3.5 py-2 text-sm"
                         >
-                          {searching === r.id ? "Buscando…" : "Buscar precio"}
+                          {searching === r.id
+                            ? "Buscando…"
+                            : automaticStatus === "complete"
+                              ? "Actualizar precio"
+                              : "Buscar precio"}
                         </button>
                         <button
                           type="button"
@@ -505,55 +520,57 @@ export function TenderQuote({
                           : `Ver alternativas${refs.length > 0 ? ` (${refs.length})` : ""}`}
                       </button>
 
-                      {isRefsOpen && (
-                        <div id={refsPanelId} className="space-y-2 rounded-xl border border-line bg-surface-subtle p-4">
-                          {refs.length === 0 ? (
-                            <p className="text-sm text-ink-muted">
-                              No encontramos un precio publicado con respaldo para esta partida. Puedes ingresar el precio de tu proveedor.
-                            </p>
-                          ) : (
-                            <ul className="divide-y divide-line">
-                              {refs.map((ref, idx) => {
-                                const refHref = safeHttps(ref.url);
-                                return (
-                                  <li key={idx} className="flex flex-col gap-2 py-2 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="min-w-0 space-y-0.5">
-                                      {refHref ? (
-                                        <a
-                                          href={refHref}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline"
-                                        >
-                                          <span className="wrap-anywhere">{ref.title}</span>
-                                          <Icon name="external" className="h-3.5 w-3.5 shrink-0" />
-                                        </a>
-                                      ) : (
-                                        <span className="text-sm font-semibold text-ink wrap-anywhere">{ref.title}</span>
-                                      )}
-                                      <p className="text-sm text-ink-2 tabular-nums">
-                                        {ref.price && ref.currency
-                                          ? money(Number(ref.price), ref.currency)
-                                          : "Referencia anterior sin precio."}
-                                        {ref.unit ? ` · Presentación: ${ref.unit}` : ""}
-                                      </p>
-                                    </div>
-                                    {ref.price && (
-                                      <button
-                                        type="button"
-                                        onClick={() => openEditor(r, ref)}
-                                        className="btn-secondary min-h-9 shrink-0 px-3 py-1.5 text-xs"
+                      <div
+                        id={refsPanelId}
+                        hidden={!isRefsOpen}
+                        className={isRefsOpen ? "space-y-2 rounded-xl border border-line bg-surface-subtle p-4" : "hidden"}
+                      >
+                        {refs.length === 0 ? (
+                          <p className="text-sm text-ink-muted">
+                            No encontramos un precio publicado con respaldo para esta partida. Puedes ingresar el precio de tu proveedor.
+                          </p>
+                        ) : (
+                          <ul className="divide-y divide-line">
+                            {refs.map((ref, idx) => {
+                              const refHref = safeHttps(ref.url);
+                              return (
+                                <li key={idx} className="flex flex-col gap-2 py-2 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                                  <div className="min-w-0 space-y-0.5">
+                                    {refHref ? (
+                                      <a
+                                        href={refHref}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline"
                                       >
-                                        Usar como referencia
-                                      </button>
+                                        <span className="wrap-anywhere">{ref.title}</span>
+                                        <Icon name="external" className="h-3.5 w-3.5 shrink-0" />
+                                      </a>
+                                    ) : (
+                                      <span className="text-sm font-semibold text-ink wrap-anywhere">{ref.title}</span>
                                     )}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          )}
-                        </div>
-                      )}
+                                    <p className="text-sm text-ink-2 tabular-nums">
+                                      {ref.price && ref.currency
+                                        ? money(Number(ref.price), ref.currency)
+                                        : "Referencia anterior sin precio."}
+                                      {ref.unit ? ` · Presentación: ${ref.unit}` : ""}
+                                    </p>
+                                  </div>
+                                  {ref.price && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openEditor(r, ref)}
+                                      className="btn-secondary min-h-9 shrink-0 px-3 py-1.5 text-xs"
+                                    >
+                                      Usar como referencia
+                                    </button>
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                      </div>
                     </div>
                   )}
                 </li>
