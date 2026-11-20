@@ -10,6 +10,14 @@ El portal y el servicio documental quedaron saludables. La ruta pública y `/hea
 
 La reversión de este despliegue está en `/opt/manolo-platform/releases/tender-native-a1f7966a1c9a/rollback.sh`. Restaura la imagen anterior del portal `1fde2b38cfa7` y detiene el servicio nativo.
 
+## Búsqueda automática de precios y alternativas
+
+El portal y el servicio se desplegaron desde el commit privado `19df5ac88224`. La recepción y preparación de bases mantiene su consumidor existente. El servicio de Tender Cat habilita su propio proceso de búsqueda de precios con `TENDER_MARKET_ENABLED=1`.
+
+La API del piloto devolvió el estado de cotización y PostgreSQL registró la ejecución de una búsqueda. El portal publicó `/assets/index-BsVu9Gx1.js`. El recurso coincide con la imagen desplegada y se verificaron los 14 archivos de imagen públicos. Ambos servicios quedaron saludables. Queda la aceptación de un PDF nuevo por WhatsApp.
+
+El script de reversión está en `/opt/manolo-platform/releases/tender-prices-19df5ac88224/rollback.sh` y recupera la configuración previa y sus imágenes.
+
 Construir desde el mismo commit la imagen `meowlab-app:<commit>` con el contexto `apps/meowlab-app` y la imagen `meowlab-tender-service:<commit>` con `apps/tender-service`. Usar las redes y la base PostgreSQL existentes del piloto para conservar expedientes, archivos y versiones. El servicio tiene acceso privado a la base documental. El navegador solo necesita el dominio del portal.
 
 En el directorio de despliegue crear `secrets/tender_service_token` con un secreto aleatorio del servidor y permisos de lectura restringidos. Definir `MEOWLAB_APP_TAG`, `TENDER_DB_NETWORK` (nombre real de la red Docker del PostgreSQL documental) y `TENDER_ENV_FILE` (ruta absoluta a un archivo privado con permisos 600). Este último contiene `DATABASE_URL`, `RADAR_PORTAL_COMPANY_ID`, `RADAR_WEB_ACCOUNT`, `RADAR_MEOWLAB_TOKEN` y las credenciales del proveedor IA del piloto. Mantener un solo consumidor de cada cola. El override deja el procesamiento y el descubrimiento a los workers actuales.
