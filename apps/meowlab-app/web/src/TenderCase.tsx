@@ -21,6 +21,16 @@ function safeHttpsUrl(raw: string | null | undefined): string | null {
   }
 }
 
+function shortFallbackTitle(description: string | undefined, code: string | undefined): string {
+  const clean = description?.trim().replace(/\s+/g, " ");
+  if (clean) {
+    if (clean.length <= 110) return clean;
+    const clipped = clean.slice(0, 110).replace(/\s+\S*$/, "").trimEnd();
+    return `${clipped || clean.slice(0, 110)}…`;
+  }
+  return code?.trim() || "Licitación sin título";
+}
+
 const STAGES: Array<{ key: TenderWorkspaceStage; label: string }> = [
   { key: "quote", label: "Cotización" },
   { key: "documents", label: "Expediente" },
@@ -237,7 +247,10 @@ export function TenderCase({
   }
 
   const seaceUrl = safeHttpsUrl(opportunity?.alert.sourceUrl ?? item.sourceUrl);
-  const title = item.displayTitle || opportunity?.alert.displayTitle || item.description?.trim() || "Licitación sin título";
+  const title =
+    item.displayTitle ||
+    opportunity?.alert.displayTitle ||
+    shortFallbackTitle(item.description, opportunity?.alert.code);
   const buyer = item.buyer || opportunity?.alert.buyer || "No especificado";
   const deadline = formatDeadline(item.deadline || opportunity?.alert.deadline) || "No especificado";
   const amount = item.amount || opportunity?.alert.amount || "No especificado";

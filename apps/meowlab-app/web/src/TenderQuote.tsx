@@ -415,7 +415,9 @@ export function TenderQuote({
 
         {!requirements.length ? (
           <p className="px-5 py-6 text-sm text-ink-muted">
-            Todavía no hay partidas verificadas en el análisis. Usa «Analizar bases» o sube el archivo oficial si falta.
+            {prepRunning
+              ? "La lectura comenzó automáticamente al cargar el archivo. Usa «Actualizar» arriba para consultar el avance."
+              : "Todavía no hay partidas verificadas en estas bases. La lectura comienza sola al cargar o reemplazar el archivo oficial."}
           </p>
         ) : (
           <ul className="divide-y divide-line">
