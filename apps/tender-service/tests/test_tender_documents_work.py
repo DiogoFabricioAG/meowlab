@@ -131,5 +131,12 @@ def test_current_workspace_preserves_only_historically_edited_drafts_with_same_i
             assert "Indice editado por usuario" in exported["index"]
             assert "Anexo 1 editado previamente" in exported["anexo1_datos"]
             assert "Legacy editado por usuario" in exported["legacy"]
+
+            # Verify automatic index (before user edits) does NOT enumerate Trabajo guardado drafts.
+            opp.work = {**opp.work, "documentEdits": {k: v for k, v in opp.work["documentEdits"].items() if k != "index"}}
+            db.commit()
+            _, fresh_view = tender_work.current_workspace(db, owner, key)
+            index_doc = next(d for d in fresh_view["documents"] if d["id"] == "index")
+            assert "Anexo N° 1" not in index_doc["body"]
     finally:
         engine.dispose()

@@ -566,6 +566,7 @@ def current_workspace(db, owner, key):
                     })
                 existing_ids.add(doc_id)
 
+    index_forms = [f for f in forms if f.get('stage') != 'Trabajo guardado']
     index = 'CARÁTULA E ÍNDICE DE FOLIACIÓN DEL EXPEDIENTE DE POSTULACIÓN\n\n'
     index += f'PROCESO: {alert.get("code", "Convocatoria")}\n'
     index += f'ENTIDAD: {alert.get("buyer", "Entidad convocante")}\n'
@@ -576,7 +577,7 @@ def current_workspace(db, owner, key):
     index += '--------------------------------------------------------------------------------------------------------\n'
     index += '001     | 00. Carátula e Índice de Foliación del Expediente\n'
     folio = 2
-    for f in forms:
+    for f in index_forms:
         f_title = f['title']
         span = 2 if 'Cotización' in f_title or 'Oferta' in f_title else 1
         folio_str = f"{folio:03d}-{folio+span-1:03d}" if span > 1 else f"{folio:03d}"
@@ -585,7 +586,7 @@ def current_workspace(db, owner, key):
     index += '--------------------------------------------------------------------------------------------------------\n\n'
     index += 'MOTIVO DE PRESENTACIÓN DE CADA DOCUMENTO EN TU EXPEDIENTE:\n'
     index += '- 00. Carátula e Índice: Ordena y folia toda tu propuesta para que la entidad verifique que no falta ningún anexo.\n'
-    for f in forms:
+    for f in index_forms:
         f_reason = f.get('reason') or document_reason(f.get('stage'))
         index += f"- {f['title']}: {f_reason}\n"
     index += '\nBorrador para revisión y presentación oficial en SEACE / Mesa de Partes.\n'

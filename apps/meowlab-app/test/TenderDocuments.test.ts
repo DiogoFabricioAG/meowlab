@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isLaterStage, partitionParticipationItems } from "./TenderDocuments";
-import type { TenderData } from "./tenderApi";
+import { isLaterStage, partitionParticipationItems } from "../web/src/TenderDocuments";
+import type { TenderData } from "../web/src/tenderApi";
 
 describe("TenderDocuments participation list", () => {
   it("detects later-stage documents and excludes them from participation", () => {
