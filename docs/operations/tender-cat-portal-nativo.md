@@ -4,6 +4,12 @@ El portal sirve las pantallas en `/agentes/licitaciones`. Cada operación pasa p
 
 ## Configuración del piloto
 
+El 20 de noviembre de 2026 se desplegó en producción el commit privado `a1f7966a1c9a474a8daf82385f4d5f381be83e42` de `meowlaboratoy/meowlab-platform`. El servicio documental abrió el histórico, las guardadas y los intereses de la empresa piloto desde su PostgreSQL. Las consultas de prueba fueron de lectura. Una petición interna sin token recibió 401 y una petición con otra empresa recibió 403.
+
+El portal y el servicio documental quedaron saludables. La ruta pública y `/healthz` devolvieron 200. El SHA-256 del JavaScript publicado (`/assets/index-ClTQCnXR.js`) coincidió con el de la imagen del portal. El API público de expedientes exigió sesión (401). El cambio conservó el procesamiento de WhatsApp existente. El recorrido con un participante autorizado está pendiente.
+
+La reversión de este despliegue está en `/opt/manolo-platform/releases/tender-native-a1f7966a1c9a/rollback.sh`. Restaura la imagen anterior del portal `1fde2b38cfa7` y detiene el servicio nativo.
+
 Construir desde el mismo commit la imagen `meowlab-app:<commit>` con el contexto `apps/meowlab-app` y la imagen `meowlab-tender-service:<commit>` con `apps/tender-service`. Usar las redes y la base PostgreSQL existentes del piloto para conservar expedientes, archivos y versiones. El servicio tiene acceso privado a la base documental. El navegador solo necesita el dominio del portal.
 
 En el directorio de despliegue crear `secrets/tender_service_token` con un secreto aleatorio del servidor y permisos de lectura restringidos. Definir `MEOWLAB_APP_TAG`, `TENDER_DB_NETWORK` (nombre real de la red Docker del PostgreSQL documental) y `TENDER_ENV_FILE` (ruta absoluta a un archivo privado con permisos 600). Este último contiene `DATABASE_URL`, `RADAR_PORTAL_COMPANY_ID`, `RADAR_WEB_ACCOUNT`, `RADAR_MEOWLAB_TOKEN` y las credenciales del proveedor IA del piloto. Mantener un solo consumidor de cada cola. El override deja el procesamiento y el descubrimiento a los workers actuales.
