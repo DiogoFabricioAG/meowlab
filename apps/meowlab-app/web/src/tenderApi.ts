@@ -123,6 +123,22 @@ export function tenderBase(companyId: string): string {
   return `/api/companies/${encodeURIComponent(companyId)}/tender`;
 }
 
+/** Rewrite legacy /api/workspace/* paths returned by RADAR to the portal's authenticated tender proxy. */
+export function portalTenderUrl(companyId: string, rawUrl: string | null | undefined): string | null {
+  const value = rawUrl?.trim();
+  if (!value) return null;
+  if (value.startsWith("/api/workspace/")) {
+    return `${tenderBase(companyId)}/${value.slice("/api/workspace/".length)}`;
+  }
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function tenderApi<T>(
   companyId: string,
   path: string,

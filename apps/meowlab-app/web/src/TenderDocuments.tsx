@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  portalTenderUrl,
   tenderApi,
   tenderBase,
   useTenderWork,
@@ -410,6 +411,23 @@ export function TenderDocuments({
                     ? "La lectura es parcial: revisa el original antes de usar este borrador."
                     : "Borrador editable basado en el texto de tus bases."}{" "}
                   Revisa el formato original y completa los datos antes de firmar.
+                  {(() => {
+                    const sourceHref = portalTenderUrl(companyId, current.sourceUrl);
+                    return sourceHref ? (
+                      <>
+                        {" "}
+                        <a
+                          href={sourceHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-forest underline underline-offset-2"
+                        >
+                          Ver documento fuente
+                          <span className="sr-only"> (se abre en otra pestaña)</span>
+                        </a>
+                      </>
+                    ) : null;
+                  })()}
                 </p>
                 <p className="rounded-xl bg-surface-subtle px-3.5 py-2.5 text-xs text-ink-2">
                   <strong>Motivo en tu expediente:</strong> {fallbackDocReason(current)}

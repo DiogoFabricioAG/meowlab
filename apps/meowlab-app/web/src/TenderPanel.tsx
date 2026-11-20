@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Weekly } from "./agents";
-import { tenderApi, type TenderOpportunity } from "./tenderApi";
 import { TenderPreferences } from "./TenderPreferences";
+import { tenderApi, TenderApiError, type TenderOpportunity } from "./tenderApi";
 import { TenderList } from "./TenderList";
 import { TenderCase, type TenderHighlight, type TenderWorkspaceStage } from "./TenderCase";
 
@@ -43,6 +43,10 @@ export function TenderPanel({
   const [loadingOpps, setLoadingOpps] = useState(true);
   const [oppsError, setOppsError] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
+  const [hiddenBusyId, setHiddenBusyId] = useState<string | null>(null);
+  const [hiddenError, setHiddenError] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState("");
 
   useEffect(() => {
     const update = () => {
@@ -108,16 +112,52 @@ export function TenderPanel({
     });
   }
 
-  if (failed) {
-    return (
-      <section role="alert" className="space-y-3">
-        <h1 className="text-3xl text-ink">Tender Cat</h1>
-        <p>No pudimos cargar las licitaciones de tu empresa.</p>
-        <button className="btn-secondary" onClick={() => window.location.reload()}>
-          Reintentar
-        </button>
-      </section>
-    );
+  async function handleToggleHidden(op: TenderOpportunity) {
+    setHiddenBusyId(op.id);
+    setHiddenError("");
+    try {
+      const updated = await tenderApi<TenderOpportunity>(
+        companyId,
+        `/opportunities/${encodeURIComponent(op.id)}`,
+        {
+          method: "PUT",
+          body: {
+            notes: op.work?.notes ?? "",
+            document: op.work?.document ?? "",
+            quotes: op.work?.quotes ?? [],
+            documentEdits: op.work?.documentEdits ?? {},
+            checklist: op.work?.checklist ?? [],
+            version: op.version,
+            hidden: !op.hidden,
+          },
+        },
+      );
+      handleOpportunityUpdated(updated);
+    } catch (e) {
+      if (e instanceof TenderApiError && e.status === 409) {
+        setHiddenError("Este expediente se actualizó en otro lugar. Recargamos los datos.");
+        setReloadTick((n) => n + 1);
+      } else {
+        setHiddenError(e instanceof Error ? e.message : "No se pudo actualizar el estado del expediente.");
+      }
+    } finally {
+      setHiddenBusyId(null);
+    }
+  }
+
+  async function handleSync() {
+    setSyncing(true);
+    setSyncError("");
+    try {
+      await tenderApi(companyId, "/sync", { method: "POST" });
+      const res = await tenderApi<{ opportunities?: TenderOpportunity[] }>(companyId, "/opportunities");
+      setOpportunities(Array.isArray(res.opportunities) ? res.opportunities : []);
+      setOppsError("");
+    } catch (e) {
+      setSyncError(e instanceof Error ? e.message : "No se pudo sincronizar las convocatorias.");
+    } finally {
+      setSyncing(false);
+    }
   }
 
   const matchedOpportunity = id
@@ -134,7 +174,7 @@ export function TenderPanel({
     ?? (matchedOpportunity ? highlightFromOpportunity(matchedOpportunity) : null);
 
   if (!item) {
-    const stillResolving = Boolean(id && (!weekly || loadingOpps));
+    const stillResolving = Boolean(id && ((!weekly && !failed) || loadingOpps));
     if (stillResolving) {
       return (
         <div className="space-y-4" aria-busy="true" aria-label="Cargando licitación">
@@ -145,16 +185,22 @@ export function TenderPanel({
     }
     return (
       <>
-        {id && weekly && (
+        {id && (weekly || failed) && (
           <p role="status" className="mb-4 text-ink-muted">
             Esta convocatoria ya no figura entre las destacadas ni guardadas de tu empresa.
           </p>
         )}
         <TenderList
           weekly={weekly}
+          weeklyFailed={failed}
           savedOpportunities={opportunities}
+          opportunitiesError={oppsError}
+          onReloadOpportunities={() => setReloadTick((n) => n + 1)}
           onSelect={openHighlight}
           onSelectOpportunity={openOpportunity}
+          onToggleHidden={handleToggleHidden}
+          hiddenBusyId={hiddenBusyId}
+          hiddenError={hiddenError}
           onBack={onBack}
         />
         {weekly?.tender.enabled && <TenderPreferences key={companyId} company={companyId} />}
@@ -164,6 +210,7 @@ export function TenderPanel({
 
   return (
     <TenderCase
+      key={matchedOpportunity?.id ?? item.ocid ?? item.description}
       companyId={companyId}
       item={item}
       opportunity={matchedOpportunity}
@@ -174,6 +221,12 @@ export function TenderPanel({
       onBack={() => openHighlight(null)}
       onOpportunityUpdated={handleOpportunityUpdated}
       onReloadOpportunity={() => setReloadTick((tick) => tick + 1)}
+      onToggleHidden={handleToggleHidden}
+      hiddenBusy={Boolean(matchedOpportunity && hiddenBusyId === matchedOpportunity.id)}
+      hiddenError={hiddenError}
+      onSync={handleSync}
+      syncing={syncing}
+      syncError={syncError}
     />
   );
 }

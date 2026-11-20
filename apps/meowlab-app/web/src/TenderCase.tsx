@@ -4,7 +4,7 @@ import { Icon } from "./icons";
 import { TenderBases } from "./TenderBases";
 import { TenderDocuments } from "./TenderDocuments";
 import { TenderQuote } from "./TenderQuote";
-import { tenderApi, TenderApiError, type TenderOpportunity, type Work } from "./tenderApi";
+import { portalTenderUrl, tenderApi, TenderApiError, type TenderOpportunity, type Work } from "./tenderApi";
 import { formatDeadline } from "./tenderDates";
 
 export type TenderHighlight = Weekly["tender"]["highlights"][number];
@@ -42,6 +42,12 @@ export function TenderCase({
   onBack,
   onOpportunityUpdated,
   onReloadOpportunity,
+  onToggleHidden,
+  hiddenBusy = false,
+  hiddenError = "",
+  onSync,
+  syncing = false,
+  syncError = "",
 }: {
   companyId: string;
   item: TenderHighlight;
@@ -53,6 +59,12 @@ export function TenderCase({
   onBack: () => void;
   onOpportunityUpdated: (updated: TenderOpportunity) => void;
   onReloadOpportunity: () => void;
+  onToggleHidden?: (op: TenderOpportunity) => Promise<void>;
+  hiddenBusy?: boolean;
+  hiddenError?: string;
+  onSync?: () => Promise<void>;
+  syncing?: boolean;
+  syncError?: string;
 }) {
   const [localStage, setLocalStage] = useState<TenderWorkspaceStage>(stage);
   const activeStage = onStageChange ? stage : localStage;
@@ -62,11 +74,13 @@ export function TenderCase({
   const [dirty, setDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error" | "conflict">("saved");
   const [saveError, setSaveError] = useState("");
+  const [leaving, setLeaving] = useState(false);
 
   const opportunityRef = useRef(opportunity);
   const draftRef = useRef<Work>(draft);
   const dirtyRef = useRef(false);
   const inFlightRef = useRef(false);
+  const inFlightPromiseRef = useRef<Promise<boolean> | null>(null);
   const queuedSaveRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -96,64 +110,84 @@ export function TenderCase({
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, []);
 
-  const triggerSave = useCallback(async () => {
+  const triggerSave = useCallback(async (): Promise<boolean> => {
     const currentOpp = opportunityRef.current;
-    if (!currentOpp) return;
-    if (inFlightRef.current) {
+    if (!currentOpp) return true;
+    if (inFlightRef.current && inFlightPromiseRef.current) {
       queuedSaveRef.current = true;
-      return;
+      await inFlightPromiseRef.current;
+      if (!dirtyRef.current && !inFlightRef.current) return true;
+      if (inFlightRef.current && inFlightPromiseRef.current) {
+        return inFlightPromiseRef.current;
+      }
     }
-    inFlightRef.current = true;
-    setSaveStatus("saving");
-    setSaveError("");
 
-    const payloadWork = draftRef.current;
-    try {
-      const updated = await tenderApi<TenderOpportunity>(
-        companyId,
-        `/opportunities/${encodeURIComponent(currentOpp.id)}`,
-        {
-          method: "PUT",
-          body: {
-            notes: payloadWork.notes ?? "",
-            document: payloadWork.document ?? "",
-            quotes: payloadWork.quotes ?? [],
-            documentEdits: payloadWork.documentEdits ?? {},
-            checklist: payloadWork.checklist ?? [],
-            version: currentOpp.version,
-            hidden: currentOpp.hidden ?? false,
+    const runSave = async (): Promise<boolean> => {
+      const targetOpp = opportunityRef.current;
+      if (!targetOpp) return true;
+      inFlightRef.current = true;
+      setSaveStatus("saving");
+      setSaveError("");
+
+      const payloadWork = draftRef.current;
+      try {
+        const updated = await tenderApi<TenderOpportunity>(
+          companyId,
+          `/opportunities/${encodeURIComponent(targetOpp.id)}`,
+          {
+            method: "PUT",
+            body: {
+              notes: payloadWork.notes ?? "",
+              document: payloadWork.document ?? "",
+              quotes: payloadWork.quotes ?? [],
+              documentEdits: payloadWork.documentEdits ?? {},
+              checklist: payloadWork.checklist ?? [],
+              version: targetOpp.version,
+              hidden: targetOpp.hidden ?? false,
+            },
           },
-        },
-      );
-      opportunityRef.current = updated;
-      onOpportunityUpdated(updated);
+        );
+        if (opportunityRef.current?.id !== targetOpp.id) return false;
+        opportunityRef.current = updated;
+        onOpportunityUpdated(updated);
 
-      if (JSON.stringify(draftRef.current) === JSON.stringify(payloadWork)) {
-        setDirty(false);
-        dirtyRef.current = false;
-        setSaveStatus("saved");
-      } else {
+        if (JSON.stringify(draftRef.current) === JSON.stringify(payloadWork)) {
+          setDirty(false);
+          dirtyRef.current = false;
+          setSaveStatus("saved");
+          return true;
+        }
         queuedSaveRef.current = true;
+        return false;
+      } catch (e) {
+        const isConflict = e instanceof TenderApiError && e.status === 409;
+        setSaveStatus(isConflict ? "conflict" : "error");
+        setSaveError(
+          isConflict
+            ? "Este expediente se actualizó en otro lugar. Recarga para ver la última versión antes de seguir editando."
+            : e instanceof Error
+              ? e.message
+              : "No se pudieron guardar los cambios.",
+        );
+        return false;
+      } finally {
+        inFlightRef.current = false;
       }
-    } catch (e) {
-      const isConflict = e instanceof TenderApiError && e.status === 409;
-      setSaveStatus(isConflict ? "conflict" : "error");
-      setSaveError(
-        isConflict
-          ? "Este expediente se actualizó en otro lugar. Recarga para ver la última versión antes de seguir editando."
-          : e instanceof Error
-            ? e.message
-            : "No se pudieron guardar los cambios.",
-      );
-    } finally {
-      inFlightRef.current = false;
-      if (queuedSaveRef.current) {
-        queuedSaveRef.current = false;
-        saveTimerRef.current = setTimeout(() => {
-          void triggerSave();
-        }, 300);
-      }
+    };
+
+    const promise = runSave();
+    inFlightPromiseRef.current = promise;
+    let ok = await promise;
+    while (queuedSaveRef.current && opportunityRef.current) {
+      queuedSaveRef.current = false;
+      const nextPromise = runSave();
+      inFlightPromiseRef.current = nextPromise;
+      ok = await nextPromise;
     }
+    if (inFlightPromiseRef.current === promise) {
+      inFlightPromiseRef.current = null;
+    }
+    return ok;
   }, [companyId, onOpportunityUpdated]);
 
   function scheduleAutoSave(delay = 800) {
@@ -176,11 +210,22 @@ export function TenderCase({
     scheduleAutoSave();
   }
 
-  function handleBack() {
-    if (dirtyRef.current && saveStatus !== "conflict") {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      void triggerSave();
+  async function handleBack() {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    if (dirtyRef.current || inFlightRef.current) {
+      if (saveStatus === "conflict") return;
+      setLeaving(true);
+      const saved = await triggerSave();
+      setLeaving(false);
+      if (!saved) return;
     }
+    onBack();
+  }
+
+  function handleDiscardAndBack() {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    dirtyRef.current = false;
+    setDirty(false);
     onBack();
   }
 
@@ -211,14 +256,15 @@ export function TenderCase({
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <button
           type="button"
-          onClick={handleBack}
-          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline-offset-4 hover:underline"
+          onClick={() => void handleBack()}
+          disabled={leaving}
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline-offset-4 hover:underline disabled:opacity-60"
         >
-          <span aria-hidden="true">←</span> Volver a licitaciones
+          <span aria-hidden="true">←</span> {leaving ? "Guardando antes de salir…" : "Volver a licitaciones"}
         </button>
 
         {opportunity && (
-          <div className="flex items-center gap-2 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
             {saveStatus === "saving" && (
               <span role="status" className="chip border border-line bg-surface-subtle text-ink-muted">
                 Guardando…
@@ -233,6 +279,16 @@ export function TenderCase({
               <span role="alert" className="chip border border-red-200 bg-red-50 text-red-800">
                 {saveStatus === "conflict" ? "Conflicto de versión" : "Error al guardar"}
               </span>
+            )}
+            {onToggleHidden && (
+              <button
+                type="button"
+                disabled={hiddenBusy}
+                onClick={() => void onToggleHidden(opportunity)}
+                className="inline-flex min-h-9 items-center rounded-[10px] border border-line bg-white px-3 text-xs font-semibold text-ink-2 transition-colors hover:border-forest hover:text-forest disabled:opacity-60"
+              >
+                {hiddenBusy ? "Actualizando…" : opportunity.hidden ? "Restaurar" : "Quitar"}
+              </button>
             )}
           </div>
         )}
@@ -262,6 +318,11 @@ export function TenderCase({
               No guardada
             </span>
           )}
+          {opportunity?.hidden && (
+            <span className="chip border border-line bg-surface-subtle text-ink-muted">
+              Quitada
+            </span>
+          )}
           {opportunity?.alert.code && (
             <span className="chip border border-line bg-surface-subtle text-ink-2">
               {opportunity.alert.code}
@@ -280,33 +341,48 @@ export function TenderCase({
         )}
       </header>
 
+      {hiddenError && (
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-900 print:hidden">
+          {hiddenError}
+        </div>
+      )}
+
       {saveError && (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-900 print:hidden"
         >
           <span>{saveError}</span>
-          {saveStatus === "conflict" ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {saveStatus === "conflict" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setDirty(false);
+                  dirtyRef.current = false;
+                  onReloadOpportunity();
+                }}
+                className="btn-secondary min-h-10 px-4 py-2 text-sm"
+              >
+                Recargar expediente
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void triggerSave()}
+                className="btn-secondary min-h-10 px-4 py-2 text-sm"
+              >
+                Reintentar guardado
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => {
-                setDirty(false);
-                dirtyRef.current = false;
-                onReloadOpportunity();
-              }}
-              className="btn-secondary min-h-10 px-4 py-2 text-sm"
+              onClick={handleDiscardAndBack}
+              className="inline-flex min-h-10 items-center rounded-[10px] border border-red-300 bg-white px-3.5 py-2 text-sm font-semibold text-red-800 hover:bg-red-100"
             >
-              Recargar expediente
+              Descartar cambios y volver
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void triggerSave()}
-              className="btn-secondary min-h-10 px-4 py-2 text-sm"
-            >
-              Reintentar guardado
-            </button>
-          )}
+          </div>
         </div>
       )}
 
@@ -349,9 +425,47 @@ export function TenderCase({
           </div>
         </dl>
 
-        <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
-          {factsNote}
-        </p>
+        <div className="space-y-2 border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>{factsNote}</span>
+            {isSaved && !opportunity && !loadingOpportunity && !opportunityError && onSync && (
+              <button
+                type="button"
+                disabled={syncing}
+                onClick={() => void onSync()}
+                className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
+              >
+                {syncing ? "Sincronizando…" : "Sincronizar ahora"}
+              </button>
+            )}
+          </div>
+          {syncError && (
+            <p role="alert" className="text-red-700">
+              {syncError}
+            </p>
+          )}
+          {opportunity?.documents && opportunity.documents.length > 0 && (
+            <ul className="flex flex-wrap gap-3 pt-1">
+              {opportunity.documents.map((doc, idx) => {
+                const href = portalTenderUrl(companyId, doc.url);
+                if (!href) return null;
+                return (
+                  <li key={`${doc.title}-${idx}`}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-semibold text-forest underline underline-offset-2"
+                    >
+                      {doc.title || "Documento oficial"}
+                      <span className="sr-only"> (se abre en otra pestaña)</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </section>
 
       {loadingOpportunity && !opportunity && (

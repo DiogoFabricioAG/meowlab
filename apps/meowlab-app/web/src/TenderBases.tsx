@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "./icons";
-import { tenderBase, type TenderOpportunity } from "./tenderApi";
+import { portalTenderUrl, tenderBase, type TenderOpportunity } from "./tenderApi";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 60 * 1024 * 1024;
@@ -116,7 +116,9 @@ export function TenderBases({
           </div>
           <ul className="divide-y divide-line">
             {files.map((file) => {
-              const downloadHref = `${base}/opportunities/${oppEncoded}/bases/${encodeURIComponent(file.id)}`;
+              const downloadHref =
+                portalTenderUrl(companyId, file.url) ??
+                `${base}/opportunities/${oppEncoded}/bases/${encodeURIComponent(file.id)}`;
               const isConfirming = confirmDeleteId === file.id;
               const isDeleting = deletingId === file.id;
               return (
