@@ -4,7 +4,9 @@ import {
   referenceFactor,
   tenderApi,
   useTenderWork,
+  type MarketAutomaticStatus,
   type MarketReference,
+  type MarketResponse,
   type Quote,
   type Requirement,
   type TenderOpportunity,
@@ -13,6 +15,62 @@ import {
 
 const money = (value: number, currency: string) =>
   new Intl.NumberFormat("es-PE", { style: "currency", currency }).format(value);
+
+const PENDING_MARKET_STATUSES = new Set<string>(["waiting", "queued", "running", "retry"]);
+
+function automaticStatusNotice(
+  status: MarketAutomaticStatus | string | null | undefined,
+): {
+  tone: "info" | "warn" | "done" | "muted";
+  text: string;
+  pending?: boolean;
+  retryable?: boolean;
+} | null {
+  switch (status) {
+    case "waiting":
+      return {
+        tone: "info",
+        text: "Preparando la búsqueda automática de precios de referencia.",
+        pending: true,
+      };
+    case "queued":
+      return {
+        tone: "info",
+        text: "La búsqueda automática de precios de referencia está en cola.",
+        pending: true,
+      };
+    case "running":
+      return {
+        tone: "info",
+        text: "Buscando precios de referencia automáticamente. Puedes ingresar tus precios mientras termina.",
+        pending: true,
+      };
+    case "retry":
+      return {
+        tone: "info",
+        text: "Reintentando la búsqueda automática de precios de referencia.",
+        pending: true,
+      };
+    case "failed":
+      return {
+        tone: "warn",
+        text: "No se pudo completar la búsqueda automática de precios. Puedes reintentar manualmente o ingresar tus precios.",
+        retryable: true,
+      };
+    case "complete":
+      return {
+        tone: "done",
+        text: "Búsqueda automática de precios completada.",
+      };
+    case "disabled":
+      return {
+        tone: "muted",
+        text: "Búsqueda automática desactivada. Puedes buscar precios manualmente por partida.",
+      };
+    default:
+      return null;
+  }
+}
 
 function safeHttps(raw: string): string | null {
   try {
@@ -41,6 +99,9 @@ export function TenderQuote({
 }) {
   const { data, error, busy, refresh, analyze } = useTenderWork(companyId, opportunity.id);
   const [references, setReferences] = useState<Record<string, MarketReference[]>>({});
+  const [automaticStatus, setAutomaticStatus] = useState<MarketAutomaticStatus | string | null>(null);
+  const [marketCycle, setMarketCycle] = useState(0);
+  const [expandedRefs, setExpandedRefs] = useState<Record<string, boolean>>({});
   const [searching, setSearching] = useState("");
   const [searchNote, setSearchNote] = useState("");
   const [problem, setProblem] = useState("");
@@ -74,19 +135,35 @@ export function TenderQuote({
   }
 
   useEffect(() => {
-    let active = true;
-    void tenderApi<{ references: Record<string, MarketReference[]> }>(
-      companyId,
-      `/opportunities/${encodeURIComponent(opportunity.id)}/market`,
-    )
-      .then((value) => {
-        if (active) setReferences(value.references ?? {});
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let rounds = 0;
+
+    const loadMarket = async () => {
+      try {
+        const value = await tenderApi<MarketResponse>(
+          companyId,
+          `/opportunities/${encodeURIComponent(opportunity.id)}/market`,
+          { method: "GET", signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        setReferences(value.references ?? {});
+        const nextStatus = value.automaticStatus ?? null;
+        setAutomaticStatus(nextStatus);
+        if (nextStatus && PENDING_MARKET_STATUSES.has(nextStatus) && rounds++ < 45) {
+          timer = setTimeout(() => void loadMarket(), 4000);
+        }
+      } catch {
+        // Keep previously loaded references and user-entered quotes on transient GET errors.
+      }
     };
-  }, [companyId, opportunity.id, data?.generation]);
+
+    void loadMarket();
+    return () => {
+      controller.abort();
+      if (timer) clearTimeout(timer);
+    };
+  }, [companyId, opportunity.id, data?.generation, data?.status, marketCycle]);
 
   const requirements = data?.requirements ?? [];
   const known = new Set(requirements.map((r) => r.id));
@@ -128,6 +205,7 @@ export function TenderQuote({
         source: reference.url,
       };
       onEdit({ quotes: [...quotes.filter((q) => q.requirementId !== id), line] });
+      setExpandedRefs((prev) => ({ ...prev, [id]: false }));
       closeEditor();
       return;
     }
@@ -157,6 +235,7 @@ export function TenderQuote({
         { method: "POST" },
       );
       setReferences((old) => ({ ...old, [requirement.id]: result.references ?? [] }));
+      setExpandedRefs((prev) => ({ ...prev, [requirement.id]: true }));
     } catch (e) {
       setProblem(
         e instanceof Error && !/fetch|network/i.test(e.message)
@@ -183,6 +262,7 @@ export function TenderQuote({
         { method: "POST" },
       );
       setReferences(result.references ?? {});
+      setAutomaticStatus("complete");
       setSearchNote(
         `Encontramos precios publicados para ${result.priced} de ${result.requested} partidas. Revisa presentación y condiciones antes de aplicarlos.`,
       );
@@ -231,10 +311,12 @@ export function TenderQuote({
       requirementId: id,
     };
     onEdit({ quotes: [...quotes.filter((q) => q.requirementId !== id), line] });
+    setExpandedRefs((prev) => ({ ...prev, [id]: false }));
     closeEditor();
   }
 
   const prepRunning = Boolean(data && ["queued", "running"].includes(data.status));
+  const marketNotice = automaticStatusNotice(automaticStatus);
 
   return (
     <div className="space-y-5">
@@ -286,6 +368,44 @@ export function TenderQuote({
           </p>
         )}
 
+        {marketNotice && !searching && !(marketNotice.tone === "done" && searchNote) && (
+          <div
+            role="status"
+            className={`mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${
+              marketNotice.tone === "warn"
+                ? "border-amber-200 bg-amber-50 text-amber-900"
+                : marketNotice.tone === "done"
+                  ? "border-line-mint bg-mint-light text-forest"
+                  : marketNotice.tone === "info"
+                    ? "border-line-mint bg-surface-subtle text-ink-2"
+                    : "border-line bg-surface-subtle text-ink-muted"
+            }`}
+          >
+            <span>{marketNotice.text}</span>
+            <div className="flex flex-wrap gap-2">
+              {marketNotice.pending && (
+                <button
+                  type="button"
+                  onClick={() => setMarketCycle((value) => value + 1)}
+                  className="font-semibold text-forest underline-offset-4 hover:underline"
+                >
+                  Actualizar
+                </button>
+              )}
+              {marketNotice.retryable && requirements.length > 0 && (
+                <button
+                  type="button"
+                  disabled={!!searching}
+                  onClick={() => void searchAll()}
+                  className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
+                >
+                  Reintentar búsqueda
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {prepRunning && (
           <div role="status" className="mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line-mint bg-surface-subtle px-4 py-3 text-sm text-ink-2">
             <span>Estamos leyendo las bases. Puedes conservar tus precios guardados mientras termina.</span>
@@ -304,6 +424,8 @@ export function TenderQuote({
             {requirements.map((r) => {
               const quote = quotes.find((q) => q.requirementId === r.id);
               const refs = references[r.id];
+              const isRefsOpen = refs ? (expandedRefs[r.id] ?? !quote) : false;
+              const refsPanelId = `tender-refs-${r.id}`;
               return (
                 <li key={r.id} className="space-y-3 px-5 py-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -368,51 +490,69 @@ export function TenderQuote({
                   </div>
 
                   {refs && (
-                    <div className="space-y-2 rounded-xl border border-line bg-surface-subtle p-4">
-                      {refs.length === 0 ? (
-                        <p className="text-sm text-ink-muted">
-                          No encontramos un precio publicado con respaldo para esta partida. Puedes ingresar el precio de tu proveedor.
-                        </p>
-                      ) : (
-                        <ul className="divide-y divide-line">
-                          {refs.map((ref, idx) => {
-                            const refHref = safeHttps(ref.url);
-                            return (
-                              <li key={idx} className="flex flex-col gap-2 py-2 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="min-w-0 space-y-0.5">
-                                  {refHref ? (
-                                    <a
-                                      href={refHref}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline"
-                                    >
-                                      <span className="wrap-anywhere">{ref.title}</span>
-                                      <Icon name="external" className="h-3.5 w-3.5 shrink-0" />
-                                    </a>
-                                  ) : (
-                                    <span className="text-sm font-semibold text-ink wrap-anywhere">{ref.title}</span>
-                                  )}
-                                  <p className="text-sm text-ink-2 tabular-nums">
-                                    {ref.price && ref.currency
-                                      ? money(Number(ref.price), ref.currency)
-                                      : "Referencia anterior sin precio."}
-                                    {ref.unit ? ` · Presentación: ${ref.unit}` : ""}
-                                  </p>
-                                </div>
-                                {ref.price && (
-                                  <button
-                                    type="button"
-                                    onClick={() => openEditor(r, ref)}
-                                    className="btn-secondary min-h-9 shrink-0 px-3 py-1.5 text-xs"
-                                  >
-                                    Usar como referencia
-                                  </button>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        aria-expanded={isRefsOpen}
+                        aria-controls={refsPanelId}
+                        onClick={() =>
+                          setExpandedRefs((prev) => ({ ...prev, [r.id]: !isRefsOpen }))
+                        }
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-[10px] border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:border-forest hover:text-forest"
+                      >
+                        {isRefsOpen
+                          ? `Ocultar alternativas${refs.length > 0 ? ` (${refs.length})` : ""}`
+                          : `Ver alternativas${refs.length > 0 ? ` (${refs.length})` : ""}`}
+                      </button>
+
+                      {isRefsOpen && (
+                        <div id={refsPanelId} className="space-y-2 rounded-xl border border-line bg-surface-subtle p-4">
+                          {refs.length === 0 ? (
+                            <p className="text-sm text-ink-muted">
+                              No encontramos un precio publicado con respaldo para esta partida. Puedes ingresar el precio de tu proveedor.
+                            </p>
+                          ) : (
+                            <ul className="divide-y divide-line">
+                              {refs.map((ref, idx) => {
+                                const refHref = safeHttps(ref.url);
+                                return (
+                                  <li key={idx} className="flex flex-col gap-2 py-2 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="min-w-0 space-y-0.5">
+                                      {refHref ? (
+                                        <a
+                                          href={refHref}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline"
+                                        >
+                                          <span className="wrap-anywhere">{ref.title}</span>
+                                          <Icon name="external" className="h-3.5 w-3.5 shrink-0" />
+                                        </a>
+                                      ) : (
+                                        <span className="text-sm font-semibold text-ink wrap-anywhere">{ref.title}</span>
+                                      )}
+                                      <p className="text-sm text-ink-2 tabular-nums">
+                                        {ref.price && ref.currency
+                                          ? money(Number(ref.price), ref.currency)
+                                          : "Referencia anterior sin precio."}
+                                        {ref.unit ? ` · Presentación: ${ref.unit}` : ""}
+                                      </p>
+                                    </div>
+                                    {ref.price && (
+                                      <button
+                                        type="button"
+                                        onClick={() => openEditor(r, ref)}
+                                        className="btn-secondary min-h-9 shrink-0 px-3 py-1.5 text-xs"
+                                      >
+                                        Usar como referencia
+                                      </button>
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}

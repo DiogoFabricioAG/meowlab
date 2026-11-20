@@ -110,6 +110,20 @@ export type MarketReference = {
   quote?: string;
 };
 
+export type MarketAutomaticStatus =
+  | "waiting"
+  | "queued"
+  | "running"
+  | "retry"
+  | "failed"
+  | "complete"
+  | "disabled";
+
+export type MarketResponse = {
+  references: Record<string, MarketReference[]>;
+  automaticStatus?: MarketAutomaticStatus | string | null;
+};
+
 export class TenderApiError extends Error {
   constructor(
     message: string,
