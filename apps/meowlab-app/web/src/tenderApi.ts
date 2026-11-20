@@ -60,6 +60,7 @@ export type TenderData = {
     reason?: string;
     details?: string[];
     tableFormat?: string;
+    documentId?: string | null;
     evidence: Evidence[];
   }[];
   documents: TenderDocument[];

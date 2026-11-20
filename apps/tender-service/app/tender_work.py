@@ -106,66 +106,38 @@ def _clean_sentence(sentence):
 
 def check_reason(stage, text=""):
     lower = f"{stage} {text}".lower()
-    if "entrega / pago" in lower or "guía de remisión" in lower or "factura" in lower:
-        return (
-            "No se envía al postular, sino al entregar los bienes tras ganar la buena pro. "
-            "Sin Guía de Remisión, copia de la Orden de Compra y Factura la entidad no da conformidad ni procesa el pago."
-        )
+    if "entrega" in lower or "pago" in lower or "guía de remisión" in lower or "factura" in lower:
+        return "Aplica tras ganar la buena pro, al entregar los bienes o tramitar el pago."
     if "calificación" in lower or "experiencia" in lower:
-        return (
-            "Acredita la capacidad técnica o experiencia previa de tu empresa; "
-            "el comité lo revisa para confirmar que puedes ejecutar el contrato."
-        )
+        return "Acredita la capacidad técnica o experiencia de la empresa para ejecutar el contrato."
     if "contrato" in lower or "perfeccionamiento" in lower:
-        return (
-            "Se presenta únicamente si ganas la buena pro para formalizar la Orden de Compra o el contrato."
-        )
-    if "admisibilidad" in lower or "oferta" in lower or "cotización" in lower:
-        return (
-            "Obligatorio al postular para que tu oferta sea admitida y evaluada. "
-            "Si falta algún dato o no respeta el formato requerido (moneda en Soles y totalidad de ítems), la propuesta queda descalificada."
-        )
-    return (
-        "Exigencia directa de las bases del procedimiento; incluirlo correctamente evita observaciones o el rechazo de tu postulación."
-    )
+        return "Aplica únicamente si ganas la buena pro para formalizar la Orden de Compra o el contrato."
+    if "admisibilidad" in lower or "admisión" in lower or "oferta" in lower or "cotización" in lower:
+        return "Mencionado en las bases para la etapa de presentación de oferta."
+    return "Mencionado en las bases; confirma su exigencia y alcance en el documento fuente."
 
 
 def document_reason(stage):
     lower = str(stage or "").lower()
     if "organización" in lower or "índice" in lower:
-        return (
-            "Ordena y folia toda tu propuesta (desde el folio 001) para que la entidad verifique "
-            "de un vistazo que tu expediente de postulación está completo."
-        )
+        return "Ordena y folia el expediente de postulación."
     if "económica" in lower or "cotización" in lower:
-        return (
-            "Es la pieza central de tu oferta: fija el precio unitario, IGV y monto total en Soles. "
-            "Si falta o tiene errores de cálculo, la propuesta queda descalificada."
-        )
+        return "Presenta el detalle económico de la oferta según el formato de las bases."
     if "técnico" in lower or "especificaciones" in lower:
-        return (
-            "Compromete formalmente a tu empresa a cumplir al 100% las especificaciones técnicas y "
-            "calidad exigidas en las bases."
-        )
+        return "Recoge el cumplimiento de las especificaciones técnicas indicadas en las bases."
     if "ejecución" in lower or "plazo" in lower or "garantía" in lower:
-        return (
-            "Garantiza que cumplirás el plazo de entrega y la garantía comercial exigida tras emitirse "
-            "la Orden de Compra, evitando observaciones o penalidades."
-        )
-    return (
-        "Requisito obligatorio de admisibilidad según las bases y la normativa de contratación pública. "
-        "Sin esta declaración jurada la entidad no puede admitir tu oferta."
-    )
+        return "Registra el plazo de entrega y condiciones de garantía indicadas en las bases."
+    return "Borrador basado en el formato detectado en las bases; verifica su aplicación antes de firmar."
 
 
 def parse_check_structure(text):
     clean = str(text or "").strip()
     if not clean:
-        return "", "Requisito obligatorio", [], None
+        return "", "Por confirmar", [], None
 
     lower = clean.lower()
     title = ""
-    stage = "Requisito obligatorio"
+    stage = "Por confirmar"
     details = []
     table_format = None
 
@@ -186,13 +158,13 @@ def parse_check_structure(text):
                 title = first_part if len(first_part) > 5 else clean
 
     if "entrega" in lower or "pago" in lower or "guía de remisión" in lower or "factura" in lower:
-        stage = "Documento de Entrega / Pago"
+        stage = "Entrega / Pago"
     elif "calificación" in lower or "experiencia" in lower:
-        stage = "Requisito de Calificación"
-    elif "admisibilidad" in lower or "oferta" in lower or "cotización" in lower or "propuesta" in lower or "anexo" in lower:
-        stage = "Obligatorio — Oferta / Admisibilidad"
+        stage = "Calificación"
     elif "contrato" in lower or "perfeccionamiento" in lower or "garantía de fiel" in lower:
-        stage = "Perfeccionamiento de Contrato"
+        stage = "Perfeccionamiento de contrato"
+    elif "admisibilidad" in lower or "admisión" in lower or "oferta" in lower or "cotización" in lower or "propuesta" in lower or "anexo" in lower:
+        stage = "Oferta / Admisión"
 
     if "tabla" in lower or "formulario de cotización" in lower or "cotizar la totalidad" in lower or "lista de bienes" in lower or "precios en soles" in lower:
         table_format = "Tabla requerida: Ítem, Descripción del bien, Unidad, Cantidad, Precio Unitario y Precio Total en Soles"
@@ -533,6 +505,25 @@ def current_workspace(db, owner, key):
             continue
         check_id = stable_id(key, finding['text'], str(evidence))
         c_title, c_stage, c_details, c_table_format = parse_check_structure(finding['text'])
+        linked_doc_id = None
+        form = finding.get('format') or {}
+        source = sources.get(form.get('sourceId'))
+        if source:
+            locators = [c['locator'] for c in source.get('chunks', [])]
+            start, end = form.get('startLocator'), form.get('endLocator')
+            if start in locators and end in locators and locators.index(end) >= locators.index(start):
+                content = '\n\n'.join(c['text'] for c in source['chunks'][locators.index(start):locators.index(end)+1])
+                if len(content) <= 100000:
+                    form_id = stable_id(key, source['id'], start, end, form['title'])
+                    linked_doc_id = form_id
+                    if not any(f['id'] == form_id for f in forms):
+                        stage = form.get('stage', 'Por confirmar')
+                        forms.append({'id': form_id, 'title': form['title'], 'body': content, 'stage': stage,
+                                      'reason': document_reason(stage),
+                                      'sourceTitle': source.get('title'), 'sourceId': source['id'], 'locator': start + ' — ' + end,
+                                      'sourceUrl': f'/api/workspace/opportunities/{key}/bases/{source["id"]}',
+                                      'partial': source.get('status') != 'complete' or sections.get('documents', {}).get('status') != 'ready',
+                                      'evidence': evidence})
         checks.append({
             'id': check_id,
             'text': finding['text'],
@@ -541,40 +532,11 @@ def current_workspace(db, owner, key):
             'details': c_details,
             'tableFormat': c_table_format,
             'reason': check_reason(c_stage, finding['text']),
+            'documentId': linked_doc_id,
             'evidence': evidence
         })
-        form = finding.get('format') or {}
-        source = sources.get(form.get('sourceId'))
-        if not source:
-            continue
-        locators = [c['locator'] for c in source.get('chunks', [])]
-        start, end = form.get('startLocator'), form.get('endLocator')
-        if start not in locators or end not in locators or locators.index(end) < locators.index(start):
-            continue
-        content = '\n\n'.join(c['text'] for c in source['chunks'][locators.index(start):locators.index(end)+1])
-        if len(content) > 100000:
-            continue
-        form_id = stable_id(key, source['id'], start, end, form['title'])
-        if any(f['id'] == form_id for f in forms):
-            continue
-        stage = form.get('stage', 'Por confirmar')
-        forms.append({'id': form_id, 'title': form['title'], 'body': content, 'stage': stage,
-                      'reason': document_reason(stage),
-                      'sourceTitle': source.get('title'), 'sourceId': source['id'], 'locator': start + ' — ' + end,
-                      'sourceUrl': f'/api/workspace/opportunities/{key}/bases/{source["id"]}',
-                      'partial': source.get('status') != 'complete' or sections.get('documents', {}).get('status') != 'ready',
-                      'evidence': evidence})
 
     alert = item.candidate.get('alert', {})
-
-    # Generate full proposal dossier when no specific formats were extracted from the chunks
-    if len(forms) == 0:
-        proposal_docs = generate_proposal_dossier(key, alert, requirements, item.work.get('quotes', []), memory_for(db, owner))
-        for draft in proposal_docs:
-            draft['partial'] = True
-            draft['reason'] = 'Modelo orientativo. Confirma en las bases si corresponde presentarlo y qué formato exige la entidad.'
-            draft['body'] = 'MODELO PARA REVISIÓN · Verifica el formato y su aplicación en las bases oficiales.\n\n' + draft['body']
-        forms.extend(proposal_docs)
 
     index = 'CARÁTULA E ÍNDICE DE FOLIACIÓN DEL EXPEDIENTE DE POSTULACIÓN\n\n'
     index += f'PROCESO: {alert.get("code", "Convocatoria")}\n'

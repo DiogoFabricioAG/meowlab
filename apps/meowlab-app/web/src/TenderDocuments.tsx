@@ -4,44 +4,59 @@ import {
   tenderApi,
   tenderBase,
   useTenderWork,
+  type TenderData,
   type TenderDocument,
   type TenderOpportunity,
   type Work,
 } from "./tenderApi";
 
-function fallbackCheckReason(stage?: string): string {
-  const lower = (stage || "").toLowerCase();
-  if (lower.includes("entrega") || lower.includes("pago")) {
-    return "No se envía al postular, sino al entregar los bienes tras ganar la buena pro. Sin Guía de Remisión, copia de la Orden de Compra y Factura la entidad no da conformidad ni procesa el pago.";
-  }
-  if (lower.includes("calificación")) {
-    return "Acredita la capacidad técnica o experiencia previa de tu empresa; el comité lo revisa para confirmar que puedes ejecutar el contrato.";
-  }
-  if (lower.includes("contrato")) {
-    return "Se presenta únicamente si ganas la buena pro para formalizar la Orden de Compra o el contrato.";
-  }
-  if (lower.includes("admisibilidad") || lower.includes("oferta")) {
-    return "Obligatorio al postular para que tu oferta sea admitida y evaluada. Si falta algún dato o no respeta el formato requerido, la propuesta queda descalificada.";
-  }
-  return "Exigencia directa de las bases del procedimiento; incluirlo correctamente evita observaciones o el rechazo de tu postulación.";
+const LATER_STAGE_RE = /\b(entrega|pago|perfeccionamiento|contrato|ejecuci[oó]n|conformidad|buena pro|facultativ[oa])\b/i;
+
+function normalizeLabel(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
-function fallbackDocReason(doc: TenderDocument): string {
-  if (doc.reason) return doc.reason;
-  const lower = `${doc.title} ${doc.stage}`.toLowerCase();
-  if (lower.includes("índice") || lower.includes("organización")) {
-    return "Ordena y folia toda tu propuesta (desde el folio 001) para que la entidad verifique de un vistazo que tu expediente de postulación está completo.";
+export function isLaterStage(stage?: string | null): boolean {
+  const value = (stage || "").trim();
+  return Boolean(value && LATER_STAGE_RE.test(value));
+}
+
+export type TenderCheckItem = TenderData["checks"][number];
+
+/**
+ * Partition participation documents into:
+ * - platformDrafts: editable drafts extracted from the bases (plus index/legacy)
+ * - userDocuments: documents mentioned in the bases without an extracted draft (aportas tú)
+ * Excludes later-stage items and deduplicates linked/overlapping entries.
+ */
+export function partitionParticipationItems(data: TenderData | null): {
+  platformDrafts: TenderDocument[];
+  userDocuments: TenderCheckItem[];
+} {
+  if (!data) return { platformDrafts: [], userDocuments: [] };
+
+  const platformDrafts = data.documents.filter((doc) => !isLaterStage(doc.stage));
+  const draftIds = new Set(platformDrafts.map((doc) => doc.id));
+  const draftTitles = new Set(platformDrafts.map((doc) => normalizeLabel(doc.title)));
+  const seenChecks = new Set<string>();
+  const userDocuments: TenderCheckItem[] = [];
+
+  for (const check of data.checks) {
+    if (isLaterStage(check.stage)) continue;
+    if (check.documentId && draftIds.has(check.documentId)) continue;
+    const label = (check.title || check.text || "").trim();
+    const norm = normalizeLabel(label);
+    if (!norm || draftTitles.has(norm) || seenChecks.has(norm)) continue;
+    seenChecks.add(norm);
+    userDocuments.push(check);
   }
-  if (lower.includes("cotización") || lower.includes("económica")) {
-    return "Es el documento principal de tu oferta: fija el precio unitario, IGV y monto total en Soles por la totalidad de los ítems.";
-  }
-  if (lower.includes("especificaciones") || lower.includes("técnico")) {
-    return "Compromete legalmente a tu empresa a entregar exactamente los bienes y características técnicas exigidas en las bases.";
-  }
-  if (lower.includes("plazo") || lower.includes("garantía") || lower.includes("ejecución")) {
-    return "Garantiza que cumplirás el plazo de entrega y la garantía comercial exigidos tras emitirse la Orden de Compra.";
-  }
-  return "Requisito obligatorio de admisibilidad según las bases. Sin esta declaración jurada la entidad no puede admitir tu oferta.";
+
+  return { platformDrafts, userDocuments };
 }
 
 const AI_CHIPS = [
@@ -64,8 +79,8 @@ const AI_CHIPS = [
 ];
 
 /**
- * Native MeowLab dossier workspace: checklist of requirements, editable formal drafts,
- * AI-assisted draft editing, print/PDF and individual .docx / .zip exports.
+ * Native MeowLab dossier workspace: participation document list (platform drafts vs.
+ * user-supplied documents mentioned in the bases), draft editor, and .docx/.zip exports.
  */
 export function TenderDocuments({
   companyId,
@@ -80,7 +95,7 @@ export function TenderDocuments({
   dirty: boolean;
   onEdit: (value: Partial<Work>) => void;
 }) {
-  const { data, error, busy, refresh, analyze } = useTenderWork(companyId, opportunity.id);
+  const { data, error, refresh } = useTenderWork(companyId, opportunity.id);
   const [selected, setSelected] = useState("index");
   const [editor, setEditor] = useState(false);
   const [message, setMessage] = useState("");
@@ -88,12 +103,19 @@ export function TenderDocuments({
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
 
-  const documents = data?.documents ?? [];
-  const current = documents.find((d) => d.id === selected) ?? documents[0];
+  const { platformDrafts, userDocuments } = partitionParticipationItems(data);
+  const current = platformDrafts.find((d) => d.id === selected) ?? platformDrafts[0];
   const text = current ? (work.documentEdits?.[current.id] ?? current.body) : "";
   const checks = work.checklist ?? [];
   const base = tenderBase(companyId);
   const oppEncoded = encodeURIComponent(opportunity.id);
+
+  function toggleChecklist(id: string, checked: boolean) {
+    const next = checked
+      ? Array.from(new Set([...checks, id]))
+      : checks.filter((itemId) => itemId !== id);
+    onEdit({ checklist: next });
+  }
 
   function updateBody(value: string) {
     if (!current) return;
@@ -136,22 +158,27 @@ export function TenderDocuments({
     }
   }
 
-  const readyCheckCount = data?.checks.filter((c) => checks.includes(c.id)).length ?? 0;
-  const allChecksReady = Boolean(data?.checks.length && data.checks.every((c) => checks.includes(c.id)));
   const prepRunning = Boolean(data && ["queued", "running"].includes(data.status));
+  const prepFailed = data?.status === "failed";
+  const hasAnyDownloadable = platformDrafts.length > 0;
+  const checkByDocId = new Map(
+    (data?.checks ?? [])
+      .filter((c) => Boolean(c.documentId))
+      .map((c) => [c.documentId as string, c.id]),
+  );
 
   return (
     <div className="space-y-5">
       <section className="rounded-2xl border border-line bg-white px-5 py-4 print:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl text-ink">Borradores de la propuesta</h2>
+            <h2 className="text-xl text-ink">Documentos para participar</h2>
             <p className="text-sm text-ink-muted">
-              Revisa los requisitos de las bases, edita tus anexos y descarga los borradores.
+              Revisa qué entregar según las bases, edita los borradores de la plataforma y descárgalos en Word o ZIP.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {dirty ? (
+            {dirty || !hasAnyDownloadable ? (
               <span
                 aria-disabled="true"
                 className="btn-primary min-h-10 cursor-not-allowed px-4 py-2 text-sm opacity-60"
@@ -168,18 +195,10 @@ export function TenderDocuments({
             )}
             <button
               type="button"
-              disabled={busy}
-              onClick={() => void analyze()}
-              className="btn-secondary min-h-10 px-4 py-2 text-sm"
-            >
-              {busy ? "Solicitando…" : "Analizar requisitos con IA"}
-            </button>
-            <button
-              type="button"
               onClick={() => void refresh()}
               className="btn-secondary min-h-10 px-4 py-2 text-sm"
             >
-              Actualizar borradores
+              Actualizar
             </button>
           </div>
         </div>
@@ -201,107 +220,158 @@ export function TenderDocuments({
         )}
         {prepRunning && (
           <p role="status" className="mt-3 rounded-xl border border-line-mint bg-surface-subtle px-4 py-2.5 text-sm text-ink-2">
-            Estamos leyendo los formatos de las bases. Los borradores aparecerán aquí al terminar.
+            Estamos leyendo las bases. Los documentos y borradores aparecerán aquí al terminar.
+          </p>
+        )}
+        {prepFailed && (
+          <p role="alert" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
+            No pudimos completar la lectura automática de las bases. Revisa el archivo subido o vuelve a intentarlo más tarde.
           </p>
         )}
       </section>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.65fr)]">
-        <aside className="space-y-4 rounded-2xl border border-line bg-white p-5 print:hidden" aria-label="Requisitos de las bases">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-lg text-ink">Requisitos de las bases</h3>
-            {Boolean(data?.checks.length) && (
-              <span
-                className={`chip border ${
-                  allChecksReady
-                    ? "border-line-mint bg-mint text-forest"
-                    : "border-line bg-surface-subtle text-ink-2"
-                } tabular-nums`}
-              >
-                {readyCheckCount}/{data!.checks.length} listos
+        <section
+          className="space-y-5 rounded-2xl border border-line bg-white p-5 print:hidden"
+          aria-label="Lista de documentos para participar"
+        >
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base font-semibold text-ink">Borradores de la plataforma</h3>
+              <span className="text-xs font-semibold text-ink-muted tabular-nums">
+                {platformDrafts.length}
               </span>
+            </div>
+
+            {platformDrafts.length > 0 ? (
+              <ul className="space-y-2" role="list">
+                {platformDrafts.map((doc) => {
+                  const isSelected = current?.id === doc.id;
+                  const linkedCheckId = checkByDocId.get(doc.id);
+                  const edited = Boolean(
+                    work.documentEdits?.[doc.id] && work.documentEdits[doc.id] !== doc.body,
+                  );
+                  return (
+                    <li
+                      key={doc.id}
+                      className={`rounded-xl border transition-colors ${
+                        isSelected
+                          ? "border-forest bg-mint-light/50"
+                          : "border-line bg-surface-subtle/40 hover:border-line-mint"
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5 p-3">
+                        {linkedCheckId && (
+                          <input
+                            type="checkbox"
+                            aria-label={`Marcar ${doc.title} como listo`}
+                            checked={checks.includes(linkedCheckId)}
+                            className="mt-1 h-4 w-4 shrink-0 accent-forest"
+                            onChange={(e) => toggleChecklist(linkedCheckId, e.target.checked)}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => setSelected(doc.id)}
+                          className="min-w-0 flex-1 text-left"
+                        >
+                          <span className="block text-sm font-semibold text-ink wrap-anywhere">
+                            {doc.title}
+                          </span>
+                          <span className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-ink-muted">
+                            <span className="chip border border-line-mint bg-white px-2 py-0.5 text-[11px] text-forest">
+                              Borrador editable
+                            </span>
+                            {edited && (
+                              <span className="chip border border-line bg-white px-2 py-0.5 text-[11px] text-ink-2">
+                                Editado
+                              </span>
+                            )}
+                            {doc.locator && <span>{doc.locator}</span>}
+                          </span>
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-ink-muted">
+                No hay formatos reproducibles extraídos de las bases todavía.
+              </p>
             )}
           </div>
 
-          {data?.checks.length ? (
-            <ul className="space-y-3">
-              {data.checks.map((check) => {
-                const checked = checks.includes(check.id);
-                return (
-                  <li key={check.id} className="space-y-2 rounded-xl border border-line bg-surface-subtle/60 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <label className="flex cursor-pointer items-start gap-2.5 text-sm font-semibold text-ink">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          className="mt-1 h-4 w-4 accent-forest"
-                          onChange={(e) =>
-                            onEdit({
-                              checklist: e.target.checked
-                                ? [...checks, check.id]
-                                : checks.filter((id) => id !== check.id),
-                            })
-                          }
-                        />
-                        <span className="wrap-anywhere">{check.title || check.text}</span>
-                      </label>
-                      {check.stage && (
-                        <span className="chip shrink-0 border border-line bg-white text-xs text-ink-muted">
-                          {check.stage}
-                        </span>
-                      )}
-                    </div>
+          <div className="space-y-2.5 border-t border-line pt-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base font-semibold text-ink">
+                Mencionados en las bases (aportas tú)
+              </h3>
+              <span className="text-xs font-semibold text-ink-muted tabular-nums">
+                {userDocuments.length}
+              </span>
+            </div>
 
-                    {check.details && check.details.length > 0 ? (
-                      <ul className="list-disc space-y-1 pl-6 text-xs text-ink-2">
-                        {check.details.map((detail, idx) => (
-                          <li key={idx}>{detail}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-xs text-ink-2">{check.text}</p>
-                    )}
-
-                    {check.tableFormat && (
-                      <div className="rounded-lg border border-line bg-white px-3 py-2 text-xs">
-                        <span className="font-semibold text-ink">Formato requerido: </span>
-                        <span className="text-ink-2">{check.tableFormat}</span>
+            {userDocuments.length > 0 ? (
+              <ul className="space-y-2" role="list">
+                {userDocuments.map((docItem) => {
+                  const checked = checks.includes(docItem.id);
+                  return (
+                    <li
+                      key={docItem.id}
+                      className="space-y-2 rounded-xl border border-line bg-white p-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <label className="flex cursor-pointer items-start gap-2.5 text-sm font-semibold text-ink">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            className="mt-1 h-4 w-4 shrink-0 accent-forest"
+                            onChange={(e) => toggleChecklist(docItem.id, e.target.checked)}
+                          />
+                          <span className="wrap-anywhere">{docItem.title || docItem.text}</span>
+                        </label>
+                        {docItem.stage && docItem.stage !== "Por confirmar" && (
+                          <span className="chip shrink-0 border border-line bg-surface-subtle text-[11px] text-ink-muted">
+                            {docItem.stage}
+                          </span>
+                        )}
                       </div>
-                    )}
 
-                    <p className="text-xs text-ink-muted">
-                      <strong className="text-ink-2">Por qué se exige:</strong>{" "}
-                      {check.reason || fallbackCheckReason(check.stage)}
-                    </p>
-
-                    {check.evidence && check.evidence.length > 0 && (
-                      <details className="text-xs text-ink-muted">
-                        <summary className="w-fit cursor-pointer font-medium text-forest">
-                          Ver fuente de las bases
-                        </summary>
-                        <div className="mt-1.5 space-y-1.5 border-l-2 border-line-mint pl-2.5">
-                          {check.evidence.map((ev, i) => (
-                            <blockquote key={i} className="space-y-0.5 text-ink-2">
-                              <p>{ev.quote}</p>
-                              <footer className="text-ink-muted">{ev.locator}</footer>
-                            </blockquote>
-                          ))}
-                        </div>
-                      </details>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="text-sm text-ink-muted">
-              Los requisitos se confirmarán al leer las bases. Los modelos disponibles requieren revisión.
-            </p>
-          )}
+                      {docItem.evidence && docItem.evidence.length > 0 && (
+                        <details className="text-xs text-ink-muted">
+                          <summary className="w-fit cursor-pointer font-medium text-forest">
+                            Ver cita de las bases
+                          </summary>
+                          <div className="mt-1.5 space-y-1.5 border-l-2 border-line-mint pl-2.5">
+                            {docItem.evidence.map((ev, i) => (
+                              <blockquote key={i} className="space-y-0.5 text-ink-2">
+                                <p>{ev.quote}</p>
+                                <footer className="text-ink-muted">{ev.locator}</footer>
+                              </blockquote>
+                            ))}
+                          </div>
+                        </details>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-ink-muted">
+                {prepRunning
+                  ? "Esperando la lectura de las bases…"
+                  : "No se detectaron documentos adicionales sin formato en las bases."}
+              </p>
+            )}
+          </div>
 
           {Boolean(data?.missing.length) && (
-            <details className="text-sm text-ink-muted">
-              <summary className="w-fit cursor-pointer font-semibold text-ink-2">Datos por confirmar</summary>
+            <details className="border-t border-line pt-3 text-sm text-ink-muted">
+              <summary className="w-fit cursor-pointer font-semibold text-ink-2">
+                Datos por confirmar en las bases
+              </summary>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
                 {data!.missing.map((v, i) => (
                   <li key={i}>{v}</li>
@@ -309,110 +379,66 @@ export function TenderDocuments({
               </ul>
             </details>
           )}
-        </aside>
+        </section>
 
         <section className="space-y-4 rounded-2xl border border-line bg-white p-5">
-          <div className="space-y-3 print:hidden">
-            <h3 className="text-lg text-ink">Expediente de postulación</h3>
-
-            {documents.length > 0 && (
-              <details className="rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm">
-                <summary className="cursor-pointer font-semibold text-forest">
-                  Ver los {documents.length} borradores del expediente
-                </summary>
-                <ul className="mt-2 list-disc space-y-1.5 pl-5 text-xs text-ink-2">
-                  {documents.map((doc) => (
-                    <li key={doc.id}>
-                      <strong>{doc.title}:</strong> {fallbackDocReason(doc)}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex rounded-[10px] bg-surface-subtle p-1" role="group" aria-label="Modo del documento">
-                <button
-                  type="button"
-                  aria-pressed={!editor}
-                  onClick={() => setEditor(false)}
-                  className={`min-h-9 rounded-[8px] px-3 text-sm font-semibold transition-colors ${
-                    !editor ? "bg-white text-forest shadow-soft" : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  Vista del documento
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={editor}
-                  onClick={() => setEditor(true)}
-                  className={`min-h-9 rounded-[8px] px-3 text-sm font-semibold transition-colors ${
-                    editor ? "bg-white text-forest shadow-soft" : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  Editor
-                </button>
-              </div>
-
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
+            <div className="inline-flex rounded-[10px] bg-surface-subtle p-1" role="group" aria-label="Modo del documento">
               <button
                 type="button"
-                disabled={!current}
-                onClick={() => window.print()}
-                className="btn-secondary min-h-9 px-3.5 py-2 text-sm"
+                aria-pressed={!editor}
+                onClick={() => setEditor(false)}
+                className={`min-h-9 rounded-[8px] px-3 text-sm font-semibold transition-colors ${
+                  !editor ? "bg-white text-forest shadow-soft" : "text-ink-muted hover:text-ink"
+                }`}
               >
-                Imprimir / PDF
+                Vista del documento
               </button>
-
-              {!dirty && current ? (
-                <a
-                  href={`${base}/opportunities/${oppEncoded}/documents/${encodeURIComponent(current.id)}.docx`}
-                  className="btn-primary min-h-9 px-3.5 py-2 text-sm"
-                >
-                  Descargar .docx
-                </a>
-              ) : (
-                <span
-                  aria-disabled="true"
-                  className="btn-primary min-h-9 cursor-not-allowed px-3.5 py-2 text-sm opacity-60"
-                >
-                  Descargar .docx
-                </span>
-              )}
+              <button
+                type="button"
+                aria-pressed={editor}
+                onClick={() => setEditor(true)}
+                className={`min-h-9 rounded-[8px] px-3 text-sm font-semibold transition-colors ${
+                  editor ? "bg-white text-forest shadow-soft" : "text-ink-muted hover:text-ink"
+                }`}
+              >
+                Editor
+              </button>
             </div>
 
-            {documents.length > 0 && (
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Borradores del expediente">
-                {documents.map((doc) => (
-                  <button
-                    key={doc.id}
-                    type="button"
-                    aria-pressed={current?.id === doc.id}
-                    onClick={() => setSelected(doc.id)}
-                    className={`min-h-9 rounded-[10px] border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                      current?.id === doc.id
-                        ? "border-forest bg-mint-light text-forest"
-                        : "border-line bg-white text-ink-muted hover:text-ink"
-                    }`}
-                  >
-                    {doc.title}
-                  </button>
-                ))}
-              </div>
+            <button
+              type="button"
+              disabled={!current}
+              onClick={() => window.print()}
+              className="btn-secondary min-h-9 px-3.5 py-2 text-sm"
+            >
+              Imprimir / PDF
+            </button>
+
+            {!dirty && current ? (
+              <a
+                href={`${base}/opportunities/${oppEncoded}/documents/${encodeURIComponent(current.id)}.docx`}
+                className="btn-primary min-h-9 px-3.5 py-2 text-sm"
+              >
+                Descargar .docx
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="btn-primary min-h-9 cursor-not-allowed px-3.5 py-2 text-sm opacity-60"
+              >
+                Descargar .docx
+              </span>
             )}
           </div>
 
           {current ? (
             <>
-              <div className="space-y-2 print:hidden">
+              <div className="space-y-1.5 print:hidden">
                 <h4 className="text-lg text-ink">{current.title}</h4>
                 <p className="text-xs text-ink-muted">
-                  {current.stage}.{" "}
-                  {!current.evidence.length
-                    ? "Borrador de trabajo. Comprueba si corresponde presentarlo según las bases."
-                    : current.partial
-                    ? "La lectura es parcial: revisa el original antes de usar este borrador."
-                    : "Borrador editable basado en el texto de tus bases."}{" "}
-                  Revisa el formato original y completa los datos antes de firmar.
+                  {[current.stage, current.sourceTitle, current.locator].filter(Boolean).join(" · ")}
+                  {current.partial && " · Lectura parcial: verifica el documento original."}
                   {(() => {
                     const sourceHref = portalTenderUrl(companyId, current.sourceUrl);
                     return sourceHref ? (
@@ -431,9 +457,6 @@ export function TenderDocuments({
                     ) : null;
                   })()}
                 </p>
-                <p className="rounded-xl bg-surface-subtle px-3.5 py-2.5 text-xs text-ink-2">
-                  <strong>Motivo en tu expediente:</strong> {fallbackDocReason(current)}
-                </p>
               </div>
 
               {editor && (
@@ -442,7 +465,7 @@ export function TenderDocuments({
                     <div className="space-y-0.5">
                       <strong className="text-sm text-ink">Asistente de edición con IA</strong>
                       <p className="text-xs text-ink-muted">
-                        Describe los cambios que necesitas para ajustar este borrador oficial.
+                        Describe los cambios que necesitas para ajustar este borrador.
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
@@ -510,14 +533,14 @@ export function TenderDocuments({
                 <header className="flex flex-wrap items-start justify-between gap-2 border-b border-line pb-3">
                   <div className="space-y-0.5">
                     <span className="block text-xs font-semibold uppercase tracking-[0.06em] text-ink-2">
-                      Sistema Electrónico de Contrataciones del Estado — SEACE
+                      Borrador de trabajo
                     </span>
                     <small className="block text-xs text-ink-muted">
-                      Ley N° 32069, Ley General de Contrataciones Públicas y su Reglamento
+                      Verifica el formato oficial de las bases antes de firmar y presentar.
                     </small>
                   </div>
                   <span className="chip border border-amber-200 bg-amber-50 text-xs text-amber-900">
-                    BORRADOR PARA REVISIÓN — NO OFICIAL
+                    BORRADOR PARA REVISIÓN
                   </span>
                 </header>
 
@@ -545,14 +568,14 @@ export function TenderDocuments({
                 <footer className="border-t border-line pt-4 text-center text-xs text-ink-muted">
                   <div className="mx-auto mt-6 max-w-xs border-t border-ink-faint pt-2">
                     <span className="block font-semibold text-ink-2">Firma y sello del Representante Legal</span>
-                    <span>Verificar formato oficial y completar datos antes de presentar en SEACE</span>
+                    <span>Confirmar formato vigente en las bases antes de presentar</span>
                   </div>
                 </footer>
               </article>
             </>
           ) : (
             <p className="text-sm text-ink-muted">
-              Los borradores se preparan con los formatos de las bases. Puedes iniciar la lectura con «Analizar requisitos con IA».
+              Selecciona un borrador de la lista para revisarlo, editarlo o descargarlo.
             </p>
           )}
         </section>
