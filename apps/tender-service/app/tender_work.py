@@ -570,6 +570,10 @@ def current_workspace(db, owner, key):
     # Generate full proposal dossier when no specific formats were extracted from the chunks
     if len(forms) == 0:
         proposal_docs = generate_proposal_dossier(key, alert, requirements, item.work.get('quotes', []), memory_for(db, owner))
+        for draft in proposal_docs:
+            draft['partial'] = True
+            draft['reason'] = 'Modelo orientativo. Confirma en las bases si corresponde presentarlo y qué formato exige la entidad.'
+            draft['body'] = 'MODELO PARA REVISIÓN · Verifica el formato y su aplicación en las bases oficiales.\n\n' + draft['body']
         forms.extend(proposal_docs)
 
     index = 'CARÁTULA E ÍNDICE DE FOLIACIÓN DEL EXPEDIENTE DE POSTULACIÓN\n\n'

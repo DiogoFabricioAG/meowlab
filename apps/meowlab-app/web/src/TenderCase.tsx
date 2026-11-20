@@ -24,7 +24,7 @@ function safeHttpsUrl(raw: string | null | undefined): string | null {
 const STAGES: Array<{ key: TenderWorkspaceStage; label: string }> = [
   { key: "bases", label: "Resumen y bases" },
   { key: "quote", label: "Cotización" },
-  { key: "documents", label: "Documentos" },
+  { key: "documents", label: "Expediente" },
 ];
 
 /**

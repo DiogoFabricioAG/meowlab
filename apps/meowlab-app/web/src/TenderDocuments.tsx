@@ -295,7 +295,7 @@ export function TenderDocuments({
             </ul>
           ) : (
             <p className="text-sm text-ink-muted">
-              Los requisitos se confirmarán al leer las bases. No añadimos anexos genéricos al expediente.
+              Los requisitos se confirmarán al leer las bases. Los modelos disponibles requieren revisión.
             </p>
           )}
 
@@ -318,7 +318,7 @@ export function TenderDocuments({
             {documents.length > 0 && (
               <details className="rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm">
                 <summary className="cursor-pointer font-semibold text-forest">
-                  ¿Por qué debes enviar estos {documents.length} documentos en tu expediente?
+                  Ver los {documents.length} borradores del expediente
                 </summary>
                 <ul className="mt-2 list-disc space-y-1.5 pl-5 text-xs text-ink-2">
                   {documents.map((doc) => (
@@ -407,7 +407,9 @@ export function TenderDocuments({
                 <h4 className="text-lg text-ink">{current.title}</h4>
                 <p className="text-xs text-ink-muted">
                   {current.stage}.{" "}
-                  {current.partial
+                  {!current.evidence.length
+                    ? "Borrador de trabajo. Comprueba si corresponde presentarlo según las bases."
+                    : current.partial
                     ? "La lectura es parcial: revisa el original antes de usar este borrador."
                     : "Borrador editable basado en el texto de tus bases."}{" "}
                   Revisa el formato original y completa los datos antes de firmar.
