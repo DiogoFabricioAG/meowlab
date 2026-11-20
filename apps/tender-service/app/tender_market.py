@@ -136,8 +136,16 @@ def list_market(key: str,owner: str=Depends(account),db: Session=Depends(get_db)
     if ids and ids.issubset(refs):
         state = 'complete'
     elif os.getenv('TENDER_MARKET_ENABLED') == '1' and read_secret('RADAR_OPENAI_API_KEY'):
-        raw_state = job.sections.get('marketResearch', {}).get('status', 'queued') if job and job.status in ('partial', 'ready') else 'waiting'
-        state = raw_state if raw_state in ('waiting', 'queued', 'running', 'retry', 'failed', 'complete') else 'queued'
+        if job and job.status == 'failed':
+            state = 'failed'
+        elif job and job.status in ('partial', 'ready'):
+            if not ids:
+                state = 'complete'
+            else:
+                raw_state = job.sections.get('marketResearch', {}).get('status', 'queued')
+                state = raw_state if raw_state in ('waiting', 'queued', 'running', 'retry', 'failed', 'complete') else 'queued'
+        else:
+            state = 'waiting'
     return {'references': refs, 'automaticStatus': state}
 
 

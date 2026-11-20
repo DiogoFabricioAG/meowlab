@@ -299,3 +299,71 @@ def test_disabled_status_when_market_worker_off(env, monkeypatch):
         "references": {},
         "automaticStatus": "disabled",
     }
+
+
+def test_archive_mid_flight_releases_lease_and_restores_same_generation(env):
+    client, factory = env
+    key = _seed_opportunity(factory, ocid="ocds-dgv273-seacev3-805")
+    pdf = _pdf_bytes("Bases archivable")
+    digest = hashlib.sha256(pdf).hexdigest()
+    base_id = hashlib.sha256(f"{OWNER}:{key}:{digest}".encode()).hexdigest()
+
+    with factory() as db:
+        db.add(UploadedBases(id=base_id, account=OWNER, opportunity=key, filename="v1.pdf", sha256=digest, body=pdf, created_at=100))
+        db.flush()
+        prep.enqueue_selected(db, OWNER, [key])
+        db.commit()
+
+    assert prep.process_one(factory, OWNER, analyze=_analyze_items(["Polo pima M"], base_id)) is True
+
+    def archive_during_search(batch):
+        with factory() as db:
+            opp = db.get(workspace.WebOpportunity, key)
+            opp.hidden = True
+            db.commit()
+        return {batch[0]["id"]: [{"url": "https://proveedor.pe/polo", "title": "Polo", "price": "20.00", "currency": "PEN"}]}
+
+    assert market_worker.research_one(factory, OWNER, search=archive_during_search) is True
+    with factory() as db:
+        assert db.scalars(select(tender_market.MarketReferences)).all() == []
+        job = db.scalar(select(prep.PreparationJob))
+        assert job.sections["marketResearch"] == {"status": "queued"}
+
+    # While archived, worker does not pick it up.
+    assert market_worker.research_one(factory, OWNER, search=lambda *_: pytest.fail("should not run while archived")) is False
+
+    # Restore same generation -> worker completes it cleanly.
+    with factory() as db:
+        opp = db.get(workspace.WebOpportunity, key)
+        opp.hidden = False
+        db.commit()
+
+    assert market_worker.research_one(
+        factory,
+        OWNER,
+        search=lambda batch: {batch[0]["id"]: [{"url": "https://proveedor.pe/polo", "title": "Polo", "price": "20.00", "currency": "PEN"}]},
+    ) is True
+    assert client.get(f"/api/workspace/opportunities/{key}/market", headers=_headers()).json()["automaticStatus"] == "complete"
+
+
+def test_terminal_preparation_without_requirements_is_not_stuck_waiting(env):
+    client, factory = env
+    key = _seed_opportunity(factory, ocid="ocds-dgv273-seacev3-806")
+    pdf = _pdf_bytes("Sin partidas")
+    digest = hashlib.sha256(pdf).hexdigest()
+    base_id = hashlib.sha256(f"{OWNER}:{key}:{digest}".encode()).hexdigest()
+
+    with factory() as db:
+        db.add(UploadedBases(id=base_id, account=OWNER, opportunity=key, filename="v1.pdf", sha256=digest, body=pdf, created_at=100))
+        db.flush()
+        prep.enqueue_selected(db, OWNER, [key])
+        db.commit()
+
+    assert prep.process_one(factory, OWNER, analyze=_analyze_items([], base_id)) is True
+    assert client.get(f"/api/workspace/opportunities/{key}/market", headers=_headers()).json()["automaticStatus"] == "complete"
+
+    with factory() as db:
+        job = db.scalar(select(prep.PreparationJob))
+        job.status = "failed"
+        db.commit()
+    assert client.get(f"/api/workspace/opportunities/{key}/market", headers=_headers()).json()["automaticStatus"] == "failed"

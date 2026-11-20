@@ -26,9 +26,12 @@ def existing_ids(db, owner, key):
     return set(db.scalars(select(refs.requirement).where(refs.account == owner, refs.opportunity == key)))
 
 
+def same_generation(db, item, job):
+    return bool(item and item.account == job.account and job.id == job_id(item, memory_for(db, job.account))[0])
+
+
 def active(db, item, job):
-    return (item and item.account == job.account and item.selection == "interesting" and not item.hidden
-            and job.id == job_id(item, memory_for(db, job.account))[0])
+    return bool(same_generation(db, item, job) and item.selection == "interesting" and not item.hidden)
 
 
 def research_one(factory, owner, search=None, clock=time.time):
@@ -76,8 +79,11 @@ def research_one(factory, owner, search=None, clock=time.time):
         job = db.get(PreparationJob, generation, with_for_update=True)
         if not job or job.sections.get("marketResearch", {}).get("token") != token:
             return True
-        if not active(db, item, job) or job.status not in ("ready", "partial"):
+        if not same_generation(db, item, job) or job.status not in ("ready", "partial"):
             mark(job, "superseded")
+        elif not active(db, item, job):
+            prior_attempts = max(0, job.sections.get("marketResearch", {}).get("attempts", 1) - 1)
+            mark(job, "queued", **({"attempts": prior_attempts} if prior_attempts else {}))
         elif results is None:
             mark(job, "retry" if attempts + 1 < MAX_ATTEMPTS else "failed",
                  attempts=attempts + 1, after=int(clock()) + 60 * 2**attempts)
