@@ -341,7 +341,7 @@ export function TenderCase({
           )}
         </div>
 
-        <h1 id="tender-case-title" className="w-full text-3xl leading-tight tracking-tight text-ink sm:text-4xl [text-wrap:normal]">
+        <h1 id="tender-case-title" className="w-full text-3xl leading-tight tracking-tight text-ink sm:text-4xl text-wrap">
           {title}
         </h1>
       </header>
