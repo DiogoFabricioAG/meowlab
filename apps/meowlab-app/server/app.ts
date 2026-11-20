@@ -3,6 +3,7 @@ import type { Auth } from "./auth";
 import type { CollectionsSettings, PortalBillingAction, PortalBridge, PortalCompanyAction, PortalLinkAction, ReorderSettings, SupportFaqChange } from "./bridge";
 import type { AdminMetricsSource } from "./admin-metrics";
 import type { BillingService } from "./billing/service";
+import type { TenderService } from "./tender";
 
 export type PortalModule = {
   key: string;
@@ -21,6 +22,7 @@ export type AppDeps = {
   adminMetrics?: AdminMetricsSource;
   /** Subscriptions with Mercado Pago (ADR-0007); absent where not configured. */
   billing?: BillingService;
+  tender?: TenderService;
   /** Names and e-mails of portal accounts, to show a team (ADR-0010); absent where not implemented. */
   users?: UserDirectory;
   /** Public origin used to build invitation links. Defaults to the first allowed origin. */
@@ -467,6 +469,16 @@ export function createApp(deps: AppDeps) {
     if (!result || result.status !== "ok" || !("companies" in result)) return null;
     return result.companies.find((company) => company.id === tenantId)?.role ?? null;
   };
+
+  app.all("/api/companies/:tenantId/tender/*", async (c) => {
+    if (!deps.tender || !deps.bridge) return c.json({ error: "tender_unavailable" }, 503);
+    const company = c.req.param("tenantId");
+    const role = await companyRole(c.get("session").user.id, company);
+    if (!role) return c.json({ error: "forbidden" }, 403);
+    const suffix = c.req.path.replace(/^\/api\/companies\/[^/]+\/tender\//, "");
+    if (suffix === "business" && c.req.method === "PUT" && role !== "owner") return c.json({ error: "forbidden" }, 403);
+    return deps.tender(company, suffix, c.req.raw);
+  });
 
   app.get("/api/billing", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
