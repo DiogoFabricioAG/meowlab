@@ -391,8 +391,9 @@ def test_replace_bases_atomic_preserves_work_and_enforces_isolation(service_clie
     assert r2.status_code == 200
     data_before = r2.json()
     assert len(data_before["uploadedBases"]) == 2
-    base1_id = data_before["uploadedBases"][0]["id"]
-    base2_id = data_before["uploadedBases"][1]["id"]
+    by_title = {b["title"]: b["id"] for b in data_before["uploadedBases"]}
+    base1_id = by_title["bases_1.pdf"]
+    base2_id = by_title["bases_2.pdf"]
     version_before = data_before["knowledgeVersion"]
 
     # 1. Invalid replacement file (bad extension / bad bytes) preserves previous files, version and work.
@@ -436,15 +437,16 @@ def test_replace_bases_atomic_preserves_work_and_enforces_isolation(service_clie
     )
     assert replaced.status_code == 200
     after = replaced.json()
-    after_ids = [b["id"] for b in after["uploadedBases"]]
-    assert base1_id not in after_ids
-    assert base2_id in after_ids
-    assert len(after_ids) == 2
+    after_by_title = {b["title"]: b["id"] for b in after["uploadedBases"]}
+    assert "bases_1.pdf" not in after_by_title
+    assert after_by_title.get("bases_2.pdf") == base2_id
+    assert len(after_by_title) == 2
     assert after["knowledgeVersion"] != version_before
     assert after["work"]["quotes"][0]["price"] == "50"
     assert after["work"]["documentEdits"] == {"doc-1": "Borrador intacto"}
-    new_base_id = [b["id"] for b in after["uploadedBases"] if b["id"] != base2_id][0]
+    new_base_id = after_by_title["bases_1_v2.pdf"]
     assert client.get(f"/api/workspace/opportunities/{key}/bases/{base1_id}", headers=h).status_code == 404
+    assert client.get(f"/api/workspace/opportunities/{key}/bases/{base2_id}", headers=h).content == pdf_two
     assert client.get(f"/api/workspace/opportunities/{key}/bases/{new_base_id}", headers=h).content == pdf_new
 
     with factory() as db:
