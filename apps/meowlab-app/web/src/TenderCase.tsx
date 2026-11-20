@@ -1,9 +1,14 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { agentLogo, type Weekly } from "./agents";
-import { formatDeadline } from "./tenderDates";
 import { Icon } from "./icons";
+import { TenderBases } from "./TenderBases";
+import { TenderDocuments } from "./TenderDocuments";
+import { TenderQuote } from "./TenderQuote";
+import { tenderApi, TenderApiError, type TenderOpportunity, type Work } from "./tenderApi";
+import { formatDeadline } from "./tenderDates";
 
 export type TenderHighlight = Weekly["tender"]["highlights"][number];
-export type TenderWorkspaceStage = "quote" | "documents";
+export type TenderWorkspaceStage = "bases" | "quote" | "documents";
 
 function safeHttpsUrl(raw: string | null | undefined): string | null {
   const value = raw?.trim();
@@ -16,45 +21,224 @@ function safeHttpsUrl(raw: string | null | undefined): string | null {
   }
 }
 
-function safeWorkspaceHref(raw: string): string | null {
-  const value = raw.trim();
-  if (!value) return null;
-  if (value.startsWith("/") && !value.startsWith("//")) return value;
-  return safeHttpsUrl(value);
-}
+const STAGES: Array<{ key: TenderWorkspaceStage; label: string }> = [
+  { key: "bases", label: "Resumen y bases" },
+  { key: "quote", label: "Cotización" },
+  { key: "documents", label: "Documentos" },
+];
 
-/** Detail view for a single Tender Cat highlight harmonized with WeeklyHome. */
+/**
+ * Native MeowLab Tender Cat case workspace: facts, uploaded bases,
+ * quote preparation, editable dossier documents and persistent draft saving.
+ */
 export function TenderCase({
+  companyId,
   item,
+  opportunity,
+  loadingOpportunity = false,
+  opportunityError = "",
+  stage = "bases",
+  onStageChange,
   onBack,
-  workspaceUrl,
+  onOpportunityUpdated,
+  onReloadOpportunity,
 }: {
+  companyId: string;
   item: TenderHighlight;
+  opportunity: TenderOpportunity | null;
+  loadingOpportunity?: boolean;
+  opportunityError?: string;
+  stage?: TenderWorkspaceStage;
+  onStageChange?: (next: TenderWorkspaceStage) => void;
   onBack: () => void;
-  workspaceUrl: (stage: TenderWorkspaceStage) => string;
+  onOpportunityUpdated: (updated: TenderOpportunity) => void;
+  onReloadOpportunity: () => void;
 }) {
-  const seaceUrl = safeHttpsUrl(item.sourceUrl);
-  const quoteHref = safeWorkspaceHref(workspaceUrl("quote"));
-  const documentsHref = safeWorkspaceHref(workspaceUrl("documents"));
-  const hasWorkspace = Boolean(quoteHref || documentsHref);
+  const [localStage, setLocalStage] = useState<TenderWorkspaceStage>(stage);
+  const activeStage = onStageChange ? stage : localStage;
+  const setStage = onStageChange ?? setLocalStage;
 
-  const factsNote = !item.interesting
+  const [draft, setDraft] = useState<Work>(() => opportunity?.work ?? {});
+  const [dirty, setDirty] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error" | "conflict">("saved");
+  const [saveError, setSaveError] = useState("");
+
+  const opportunityRef = useRef(opportunity);
+  const draftRef = useRef<Work>(draft);
+  const dirtyRef = useRef(false);
+  const inFlightRef = useRef(false);
+  const queuedSaveRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    opportunityRef.current = opportunity;
+    if (!dirtyRef.current) {
+      const nextWork = opportunity?.work ?? {};
+      setDraft(nextWork);
+      draftRef.current = nextWork;
+      setSaveStatus("saved");
+      setSaveError("");
+    }
+  }, [opportunity]);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!dirtyRef.current) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
+
+  const triggerSave = useCallback(async () => {
+    const currentOpp = opportunityRef.current;
+    if (!currentOpp) return;
+    if (inFlightRef.current) {
+      queuedSaveRef.current = true;
+      return;
+    }
+    inFlightRef.current = true;
+    setSaveStatus("saving");
+    setSaveError("");
+
+    const payloadWork = draftRef.current;
+    try {
+      const updated = await tenderApi<TenderOpportunity>(
+        companyId,
+        `/opportunities/${encodeURIComponent(currentOpp.id)}`,
+        {
+          method: "PUT",
+          body: {
+            notes: payloadWork.notes ?? "",
+            document: payloadWork.document ?? "",
+            quotes: payloadWork.quotes ?? [],
+            documentEdits: payloadWork.documentEdits ?? {},
+            checklist: payloadWork.checklist ?? [],
+            version: currentOpp.version,
+            hidden: currentOpp.hidden ?? false,
+          },
+        },
+      );
+      opportunityRef.current = updated;
+      onOpportunityUpdated(updated);
+
+      if (JSON.stringify(draftRef.current) === JSON.stringify(payloadWork)) {
+        setDirty(false);
+        dirtyRef.current = false;
+        setSaveStatus("saved");
+      } else {
+        queuedSaveRef.current = true;
+      }
+    } catch (e) {
+      const isConflict = e instanceof TenderApiError && e.status === 409;
+      setSaveStatus(isConflict ? "conflict" : "error");
+      setSaveError(
+        isConflict
+          ? "Este expediente se actualizó en otro lugar. Recarga para ver la última versión antes de seguir editando."
+          : e instanceof Error
+            ? e.message
+            : "No se pudieron guardar los cambios.",
+      );
+    } finally {
+      inFlightRef.current = false;
+      if (queuedSaveRef.current) {
+        queuedSaveRef.current = false;
+        saveTimerRef.current = setTimeout(() => {
+          void triggerSave();
+        }, 300);
+      }
+    }
+  }, [companyId, onOpportunityUpdated]);
+
+  function scheduleAutoSave(delay = 800) {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      void triggerSave();
+    }, delay);
+  }
+
+  function handleEdit(value: Partial<Work>) {
+    setDraft((prev) => {
+      const next = { ...prev, ...value };
+      draftRef.current = next;
+      return next;
+    });
+    setDirty(true);
+    dirtyRef.current = true;
+    setSaveStatus("saving");
+    setSaveError("");
+    scheduleAutoSave();
+  }
+
+  function handleBack() {
+    if (dirtyRef.current && saveStatus !== "conflict") {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      void triggerSave();
+    }
+    onBack();
+  }
+
+  function handleStageSwitch(nextStage: TenderWorkspaceStage) {
+    if (dirtyRef.current && saveStatus !== "conflict") {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      void triggerSave();
+    }
+    setStage(nextStage);
+  }
+
+  const seaceUrl = safeHttpsUrl(opportunity?.alert.sourceUrl ?? item.sourceUrl);
+  const title = item.displayTitle || opportunity?.alert.displayTitle || item.description?.trim() || "Licitación sin título";
+  const officialDescription = item.description || opportunity?.alert.description || "";
+  const buyer = item.buyer || opportunity?.alert.buyer || "No especificado";
+  const deadline = formatDeadline(item.deadline || opportunity?.alert.deadline) || "No especificado";
+  const amount = item.amount || opportunity?.alert.amount || "No especificado";
+  const isSaved = Boolean(item.interesting || opportunity?.selection === "interesting");
+
+  const factsNote = !isSaved
     ? "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
-    : hasWorkspace
+    : opportunity
       ? "Guardada por tu equipo desde WhatsApp."
-      : "El acceso a la propuesta de esta convocatoria aún no está disponible.";
+      : "Esta convocatoria aún no figura sincronizada para edición en tu cuenta.";
 
   return (
     <article className="space-y-6 wrap-anywhere" aria-labelledby="tender-case-title">
-      <button
-        type="button"
-        onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline-offset-4 hover:underline"
-      >
-        <span aria-hidden="true">←</span> Volver a licitaciones
-      </button>
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline-offset-4 hover:underline"
+        >
+          <span aria-hidden="true">←</span> Volver a licitaciones
+        </button>
 
-      <header className="space-y-3 rounded-2xl border border-line bg-white px-5 py-5 sm:px-6">
+        {opportunity && (
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            {saveStatus === "saving" && (
+              <span role="status" className="chip border border-line bg-surface-subtle text-ink-muted">
+                Guardando…
+              </span>
+            )}
+            {saveStatus === "saved" && !dirty && (
+              <span className="chip border border-line-mint bg-mint-light text-forest">
+                Guardado · v{opportunity.version}
+              </span>
+            )}
+            {(saveStatus === "error" || saveStatus === "conflict") && (
+              <span role="alert" className="chip border border-red-200 bg-red-50 text-red-800">
+                {saveStatus === "conflict" ? "Conflicto de versión" : "Error al guardar"}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <header className="space-y-3 rounded-2xl border border-line bg-white px-5 py-5 sm:px-6 print:hidden">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mint">
             <img
@@ -69,7 +253,7 @@ export function TenderCase({
           <span className="text-sm font-semibold text-ink-muted">
             Ficha de licitación · Tender Cat
           </span>
-          {item.interesting ? (
+          {isSaved ? (
             <span className="chip border border-line-mint bg-mint-light text-forest">
               Guardada
             </span>
@@ -78,25 +262,57 @@ export function TenderCase({
               No guardada
             </span>
           )}
+          {opportunity?.alert.code && (
+            <span className="chip border border-line bg-surface-subtle text-ink-2">
+              {opportunity.alert.code}
+            </span>
+          )}
         </div>
 
-        <h1
-          id="tender-case-title"
-          className="text-2xl tracking-tight text-ink sm:text-3xl"
-        >
-          {item.displayTitle || item.description?.trim() || "Licitación sin título"}
+        <h1 id="tender-case-title" className="text-2xl tracking-tight text-ink sm:text-3xl">
+          {title}
         </h1>
-        {item.displayTitle && item.description && item.description !== item.displayTitle && (
+        {officialDescription && officialDescription !== title && (
           <details className="text-sm text-ink-muted">
             <summary className="w-fit cursor-pointer font-medium text-forest">Ver descripción oficial</summary>
-            <p className="mt-2 leading-relaxed">{item.description}</p>
+            <p className="mt-2 leading-relaxed">{officialDescription}</p>
           </details>
         )}
       </header>
 
+      {saveError && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-900 print:hidden"
+        >
+          <span>{saveError}</span>
+          {saveStatus === "conflict" ? (
+            <button
+              type="button"
+              onClick={() => {
+                setDirty(false);
+                dirtyRef.current = false;
+                onReloadOpportunity();
+              }}
+              className="btn-secondary min-h-10 px-4 py-2 text-sm"
+            >
+              Recargar expediente
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void triggerSave()}
+              className="btn-secondary min-h-10 px-4 py-2 text-sm"
+            >
+              Reintentar guardado
+            </button>
+          )}
+        </div>
+      )}
+
       <section
         aria-labelledby="tender-facts-heading"
-        className="overflow-hidden rounded-2xl border border-line bg-white"
+        className="overflow-hidden rounded-2xl border border-line bg-white print:hidden"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
           <h2 id="tender-facts-heading" className="text-xl text-ink">
@@ -119,23 +335,17 @@ export function TenderCase({
         <dl className="grid grid-cols-1 sm:grid-cols-3">
           <div className="min-w-0 px-5 py-4">
             <dt className="text-sm text-ink-muted">Comprador</dt>
-            <dd className="mt-1 text-base font-semibold text-ink">
-              {item.buyer || "No especificado"}
-            </dd>
+            <dd className="mt-1 text-base font-semibold text-ink">{buyer}</dd>
           </div>
 
           <div className="min-w-0 border-t border-line px-5 py-4 sm:border-l sm:border-t-0">
             <dt className="text-sm text-ink-muted">Plazo / Cierre</dt>
-            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">
-              {formatDeadline(item.deadline) || "No especificado"}
-            </dd>
+            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">{deadline}</dd>
           </div>
 
           <div className="min-w-0 border-t border-line px-5 py-4 sm:border-l sm:border-t-0">
             <dt className="text-sm text-ink-muted">Monto referencial</dt>
-            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">
-              {item.amount || "No especificado"}
-            </dd>
+            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">{amount}</dd>
           </div>
         </dl>
 
@@ -144,51 +354,96 @@ export function TenderCase({
         </p>
       </section>
 
-      {hasWorkspace && (
-        <section
-          aria-labelledby="tender-workspace-heading"
-          className="overflow-hidden rounded-2xl border border-line bg-white"
-        >
-          <div className="border-b border-line px-5 py-3.5">
-            <h2 id="tender-workspace-heading" className="text-xl text-ink">
-              Preparar propuesta
-            </h2>
+      {loadingOpportunity && !opportunity && (
+        <div className="h-48 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando expediente" />
+      )}
+
+      {opportunityError && !opportunity && !loadingOpportunity && (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink-2">
+          <span>{opportunityError}</span>
+          <button type="button" onClick={onReloadOpportunity} className="btn-secondary min-h-10 px-4 py-2 text-sm">
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {opportunity && !opportunity.basesUploaded && (
+        <TenderBases
+          companyId={companyId}
+          opportunity={opportunity}
+          onOpportunityUpdated={onOpportunityUpdated}
+        />
+      )}
+
+      {opportunity && opportunity.basesUploaded && (
+        <div className="space-y-5">
+          <div
+            className="grid w-full grid-cols-3 gap-1 rounded-[12px] bg-surface-subtle p-1 sm:w-fit print:hidden"
+            role="group"
+            aria-label="Etapas del expediente"
+          >
+            {STAGES.map((entry) => (
+              <button
+                key={entry.key}
+                type="button"
+                aria-pressed={activeStage === entry.key}
+                onClick={() => handleStageSwitch(entry.key)}
+                className={`min-h-10 rounded-[10px] px-3 py-2 text-xs font-semibold transition-colors sm:px-4 sm:text-sm ${
+                  activeStage === entry.key
+                    ? "bg-white text-forest shadow-soft"
+                    : "text-ink-muted hover:text-ink"
+                }`}
+              >
+                {entry.label}
+              </button>
+            ))}
           </div>
 
-          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap">
-            {quoteHref && (
-              <a
-                href={quoteHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary min-h-11 w-full sm:w-auto"
-              >
-                <Icon name="invoice" className="h-4 w-4" />
-                Cotización
-                <Icon name="external" className="h-4 w-4" />
-                <span className="sr-only">(se abre en otra pestaña)</span>
-              </a>
-            )}
+          {activeStage === "bases" && (
+            <div className="space-y-5">
+              <TenderBases
+                companyId={companyId}
+                opportunity={opportunity}
+                onOpportunityUpdated={onOpportunityUpdated}
+              />
 
-            {documentsHref && (
-              <a
-                href={documentsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary min-h-11 w-full border border-line bg-white hover:bg-surface-subtle sm:w-auto"
-              >
-                <Icon name="radar" className="h-4 w-4" />
-                Expediente para OECE
-                <Icon name="external" className="h-4 w-4" />
-                <span className="sr-only">(se abre en otra pestaña)</span>
-              </a>
-            )}
-          </div>
+              <section className="space-y-3 rounded-2xl border border-line bg-white p-5">
+                <label className="block space-y-1.5">
+                  <span className="text-base font-semibold text-ink">Notas del expediente</span>
+                  <span className="block text-xs text-ink-muted">
+                    Apuntes internos de tu equipo sobre esta licitación (se guardan automáticamente).
+                  </span>
+                  <textarea
+                    rows={4}
+                    value={draft.notes ?? ""}
+                    onChange={(e) => handleEdit({ notes: e.target.value })}
+                    placeholder="Anota plazos clave, condiciones de entrega o acuerdos internos…"
+                    className="field mt-2 text-sm"
+                  />
+                </label>
+              </section>
+            </div>
+          )}
 
-          <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
-            Si faltan las bases, RADAR te pedirá que adjuntes el archivo al abrir la propuesta.
-          </p>
-        </section>
+          {activeStage === "quote" && (
+            <TenderQuote
+              companyId={companyId}
+              opportunity={opportunity}
+              work={draft}
+              onEdit={handleEdit}
+            />
+          )}
+
+          {activeStage === "documents" && (
+            <TenderDocuments
+              companyId={companyId}
+              opportunity={opportunity}
+              work={draft}
+              dirty={dirty}
+              onEdit={handleEdit}
+            />
+          )}
+        </div>
       )}
     </article>
   );

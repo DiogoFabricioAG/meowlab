@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { agentLogo, type Weekly } from "./agents";
 import { formatDeadline, formatWeekRange } from "./tenderDates";
+import type { TenderOpportunity } from "./tenderApi";
 import { Icon } from "./icons";
 
 type TenderHighlight = Weekly["tender"]["highlights"][number];
@@ -10,22 +11,32 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 /**
  * Tender Cat's weekly highlights list: command-centre KPIs, real weekly highlights with
- * «Todas / Guardadas» toggle buttons (aria-pressed), and row selection via onSelect.
+ * «Todas / Guardadas» toggle buttons (aria-pressed), plus historical saved cases when passed.
  */
 export function TenderList({
   weekly,
+  savedOpportunities = [],
   onBack,
   onSelect,
+  onSelectOpportunity,
 }: {
   weekly: Weekly | null;
+  savedOpportunities?: TenderOpportunity[];
   onBack: () => void;
   onSelect: (item: TenderHighlight) => void;
+  onSelectOpportunity?: (op: TenderOpportunity) => void;
 }) {
   const [filter, setFilter] = useState<TenderFilter>("all");
 
   const tender = weekly?.tender ?? null;
   const highlights = tender?.highlights ?? [];
-  const showActivity = tender && (tender.enabled || tender.found > 0 || highlights.length > 0);
+  const highlightOcids = new Set(highlights.map((h) => h.ocid).filter(Boolean));
+  const historicalSaved = savedOpportunities.filter(
+    (op) => op.selection === "interesting" && !op.hidden && (!op.alert.ocid || !highlightOcids.has(op.alert.ocid)),
+  );
+  const showActivity = Boolean(
+    tender && (tender.enabled || tender.found > 0 || highlights.length > 0 || historicalSaved.length > 0),
+  );
   const savedItems = highlights.filter((item) => item.interesting);
   const visible = filter === "saved" ? savedItems : highlights;
   const weekLabel = weekly ? formatWeekRange(weekly.week?.start, weekly.week?.end) : null;
@@ -60,10 +71,10 @@ export function TenderList({
               ? "Revisando las licitaciones de esta semana…"
               : !showActivity
                 ? "Tender Cat no está activo para esta empresa."
-                : tender.found === 0
+                : tender && tender.found === 0 && historicalSaved.length === 0
                   ? "Esta semana no encontró licitaciones nuevas."
-                  : `Esta semana encontró ${plural(tender.found, "licitación", "licitaciones")}${
-                      tender.interesting > 0 ? ` · ${plural(tender.interesting, "guardada", "guardadas")}` : ""
+                  : `Esta semana encontró ${plural(tender?.found ?? 0, "licitación", "licitaciones")}${
+                      (tender?.interesting ?? 0) > 0 ? ` · ${plural(tender!.interesting, "guardada", "guardadas")}` : ""
                     }.`}
           </p>
         </div>
@@ -92,19 +103,19 @@ export function TenderList({
               <div className="min-w-0 px-5 py-4">
                 <dt className="text-sm text-ink-muted">Encontradas</dt>
                 <dd className="mt-1 text-2xl font-semibold tracking-tight text-ink tabular-nums sm:text-[28px]">
-                  {tender.found}
+                  {tender?.found ?? 0}
                 </dd>
               </div>
               <div className="min-w-0 border-l border-line px-5 py-4">
                 <dt className="text-sm text-ink-muted">Hoy</dt>
                 <dd className="mt-1 text-2xl font-semibold tracking-tight text-ink tabular-nums sm:text-[28px]">
-                  {tender.foundToday}
+                  {tender?.foundToday ?? 0}
                 </dd>
               </div>
               <div className="col-span-2 min-w-0 border-t border-line px-5 py-4 sm:col-span-1 sm:border-t-0 sm:border-l">
                 <dt className="text-sm text-ink-muted">Guardadas</dt>
                 <dd className="mt-1 text-2xl font-semibold tracking-tight text-forest tabular-nums sm:text-[28px]">
-                  {tender.interesting}
+                  {tender?.interesting ?? 0}
                 </dd>
               </div>
             </dl>
@@ -215,6 +226,61 @@ export function TenderList({
               Las marcas «Me interesa» se eligen desde el aviso en WhatsApp.
             </p>
           </section>
+
+          {historicalSaved.length > 0 && onSelectOpportunity && (
+            <section
+              className="overflow-hidden rounded-2xl border border-line bg-white"
+              aria-labelledby="tender-historical-title"
+            >
+              <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-3.5">
+                <h2 id="tender-historical-title" className="text-xl text-ink">
+                  Guardadas anteriores ({historicalSaved.length})
+                </h2>
+              </header>
+              <ul className="divide-y divide-line">
+                {historicalSaved.map((op) => {
+                  const title = op.alert.displayTitle || op.alert.description?.trim() || op.alert.code;
+                  const deadline = formatDeadline(op.alert.deadline);
+                  const meta = [op.alert.buyer, deadline ? `Cierra ${deadline}` : "", op.alert.amount]
+                    .filter(Boolean);
+                  return (
+                    <li key={op.id}>
+                      <button
+                        type="button"
+                        onClick={() => onSelectOpportunity(op)}
+                        className="flex min-h-11 w-full items-start justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-forest"
+                      >
+                        <span className="flex min-w-0 items-start gap-3">
+                          <span
+                            aria-hidden="true"
+                            className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-mint text-forest"
+                          >
+                            <Icon name="star" className="h-4 w-4" />
+                          </span>
+                          <span className="block min-w-0 space-y-1.5">
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className="wrap-anywhere font-semibold text-ink">{title}</span>
+                              <span className="chip border border-line-mint bg-mint-light text-forest">
+                                {op.basesUploaded ? "Con bases" : "Falta bases"}
+                              </span>
+                            </span>
+                            {meta.length > 0 && (
+                              <span className="block wrap-anywhere text-sm text-ink-muted">
+                                {meta.join(" · ")}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                        <span className="mt-1 shrink-0 text-sm font-semibold text-forest">
+                          Abrir <span aria-hidden="true">→</span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
         </>
       )}
     </div>
