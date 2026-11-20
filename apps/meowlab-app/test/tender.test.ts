@@ -44,6 +44,22 @@ describe("Tender Cat through the portal", () => {
     expect(new Uint8Array(await result.arrayBuffer())).toEqual(bytes);
   });
 
+  it("forwards the replace query parameter when replacing uploaded bases", async () => {
+    const bytes = new Uint8Array([37, 80, 68, 70]);
+    const send = vi.fn<typeof fetch>(async (url) => {
+      expect(String(url)).toBe(
+        "http://private-tender/api/workspace/opportunities/a/bases?filename=nueva.pdf&replace=base-1",
+      );
+      return Response.json({ id: "a", basesUploaded: true });
+    });
+    const result = await setup(send).request(
+      path + "opportunities/a/bases?filename=nueva.pdf&replace=base-1&extra=ignored",
+      { method: "POST", body: bytes, headers: { origin } },
+    );
+    expect(result.status).toBe(200);
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
   it("returns version conflicts to the editor and hides private service errors", async () => {
     const send = vi.fn().mockResolvedValueOnce(Response.json({ detail: "draft conflict" }, { status: 409 }))
       .mockResolvedValueOnce(new Response("internal details", { status: 500 }));

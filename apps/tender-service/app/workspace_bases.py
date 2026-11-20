@@ -114,10 +114,8 @@ def extract_uploaded(rows):
 
 
 @router.post('/opportunities/{key}/bases')
-async def upload_bases(key: str, request: Request, filename: str, owner: str = Depends(account), db: Session = Depends(get_db)):
-    item = db.scalar(select(WebOpportunity).where(WebOpportunity.account == owner, WebOpportunity.key == key).with_for_update())
-    if not item:
-        raise HTTPException(404, "Esta licitación no está disponible en tu cuenta.")
+async def upload_bases(key: str, request: Request, filename: str, replace: str | None = None,
+                       owner: str = Depends(account), db: Session = Depends(get_db)):
     body = bytearray()
     async for chunk in request.stream():
         if len(body) + len(chunk) > MAX_BYTES:
@@ -127,14 +125,23 @@ async def upload_bases(key: str, request: Request, filename: str, owner: str = D
     validate_file(filename, body)
     digest = hashlib.sha256(body).hexdigest()
     identifier = hashlib.sha256(f'{owner}:{key}:{digest}'.encode()).hexdigest()
+    item = db.scalar(select(WebOpportunity).where(WebOpportunity.account == owner, WebOpportunity.key == key).with_for_update())
+    if not item:
+        raise HTTPException(404, "Esta licitación no está disponible en tu cuenta.")
     existing = db.get(UploadedBases, identifier)
+    previous = db.get(UploadedBases, replace) if replace else None
+    if replace and (not previous or previous.account != owner or previous.opportunity != key):
+        raise HTTPException(404, "Las bases cambiaron. Recarga la convocatoria antes de reemplazarlas.")
     if not existing:
-        rows = files_for(db, owner, key)
+        rows = [row for row in files_for(db, owner, key) if row.id != replace]
         if len(rows) >= MAX_FILES or sum(len(r.body) for r in rows) + len(body) > MAX_TOTAL_BYTES:
             raise HTTPException(413, "Puedes subir hasta ocho archivos y 60 MB en total por licitación.")
         db.add(UploadedBases(id=identifier, account=owner, opportunity=key, filename=filename,
                             sha256=digest, body=body, created_at=int(time.time())))
-        db.flush()
+    if previous and previous.id != identifier:
+        db.delete(previous)
+        invalidate_bases_analysis(db, owner, key)
+    db.flush()
     from .preparation import enqueue_selected
     enqueue_selected(db, owner, [key])
     db.commit()
@@ -159,7 +166,17 @@ def remove_bases(key: str, identifier: str, owner: str = Depends(account), db: S
     if not item or not row:
         raise HTTPException(404, "Ese archivo no está disponible en tu cuenta.")
     db.delete(row)
-    from .preparation import PreparationJob, enqueue_selected
+    invalidate_bases_analysis(db, owner, key)
+    db.flush()
+    from .preparation import enqueue_selected
+    enqueue_selected(db, owner, [key])
+    db.commit()
+    from .workspace import present
+    return present(item)
+
+
+def invalidate_bases_analysis(db: Session, owner: str, key: str):
+    from .preparation import PreparationJob
     # Remove extracted text, findings and queued jobs; stale workers cannot publish.
     db.execute(delete(PreparationJob).where(PreparationJob.account == owner, PreparationJob.opportunity == key))
     from .tender_market import MarketReferences
@@ -172,8 +189,3 @@ def remove_bases(key: str, identifier: str, owner: str = Depends(account), db: S
         db.add(context)
     else:
         context.version = uuid4().hex
-    db.flush()
-    enqueue_selected(db, owner, [key])
-    db.commit()
-    from .workspace import present
-    return present(item)

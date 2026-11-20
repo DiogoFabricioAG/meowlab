@@ -8,7 +8,7 @@ import { TenderCase, type TenderHighlight, type TenderWorkspaceStage } from "./T
 function readHashParams(): { id: string | null; stage: TenderWorkspaceStage } {
   const params = new URLSearchParams(window.location.hash.slice(1));
   const rawStage = params.get("vista");
-  const stage: TenderWorkspaceStage = rawStage === "quote" || rawStage === "documents" ? rawStage : "bases";
+  const stage: TenderWorkspaceStage = rawStage === "documents" ? "documents" : "quote";
   return { id: params.get("licitacion"), stage };
 }
 
@@ -79,11 +79,11 @@ export function TenderPanel({
     return () => controller.abort();
   }, [companyId, reloadTick]);
 
-  const updateHash = useCallback((nextId: string | null, nextStage: TenderWorkspaceStage = "bases") => {
+  const updateHash = useCallback((nextId: string | null, nextStage: TenderWorkspaceStage = "quote") => {
     const url = new URL(window.location.href);
     if (nextId) {
       const params = new URLSearchParams({ licitacion: nextId });
-      if (nextStage !== "bases") params.set("vista", nextStage);
+      if (nextStage !== "quote") params.set("vista", nextStage);
       url.hash = params.toString();
     } else {
       url.hash = "";
@@ -93,14 +93,14 @@ export function TenderPanel({
   }, []);
 
   function openHighlight(item: TenderHighlight | null) {
-    updateHash(item?.ocid ?? null, "bases");
+    updateHash(item?.ocid ?? null, "quote");
     setLegacyItem(item?.ocid ? null : item);
     window.scrollTo(0, 0);
   }
 
   function openOpportunity(op: TenderOpportunity) {
     const key = op.alert.ocid ?? op.id;
-    updateHash(key, "bases");
+    updateHash(key, "quote");
     setLegacyItem(null);
     window.scrollTo(0, 0);
   }

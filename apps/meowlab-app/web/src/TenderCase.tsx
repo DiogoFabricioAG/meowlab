@@ -8,7 +8,7 @@ import { portalTenderUrl, tenderApi, TenderApiError, type TenderOpportunity, typ
 import { formatDeadline } from "./tenderDates";
 
 export type TenderHighlight = Weekly["tender"]["highlights"][number];
-export type TenderWorkspaceStage = "bases" | "quote" | "documents";
+export type TenderWorkspaceStage = "quote" | "documents";
 
 function safeHttpsUrl(raw: string | null | undefined): string | null {
   const value = raw?.trim();
@@ -22,7 +22,6 @@ function safeHttpsUrl(raw: string | null | undefined): string | null {
 }
 
 const STAGES: Array<{ key: TenderWorkspaceStage; label: string }> = [
-  { key: "bases", label: "Resumen y bases" },
   { key: "quote", label: "Cotización" },
   { key: "documents", label: "Expediente" },
 ];
@@ -37,7 +36,7 @@ export function TenderCase({
   opportunity,
   loadingOpportunity = false,
   opportunityError = "",
-  stage = "bases",
+  stage = "quote",
   onStageChange,
   onBack,
   onOpportunityUpdated,
@@ -239,7 +238,6 @@ export function TenderCase({
 
   const seaceUrl = safeHttpsUrl(opportunity?.alert.sourceUrl ?? item.sourceUrl);
   const title = item.displayTitle || opportunity?.alert.displayTitle || item.description?.trim() || "Licitación sin título";
-  const officialDescription = item.description || opportunity?.alert.description || "";
   const buyer = item.buyer || opportunity?.alert.buyer || "No especificado";
   const deadline = formatDeadline(item.deadline || opportunity?.alert.deadline) || "No especificado";
   const amount = item.amount || opportunity?.alert.amount || "No especificado";
@@ -248,7 +246,7 @@ export function TenderCase({
   const factsNote = !isSaved
     ? "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
     : opportunity
-      ? "Guardada por tu equipo desde WhatsApp."
+      ? ""
       : "Esta convocatoria aún no figura sincronizada para edición en tu cuenta.";
 
   return (
@@ -330,15 +328,9 @@ export function TenderCase({
           )}
         </div>
 
-        <h1 id="tender-case-title" className="text-2xl tracking-tight text-ink sm:text-3xl">
+        <h1 id="tender-case-title" className="w-full text-3xl leading-tight tracking-tight text-ink sm:text-4xl [text-wrap:normal]">
           {title}
         </h1>
-        {officialDescription && officialDescription !== title && (
-          <details className="text-sm text-ink-muted">
-            <summary className="w-fit cursor-pointer font-medium text-forest">Ver descripción oficial</summary>
-            <p className="mt-2 leading-relaxed">{officialDescription}</p>
-          </details>
-        )}
       </header>
 
       {hiddenError && (
@@ -425,47 +417,59 @@ export function TenderCase({
           </div>
         </dl>
 
-        <div className="space-y-2 border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span>{factsNote}</span>
-            {isSaved && !opportunity && !loadingOpportunity && !opportunityError && onSync && (
-              <button
-                type="button"
-                disabled={syncing}
-                onClick={() => void onSync()}
-                className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
-              >
-                {syncing ? "Sincronizando…" : "Sincronizar ahora"}
-              </button>
+        {opportunity && (
+          <TenderBases
+            companyId={companyId}
+            opportunity={opportunity}
+            onOpportunityUpdated={onOpportunityUpdated}
+          />
+        )}
+
+        {(factsNote || (isSaved && !opportunity && !loadingOpportunity && !opportunityError && onSync) || syncError || (opportunity?.documents && opportunity.documents.length > 0)) && (
+          <div className="space-y-2 border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
+            {(factsNote || (isSaved && !opportunity && !loadingOpportunity && !opportunityError && onSync)) && (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                {factsNote && <span>{factsNote}</span>}
+                {isSaved && !opportunity && !loadingOpportunity && !opportunityError && onSync && (
+                  <button
+                    type="button"
+                    disabled={syncing}
+                    onClick={() => void onSync()}
+                    className="btn-secondary min-h-9 px-3 py-1.5 text-xs"
+                  >
+                    {syncing ? "Sincronizando…" : "Sincronizar ahora"}
+                  </button>
+                )}
+              </div>
+            )}
+            {syncError && (
+              <p role="alert" className="text-red-700">
+                {syncError}
+              </p>
+            )}
+            {opportunity?.documents && opportunity.documents.length > 0 && (
+              <ul className="flex flex-wrap gap-3 pt-1">
+                {opportunity.documents.map((doc, idx) => {
+                  const href = portalTenderUrl(companyId, doc.url);
+                  if (!href) return null;
+                  return (
+                    <li key={`${doc.title}-${idx}`}>
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-semibold text-forest underline underline-offset-2"
+                      >
+                        {doc.title || "Documento oficial"}
+                        <span className="sr-only"> (se abre en otra pestaña)</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
-          {syncError && (
-            <p role="alert" className="text-red-700">
-              {syncError}
-            </p>
-          )}
-          {opportunity?.documents && opportunity.documents.length > 0 && (
-            <ul className="flex flex-wrap gap-3 pt-1">
-              {opportunity.documents.map((doc, idx) => {
-                const href = portalTenderUrl(companyId, doc.url);
-                if (!href) return null;
-                return (
-                  <li key={`${doc.title}-${idx}`}>
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-semibold text-forest underline underline-offset-2"
-                    >
-                      {doc.title || "Documento oficial"}
-                      <span className="sr-only"> (se abre en otra pestaña)</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        )}
       </section>
 
       {loadingOpportunity && !opportunity && (
@@ -481,18 +485,10 @@ export function TenderCase({
         </div>
       )}
 
-      {opportunity && !opportunity.basesUploaded && (
-        <TenderBases
-          companyId={companyId}
-          opportunity={opportunity}
-          onOpportunityUpdated={onOpportunityUpdated}
-        />
-      )}
-
       {opportunity && opportunity.basesUploaded && (
         <div className="space-y-5">
           <div
-            className="grid w-full grid-cols-3 gap-1 rounded-[12px] bg-surface-subtle p-1 sm:w-fit print:hidden"
+            className="grid w-full grid-cols-2 gap-1 rounded-[12px] bg-surface-subtle p-1 sm:w-fit print:hidden"
             role="group"
             aria-label="Etapas del expediente"
           >
@@ -513,34 +509,9 @@ export function TenderCase({
             ))}
           </div>
 
-          {activeStage === "bases" && (
-            <div className="space-y-5">
-              <TenderBases
-                companyId={companyId}
-                opportunity={opportunity}
-                onOpportunityUpdated={onOpportunityUpdated}
-              />
-
-              <section className="space-y-3 rounded-2xl border border-line bg-white p-5">
-                <label className="block space-y-1.5">
-                  <span className="text-base font-semibold text-ink">Notas del expediente</span>
-                  <span className="block text-xs text-ink-muted">
-                    Apuntes internos de tu equipo sobre esta licitación (se guardan automáticamente).
-                  </span>
-                  <textarea
-                    rows={4}
-                    value={draft.notes ?? ""}
-                    onChange={(e) => handleEdit({ notes: e.target.value })}
-                    placeholder="Anota plazos clave, condiciones de entrega o acuerdos internos…"
-                    className="field mt-2 text-sm"
-                  />
-                </label>
-              </section>
-            </div>
-          )}
-
           {activeStage === "quote" && (
             <TenderQuote
+              key={`${opportunity.id}:${opportunity.knowledgeVersion ?? ""}`}
               companyId={companyId}
               opportunity={opportunity}
               work={draft}
@@ -550,6 +521,7 @@ export function TenderCase({
 
           {activeStage === "documents" && (
             <TenderDocuments
+              key={`${opportunity.id}:${opportunity.knowledgeVersion ?? ""}`}
               companyId={companyId}
               opportunity={opportunity}
               work={draft}

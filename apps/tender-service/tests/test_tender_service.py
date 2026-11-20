@@ -356,3 +356,108 @@ def test_sync_preserves_preexisting_row_cursor_work_and_bases(service_client, mo
     assert workspace.safe_source("https://prod4.seace.gob.pe:8086/api/test") is None
     assert workspace.safe_source("https://evil.seace.gob.pe/test") is None
 
+
+def test_replace_bases_atomic_preserves_work_and_enforces_isolation(service_client):
+    client, factory, _ = service_client
+    ocid = "ocds-dgv273-seacev3-888"
+    h = _headers()
+
+    # Seed opportunity with two bases and saved work (quotes + documentEdits).
+    with factory() as db:
+        opp = workspace.WebOpportunity(
+            key=hashlib.sha256(f"{OWNER}\0{ocid}".encode()).hexdigest(),
+            account=OWNER,
+            ocid=ocid,
+            revision=1,
+            selection="interesting",
+            candidate={"alert": {"ocid": ocid, "code": "AS-888", "description": "Compra de prueba"}},
+            work={
+                "quotes": [{"description": "Item 1", "quantity": "2", "unit": "und", "price": "50", "currency": "PEN", "source": "Manual"}],
+                "documentEdits": {"doc-1": "Borrador intacto"},
+                "checklist": ["doc-1"],
+            },
+            work_version=4,
+            hidden=False,
+        )
+        db.add(opp)
+        db.commit()
+        key = opp.key
+
+    pdf_one = _pdf_bytes("Bases iniciales uno")
+    pdf_two = _pdf_bytes("Bases iniciales dos")
+    r1 = client.post(f"/api/workspace/opportunities/{key}/bases?filename=bases_1.pdf", headers=h, content=pdf_one)
+    assert r1.status_code == 200
+    r2 = client.post(f"/api/workspace/opportunities/{key}/bases?filename=bases_2.pdf", headers=h, content=pdf_two)
+    assert r2.status_code == 200
+    data_before = r2.json()
+    assert len(data_before["uploadedBases"]) == 2
+    base1_id = data_before["uploadedBases"][0]["id"]
+    base2_id = data_before["uploadedBases"][1]["id"]
+    version_before = data_before["knowledgeVersion"]
+
+    # 1. Invalid replacement file (bad extension / bad bytes) preserves previous files, version and work.
+    bad_ext = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=malicioso.exe&replace={base1_id}",
+        headers=h,
+        content=b"MZ\x90\x00not-a-pdf",
+    )
+    assert bad_ext.status_code == 422
+    bad_bytes = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=falso.pdf&replace={base1_id}",
+        headers=h,
+        content=b"<html>not a pdf</html>",
+    )
+    assert bad_bytes.status_code == 422
+    still_there = client.get(f"/api/workspace/opportunities/{key}/bases/{base1_id}", headers=h)
+    assert still_there.status_code == 200
+    assert still_there.content == pdf_one
+
+    # 2. Cross-company / unknown replace target is rejected.
+    other_headers = {**h, "X-MeowLab-Company": "company-b"}
+    cross = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=otra.pdf&replace={base1_id}",
+        headers=other_headers,
+        content=_pdf_bytes("Intento ajeno"),
+    )
+    assert cross.status_code in (403, 404)
+    missing_target = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=otra.pdf&replace=inexistente",
+        headers=h,
+        content=_pdf_bytes("Destino inexistente"),
+    )
+    assert missing_target.status_code == 404
+
+    # 3. Valid replacement atomically swaps base1_id, keeps base2_id, preserves work, bumps knowledgeVersion & enqueues job.
+    pdf_new = _pdf_bytes("Bases actualizadas v2")
+    replaced = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=bases_1_v2.pdf&replace={base1_id}",
+        headers=h,
+        content=pdf_new,
+    )
+    assert replaced.status_code == 200
+    after = replaced.json()
+    after_ids = [b["id"] for b in after["uploadedBases"]]
+    assert base1_id not in after_ids
+    assert base2_id in after_ids
+    assert len(after_ids) == 2
+    assert after["knowledgeVersion"] != version_before
+    assert after["work"]["quotes"][0]["price"] == "50"
+    assert after["work"]["documentEdits"] == {"doc-1": "Borrador intacto"}
+    new_base_id = [b["id"] for b in after["uploadedBases"] if b["id"] != base2_id][0]
+    assert client.get(f"/api/workspace/opportunities/{key}/bases/{base1_id}", headers=h).status_code == 404
+    assert client.get(f"/api/workspace/opportunities/{key}/bases/{new_base_id}", headers=h).content == pdf_new
+
+    with factory() as db:
+        job = db.scalar(select(prep.PreparationJob).where(prep.PreparationJob.account == OWNER, prep.PreparationJob.opportunity == key))
+        assert job is not None
+
+    # 4. Repeating replacement with the exact same file is idempotent.
+    repeat = client.post(
+        f"/api/workspace/opportunities/{key}/bases?filename=bases_1_v2.pdf&replace={new_base_id}",
+        headers=h,
+        content=pdf_new,
+    )
+    assert repeat.status_code == 200
+    assert new_base_id in [b["id"] for b in repeat.json()["uploadedBases"]]
+
+

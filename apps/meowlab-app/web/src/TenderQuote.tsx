@@ -57,11 +57,6 @@ function automaticStatusNotice(
         text: "No se pudo completar la búsqueda automática de precios. Puedes reintentar manualmente o ingresar tus precios.",
         retryable: true,
       };
-    case "complete":
-      return {
-        tone: "done",
-        text: "Búsqueda automática de precios completada.",
-      };
     case "disabled":
       return {
         tone: "muted",
@@ -97,7 +92,7 @@ export function TenderQuote({
   work: Work;
   onEdit: (value: Partial<Work>) => void;
 }) {
-  const { data, error, busy, refresh, analyze } = useTenderWork(companyId, opportunity.id);
+  const { data, error, refresh } = useTenderWork(companyId, opportunity.id);
   const [references, setReferences] = useState<Record<string, MarketReference[]>>({});
   const [automaticStatus, setAutomaticStatus] = useState<MarketAutomaticStatus | string | null>(null);
   const [marketCycle, setMarketCycle] = useState(0);
@@ -342,14 +337,6 @@ export function TenderQuote({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void analyze()}
-              className="btn-secondary min-h-10 px-4 py-2 text-sm"
-            >
-              {busy ? "Solicitando…" : "Analizar bases"}
-            </button>
             <button
               type="button"
               disabled={!!searching || !requirements.length || autoPending}
@@ -648,18 +635,6 @@ export function TenderQuote({
                   : "Falta confirmar cantidad y unidad de esta partida en las bases."}
               </p>
             </div>
-            {(!editing?.quantity || !editing?.unit) && (
-              <button
-                type="button"
-                onClick={() => {
-                  closeEditor();
-                  void analyze();
-                }}
-                className="btn-secondary min-h-10 px-4 py-2 text-sm"
-              >
-                Releer bases
-              </button>
-            )}
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block space-y-1 text-sm">

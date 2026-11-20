@@ -18,8 +18,11 @@ export function createTenderService(origin: string | undefined, token: string | 
     if (!operations[request.method]?.test(suffix)) return Response.json({ error: "unknown_operation" }, { status: 404 });
     const url = new URL("/api/workspace/" + suffix, base);
     const query = new URL(request.url).searchParams;
-    if (request.method === "POST" && suffix.endsWith("/bases") && query.has("filename")) {
-      url.searchParams.set("filename", query.get("filename")!);
+    if (request.method === "POST" && suffix.endsWith("/bases")) {
+      for (const name of ["filename", "replace"]) {
+        const value = query.get(name);
+        if (value !== null) url.searchParams.set(name, value);
+      }
     }
     const headers = new Headers({ Authorization: "Bearer " + token, "X-MeowLab-Company": company });
     const type = request.headers.get("content-type");
