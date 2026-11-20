@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from . import bases_rag, preparation, tender_market, tender_work, whatsapp_bases, workspace_bases  # noqa: F401
 from .database import Base, SessionLocal, engine, get_db
+from .market_worker import MarketWorker
 from .security import read_secret
 from .workspace import router as workspace_router
 
@@ -26,9 +27,17 @@ async def lifespan(_: FastAPI):
         if owner and len(owner) <= 100 and read_secret("RADAR_MEOWLAB_TOKEN"):
             worker = preparation.PreparationWorker(SessionLocal, owner)
             worker.start()
+    market = None
+    if os.getenv("TENDER_MARKET_ENABLED") == "1":
+        owner = os.getenv("RADAR_WEB_ACCOUNT", "").strip()
+        if owner and read_secret("RADAR_OPENAI_API_KEY"):
+            market = MarketWorker(SessionLocal, owner)
+            market.start()
     try:
         yield
     finally:
+        if market:
+            market.stop()
         if worker:
             worker.stop()
 

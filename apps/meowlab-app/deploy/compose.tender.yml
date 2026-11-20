@@ -19,6 +19,7 @@ services:
       # The current pilot workers already consume this database and WhatsApp queue.
       RADAR_PREPARATION_ENABLED: "0"
       RADAR_DISCOVERY_ENABLED: "0"
+      TENDER_MARKET_ENABLED: "1"
     secrets:
       - tender_service_token
     networks:

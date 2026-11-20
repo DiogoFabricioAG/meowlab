@@ -15,7 +15,8 @@ from fastapi import Depends, HTTPException
 from sqlalchemy import JSON, String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 from .database import Base
-from .workspace import account, get_db, router
+from .workspace import WebOpportunity, account, get_db, router
+from .preparation import PreparationJob
 from .tender_work import current_workspace
 from .ai_client import provider_events
 from .security import read_secret
@@ -129,7 +130,15 @@ def list_market(key: str,owner: str=Depends(account),db: Session=Depends(get_db)
     _,view=current_workspace(db,owner,key)
     ids={r['id'] for r in view['requirements']}
     rows=db.scalars(select(MarketReferences).where(MarketReferences.account==owner,MarketReferences.opportunity==key)).all()
-    return {'references':{row.requirement:row.results for row in rows if row.requirement in ids}}
+    refs = {row.requirement:row.results for row in rows if row.requirement in ids}
+    job = db.get(PreparationJob, view['generation'])
+    state = 'disabled'
+    if ids and ids.issubset(refs):
+        state = 'complete'
+    elif os.getenv('TENDER_MARKET_ENABLED') == '1' and read_secret('RADAR_OPENAI_API_KEY'):
+        raw_state = job.sections.get('marketResearch', {}).get('status', 'queued') if job and job.status in ('partial', 'ready') else 'waiting'
+        state = raw_state if raw_state in ('waiting', 'queued', 'running', 'retry', 'failed', 'complete') else 'queued'
+    return {'references': refs, 'automaticStatus': state}
 
 
 def save_references(db,owner,key,results):
@@ -150,6 +159,7 @@ def find_all_market(key: str,owner: str=Depends(account),db: Session=Depends(get
     except Exception:
         logger.exception('market_batch_search_failed')
         raise HTTPException(503,'No pudimos completar la búsqueda de precios. Conservamos tus resultados anteriores; vuelve a intentarlo.') from None
+    db.scalar(select(WebOpportunity.key).where(WebOpportunity.key==key, WebOpportunity.account==owner).with_for_update())
     _,latest=current_workspace(db,owner,key)
     if latest['generation']!=view['generation']:raise HTTPException(409,'Las bases cambiaron durante la búsqueda. Vuelve a abrir la cotización.')
     save_references(db,owner,key,results);db.commit()
@@ -167,6 +177,7 @@ def find_market(key: str,requirement: str,owner: str=Depends(account),db: Sessio
     except Exception:
         logger.exception('market_search_failed')
         raise HTTPException(503,'No pudimos consultar referencias ahora. Puedes ingresar un precio de tu proveedor.') from None
+    db.scalar(select(WebOpportunity.key).where(WebOpportunity.key==key, WebOpportunity.account==owner).with_for_update())
     _,latest=current_workspace(db,owner,key)
     if latest['generation']!=view['generation']:raise HTTPException(409,'Las bases cambiaron durante la búsqueda. Vuelve a abrir la cotización.')
     save_references(db,owner,key,{requirement:results});db.commit()
