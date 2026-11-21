@@ -1,10 +1,10 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026 (02:00 Lima):**
+**Estado al 21/11/2026 (02:25 Lima):**
 
 - Worker `535d842a`, desde `1b5a2fe9734c`.
-- Bridge `main-20261121T063947Z`, desde `5b927b7798d2`.
-- Portal y servicio de Tender Cat `d2eedd05321d`, por la corrección del cobro con varios gatos.
+- Bridge `main-20261121T072425Z`, desde `e8facb05a217`.
+- Portal y servicio de Tender Cat `e8facb05a217`.
 - Landing `meowlab-web:5b927b7798d2` (Astro 7).
 - Facturación `error-extraccion-marca-20261121T025707Z`.
 
@@ -13,6 +13,15 @@ Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, 
 
 
 
+
+## Plan como página de venta y resumen diario de Support Cat — publicado 2026-11-21
+
+Desde `e8facb05a217`, sin migraciones:
+
+- **Plan:** ahora vende con paquetes sugeridos, beneficios por gato y un resumen fijo (T6).
+- **Support Cat:** se corrigió el resumen diario, que nunca había salido porque el cron chocaba con una llave foránea en `bridge_requests` (T7).
+
+[Acta](../operations/t6-plan-y-t7-support-2026-11-21.md).
 ## Worker: Sales Cat fase 3, Stock Cat fase 2 y nombre propio con caché — publicado 2026-11-21
 
 Worker `535d842a`, desde `1b5a2fe9734c`, sin migraciones D1. Lo que llega a WhatsApp:
