@@ -559,6 +559,32 @@ export function createApp(deps: AppDeps) {
     return c.json(await deps.billing.subscribe(me, body!.company as string, agents, payerEmail));
   });
 
+  app.post("/api/billing/prepay", async (c) => {
+    if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
+    const body = await c.req.json().catch(() => null) as { company?: unknown; agents?: unknown; months?: unknown; payerEmail?: unknown } | null;
+    const me = c.get("session").user.id;
+    if (await companyRole(me, body?.company) !== "owner") return c.json({ status: "forbidden" }, 403);
+    const agents = Array.isArray(body?.agents) ? body.agents.filter((a): a is string => typeof a === "string").slice(0, 10) : [];
+    const months = typeof body?.months === "number" ? body.months : 0;
+    const payerEmail = typeof body?.payerEmail === "string" ? body.payerEmail : "";
+    return c.json(await deps.billing.createPrepaidOrder(me, body!.company as string, agents, months, payerEmail));
+  });
+
+  app.post("/api/billing/sync-order", async (c) => {
+    if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
+    const body = await c.req.json().catch(() => null) as { company?: unknown; orderId?: unknown; paymentId?: unknown } | null;
+    const role = await companyRole(c.get("session").user.id, body?.company);
+    if (!role) return c.json({ error: "forbidden" }, 403);
+    const orderId = typeof body?.orderId === "string" ? body.orderId : undefined;
+    const paymentId = typeof body?.paymentId === "string" ? body.paymentId : undefined;
+    try {
+      await deps.billing.syncPrepaid(body!.company as string, orderId, paymentId);
+    } catch {
+      return c.json({ error: "provider_unavailable" }, 503);
+    }
+    return c.json({ ...await deps.billing.status(body!.company as string), canManage: role === "owner" });
+  });
+
   app.post("/api/billing/sync", async (c) => {
     if (!deps.billing) return c.json({ error: "billing_unavailable" }, 503);
     const body = await c.req.json().catch(() => null) as { company?: unknown } | null;
