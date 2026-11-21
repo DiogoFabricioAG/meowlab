@@ -1,4 +1,5 @@
 import type { AgentKey, Weekly } from "./agents";
+import { formatDeadline } from "./tenderDates";
 
 /**
  * What needs the owner today, read from the weekly summary. Each item opens the agent's page;
@@ -57,7 +58,7 @@ export function attentionItems(weekly: Weekly | null): AttentionItem[] {
   for (const tender of weekly.tender.highlights.filter((item) => item.interesting)) {
     items.push({ key: `tender-${tender.description}-${tender.deadline}`, agent: "tender", tone: "opportunity",
       title: tender.displayTitle || tender.description,
-      text: `${tender.buyer} · cierra ${tender.deadline}${tender.amount ? ` · ${tender.amount}` : ""}`,
+      text: `${tender.buyer}${formatDeadline(tender.deadline) ? ` · cierra ${formatDeadline(tender.deadline)}` : ""}${tender.amount ? ` · ${tender.amount}` : ""}`,
       action: tender.sourceUrl ? { label: "Ver en SEACE", href: tender.sourceUrl } : null });
   }
   return items;

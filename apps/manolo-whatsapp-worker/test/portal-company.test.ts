@@ -21,6 +21,9 @@ describe("portal company contracts", () => {
 
   it("validates actions and bounds", () => {
     expect(isPortalCompanyRequest({ ...base, action: "mine" })).toBe(true);
+    // The portal asks for the Inicio activity; the bridge used to reject it before the service.
+    expect(isPortalCompanyRequest({ ...base, action: "activity", tenantId: "01m048fqcze7628368f321xytj" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "activity" })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "lookup", ruc: RUC })).toBe(true);
     expect(isPortalCompanyRequest({ ...base, action: "create", ruc: RUC, name: "Agu" })).toBe(true);
     expect(isPortalCompanyRequest({ ...base, action: "create", ruc: RUC, name: "x".repeat(161) })).toBe(false);
