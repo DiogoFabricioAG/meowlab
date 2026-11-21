@@ -2403,7 +2403,7 @@
       "owner": "Codex T4",
       "status": "in_progress",
       "priority": "medium",
-      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md. Bloqueo: @astrojs/tailwind 6.0.2 solo admite Astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerDependencies. T4 exige detenerse si falta una integraci?n compatible."
     },
     {
       "id": "billing-activacion-gatos-20261120",
