@@ -21,13 +21,13 @@
     "migration:verify:print-parity": "node --no-warnings tools/verify-print-postgres-parity.mjs"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.18.7",
+    "@cloudflare/vitest-pool-workers": "^0.23.0",
     "@types/node": "^26.1.1",
     "@types/pg": "^8.23.1",
     "esbuild": "0.28.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10",
-    "wrangler": "^4.113.0"
+    "vitest": "^4.1.12",
+    "wrangler": "^4.166.0"
   },
   "dependencies": {
     "pg": "^8.23.0"
