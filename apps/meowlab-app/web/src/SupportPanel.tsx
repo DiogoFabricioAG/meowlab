@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
-import { agentLogo } from "./agents";
+import { PageHeader } from "./PageHeader";
 
 type Ticket = {
   id: string; number: number; kind: "question" | "complaint" | "human" | "sale" | "unhappy"; priority: "normal" | "high";
@@ -72,25 +72,18 @@ export function SupportPanel({ company, onBack }: { company: Membership; onBack:
 
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("support")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Support Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          {state === "loading" ? "Revisando tus casos…"
+      <PageHeader
+        onBack={onBack}
+        agent="support"
+        title="Support Cat"
+        subtitle={
+          state === "loading" ? "Revisando tus casos…"
             : state === "error" ? "No pudimos cargar Support Cat. Inténtalo otra vez en unos minutos."
             : !view?.enabled ? "Support Cat no está activo para esta empresa."
             : view.open.length ? `${view.open.length} ${view.open.length === 1 ? "caso necesita" : "casos necesitan"} tu respuesta.`
-            : "Todo atendido."}
-        </p>
-      </header>
+            : "Todo atendido."
+        }
+      />
 
       {view?.enabled && (
         <>

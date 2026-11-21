@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchJson, type Membership } from "./auth-client";
 import { Icon } from "./icons";
-import { agentLogo } from "./agents";
+import { PageHeader } from "./PageHeader";
 
 type Company = { id: string; name: string; legalName: string | null; ruc: string | null; environment: "beta" | "production" };
 type Document = {
@@ -96,23 +96,18 @@ export function InvoicingPanel({ company: selected, onBack }: { company: Members
 
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("invoice")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Invoice Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          Comprobantes de {selected.legalName ?? selected.name}
-          {selected.ruc ? ` · RUC ${selected.ruc}` : ""}
-          {company?.environment === "beta" ? " · modo de prueba, sin validez ante SUNAT" : ""}
-        </p>
-      </header>
+      <PageHeader
+        onBack={onBack}
+        agent="invoice"
+        title="Invoice Cat"
+        subtitle={
+          <>
+            Comprobantes de {selected.legalName ?? selected.name}
+            {selected.ruc ? ` · RUC ${selected.ruc}` : ""}
+            {company?.environment === "beta" ? " · modo de prueba, sin validez ante SUNAT" : ""}
+          </>
+        }
+      />
 
       {failed && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos cargar tus comprobantes. Inténtalo en unos minutos.</p>}
       {!companies && !failed && <div className="h-40 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
-import { agentLogo } from "./agents";
+import { PageHeader } from "./PageHeader";
 
 type StockView =
   | { enabled: false }
@@ -47,25 +47,18 @@ export function StockPanel({ company, onBack }: { company: Membership; onBack: (
 
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("stock")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Stock Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          {state === "loading" ? "Revisando tu inventario…"
+      <PageHeader
+        onBack={onBack}
+        agent="stock"
+        title="Stock Cat"
+        subtitle={
+          state === "loading" ? "Revisando tu inventario…"
             : state === "error" ? "No pudimos cargar el inventario. Inténtalo otra vez en unos minutos."
             : !view?.enabled ? "Stock Cat no está activo para esta empresa."
             : low.length ? `${low.length} ${low.length === 1 ? "producto necesita" : "productos necesitan"} atención.`
-            : "Nada se está acabando."}
-        </p>
-      </header>
+            : "Nada se está acabando."
+        }
+      />
 
       {view?.enabled && (
         <>

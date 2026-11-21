@@ -15,6 +15,7 @@ import { SupportPanel } from "./SupportPanel";
 import { AGENTS, agentLogo, agentState, type CatalogAgent, type Weekly } from "./agents";
 import { agentPulse, attentionItems, PULSE_LABEL } from "./attention";
 import { Icon, type IconName } from "./icons";
+import { PageHeader } from "./PageHeader";
 
 type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "collections" | "reorder" | "support" | "plan" | "settings" | "team" | "business";
 
@@ -246,10 +247,11 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
           <div className="space-y-10">
-            <header className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight text-ink">Configuración</h1>
-              <p className="text-lg text-ink-muted">Tu WhatsApp, tu empresa y tu equipo.</p>
-            </header>
+            <PageHeader
+              eyebrow={company?.name}
+              title="Configuración"
+              subtitle="Tu WhatsApp, tu empresa y tu equipo."
+            />
             <section className="space-y-4" aria-label="WhatsApp">
               <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
             </section>

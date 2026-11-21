@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
-import { agentLogo } from "./agents";
+import { PageHeader } from "./PageHeader";
 
 type Settings = {
   defaultDueDays: number; remindBeforeDays: number; remindEveryDays: number; maxReminders: number;
@@ -67,25 +67,18 @@ export function CollectionsPanel({ company, onBack }: { company: Membership; onB
 
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("collections")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Collections Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          {state === "loading" ? "Revisando lo que te deben…"
+      <PageHeader
+        onBack={onBack}
+        agent="collections"
+        title="Collections Cat"
+        subtitle={
+          state === "loading" ? "Revisando lo que te deben…"
             : state === "error" ? "No pudimos cargar tus cobranzas. Inténtalo otra vez en unos minutos."
             : !view?.enabled ? "Collections Cat no está activo para esta empresa."
             : !view.totalCents ? "Nadie te debe nada."
-            : late ? `${late} ${late === 1 ? "deuda vencida" : "deudas vencidas"}.` : "Todo al día."}
-        </p>
-      </header>
+            : late ? `${late} ${late === 1 ? "deuda vencida" : "deudas vencidas"}.` : "Todo al día."
+        }
+      />
 
       {view?.enabled && (
         <>
