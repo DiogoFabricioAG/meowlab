@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
+<<<<<<< HEAD
 import { PageHeader } from "./PageHeader";
+=======
+import { apiFetch } from "./api";
+import { agentLogo } from "./agents";
+>>>>>>> 6cc3d (feat(app-movil): shell Capacitor Android, apiFetch, bearer auth y CORS)
 
 type StockView =
   | { enabled: false }
@@ -34,7 +39,7 @@ export function StockPanel({ company, onBack }: { company: Membership; onBack: (
 
   useEffect(() => {
     setState("loading");
-    void fetch(`/api/companies/${encodeURIComponent(company.id)}/stock`, { credentials: "same-origin" })
+    void apiFetch(`/api/companies/${encodeURIComponent(company.id)}/stock`)
       .then(async (response) => {
         if (!response.ok) return setState("error");
         setView(await response.json() as StockView);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchJson, type Membership } from "./auth-client";
+import { apiUrl, isNativeApp, openExternalUrl } from "./api";
 import { Icon } from "./icons";
 import { PageHeader } from "./PageHeader";
 
@@ -59,18 +60,27 @@ function FileLinks({ tenantId, kind, id, number, files }: {
   if (!links.length) return <span className="text-ink-faint">—</span>;
   return (
     <span className="flex flex-wrap gap-2">
-      {links.map((type) => (
-        <a
-          key={type}
-          href={`/api/invoicing/${encodeURIComponent(tenantId)}/files/${kind}/${id}/${type}`}
-          target={type === "pdf" ? "_blank" : undefined}
-          rel="noopener"
-          aria-label={`${FILE_LABEL[type]} de ${number}${type === "pdf" ? " (se abre en otra pestaña)" : ""}`}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line px-3 text-xs font-semibold uppercase text-forest hover:border-forest md:min-h-9"
-        >
-          {type}
-        </a>
-      ))}
+      {links.map((type) => {
+        const href = apiUrl(`/api/invoicing/${encodeURIComponent(tenantId)}/files/${kind}/${id}/${type}`);
+        return (
+          <a
+            key={type}
+            href={href}
+            target={type === "pdf" ? "_blank" : undefined}
+            rel="noopener"
+            onClick={(event) => {
+              if (isNativeApp()) {
+                event.preventDefault();
+                openExternalUrl(href);
+              }
+            }}
+            aria-label={`${FILE_LABEL[type]} de ${number}${type === "pdf" ? " (se abre en otra pestaña)" : ""}`}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line px-3 text-xs font-semibold uppercase text-forest hover:border-forest md:min-h-9"
+          >
+            {type}
+          </a>
+        );
+      })}
     </span>
   );
 }

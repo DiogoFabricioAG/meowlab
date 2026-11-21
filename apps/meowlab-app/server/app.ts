@@ -86,10 +86,36 @@ export function createApp(deps: AppDeps) {
     }
   };
 
+  const CAPACITOR_ORIGIN = "https://localhost";
+
   app.use("/api/*", async (c, next) => {
+    const origin = c.req.header("Origin");
+    const allowCapacitorCors = origin === CAPACITOR_ORIGIN && deps.allowedOrigins.includes(CAPACITOR_ORIGIN);
+
+    if (c.req.method === "OPTIONS") {
+      if (!allowCapacitorCors) {
+        return c.json({ error: "forbidden_origin" }, 403);
+      }
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": CAPACITOR_ORIGIN,
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Authorization, Content-Type",
+          "Access-Control-Expose-Headers": "set-auth-token",
+          Vary: "Origin",
+        },
+      });
+    }
+
     await next();
     c.header("Cache-Control", "no-store");
     c.header("X-Content-Type-Options", "nosniff");
+    if (allowCapacitorCors) {
+      c.header("Access-Control-Allow-Origin", CAPACITOR_ORIGIN);
+      c.header("Access-Control-Expose-Headers", "set-auth-token");
+      c.header("Vary", "Origin");
+    }
   });
 
   app.get("/api/health", (c) => c.json({ status: "ok", service: "meowlab-app" }));

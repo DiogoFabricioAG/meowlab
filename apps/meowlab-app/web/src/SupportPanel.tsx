@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
+<<<<<<< HEAD
 import { PageHeader } from "./PageHeader";
+=======
+import { apiFetch } from "./api";
+import { agentLogo } from "./agents";
+>>>>>>> 6cc3d (feat(app-movil): shell Capacitor Android, apiFetch, bearer auth y CORS)
 
 type Ticket = {
   id: string; number: number; kind: "question" | "complaint" | "human" | "sale" | "unhappy"; priority: "normal" | "high";
@@ -61,7 +66,7 @@ export function SupportPanel({ company, onBack }: { company: Membership; onBack:
 
   useEffect(() => {
     setState("loading");
-    void fetch(`/api/companies/${encodeURIComponent(company.id)}/support`, { credentials: "same-origin" })
+    void apiFetch(`/api/companies/${encodeURIComponent(company.id)}/support`)
       .then(async (response) => {
         if (!response.ok) return setState("error");
         setView(await response.json() as SupportView);
@@ -156,8 +161,8 @@ function Faqs({ company, owner, faqs, onSaved }: { company: Membership; owner: b
 
   async function send(faq: Record<string, unknown>) {
     setStatus("saving");
-    const response = await fetch(`/api/companies/${encodeURIComponent(company.id)}/support/faq`, {
-      method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ faq }),
+    const response = await apiFetch(`/api/companies/${encodeURIComponent(company.id)}/support/faq`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ faq }),
     }).catch(() => null);
     if (!response?.ok) return setStatus("error");
     onSaved(await response.json() as SupportView);
