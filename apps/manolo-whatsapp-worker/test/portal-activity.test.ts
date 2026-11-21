@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { PortalActivityService } from "../src/node/portal/activity-service";
+import { PortalActivityService, formatInvoiceEvent } from "../src/node/portal/activity-service";
 
 const fixedNow = new Date("2026-11-20T15:30:00.000Z"); // 10:30 Lima
 
@@ -46,11 +46,28 @@ describe("PortalActivityService", () => {
             rows: [
               {
                 id: 1,
-                operation: "issue_invoice",
+                operation: "invoice_issued",
                 resource_type: "invoice",
-                resource_id: "F001-28",
-                metadata: {},
+                resource_id: "inv-28",
+                metadata: { resultStatus: "accepted" },
                 created_at: "2026-11-20T14:15:00.000Z",
+              },
+              // The same receipt logged twice and a delivery note still in draft are not shown.
+              {
+                id: 2,
+                operation: "invoice_issued",
+                resource_type: "invoice",
+                resource_id: "inv-28",
+                metadata: { resultStatus: "accepted" },
+                created_at: "2026-11-20T14:14:00.000Z",
+              },
+              {
+                id: 3,
+                operation: "issue_despatch",
+                resource_type: "despatch",
+                resource_id: "gre-1",
+                metadata: { resultStatus: "draft" },
+                created_at: "2026-11-20T14:10:00.000Z",
               },
             ],
           };
@@ -92,7 +109,8 @@ describe("PortalActivityService", () => {
       new Response(
         JSON.stringify({
           data: [
-            { status: "accepted", issue_date: "2026-11-20" },
+            { id: "inv-28", document_type: "01", number: "F001-00000028", status: "accepted", issue_date: "2026-11-20",
+              currency: "PEN", total: "450.00", customer: { name: "Bodega Rosita" } },
             { status: "accepted", issue_date: "2026-11-20" },
             { status: "rejected", issue_date: "2026-11-20" },
           ],
@@ -140,11 +158,19 @@ describe("PortalActivityService", () => {
 
     expect(response.activity.events.map((e) => e.text)).toEqual([
       "Collections Cat envió un recordatorio a Bodega Rosita",
-      "Invoice Cat emitió F001-28",
+      "Invoice Cat emitió la factura F001-00000028 a Bodega Rosita por S/ 450.00",
       "Sales Cat registró una venta #7 por S/ 450.00",
     ]);
     for (const event of response.activity.events) {
       expect(event.text.toLowerCase()).not.toMatch(/manolo|radar|facturaya/);
     }
   });
+
+  it("never shows an internal id when the receipt is not found", () => {
+    expect(formatInvoiceEvent("invoice_issued", null)).toBe("Invoice Cat emitió un comprobante");
+    expect(formatInvoiceEvent("issue_despatch", null)).toBe("Invoice Cat envió una guía de remisión a SUNAT");
+    expect(formatInvoiceEvent("invoice_issued", { id: "x", document_type: "03", number: "B001-00000002", total: "35.5", customer: { name: null } }))
+      .toBe("Invoice Cat emitió la boleta B001-00000002 por S/ 35.50");
+  });
 });
+

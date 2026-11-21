@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { agentLogo, type ActivityDay, type ActivityEvent, type CompanyActivity } from "./agents";
+import { AGENTS, agentLogo, type ActivityDay, type ActivityEvent, type CompanyActivity } from "./agents";
 import { fetchJson } from "./auth-client";
 import { Icon } from "./icons";
 
@@ -94,8 +94,46 @@ export function formatActivityWhen(iso: string, todayLima: string): string {
   return limaDay === todayLima ? hhmm : `${shortDay(limaDay)} · ${hhmm}`;
 }
 
+const limaParts = (iso: string) => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  const lima = new Date(date.getTime() - 5 * 3_600_000).toISOString();
+  return { day: lima.slice(0, 10), time: lima.slice(11, 16) };
+};
+
+/** «Hoy», «Ayer» or «lunes 16 nov.», for the day headers of the activity list. */
+export function activityDayLabel(day: string, todayLima: string): string {
+  const today = new Date(`${todayLima}T12:00:00Z`);
+  const yesterday = new Date(today.getTime() - 86_400_000).toISOString().slice(0, 10);
+  if (day === todayLima) return "Hoy";
+  if (day === yesterday) return "Ayer";
+  const label = new Date(`${day}T12:00:00Z`).toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "short", timeZone: "UTC" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export type ActivityGroup = { day: string; label: string; events: Array<ActivityEvent & { time: string }> };
+
+/** Events newest first, grouped by Lima day. */
+export function groupActivityByDay(events: readonly ActivityEvent[], todayLima: string): ActivityGroup[] {
+  const groups: ActivityGroup[] = [];
+  for (const event of [...events].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())) {
+    const parts = limaParts(event.at);
+    if (!parts) continue;
+    let group = groups[groups.length - 1];
+    if (!group || group.day !== parts.day) {
+      group = { day: parts.day, label: activityDayLabel(parts.day, todayLima), events: [] };
+      groups.push(group);
+    }
+    group.events.push({ ...event, time: parts.time });
+  }
+  return groups;
+}
+
+const FIRST_EVENTS = 8;
+
 export function HomeActivity({ companyId }: { companyId: string }) {
   const [activity, setActivity] = useState<CompanyActivity | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -192,11 +230,9 @@ export function HomeActivity({ companyId }: { companyId: string }) {
       </section>
 
       <section className="overflow-hidden rounded-2xl border border-line bg-white" aria-labelledby="activity-title">
-        <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+        <header className="border-b border-line px-5 py-3.5">
           <h2 id="activity-title" className="text-xl text-ink">Actividad reciente</h2>
-          <span className="text-sm text-ink-muted">
-            {activity.events.length ? `${activity.events.length} ${activity.events.length === 1 ? "acción" : "acciones"}` : "Sin registros"}
-          </span>
+          <p className="text-sm text-ink-muted">Lo último que hicieron tus gatos.</p>
         </header>
 
         {activity.events.length === 0 ? (
@@ -207,36 +243,46 @@ export function HomeActivity({ companyId }: { companyId: string }) {
             Todavía no hay actividad registrada de tus gatos. Cuando trabajen por WhatsApp, aparecerá aquí.
           </div>
         ) : (
-          <ul className="max-h-96 divide-y divide-line overflow-y-auto">
-            {activity.events.map((event) => (
-              <ActivityRow key={event.id} event={event} today={activity.today} />
-            ))}
-          </ul>
+          <>
+            <div className="divide-y divide-line">
+              {groupActivityByDay(showAll ? activity.events : activity.events.slice(0, FIRST_EVENTS), activity.today).map((group) => (
+                <section key={group.day} aria-label={group.label} className="px-5 py-3">
+                  <h3 className="pb-1 text-xs font-semibold uppercase tracking-wide text-ink-muted">{group.label}</h3>
+                  <ul className="space-y-1">
+                    {group.events.map((event) => <ActivityRow key={event.id} event={event} />)}
+                  </ul>
+                </section>
+              ))}
+            </div>
+            {activity.events.length > FIRST_EVENTS && (
+              <button type="button" onClick={() => setShowAll((value) => !value)}
+                className="w-full border-t border-line px-5 py-3 text-sm font-semibold text-forest hover:bg-surface-subtle">
+                {showAll ? "Ver menos" : `Ver las ${activity.events.length} acciones`}
+              </button>
+            )}
+          </>
         )}
       </section>
     </div>
   );
 }
 
-function ActivityRow({ event, today }: { event: ActivityEvent; today: string }) {
-  const when = formatActivityWhen(event.at, today);
+const AGENT_NAMES = AGENTS.map((agent) => agent.name);
+
+function ActivityRow({ event }: { event: ActivityEvent & { time: string } }) {
+  // The cat's name in bold and the rest as a sentence: «Invoice Cat · emitió la factura F001-…».
+  const name = AGENT_NAMES.find((candidate) => event.text.startsWith(`${candidate} `));
+  const rest = name ? event.text.slice(name.length + 1) : event.text;
   return (
-    <li className="flex items-start gap-3 px-5 py-3">
-      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-mint">
-        <img
-          src={agentLogo(event.agent)}
-          alt=""
-          width={24}
-          height={24}
-          className="h-6 w-6 mix-blend-multiply"
-          decoding="async"
-        />
+    <li className="flex items-start gap-3 py-2">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-mint">
+        <img src={agentLogo(event.agent)} alt="" width={28} height={28} className="h-7 w-7 mix-blend-multiply" decoding="async" />
       </span>
-      <p className="min-w-0 flex-1 text-sm leading-snug text-ink">
-        <span className="font-semibold tabular-nums text-forest">{when}</span>
-        {" · "}
-        <span>{event.text}</span>
+      <p className="min-w-0 flex-1 text-sm leading-snug text-ink-2">
+        {name && <span className="font-semibold text-ink">{name} </span>}
+        {rest}
       </p>
+      <time dateTime={event.at} className="shrink-0 pt-0.5 text-xs tabular-nums text-ink-muted">{event.time}</time>
     </li>
   );
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "../server/app";
 import type { PortalBridge } from "../server/bridge";
-import { buildSeriesMetrics, formatActivityWhen, normalizeSparkline } from "../web/src/HomeActivity";
+import { activityDayLabel, buildSeriesMetrics, formatActivityWhen, groupActivityByDay, normalizeSparkline } from "../web/src/HomeActivity";
 import type { CompanyActivity } from "../web/src/agents";
 
 function makeApp(companiesImpl: PortalBridge["companies"]) {
@@ -74,5 +74,37 @@ describe("HomeActivity series calculations", () => {
   it("formats Lima time for today and earlier days", () => {
     expect(formatActivityWhen("2026-11-20T15:42:00.000Z", "2026-11-20")).toBe("10:42");
     expect(formatActivityWhen("2026-11-19T15:42:00.000Z", "2026-11-20")).toBe("19/11 · 10:42");
+  });
+});
+
+describe("Actividad reciente agrupada por día", () => {
+  it("labels today, yesterday and older days in Lima time", () => {
+    expect(activityDayLabel("2026-11-20", "2026-11-20")).toBe("Hoy");
+    expect(activityDayLabel("2026-11-19", "2026-11-20")).toBe("Ayer");
+    expect(activityDayLabel("2026-11-16", "2026-11-20")).toMatch(/^Lunes,? 16/);
+  });
+
+  it("groups newest first and uses the Lima day, not the UTC one", () => {
+    const groups = groupActivityByDay([
+      { id: "a", at: "2026-11-16T11:56:00.000Z", agent: "invoice", text: "Invoice Cat emitió la factura F001-00000027" },
+      { id: "b", at: "2026-11-21T03:30:00.000Z", agent: "sales", text: "Sales Cat registró una venta" },
+      { id: "c", at: "2026-11-20T15:00:00.000Z", agent: "collections", text: "Collections Cat envió un recordatorio" },
+    ], "2026-11-20");
+    expect(groups.map((group) => [group.label, group.events.map((event) => `${event.id}@${event.time}`)])).toEqual([
+      ["Hoy", ["b@22:30", "c@10:00"]],
+      [expect.stringMatching(/^Lunes,? 16/), ["a@06:56"]],
+    ]);
+  });
+});
+
+
+import { settingsStatus } from "../web/src/SettingsPage";
+
+describe("Configuración: estado de cada gato", () => {
+  it("reduces each agent state to a short status", () => {
+    expect(settingsStatus({ kind: "active", today: "x" })).toEqual({ label: "Activo", tone: "on" });
+    expect(settingsStatus({ kind: "setup", step: "x" })).toEqual({ label: "Falta configurar", tone: "pending" });
+    expect(settingsStatus({ kind: "available", priceCents: 2900 })).toEqual({ label: "Disponible en Plan", tone: "off" });
+    expect(settingsStatus({ kind: "soon", priceCents: null }).label).toBe("Próximamente");
   });
 });

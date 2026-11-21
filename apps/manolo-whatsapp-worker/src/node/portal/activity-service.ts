@@ -15,7 +15,22 @@ const EVENT_LIMIT = 30;
 const MAX_PAGES = 8;
 
 type Rows = { rows: Array<Record<string, unknown>> };
-type Document = { status?: string; issue_date?: string };
+type Document = {
+  id?: string;
+  kind?: string;
+  document_type?: string;
+  number?: string;
+  status?: string;
+  issue_date?: string;
+  currency?: string;
+  total?: string;
+  customer?: { name?: string | null } | null;
+};
+type InvoiceRow = { id: string; operation: string; resourceId: string | null; at: string };
+
+/** Operations of the billing log the owner cares about; drafts and edits are noise. */
+const INVOICE_OPERATIONS = ["invoice_issued", "credit_note_created", "invoice_cancelled", "issue_despatch"];
+const DOCUMENTS_LOOKBACK_DAYS = 90;
 
 const limaDate = (instant: Date) => new Date(instant.getTime() - LIMA_OFFSET_MS).toISOString().slice(0, 10);
 const isoTime = (value: unknown) => {
@@ -62,12 +77,16 @@ export class PortalActivityService {
     const fromDate = dates[0];
     const todayDate = dates[dates.length - 1];
 
-    const [invoicing, sales, collections, invoiceEvents, salesEvents, collectionsEvents, reorderEvents, supportEvents] =
+    const invoiceRows = await this.invoiceRows(tenantId);
+    const oldest = invoiceRows.length ? limaDate(new Date(invoiceRows[invoiceRows.length - 1].at)) : fromDate;
+    const floor = limaDate(new Date(todayStart.getTime() - DOCUMENTS_LOOKBACK_DAYS * DAY_MS));
+    const documentsFrom = [fromDate, oldest < floor ? floor : oldest].sort()[0];
+
+    const [invoicing, sales, collections, salesEvents, collectionsEvents, reorderEvents, supportEvents] =
       await Promise.all([
-        this.invoicingSeries(tenantId, fromDate, todayDate),
+        this.invoicingSeries(tenantId, documentsFrom, fromDate, todayDate),
         this.salesSeries(tenantId, start, end, now),
         this.collectionsSeries(tenantId, fromDate, todayDate, now),
-        this.invoiceEvents(tenantId),
         this.salesEvents(tenantId),
         this.collectionsEvents(tenantId),
         this.reorderEvents(tenantId),
@@ -79,6 +98,14 @@ export class PortalActivityService {
       invoices: invoicing.byDate.get(date) ?? 0,
       salesCents: sales.byDate.get(date) ?? 0,
       collectionsCents: collections.byDate.get(date) ?? 0,
+    }));
+
+    const documents = new Map(invoicing.documents.filter((doc) => doc.id).map((doc) => [String(doc.id), doc]));
+    const invoiceEvents: ActivityEvent[] = invoiceRows.map((row) => ({
+      id: `invoice-${row.id}`,
+      at: row.at,
+      agent: "invoice" as ActivityAgentKey,
+      text: formatInvoiceEvent(row.operation, row.resourceId ? documents.get(row.resourceId) ?? null : null),
     }));
 
     const events = [
@@ -106,32 +133,33 @@ export class PortalActivityService {
 
   private async invoicingSeries(
     tenantId: string,
+    documentsFrom: string,
     fromDate: string,
     todayDate: string,
-  ): Promise<{ enabled: boolean; byDate: Map<string, number> }> {
+  ): Promise<{ enabled: boolean; byDate: Map<string, number>; documents: Document[] }> {
     const byDate = new Map<string, number>();
+    const documents: Document[] = [];
     const { rows } = await this.query(
       `SELECT encrypted_token FROM whatsapp.tenant_integrations
         WHERE tenant_id = $1 AND provider = 'facturaya' AND status = 'active' LIMIT 1`,
       [tenantId],
     );
-    if (!rows.length) return { enabled: false, byDate };
+    if (!rows.length) return { enabled: false, byDate, documents };
 
     let token: string;
     try {
       token = this.cipher.decrypt(String(rows[0].encrypted_token));
     } catch {
       this.log("portal_activity_token_unreadable");
-      return { enabled: true, byDate };
+      return { enabled: true, byDate, documents };
     }
 
-    const documents: Document[] = [];
     let count = 0;
     for (let page = 1; page <= MAX_PAGES; page++) {
       let response: Response;
       try {
         response = await this.fetchImpl(
-          `${this.facturayaBaseUrl}/api/issued-documents?from=${fromDate}&to=${todayDate}&page=${page}`,
+          `${this.facturayaBaseUrl}/api/issued-documents?from=${documentsFrom}&to=${todayDate}&page=${page}`,
           {
             signal: AbortSignal.timeout(15_000),
             headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
@@ -139,11 +167,11 @@ export class PortalActivityService {
         );
       } catch {
         this.log("portal_activity_invoicing_unreachable");
-        return { enabled: true, byDate };
+        return { enabled: true, byDate, documents };
       }
       if (!response.ok) {
         this.log("portal_activity_invoicing_error", { status: response.status });
-        return { enabled: true, byDate };
+        return { enabled: true, byDate, documents };
       }
       const body = await response.json() as { data?: Document[]; meta?: { total?: number; last_page?: number } };
       documents.push(...(body.data ?? []));
@@ -154,10 +182,10 @@ export class PortalActivityService {
     }
 
     for (const doc of documents) {
-      if (doc.status !== "accepted" || typeof doc.issue_date !== "string") continue;
+      if (doc.status !== "accepted" || typeof doc.issue_date !== "string" || doc.issue_date < fromDate) continue;
       byDate.set(doc.issue_date, (byDate.get(doc.issue_date) ?? 0) + 1);
     }
-    return { enabled: true, byDate };
+    return { enabled: true, byDate, documents };
   }
 
   private async salesSeries(
@@ -223,26 +251,34 @@ export class PortalActivityService {
     }
   }
 
-  private async invoiceEvents(tenantId: string): Promise<ActivityEvent[]> {
+  /**
+   * The billing log, reduced to what the owner did: issued receipts, credit notes, voids and
+   * delivery notes sent to SUNAT. Drafts and edits are left out, and each document appears once.
+   */
+  private async invoiceRows(tenantId: string): Promise<InvoiceRow[]> {
     try {
       const { rows } = await this.query(
-        `SELECT id, operation, resource_type, resource_id, metadata, created_at
+        `SELECT id, operation, resource_id, metadata, created_at
            FROM whatsapp.facturaya_audit_logs
-          WHERE tenant_id = $1 AND status = 'completed'
+          WHERE tenant_id = $1 AND status = 'completed' AND operation = ANY($2::text[])
           ORDER BY created_at DESC
-          LIMIT $2`,
-        [tenantId, EVENT_LIMIT],
+          LIMIT $3`,
+        [tenantId, INVOICE_OPERATIONS, EVENT_LIMIT * 2],
       );
-      return rows.map((row) => ({
-        id: `invoice-${String(row.id)}`,
-        at: isoTime(row.created_at),
-        agent: "invoice" as ActivityAgentKey,
-        text: formatInvoiceEvent(
-          String(row.operation ?? ""),
-          row.resource_id ? String(row.resource_id) : null,
-          (row.metadata ?? {}) as Record<string, unknown>,
-        ),
-      }));
+      const seen = new Set<string>();
+      const result: InvoiceRow[] = [];
+      for (const row of rows) {
+        const operation = String(row.operation ?? "");
+        const metadata = (row.metadata ?? {}) as Record<string, unknown>;
+        if (operation === "issue_despatch" && metadata.resultStatus === "draft") continue;
+        const resourceId = row.resource_id ? String(row.resource_id) : null;
+        const key = `${operation}:${resourceId ?? String(row.id)}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        result.push({ id: String(row.id), operation, resourceId, at: isoTime(row.created_at) });
+        if (result.length >= EVENT_LIMIT) break;
+      }
+      return result;
     } catch {
       return [];
     }
@@ -347,16 +383,25 @@ export class PortalActivityService {
   }
 }
 
-function formatInvoiceEvent(operation: string, resourceId: string | null, metadata: Record<string, unknown>): string {
-  const number = typeof metadata.number === "string" ? metadata.number : resourceId;
-  const suffix = number ? ` ${number}` : "";
-  if (operation.includes("credit_note")) return `Invoice Cat emitió una nota de crédito${suffix}`;
-  if (operation.includes("despatch") || operation.includes("gre")) return `Invoice Cat emitió una guía de remisión${suffix}`;
-  if (operation.includes("void") || operation.includes("cancel")) return `Invoice Cat anuló${suffix || " un comprobante"}`;
-  if (operation.includes("invoice") || operation.includes("emit") || operation.includes("document")) {
-    return `Invoice Cat emitió${suffix || " un comprobante"}`;
-  }
-  return `Invoice Cat completó una operación${suffix}`;
+const DOCUMENT_LABEL: Record<string, string> = { "01": "la factura", "03": "la boleta", "07": "la nota de crédito" };
+
+function documentAmount(doc: Document): string {
+  const total = Number(doc.total ?? Number.NaN);
+  if (!Number.isFinite(total) || total <= 0) return "";
+  const symbol = doc.currency === "USD" ? "US$" : "S/";
+  return ` por ${symbol} ${total.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/** What Invoice Cat did, in the owner's words: never an internal id. */
+export function formatInvoiceEvent(operation: string, doc: Document | null): string {
+  const number = doc?.number?.trim() || "";
+  const customer = doc?.customer?.name?.trim() || "";
+  const label = DOCUMENT_LABEL[doc?.document_type ?? ""] ?? "el comprobante";
+  if (operation === "issue_despatch") return "Invoice Cat envió una guía de remisión a SUNAT";
+  if (operation === "invoice_cancelled") return number ? `Invoice Cat anuló un comprobante con la nota de crédito ${number}` : "Invoice Cat anuló un comprobante";
+  if (operation === "credit_note_created") return number ? `Invoice Cat emitió la nota de crédito ${number}` : "Invoice Cat emitió una nota de crédito";
+  if (!number) return "Invoice Cat emitió un comprobante";
+  return `Invoice Cat emitió ${label} ${number}${customer ? ` a ${customer}` : ""}${documentAmount(doc!)}`;
 }
 
 function formatSalesEvent(entity: string, action: string, details: Record<string, unknown>): string {

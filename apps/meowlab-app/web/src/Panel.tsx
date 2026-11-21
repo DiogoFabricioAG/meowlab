@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { authClient, fetchJson, type Me } from "./auth-client";
 import { Logo } from "./App";
-import { WhatsAppLink } from "./WhatsAppLink";
 import { AdminPanel } from "./AdminPanel";
 import { PlanPanel } from "./PlanPanel";
 import { InvoicingPanel } from "./InvoicingPanel";
-import { CompanyCards } from "./CompanyStep";
+import { SettingsPage } from "./SettingsPage";
 import { WeeklyHome } from "./WeeklyHome";
 import { AgentsPage } from "./AgentsPage";
 import { TenderPanel } from "./TenderPanel";
@@ -268,19 +267,8 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "plan" && <PlanPanel key={company.id} email={me.user.email} company={company} />}
         {section === "business" && (me.isAdmin ? <AdminPanel /> : <p className="text-ink-muted">Esta sección es solo para el equipo de MeowLab.</p>)}
         {(section === "settings" || section === "team") && (
-          <div className="space-y-10">
-            <PageHeader
-              eyebrow={company?.name}
-              title="Configuración"
-              subtitle="Tu WhatsApp, tu empresa y tu equipo."
-            />
-            <section className="space-y-4" aria-label="WhatsApp">
-              <WhatsAppLink whatsapp={me.whatsapp} onChange={onChange} />
-            </section>
-            {companies.length > 0 && (
-              <CompanyCards key={section} companies={companies} openTeamFor={section === "team" && company?.role === "owner" ? company.id : null} />
-            )}
-          </div>
+          <SettingsPage key={section} me={me} company={company} companies={companies} weekly={weekly} catalog={catalog}
+            openTeam={section === "team"} go={go} onChange={onChange} />
         )}
       </main>
 
