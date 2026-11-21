@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 76 · Total: 235</span>
+      <span class="summary">Abiertas: 77 · Total: 236</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">70</span>
+          <span class="count">71</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -550,6 +550,17 @@
           <p class="card-notes">Pedido del operador el 21/11: Plan se ve soso; inspirarse en páginas de suscripción por módulos (HubSpot, Zoho One, Alegra, Siigo, Treble). Depende de T1 (#65). Tanda 5, T6: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">portal-plan-pagina-de-venta-20261121</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="support cat: el resumen diario falla en el bridge y nunca se ha enviado manolo visto el 21/11 a las 06:00 utc: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de creaciones j&amp;d sigue null (summary_hour 20). el handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. no usar el teléfono de prueba del operador. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Support Cat: el resumen diario falla en el bridge y nunca se ha enviado</h3>
+          
+          <p class="card-notes">Visto el 21/11 a las 06:00 UTC: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de CREACIONES J&amp;D sigue NULL (summary_hour 20). El handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. No usar el teléfono de prueba del operador.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
+          <code class="card-id">support-resumen-diario-falla-20261121</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">

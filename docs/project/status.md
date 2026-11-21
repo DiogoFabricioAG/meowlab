@@ -1,15 +1,27 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026 (00:25 Lima):**
+**Estado al 21/11/2026 (01:00 Lima):**
 
 - Worker `9c8dc2a1`, desde `cad7f320a781`.
-- Bridge `main-20261121T052505Z`, desde `1fea259e81e7`.
-- Portal y servicio de Tender Cat `1fea259e81e7`.
+- Bridge `main-20261121T055857Z`, desde `9d64c7d6ae16`.
+- Portal y servicio de Tender Cat `9d64c7d6ae16`.
 - Landing `meowlab-web:4ddbb6052f72`.
 - Facturación `error-extraccion-marca-20261121T025707Z`.
 
 Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, Stock, Reorder, Support y Collections Cat. Tender Cat aparece en el catálogo, pero todavía no se vende.
 
+
+## Portal y bridge: actividad legible, correo de Mercado Pago y Configuración nueva — publicado 2026-11-21
+
+Desde `9d64c7d6ae16` (T1, PR #65). Los cambios:
+
+- **Actividad del Inicio:** muestra números de comprobante, clientes y montos, agrupados por día y sin duplicados.
+- **Plan:** el correo de Mercado Pago ya no aparece salvo que se pida cambiarlo.
+- **Configuración:** está rediseñada y muestra el estado de cada gato.
+
+No hay migraciones.
+
+[Acta](../operations/portal-bridge-t1-2026-11-21.md).
 ## Portal y bridge: gatos a la venta, Stock Cat fase 2 y Sales Cat fase 3 — publicado 2026-11-21
 
 El bridge y el portal salen de `1fea259e81e7` e incluyen los PR #49, #51 y #58. Se aplicaron las migraciones `022`, `023` (bridge) y `0005` (portal), con respaldo previo.
