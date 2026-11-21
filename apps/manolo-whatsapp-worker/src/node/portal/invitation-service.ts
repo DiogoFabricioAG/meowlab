@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import {
   INVITATION_TTL_DAYS,
   MAX_PENDING_INVITATIONS,
+  MAX_OWNED_COMPANIES,
   type InvitationAccess,
   type PendingInvitation,
   type PortalCompanyRequest,
@@ -15,13 +16,39 @@ type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
 export type InvitationPool = { connect(): Promise<unknown>; query(sql: string, values?: readonly unknown[]): Promise<unknown> };
 
-export type InvitationRequest = Extract<PortalCompanyRequest, { action: "team" | "invite" | "revoke" | "remove" | "preview" | "accept" }>;
+export type InvitationRequest = Extract<PortalCompanyRequest, { action: "team" | "invite" | "revoke" | "remove" | "transfer" | "leave" | "preview" | "accept" }>;
+
+// A link can move between accounts. Serialize it with changes to the team whose
+// WhatsApp access is derived from that link.
+export const TEAM_ACCESS_LOCK = "SELECT pg_advisory_xact_lock(hashtext('portal-company-whatsapp'))";
 
 /** What each access level grants to the person's WhatsApp number in Invoice Cat. */
 const PERMISSIONS: Record<InvitationAccess, string[]> = {
   view: ["view_invoice"],
   full: ["view_invoice", "create_invoice", "issue_invoice", "create_credit_note"],
 };
+
+export async function syncInvitedWhatsAppAccess(client: Pick<QueryClient, "query">, userId: string, phone: string): Promise<void> {
+  await client.query(
+    `INSERT INTO whatsapp.tenant_members (tenant_id, contact_id, display_name, permissions, status)
+     SELECT latest.tenant_id, contact.id, contact.display_name,
+            CASE WHEN latest.access = 'full' THEN $3::jsonb ELSE $4::jsonb END, 'active'
+       FROM (
+         SELECT DISTINCT ON (member.tenant_id) member.tenant_id, invitation.access, invitation.wa_phone
+           FROM whatsapp.portal_company_members AS member
+           JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
+           JOIN whatsapp.portal_company_invitations AS invitation
+             ON invitation.tenant_id = member.tenant_id AND invitation.accepted_by = member.portal_user_id
+          WHERE member.portal_user_id = $1 AND invitation.accepted_at IS NOT NULL
+          ORDER BY member.tenant_id, invitation.accepted_at DESC, invitation.id
+       ) AS latest
+       CROSS JOIN whatsapp.contacts AS contact
+      WHERE contact.whatsapp_user_id = $2 AND (latest.wa_phone IS NULL OR latest.wa_phone = $2)
+     ON CONFLICT (tenant_id, contact_id)
+     DO UPDATE SET permissions = EXCLUDED.permissions, status = 'active', updated_at = CURRENT_TIMESTAMP`,
+    [userId, phone, JSON.stringify(PERMISSIONS.full), JSON.stringify(PERMISSIONS.view)],
+  );
+}
 
 const hashToken = (token: string) => createHash("sha256").update(token, "utf8").digest("hex");
 const iso = (value: unknown) => new Date(value as string | Date).toISOString();
@@ -56,7 +83,12 @@ export class PortalInvitationService {
       case "revoke":
         return this.revoke(request.portalUserId, request.tenantId, request.invitationId);
       case "remove":
+        if (request.memberId === request.portalUserId) return { status: "forbidden" };
         return this.remove(request.portalUserId, request.tenantId, request.memberId);
+      case "transfer":
+        return this.transfer(request.portalUserId, request.tenantId, request.memberId);
+      case "leave":
+        return this.remove(request.portalUserId, request.tenantId, request.portalUserId);
       case "preview":
         return this.preview(request.portalUserId, request.token);
       case "accept":
@@ -68,13 +100,13 @@ export class PortalInvitationService {
     return await this.pool.query(sql, values) as Rows;
   }
 
-  private async isOwner(portalUserId: string, tenantId: string): Promise<boolean> {
-    const { rows } = await this.query(
+  private async isOwner(portalUserId: string, tenantId: string, db: Pick<InvitationPool, "query"> = this.pool): Promise<boolean> {
+    const { rows } = await db.query(
       `SELECT 1 FROM whatsapp.portal_company_members AS member
          JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
         WHERE member.tenant_id = $1 AND member.portal_user_id = $2 AND member.role = 'owner'`,
       [tenantId, portalUserId],
-    );
+    ) as Rows;
     return rows.length > 0;
   }
 
@@ -146,8 +178,18 @@ export class PortalInvitationService {
   }
 
   private async remove(portalUserId: string, tenantId: string, memberId: string): Promise<PortalCompanyResponse> {
-    if (memberId === portalUserId || !await this.isOwner(portalUserId, tenantId)) return { status: "forbidden" };
     return this.transaction(async (client) => {
+      const self = memberId === portalUserId;
+      if (self) {
+        const { rows: [member] } = await client.query(
+          `SELECT member.role FROM whatsapp.portal_company_members AS member
+             JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
+            WHERE member.tenant_id = $1 AND member.portal_user_id = $2`,
+          [tenantId, portalUserId],
+        );
+        if (!member) return { status: "forbidden" };
+        if (member.role === "owner") return { status: "owner_cannot_leave" };
+      } else if (!await this.isOwner(portalUserId, tenantId, client)) return { status: "forbidden" };
       const removed = await client.query(
         `DELETE FROM whatsapp.portal_company_members
           WHERE tenant_id = $1 AND portal_user_id = $2 AND role = 'member'
@@ -164,7 +206,34 @@ export class PortalInvitationService {
         [tenantId, memberId, this.now()],
       );
       this.log("portal_member_removed");
-      return { status: "removed" };
+      return { status: self ? "left" : "removed" };
+    });
+  }
+
+  private transfer(portalUserId: string, tenantId: string, memberId: string): Promise<PortalCompanyResponse> {
+    return this.transaction(async (client) => {
+      if (!await this.isOwner(portalUserId, tenantId, client)) return { status: "forbidden" };
+      const target = await client.query(
+        "SELECT 1 FROM whatsapp.portal_company_members WHERE tenant_id = $1 AND portal_user_id = $2 AND role = 'member' FOR UPDATE",
+        [tenantId, memberId],
+      );
+      if (!target.rows.length) return { status: "not_found" };
+      await client.query("SELECT pg_advisory_xact_lock(hashtext('portal_company_owner:' || $1))", [memberId]);
+      const owned = await client.query(
+        "SELECT count(*)::int AS total FROM whatsapp.portal_company_members WHERE portal_user_id = $1 AND role = 'owner'",
+        [memberId],
+      );
+      if (Number(owned.rows[0]?.total ?? 0) >= MAX_OWNED_COMPANIES) return { status: "limit_reached" };
+      // Demote first: the partial unique index permits only one owner.
+      await client.query(
+        "UPDATE whatsapp.portal_company_members SET role = 'member' WHERE tenant_id = $1 AND portal_user_id = $2",
+        [tenantId, portalUserId],
+      );
+      await client.query(
+        "UPDATE whatsapp.portal_company_members SET role = 'owner' WHERE tenant_id = $1 AND portal_user_id = $2",
+        [tenantId, memberId],
+      );
+      return { status: "transferred" };
     });
   }
 
@@ -272,8 +341,9 @@ export class PortalInvitationService {
     let destroy = false;
     try {
       await client.query("BEGIN");
+      await client.query(TEAM_ACCESS_LOCK);
       const result = await work(client);
-      await client.query(result.status === "joined" || result.status === "removed" ? "COMMIT" : "ROLLBACK");
+      await client.query(["joined", "removed", "transferred", "left"].includes(result.status) ? "COMMIT" : "ROLLBACK");
       return result;
     } catch (error) {
       destroy = true;

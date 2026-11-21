@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import pg from "pg";
 import { PortalCompanyService } from "../src/node/portal/company-service";
 import { PortalInvitationService } from "../src/node/portal/invitation-service";
+import { PgPortalLinkStore, PortalLinkService } from "../src/node/portal/link-service";
 import type { PortalCompanyResponse } from "../src/bridge/portal-company-contracts";
 
 const url = process.env.PORTAL_COMPANY_CHECK_DATABASE_URL;
@@ -19,7 +20,7 @@ await pool.query(`CREATE SCHEMA IF NOT EXISTS whatsapp;
   CREATE TABLE whatsapp.tenants (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused')),
     timezone TEXT NOT NULL DEFAULT 'America/Bogota', created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP, legal_name TEXT, ruc TEXT, address TEXT);
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP, legal_name TEXT, ruc TEXT, address TEXT, sector TEXT, city TEXT);
   CREATE UNIQUE INDEX whatsapp_tenants_ruc_unique ON whatsapp.tenants (ruc) WHERE ruc IS NOT NULL AND BTRIM(ruc) <> '';
   CREATE TABLE whatsapp.contacts (id BIGSERIAL PRIMARY KEY, tenant_id TEXT, whatsapp_user_id TEXT NOT NULL, display_name TEXT);
   CREATE TABLE whatsapp.tenant_members (
@@ -36,7 +37,7 @@ await pool.query(`CREATE SCHEMA IF NOT EXISTS whatsapp;
   INSERT INTO whatsapp.contacts (tenant_id, whatsapp_user_id, display_name)
     VALUES ('meowlab', '51911111111', 'Beto'), ('meowlab', '51922222222', 'Carla'), ('meowlab', '51933333333', 'Dan');
   INSERT INTO whatsapp.portal_whatsapp_links VALUES ('beto', '51911111111', now()), ('carla', '51922222222', now()), ('dan', '51933333333', now());`);
-for (const file of ["012-portal-companies.sql", "013-portal-invitations.sql"]) {
+for (const file of ["011-portal-whatsapp-links.sql", "012-portal-companies.sql", "013-portal-invitations.sql"]) {
   const sql = readFileSync(`infra/postgres/migrations/${file}`, "utf8");
   await pool.query(sql);
   await pool.query(sql); // must be re-runnable
@@ -120,6 +121,54 @@ check("beto sees it as member", (await call("beto", { action: "mine" })).compani
 
 for (let i = 0; i < 20; i++) await call("ana", { action: "invite", ...T, access: "view" });
 check("at most 20 open invitations", await call("ana", { action: "invite", ...T, access: "view" }), { status: "limit_reached" });
+
+await pool.query(`INSERT INTO whatsapp.tenants (id, name) VALUES ('org_other', 'Other');
+  INSERT INTO whatsapp.portal_company_members (tenant_id, portal_user_id, role)
+  VALUES ('org_other', 'outsider', 'owner'), ('org_other', 'beto', 'member')`);
+check("an outsider cannot receive the company", await call("ana", { action: "transfer", ...T, memberId: "outsider" }), { status: "not_found" });
+check("owner cannot leave", await call("ana", { action: "leave", ...T }), { status: "owner_cannot_leave" });
+check("owner transfers to a member", await call("ana", { action: "transfer", ...T, memberId: "beto" }), { status: "transferred" });
+check("former owner cannot manage the team", await call("ana", { action: "team", ...T }), { status: "forbidden" });
+check("former owner remains a member", (await call("ana", { action: "mine" })).companies[0], { id: "org_agu", role: "member" });
+const afterTransfer = await call("beto", { action: "mine" });
+check("only the selected company changes role", { roles: afterTransfer.companies.map(({ id, role }: { id: string; role: string }) => [id, role]) },
+  { roles: [["org_agu", "owner"], ["org_other", "member"]] });
+
+const phone = "12025550132";
+await pool.query("INSERT INTO whatsapp.contacts (tenant_id, whatsapp_user_id) VALUES ('meowlab', $1)", [phone]);
+await pool.query("UPDATE whatsapp.portal_company_invitations SET revoked_at = now() WHERE accepted_at IS NULL");
+const lateJoin = await call("beto", { action: "invite", ...T, access: "view" });
+const otherJoin = await call("outsider", { action: "invite", tenantId: "org_other", access: "full" });
+check("member joins before linking WhatsApp", await call("eli", { action: "accept", token: lateJoin.invitation.token }), { status: "joined" });
+check("member joins a second team", await call("eli", { action: "accept", token: otherJoin.invitation.token }), { status: "joined" });
+check("no agent access before linking", await agentAccess(phone), { status: "none" });
+const link = new PortalLinkService(new PgPortalLinkStore(pool), { send: async () => true },
+  "check-pepper-check-pepper-check-pepper", () => undefined, () => clock, () => "100001");
+const identity = { version: 1 as const, requestId: crypto.randomUUID(), portalUserId: "eli" };
+const challenge = await link.handle({ ...identity, action: "start", phone });
+if (challenge.status !== "code_sent") throw new Error("Expected a test challenge");
+check("member verifies WhatsApp after joining", await link.handle({
+  ...identity, action: "verify", challengeId: challenge.challengeId, code: "100001",
+}), { status: "linked" });
+check("the late link grants the first invitation's permissions", await agentAccess(phone), { status: "active", permissions: ["view_invoice"] });
+check("member leaves one company", await call("eli", { action: "leave", ...T }), { status: "left" });
+check("leaving also disables agent access", await agentAccess(phone), { status: "inactive" });
+const otherAccess = async () => (await pool.query(
+  `SELECT member.status, member.permissions FROM whatsapp.tenant_members AS member
+     JOIN whatsapp.contacts AS contact ON contact.id = member.contact_id
+    WHERE member.tenant_id = 'org_other' AND contact.whatsapp_user_id = $1`, [phone])).rows[0];
+check("leaving does not affect chat access in another company", await otherAccess(),
+  { status: "active", permissions: ["view_invoice", "create_invoice", "issue_invoice", "create_credit_note"] });
+check("member can unlink the number", await link.handle({ ...identity, action: "unlink" }), { status: "unlinked" });
+check("unlink disables invitation access", await otherAccess(), { status: "inactive" });
+clock = new Date(clock.getTime() + 61_000);
+const retry = await link.handle({ ...identity, action: "start", phone });
+if (retry.status !== "code_sent") throw new Error("Expected a second test challenge");
+check("member relinks the number", await link.handle({
+  ...identity, action: "verify", challengeId: retry.challengeId, code: "100001",
+}), { status: "linked" });
+check("relink restores access only where still a member", await otherAccess(), { status: "active" });
+check("relink cannot restore access after leaving", await agentAccess(phone), { status: "inactive" });
 
 await pool.query("DROP SCHEMA whatsapp CASCADE");
 await pool.end();

@@ -33,6 +33,8 @@ export type PortalCompanyRequest =
   | (Base & { action: "invite"; tenantId: string; phone?: string; access: InvitationAccess })
   | (Base & { action: "revoke"; tenantId: string; invitationId: string })
   | (Base & { action: "remove"; tenantId: string; memberId: string })
+  | (Base & { action: "transfer"; tenantId: string; memberId: string })
+  | (Base & { action: "leave"; tenantId: string })
   | (Base & { action: "preview"; token: string })
   | (Base & { action: "accept"; token: string })
   // «Inicio»: what the company's agents did this week, 14-day series and recent activity.
@@ -195,6 +197,7 @@ export type PortalCompanyResponse =
   | { status: "ok"; team: { members: TeamMember[]; invitations: PendingInvitation[] } }
   | { status: "invited"; invitation: PendingInvitation & { token: string } }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" }
+  | { status: "transferred" | "left" | "owner_cannot_leave" }
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
@@ -346,7 +349,10 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
     case "revoke":
       return tenant(value.tenantId) && typeof value.invitationId === "string" && UUID.test(value.invitationId);
     case "remove":
+    case "transfer":
       return tenant(value.tenantId) && text(value.memberId, 128);
+    case "leave":
+      return tenant(value.tenantId);
     case "preview":
     case "accept":
       return typeof value.token === "string" && INVITATION_TOKEN.test(value.token);

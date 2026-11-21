@@ -37,6 +37,8 @@ export type PortalCompanyAction =
   | { action: "invite"; tenantId: string; phone?: string; access: InvitationAccess }
   | { action: "revoke"; tenantId: string; invitationId: string }
   | { action: "remove"; tenantId: string; memberId: string }
+  | { action: "transfer"; tenantId: string; memberId: string }
+  | { action: "leave"; tenantId: string }
   | { action: "preview"; token: string }
   | { action: "accept"; token: string }
   | { action: "weekly"; tenantId: string }
@@ -119,6 +121,7 @@ export type PortalCompanyResponse =
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }
   | { status: "joined"; company: PortalMembership }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
+  | { status: "transferred" | "left" | "owner_cannot_leave" }
   | { status: "ok"; weekly: WeeklySummary }
   | { status: "ok"; activity: ActivitySummary }
   | { status: "ok"; stock: StockView }
