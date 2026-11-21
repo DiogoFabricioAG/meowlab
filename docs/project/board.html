@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 81 · Total: 233</span>
+      <span class="summary">Abiertas: 80 · Total: 233</span>
     </div>
   </div>
 </header>
@@ -1040,7 +1040,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">8</span>
+          <span class="count">7</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
@@ -1087,17 +1087,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 2: carga desde excel e imagen y entradas desde la foto de la factura del proveedor manolo adr-0014. asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor</h3>
-          
-          <p class="card-notes">ADR-0014. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">stock-cat-2-digitalizar-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1136,7 +1125,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">152</span>
+          <span class="count">153</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2150,6 +2139,17 @@
           <p class="card-notes">Desplegado el 13/11/2026 y activo para CREACIONES J&amp;D como cortesía. Acta: docs/operations/stock-cat-2026-11-13.md.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">stock-cat-1-nucleo-20261113</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="stock cat fase 2: carga desde excel e imagen y entradas desde la foto de la factura del proveedor manolo adr-0014. asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. implementada fase 2 de stock cat: parser excel/csv en bridge con read-excel-file@9.3.20 (límite 2 mb / 500 filas, variantes de encabezados en español, pregunta columnas desconocidas), lectura de fotos/cuadernos y facturas de proveedor con marca de ítems ilegibles sin inventarlos, confirmación con botones guardar/corregir/cancelar, migración 022-stock-supplier-invoices.sql (sin aplicar) para proveedor/número e idempotencia. pruebas nuevas en test/stock-role.test.ts y test/stock-digitalize.test.ts; npx tsc --noemit y npm run build:node pass; vitest run pass salvo las 2 pruebas conocidas de tender cat.">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 2: carga desde Excel e imagen y entradas desde la foto de la factura del proveedor</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Implementada fase 2 de Stock Cat: parser Excel/CSV en bridge con read-excel-file@9.3.20 (límite 2 MB / 500 filas, variantes de encabezados en español, pregunta columnas desconocidas), lectura de fotos/cuadernos y facturas de proveedor con marca de ítems ilegibles sin inventarlos, confirmación con botones Guardar/Corregir/Cancelar, migración 022-stock-supplier-invoices.sql (sin aplicar) para proveedor/número e idempotencia. Pruebas nuevas en test/stock-role.test.ts y test/stock-digitalize.test.ts; npx tsc --noEmit y npm run build:node PASS; vitest run PASS salvo las 2 pruebas conocidas de Tender Cat.</p>
+          <p class="card-notes">ADR-0014. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">stock-cat-2-digitalizar-20261113</code>
         </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="vender sales cat en el plan: suscripción por empresa y activación automática portal desplegado el 14/11/2026 desde feat/sales-venta-integrada (fc1f59dd). acta: docs/operations/sales-venta-por-empresa-2026-11-14.md. mercado pago sigue en modo de prueba; creaciones j&amp;d sigue como cortesía. producción: migración 017, bridge sales-venta-20261114t015537z, portal 0004 y meowlab-app:fc1f59dd5f31; /v1/portal/entitlements firmado responde not_found para empresa inexistente y 401 sin firma; rutas de cobro 401 sin sesión.">
           <div class="card-top">
