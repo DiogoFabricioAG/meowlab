@@ -8,7 +8,7 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
 - Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
-  **T1**, **T2**, **T3**, **T4** y **T5**. Hay una para cada agente y una de reserva, así
+  **T1**, **T2**, **T3**, **T4**, **T5** y **T6**. Hay una para cada agente y una de reserva, así
   ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
@@ -349,5 +349,96 @@ Lo detectó el coordinador al revisar el PR #58.
 - Pasan `npm test` del Worker (con la línea base vigente) y `npx tsc --noEmit`.
 - El PR explica la opción elegida y cuántas llamadas al bridge hace ahora un mensaje
   normal.
+- La tarea del tablero queda en `done`.
+
+---
+
+## T6 — Plan como página de venta: arma tu equipo de gatos
+
+- **Tarea del tablero:** `portal-plan-pagina-de-venta-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t6-plan`, rama `feat/plan-pagina-de-venta`,
+  desde `origin/main`.
+- **Depende de T1** (PR #65), que toca el correo de Mercado Pago en `PlanPanel.tsx`.
+  Empieza cuando T1 esté en `main`, o rebasa sobre su rama y coordina.
+
+### Qué reportó el operador
+
+La pantalla de Plan es «sosa». Es una grilla de casillas con precio y una barra con
+«S/ 0.00 al mes», el campo de correo y un botón. No vende: no explica qué gana la
+dueña, no sugiere combinaciones y el descuento por cantidad pasa desapercibido. Pide
+inspirarse en páginas que venden servicios por suscripción como el nuestro.
+
+### Referencias para estudiar (solo estructura, no copies marca ni textos)
+
+- **Precios con complementos por módulo:**
+  - HubSpot (paquetes y «Starter Customer Platform»);
+  - Zoho One;
+  - Intercom (Fin como complemento).
+- **SaaS de facturación y gestión para pymes de Latinoamérica:** Alegra, Siigo, Bind
+  ERP. Observa cómo venden a la mype: lenguaje simple, IGV incluido, «sin contratos».
+- **Ventas por WhatsApp en Latinoamérica:** Treble, Kommo.
+- **Ejemplos de patrones:** Shopify y Notion (comparativas claras, preguntas
+  frecuentes al pie, garantías visibles).
+
+Anota en el PR qué patrón tomaste de cada referencia.
+
+### Qué debe tener
+
+1. **Encabezado que venda.**
+   - Ejemplo: «Arma el equipo de gatos de tu negocio».
+   - Debajo, una línea: «Pagas solo por los que usas. Cancela cuando quieras».
+2. **Paquetes sugeridos** arriba, que se pueden elegir con un toque.
+   - Ejemplos:
+     - **«Empieza a vender»:** Sales e Invoice;
+     - **«Tienda al día»:** Sales, Invoice, Stock y Collections;
+     - **«Todo el equipo»:** los seis disponibles.
+   - Cada paquete muestra el precio con su descuento y el ahorro en soles. Uno lleva el
+     sello «Más elegido».
+   - Los paquetes son preselecciones de gatos, no productos nuevos: el cobro sigue
+     siendo la suscripción por gatos de ADR-0007.
+3. **Tarjetas de gato:**
+   - logo grande (`/agents/*-cat.webp`), nombre, precio al mes y tres beneficios
+     concretos en una línea cada uno;
+   - una etiqueta «Ideal si…», por ejemplo «Ideal si vendes por WhatsApp»;
+   - estado claro: «En tu plan», «Agregar» o «Próximamente»;
+   - Invoice Cat conserva la nota de la clave SOL;
+   - los beneficios salen de las ADR de cada gato (0011 a 0017) y de la
+     [matriz de participación](../project/matriz-participacion.md).
+4. **Resumen fijo con el total.**
+   - En escritorio, una columna a la derecha; en celular, una barra inferior fija.
+   - Muestra los gatos elegidos, el subtotal, el descuento y el total del mes con IGV.
+   - Incluye un incentivo: «Agrega 1 gato más y ahorra 15 %».
+   - El botón principal va aquí.
+   - El correo de Mercado Pago, como lo deja T1, solo aparece con «Usar otro correo».
+5. **Confianza:**
+   - logos de Mercado Pago, Yape y tarjetas (los permitidos por su marca);
+   - «Cancela cuando quieras desde aquí»;
+   - «Factura electrónica de tu suscripción», solo si es cierto. Si no, no lo
+     pongas.
+6. **Preguntas frecuentes:**
+   - ¿Puedo cambiar de gatos?
+   - ¿Qué pasa si cancelo?
+   - ¿Necesito RUC?, coordinado con lo que defina T2.
+   - ¿Cómo se activa cada gato?
+7. **Si ya hay una suscripción:** arriba se ve el plan actual, la fecha del próximo
+   cobro y el botón «Cambiar gatos».
+8. **Sistema visual del portal:** tokens de `styles.css`, `PageHeader`, tarjetas
+   `rounded-3xl` y `shadow-card`, Crete Round para títulos y Figtree para el texto.
+   Sin librerías nuevas.
+
+### Archivos permitidos
+
+- `apps/meowlab-app/web/src/PlanPanel.tsx` y componentes nuevos en `web/src` para Plan.
+- Los textos de `agents.ts` que use Plan.
+- Las pruebas del portal.
+- **No cambies** el cálculo de precios del servidor (`server/billing/pricing.ts`) ni el
+  catálogo: el resumen debe dar el mismo total que el servidor. Agrega una prueba que
+  lo compare.
+
+### Terminado cuando
+
+- Pasan `npm test`, `npm run typecheck` y `npm run build` del portal.
+- El PR trae capturas a 1366 y 390 px de Plan sin suscripción, con un paquete
+  elegido y con una suscripción activa, más la lista de referencias usadas.
 - La tarea del tablero queda en `done`.
 
