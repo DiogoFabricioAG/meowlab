@@ -227,7 +227,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">75</span>
+          <span class="count">70</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -328,17 +328,6 @@
           <p class="card-notes">La prueba sintética con la credencial local devolvió HTTP 401 invalid_api_key. No demuestra un problema con el secreto de producción ni valida el modelo en vivo. El Worker se desplegó por autorización explícita con gpt-6-luna y OPENAI_API_KEY existente, sin leer o rotar su valor. Pendiente comprobar acceso y clasificación en el recorrido WhatsApp real; los healthchecks no verifican el modelo.</p>
           <p class="card-meta">Actualizado: 2026-10-10</p>
           <code class="card-id">facturaya-validar-gpt6-produccion</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Plataforma" data-text="corregir fallo de extracción al cambiar datos y propagar error seguro de facturaya plataforma causa reconstruida: nombre de cliente (20:28), cambio de dni (20:30) y saludo/consulta (20:31) llegaron a products_text sin los productos previos. la clasificación y conservación de contexto se corrigieron, probaron y desplegaron en el worker 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe; falta validación del recorrido whatsapp real. pendiente en esta tarea: la api no conserva raw_extraction al fallar su validación; falta registro seguro de reglas fallidas y propagación segura de data.error, que safemessage del bridge ignora. ">
-          <div class="card-top">
-            <span class="badge area-platform">Plataforma</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Corregir fallo de extracción al cambiar datos y propagar error seguro de FacturaYa</h3>
-          
-          <p class="card-notes">Causa reconstruida: nombre de cliente (20:28), cambio de DNI (20:30) y saludo/consulta (20:31) llegaron a products_text sin los productos previos. La clasificación y conservación de contexto se corrigieron, probaron y desplegaron en el Worker 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe; falta validación del recorrido WhatsApp real. Pendiente en esta tarea: la API no conserva raw_extraction al fallar su validación; falta registro seguro de reglas fallidas y propagación segura de data.error, que safeMessage del bridge ignora.</p>
-          <p class="card-meta">Actualizado: 2026-10-10</p>
-          <code class="card-id">facturaya-cambios-extraccion-422</code>
         </article>
         <article class="card" data-priority="high" data-area="Docs" data-text="adr: adopción de langchain/langgraph por fases docs langchain como capa de modelos/tools; langgraph solo en facturación, quotes y store. ">
           <div class="card-top">
@@ -538,17 +527,6 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: series diarias y registro de actividad para el Inicio</h3>
-          
-          <p class="card-notes">Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos).</p>
-          <p class="card-meta">Actualizado: 2026-11-19</p>
-          <code class="card-id">portal-inicio-series-y-actividad-20261119</code>
-        </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
             <span class="badge area-other">FacturaYa</span>
@@ -669,28 +647,6 @@
           <p class="card-notes">No existe .github/workflows.</p>
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">ci-por-rutas</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="lint y pruebas de interfaz para la landing landing  ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Lint y pruebas de interfaz para la landing</h3>
-          
-          
-          <p class="card-meta">Actualizado: 2026-09-13</p>
-          <code class="card-id">lint-y-pruebas-landing</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Worker" data-text="atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas) worker reportado por npm audit el 2026-09-13. ">
-          <div class="card-top">
-            <span class="badge area-worker">Worker</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)</h3>
-          
-          <p class="card-notes">Reportado por npm audit el 2026-09-13.</p>
-          <p class="card-meta">Actualizado: 2026-09-13</p>
-          <code class="card-id">npm-audit</code>
         </article>
         <article class="card" data-priority="medium" data-area="Worker" data-text="hacer visibles al administrador las solicitudes de activación del onboarding worker el onboarding de cat guarda requestedrole sólo en contact_role_states (d1) y en el log whatsapp_onboarding_role_requested; ningún administrador lo ve. llevar la solicitud a postgresql por el bridge y listarla en la tui o en app.meowlab.tech. ">
           <div class="card-top">
@@ -923,17 +879,6 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-2-20261115</code>
         </article>
-        <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. ">
-          <div class="card-top">
-            <span class="badge area-other">Facturación</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">facturaya-ai: reemplazar «FacturaYa AI» por MeowLab / Invoice Cat en vistas web</h3>
-          
-          <p class="card-notes">Detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas Blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «FacturaYa AI» en títulos, encabezados y pies de página.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
-          <code class="card-id">facturaya-ai-marca-meowlab-20261120</code>
-        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -1060,9 +1005,20 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">10</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Plataforma" data-text="corregir fallo de extracción al cambiar datos y propagar error seguro de facturaya plataforma causa reconstruida: nombre de cliente (20:28), cambio de dni (20:30) y saludo/consulta (20:31) llegaron a products_text sin los productos previos. la clasificación y conservación de contexto se corrigieron, probaron y desplegaron en el worker 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe; falta validación del recorrido whatsapp real. pendiente en esta tarea: la api no conserva raw_extraction al fallar su validación; falta registro seguro de reglas fallidas y propagación segura de data.error, que safemessage del bridge ignora. asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
+          <div class="card-top">
+            <span class="badge area-platform">Plataforma</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Corregir fallo de extracción al cambiar datos y propagar error seguro de FacturaYa</h3>
+          
+          <p class="card-notes">Causa reconstruida: nombre de cliente (20:28), cambio de DNI (20:30) y saludo/consulta (20:31) llegaron a products_text sin los productos previos. La clasificación y conservación de contexto se corrigieron, probaron y desplegaron en el Worker 5fd5ded3-7314-458e-8f9e-3e1bcfdbcfbe; falta validación del recorrido WhatsApp real. Pendiente en esta tarea: la API no conserva raw_extraction al fallar su validación; falta registro seguro de reglas fallidas y propagación segura de data.error, que safeMessage del bridge ignora. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">facturaya-cambios-extraccion-422</code>
+        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -1096,6 +1052,17 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: series diarias y registro de actividad para el Inicio</h3>
+          
+          <p class="card-notes">Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">portal-inicio-series-y-actividad-20261119</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1107,6 +1074,28 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="lint y pruebas de interfaz para la landing landing asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Lint y pruebas de interfaz para la landing</h3>
+          
+          <p class="card-notes">Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">lint-y-pruebas-landing</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Worker" data-text="atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas) worker reportado por npm audit el 2026-09-13. asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)</h3>
+          
+          <p class="card-notes">Reportado por npm audit el 2026-09-13. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">npm-audit</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en adr-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3. ">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
@@ -1117,6 +1106,17 @@
           <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3.</p>
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Facturación</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">facturaya-ai: reemplazar «FacturaYa AI» por MeowLab / Invoice Cat en vistas web</h3>
+          
+          <p class="card-notes">Detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas Blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «FacturaYa AI» en títulos, encabezados y pies de página. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">facturaya-ai-marca-meowlab-20261120</code>
         </article>
         </div>
       </section>
