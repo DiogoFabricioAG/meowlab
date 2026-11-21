@@ -190,6 +190,7 @@
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
       <select id="area" aria-label="Filtrar por área">
         <option value="">Todas las áreas</option>
+          <option value="App móvil">App móvil</option>
           <option value="Arquitectura">Arquitectura</option>
           <option value="Cloudflare">Cloudflare</option>
           <option value="Cobros">Cobros</option>
@@ -206,6 +207,7 @@
           <option value="Producto">Producto</option>
           <option value="Pruebas">Pruebas</option>
           <option value="TUI">TUI</option>
+          <option value="Tender">Tender</option>
           <option value="Tests">Tests</option>
           <option value="VPS">VPS</option>
           <option value="Worker">Worker</option>
@@ -218,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 80 · Total: 212</span>
+      <span class="summary">Abiertas: 87 · Total: 219</span>
     </div>
   </div>
 </header>
@@ -227,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">70</span>
+          <span class="count">77</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -526,6 +528,28 @@
           <p class="card-notes">Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
+        </article>
+        <article class="card" data-priority="high" data-area="App móvil" data-text="app móvil fase 0: cuenta de play console, proyecto firebase y clave de subida app móvil lo hace el operador (adr-0018). decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere d-u-n-s). clave de subida fuera del repo con respaldo. ">
+          <div class="card-top">
+            <span class="badge area-other">App móvil</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">App móvil fase 0: cuenta de Play Console, proyecto Firebase y clave de subida</h3>
+          
+          <p class="card-notes">Lo hace el operador (ADR-0018). Decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere D-U-N-S). Clave de subida fuera del repo con respaldo.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">app-movil-0-cuentas-20261120</code>
+        </article>
+        <article class="card" data-priority="high" data-area="App móvil" data-text="app móvil fase 1: capacitor con el portal, apifetch, sesión con token y apk de prueba app móvil adr-0018 fase 1: apifetch() con vite_api_origin, plugin bearer de better-auth, cors para https://localhost, apps/meowlab-mobile con android/, ícono, splash, botón atrás, enlaces externos y pantalla sin conexión. el despliegue del servidor espera la fusión de las ramas de tender cat. ">
+          <div class="card-top">
+            <span class="badge area-other">App móvil</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">App móvil fase 1: Capacitor con el portal, apiFetch, sesión con token y APK de prueba</h3>
+          
+          <p class="card-notes">ADR-0018 fase 1: apiFetch() con VITE_API_ORIGIN, plugin bearer de better-auth, CORS para https://localhost, apps/meowlab-mobile con android/, ícono, splash, botón atrás, enlaces externos y pantalla sin conexión. El despliegue del servidor espera la fusión de las ramas de Tender Cat.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">app-movil-1-shell-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -879,6 +903,50 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-2-20261115</code>
         </article>
+        <article class="card" data-priority="medium" data-area="App móvil" data-text="app móvil fase 2: notificaciones push con fcm desde el bridge app móvil adr-0018 fase 2: tabla app_devices, registro del dispositivo, envío http v1 desde el bridge para captura de pago, pedido por aprobar y caso escalado, y preferencias por tipo. ">
+          <div class="card-top">
+            <span class="badge area-other">App móvil</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">App móvil fase 2: notificaciones push con FCM desde el bridge</h3>
+          
+          <p class="card-notes">ADR-0018 fase 2: tabla app_devices, registro del dispositivo, envío HTTP v1 desde el bridge para captura de pago, pedido por aprobar y caso escalado, y preferencias por tipo.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">app-movil-2-push-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="App móvil" data-text="app móvil fase 3: prueba cerrada y publicación en google play app móvil adr-0018 fase 3: aab firmado desde un commit publicado, ficha de play, seguridad de datos y prueba cerrada. ">
+          <div class="card-top">
+            <span class="badge area-other">App móvil</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">App móvil fase 3: prueba cerrada y publicación en Google Play</h3>
+          
+          <p class="card-notes">ADR-0018 fase 3: AAB firmado desde un commit publicado, ficha de Play, seguridad de datos y prueba cerrada.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">app-movil-3-play-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: encabezado estándar (pageheader) con la misma altura y tamaño en todas las páginas portal pedido del operador el 20/11: tender usa h1 sm:text-4xl sin negrita y logo de 44 px; invoice y el resto usan text-3xl font-bold y logo de 48 px. las páginas de agentes ponen «← tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. un componente con una fila superior de altura fija en todas. tenderlist lo adopta cuando su rama se fusione. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas</h3>
+          
+          <p class="card-notes">Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">portal-page-header-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: dejar solo «destacadas de la semana» en /agentes/licitaciones tender pedido del operador el 20/11: quitar las secciones «guardadas anteriores» y «quitadas» de tenderlist.tsx (solo existe en las ramas de tender cat). le toca al flujo de tender cat. ">
+          <div class="card-top">
+            <span class="badge area-other">Tender</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones</h3>
+          
+          <p class="card-notes">Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">tender-lista-simplificar-20261120</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -988,6 +1056,17 @@
           <p class="card-notes">ADR-0016, Fases.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">reorder-cat-3-20261115</code>
+        </article>
+        <article class="card" data-priority="low" data-area="App móvil" data-text="app móvil fase 4: compartir fotos hacia stock y collections cat y entrar con huella app móvil adr-0018 fase 4. ">
+          <div class="card-top">
+            <span class="badge area-other">App móvil</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">App móvil fase 4: compartir fotos hacia Stock y Collections Cat y entrar con huella</h3>
+          
+          <p class="card-notes">ADR-0018 fase 4.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">app-movil-4-compartir-huella-20261120</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
