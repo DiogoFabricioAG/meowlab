@@ -1,9 +1,23 @@
-import { useState, type ReactNode } from "react";
-import type { Me, Membership } from "./auth-client";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { postJson, type Me, type Membership } from "./auth-client";
 import { AGENTS, agentLogo, agentState, type AgentState, type CatalogAgent, type Weekly } from "./agents";
 import { PageHeader } from "./PageHeader";
 import { TeamPanel } from "./TeamPanel";
 import { WhatsAppLink } from "./WhatsAppLink";
+
+type RucResponse = {
+  status: "updated" | "invalid_ruc" | "not_found" | "inactive" | "taken" | "forbidden" | "unavailable";
+  company?: Membership;
+};
+
+const RUC_MESSAGES: Record<string, string> = {
+  invalid_ruc: "El RUC debe tener 11 dígitos válidos.",
+  not_found: "No encontramos ese RUC en SUNAT. Revisa los dígitos.",
+  inactive: "Ese RUC no aparece activo en SUNAT.",
+  taken: "Otra empresa ya tiene registrado ese RUC en MeowLab.",
+  forbidden: "Solo quien administra la empresa puede agregar el RUC.",
+  unavailable: "No pudimos validar el RUC en este momento. Inténtalo en unos minutos.",
+};
 
 /** What a cat's state means in Configuración: a short status, never a paragraph. */
 export function settingsStatus(state: AgentState): { label: string; tone: "on" | "pending" | "off" } {
@@ -49,7 +63,31 @@ export function SettingsPage({ me, company, companies, weekly, catalog, openTeam
   onChange: () => void;
 }) {
   const [teamOf, setTeamOf] = useState<string | null>(openTeam && company?.role === "owner" ? company.id : null);
+  const [addingRucFor, setAddingRucFor] = useState<string | null>(null);
+  const [rucInput, setRucInput] = useState("");
+  const [rucBusy, setRucBusy] = useState(false);
+  const [rucError, setRucError] = useState<string | null>(null);
+  const [rucOverrides, setRucOverrides] = useState<Record<string, { ruc: string; legalName: string | null }>>({});
   const initial = (me.user.name || me.user.email).trim().charAt(0).toUpperCase();
+
+  async function saveRuc(event: FormEvent, companyId: string) {
+    event.preventDefault();
+    setRucError(null);
+    setRucBusy(true);
+    const result = await postJson<RucResponse>(`/api/companies/${encodeURIComponent(companyId)}/ruc`, { ruc: rucInput }).catch(() => null);
+    setRucBusy(false);
+    if (result?.status === "updated" && result.company) {
+      setRucOverrides((prev) => ({
+        ...prev,
+        [companyId]: { ruc: result.company!.ruc ?? rucInput, legalName: result.company!.legalName },
+      }));
+      setAddingRucFor(null);
+      setRucInput("");
+      onChange();
+      return;
+    }
+    setRucError(RUC_MESSAGES[result?.status ?? "unavailable"] ?? RUC_MESSAGES.unavailable);
+  }
 
   return (
     <div className="space-y-10">
@@ -83,19 +121,77 @@ export function SettingsPage({ me, company, companies, weekly, catalog, openTeam
           >
             {companies.map((item) => {
               const current = item.id === company?.id;
+              const override = rucOverrides[item.id];
+              const currentRuc = override?.ruc ?? item.ruc;
+              const currentLegalName = override?.legalName ?? item.legalName;
+              const isAddingRuc = addingRucFor === item.id;
               return (
                 <article key={item.id} className="overflow-hidden rounded-3xl border border-line bg-white shadow-card">
-                  <header className="flex flex-wrap items-start justify-between gap-3 p-5">
-                    <div className="min-w-0">
-                      <h3 className="truncate text-lg font-semibold text-ink">{item.name}</h3>
-                      <p className="text-sm text-ink-muted">
-                        {item.legalName && item.legalName !== item.name ? `${item.legalName} · ` : ""}
-                        {item.ruc ? `RUC ${item.ruc}` : "Sin RUC registrado"}
-                      </p>
+                  <header className="space-y-3 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-semibold text-ink">{item.name}</h3>
+                        <p className="text-sm text-ink-muted">
+                          {currentLegalName && currentLegalName !== item.name ? `${currentLegalName} · ` : ""}
+                          {currentRuc ? `RUC ${currentRuc}` : "Sin RUC registrado"}
+                        </p>
+                      </div>
+                      <span className="chip shrink-0 border border-line bg-surface-subtle text-ink-2">
+                        {item.role === "owner" ? "Titular" : "Miembro"}
+                      </span>
                     </div>
-                    <span className="chip shrink-0 border border-line bg-surface-subtle text-ink-2">
-                      {item.role === "owner" ? "Titular" : "Miembro"}
-                    </span>
+
+                    {!currentRuc && item.role === "owner" && (
+                      <div className="space-y-2.5 rounded-2xl bg-surface-subtle p-4 text-sm">
+                        <p className="text-ink-muted">Para emitir comprobantes con Invoice Cat, agrega el RUC de tu empresa.</p>
+                        {!isAddingRuc ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAddingRucFor(item.id);
+                              setRucInput("");
+                              setRucError(null);
+                            }}
+                            className="btn-secondary min-h-11 bg-white"
+                          >
+                            Agregar RUC
+                          </button>
+                        ) : (
+                          <form onSubmit={(e) => saveRuc(e, item.id)} className="space-y-2.5">
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                              <input
+                                className="field bg-white font-sans tabular-nums tracking-wider sm:max-w-xs"
+                                inputMode="numeric"
+                                autoComplete="off"
+                                aria-label="RUC de la empresa"
+                                placeholder="20123456789"
+                                value={rucInput}
+                                onChange={(e) => setRucInput(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                                maxLength={11}
+                                required
+                              />
+                              <div className="flex gap-2">
+                                <button type="submit" disabled={rucBusy || rucInput.length !== 11} className="btn-primary min-h-11 shrink-0">
+                                  {rucBusy ? "Validando…" : "Guardar RUC"}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={rucBusy}
+                                  onClick={() => {
+                                    setAddingRucFor(null);
+                                    setRucError(null);
+                                  }}
+                                  className="btn-secondary min-h-11 bg-white"
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                            {rucError && <p role="alert" className="text-xs font-medium text-red-700">{rucError}</p>}
+                          </form>
+                        )}
+                      </div>
+                    )}
                   </header>
 
                   {current ? (

@@ -62,7 +62,7 @@ export function AgentsPage({ company, weekly, catalog, go }: {
                   <div className="space-y-3">
                     <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{state.step}</p>
                     {card.key === "invoice" && !company.ruc && (
-                      <button type="button" onClick={() => go("/configuracion")} className="btn-secondary min-h-11 w-full sm:w-auto">
+                      <button type="button" onClick={() => go("/ajustes")} className="btn-secondary min-h-11 w-full sm:w-auto">
                         Agregar RUC
                       </button>
                     )}

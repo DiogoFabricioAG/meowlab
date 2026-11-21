@@ -44,7 +44,7 @@ negocios informales o con emprendedores que prefieren no ingresar su RUC al inic
   desean ingresarlo pueden empezar de inmediato con los demás gatos.
 - La creación sin RUC no consume cuota del proveedor de consultas SUNAT.
 - Se agregan columnas opcionales `sector` y `city` en `whatsapp.tenants` mediante la
-  migración `023-company-without-ruc.sql`.
+  migración `024-company-without-ruc.sql`.
 
 ## Preguntas abiertas
 
