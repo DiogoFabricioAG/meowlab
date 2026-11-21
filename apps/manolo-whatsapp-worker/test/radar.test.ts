@@ -286,34 +286,71 @@ it("correlates delivery receipts to RADAR without putting them in fiscal convers
 });
 
 it("full Worker route: registration, signed linking, authenticated alert and opt-out", async () => {
-  vi.mocked(fetch).mockImplementation(async url => String(url).includes("/chat/completions")
-    ? Response.json({ choices: [{ message: { content: JSON.stringify({ what: "Buscan papel bond A4.", purpose: null,
-      objectQuote: "Papel bond A4", purposeQuote: null }) } }] })
-    : Response.json({ messages: [{ id: "wamid." + crypto.randomUUID() }] }));
-  async function dispatch(request: Request) {
-    const ctx = createExecutionContext();
-    const response = await worker.fetch(request as Request<unknown, IncomingRequestCfProperties>, { ...apiEnv(), OPENAI_API_KEY: "test-openai",
-      ENTERPRISE_AI_PROVIDER: "openai", ENTERPRISE_AI_BASE_URL: "https://api.openai.com/v1" }, ctx);
-    await waitOnExecutionContext(ctx);
-    return response;
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-10-18T14:00:00.000Z")); // 09:00 Lima, inside [08:00, 20:00)
+  try {
+    vi.mocked(fetch).mockImplementation(async url => String(url).includes("/chat/completions")
+      ? Response.json({ choices: [{ message: { content: JSON.stringify({ what: "Buscan papel bond A4.", purpose: null,
+        objectQuote: "Papel bond A4", purposeQuote: null }) } }] })
+      : Response.json({ messages: [{ id: "wamid." + crypto.randomUUID() }] }));
+    async function dispatch(request: Request) {
+      const ctx = createExecutionContext();
+      const response = await worker.fetch(request as Request<unknown, IncomingRequestCfProperties>, { ...apiEnv(), OPENAI_API_KEY: "test-openai",
+        ENTERPRISE_AI_PROVIDER: "openai", ENTERPRISE_AI_BASE_URL: "https://api.openai.com/v1" }, ctx);
+      await waitOnExecutionContext(ctx);
+      return response;
+    }
+    async function signed(text: string) {
+      const body = JSON.stringify(payload(text, crypto.randomUUID(), Date.now()));
+      const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("test-secret"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+      const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
+      const hex = Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
+      return dispatch(new Request("https://example.test/webhooks/whatsapp", { method: "POST", body,
+        headers: { "X-Hub-Signature-256": "sha256=" + hex } }));
+    }
+    const registration = await (await dispatch(new Request(`https://example.test${RADAR_API_PATH}/installations`, { method: "POST" }))).json() as any;
+    expect((await signed(registration.message)).status).toBe(200);
+    const response = await dispatch(new Request(`https://example.test${RADAR_API_PATH}/alerts`, {
+      method: "POST", headers: { Authorization: `Bearer ${registration.token}` }, body: JSON.stringify(alert),
+    }));
+    expect(await response.json()).toMatchObject({ status: "accepted" });
+    expect((await signed("RADAR BAJA")).status).toBe(200);
+    expect((await dispatch(new Request(`https://example.test${RADAR_API_PATH}/status`, {
+      headers: { Authorization: `Bearer ${registration.token}` },
+    }))).status).toBe(401);
+    expect((await env.DB.prepare("SELECT * FROM messages WHERE content LIKE 'RADAR%'").all()).results).toHaveLength(0);
+  } finally {
+    vi.useRealTimers();
   }
-  async function signed(text: string) {
-    const body = JSON.stringify(payload(text, crypto.randomUUID(), Date.now()));
-    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("test-secret"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-    const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
-    const hex = Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
-    return dispatch(new Request("https://example.test/webhooks/whatsapp", { method: "POST", body,
-      headers: { "X-Hub-Signature-256": "sha256=" + hex } }));
+});
+
+it("full Worker route: defers alerts outside Lima daytime window [08:00, 20:00)", async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-10-19T03:30:00.000Z")); // 22:30 Lima, outside [08:00, 20:00)
+  try {
+    vi.mocked(fetch).mockImplementation(async () => Response.json({ messages: [{ id: "wamid." + crypto.randomUUID() }] }));
+    async function dispatch(request: Request) {
+      const ctx = createExecutionContext();
+      const response = await worker.fetch(request as Request<unknown, IncomingRequestCfProperties>, apiEnv(), ctx);
+      await waitOnExecutionContext(ctx);
+      return response;
+    }
+    async function signed(text: string) {
+      const body = JSON.stringify(payload(text, crypto.randomUUID(), Date.now()));
+      const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("test-secret"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+      const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
+      const hex = Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
+      return dispatch(new Request("https://example.test/webhooks/whatsapp", { method: "POST", body,
+        headers: { "X-Hub-Signature-256": "sha256=" + hex } }));
+    }
+    const registration = await (await dispatch(new Request(`https://example.test${RADAR_API_PATH}/installations`, { method: "POST" }))).json() as any;
+    expect((await signed(registration.message)).status).toBe(200);
+    const response = await dispatch(new Request(`https://example.test${RADAR_API_PATH}/alerts`, {
+      method: "POST", headers: { Authorization: `Bearer ${registration.token}` }, body: JSON.stringify(alert),
+    }));
+    expect(response.status).toBe(429);
+    expect(await response.json()).toMatchObject({ status: "deferred" });
+  } finally {
+    vi.useRealTimers();
   }
-  const registration = await (await dispatch(new Request(`https://example.test${RADAR_API_PATH}/installations`, { method: "POST" }))).json() as any;
-  expect((await signed(registration.message)).status).toBe(200);
-  const response = await dispatch(new Request(`https://example.test${RADAR_API_PATH}/alerts`, {
-    method: "POST", headers: { Authorization: `Bearer ${registration.token}` }, body: JSON.stringify(alert),
-  }));
-  expect(await response.json()).toMatchObject({ status: "accepted" });
-  expect((await signed("RADAR BAJA")).status).toBe(200);
-  expect((await dispatch(new Request(`https://example.test${RADAR_API_PATH}/status`, {
-    headers: { Authorization: `Bearer ${registration.token}` },
-  }))).status).toBe(401);
-  expect((await env.DB.prepare("SELECT * FROM messages WHERE content LIKE 'RADAR%'").all()).results).toHaveLength(0);
 });
