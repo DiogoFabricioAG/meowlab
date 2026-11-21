@@ -1,0 +1,177 @@
+.council-table-layout {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.council-table-stage {
+  display: none;
+  position: relative;
+  min-width: 0;
+  height: 390px;
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--color-line-mint);
+  background: var(--color-mint-light);
+}
+
+.council-table-art {
+  position: absolute;
+  inset: 2.5% 0;
+  width: 100%;
+  height: 95%;
+}
+
+.council-table-caption {
+  position: absolute;
+  top: 49%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  font: 1.65rem/1.1 var(--font-title);
+}
+
+.council-seat {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: .2rem;
+  width: 8rem;
+  transform: translate(-50%, -50%);
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--color-forest);
+}
+
+.council-seat > :last-child {
+  padding: .125rem .45rem;
+  border: 1px solid var(--color-line-mint);
+  border-radius: 999px;
+  background: white;
+}
+
+.council-seat:hover > :last-child { text-decoration: underline; }
+.council-seat[data-seat="collections"] { left: 50%; top: 13%; }
+.council-seat[data-seat="stock"] { left: 77%; top: 24%; }
+.council-seat[data-seat="sales"] { left: 82%; top: 55%; }
+.council-seat[data-seat="support"] { left: 70%; top: 81%; }
+.council-seat[data-seat="tender"] { left: 33%; top: 81%; }
+.council-seat[data-seat="invoice"] { left: 17%; top: 55%; }
+.council-seat[data-seat="reorder"] { left: 23%; top: 24%; }
+
+.council-portrait {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-line-mint);
+  border-radius: 50%;
+  background: var(--color-mint-light);
+}
+
+.council-seat .council-portrait {
+  width: 64px;
+  height: 64px;
+  background: white;
+  box-shadow: var(--shadow-card);
+}
+
+.council-portrait img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.council-portrait-empty {
+  border-style: dashed;
+  color: var(--color-forest);
+}
+
+.council-brief,
+.council-minutes {
+  min-width: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-3xl);
+  background: white;
+  box-shadow: var(--shadow-card);
+}
+
+.council-brief > header { padding: 1.125rem 1.25rem; }
+.council-brief h2,
+.council-minutes h2 { font-size: 1.5rem; line-height: 1.2; }
+.council-brief > header p { margin-top: .375rem; font-size: .875rem; color: var(--color-ink-muted); }
+.council-brief li { border-top: 1px solid var(--color-line); scroll-margin-top: 1rem; }
+.council-brief li:target { background: var(--color-mint-light); }
+
+.council-advice {
+  display: flex;
+  align-items: flex-start;
+  gap: .875rem;
+  padding: 1rem 1.25rem;
+}
+
+.council-advice h3 { font-size: 1rem; color: var(--color-ink); }
+.council-advice p { margin-top: .2rem; color: var(--color-ink-2); }
+.council-advice .council-today { color: var(--color-ink-muted); font-size: .8125rem; }
+.council-links { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+.council-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  min-height: 44px;
+  color: var(--color-forest);
+  font-size: .875rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .22em;
+}
+
+.council-minutes-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  background: var(--color-forest);
+  color: white;
+}
+
+.council-minutes-header p,
+.council-minutes-header span { color: var(--color-mint); font-size: .8125rem; font-weight: 700; }
+.council-minutes-header h2 { margin-top: .35rem; font-size: clamp(1.7rem, 3vw, 2.5rem); }
+.council-agenda { padding: 1rem 1.25rem 1.25rem; }
+.council-agenda > h3 {
+  padding: .55rem .75rem;
+  margin-top: .6rem;
+  border-radius: var(--radius-xl);
+  background: var(--color-mint-light);
+  color: var(--color-forest);
+  font-size: 1rem;
+}
+.council-agenda li + li { border-top: 1px solid var(--color-line); }
+.council-agenda .council-advice { padding-inline: .75rem; }
+.council-agenda footer { margin-top: 1rem; border: 1px dashed var(--color-line-mint); border-radius: var(--radius-2xl); }
+
+@media (min-width: 1140px) {
+  .council-table-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); }
+  .council-table-stage { display: block; }
+  .council-agenda .council-advice > div {
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) max-content;
+    align-items: center;
+    column-gap: 1rem;
+  }
+  .council-agenda .council-advice { align-items: center; }
+  .council-agenda .council-today { grid-column: 2; grid-row: 2; }
+  .council-agenda .council-links { grid-column: 3; grid-row: 1 / span 2; justify-content: flex-end; }
+}
+
+@media (max-width: 479px) {
+  .council-advice { gap: .625rem; padding-inline: .875rem; }
+  .council-portrait { width: 40px; height: 40px; }
+  .council-agenda { padding: .75rem; }
+}
