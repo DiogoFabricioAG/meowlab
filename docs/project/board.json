@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "marca-unica-sin-radar-facturaya-20261120",
+      "title": "Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios",
+      "area": "Producto",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "notes": "Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos.",
+      "evidence": ""
+    },
+    {
       "id": "tender-ramas-sin-publicar-20261120",
       "title": "Publicar y fusionar el código de Tender Cat que ya corre en producción",
       "area": "Ops",

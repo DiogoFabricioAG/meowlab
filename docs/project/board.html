@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 88 · Total: 209</span>
+      <span class="summary">Abiertas: 89 · Total: 210</span>
     </div>
   </div>
 </header>
@@ -226,7 +226,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">83</span>
+          <span class="count">84</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -547,6 +547,17 @@
           <p class="card-notes">Idea del operador (2026-11-15). Base existente: el Worker ya envía plantillas de Meta fuera de la ventana de 24 horas (Reorder Cat a proveedores, ADR-0016) y los proveedores con pedido abierto reciben respuesta. Por definir: qué conversaciones con los negocios registrados atiende MeowLab, a qué terceros escribe (clientes de Collections, proveedores, otros), con qué plantillas y desde qué número (el de MeowLab o el de cada empresa con Kapso, ADR-0009). Relacionado: collections-cat-2-numero-20261114, reorder-owner-template-20261115.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. ">
+          <div class="card-top">
+            <span class="badge area-other">Producto</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios</h3>
+          
+          <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). ">
           <div class="card-top">
