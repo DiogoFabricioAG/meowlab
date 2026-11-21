@@ -45,6 +45,9 @@ Además:
    prueba de contrato. Ese olvido fue lo que dejó sin datos la actividad del Inicio.
 4. **Mercado Pago está en producción.** No hagas compras ni llames a su API con las
    credenciales del VPS.
+5. **Sin línea base de fallas desde el 21/11.** T3 (PR #66) fijó el reloj de las pruebas de
+   Tender Cat. Con `.dev.vars`, la suite del Worker debe pasar **completa**: cualquier
+   falla es tuya.
 
 ---
 
