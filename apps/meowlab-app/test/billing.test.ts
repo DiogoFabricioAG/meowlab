@@ -307,3 +307,16 @@ describe("Mercado Pago client", () => {
     expect(urls.every((url) => new URL(url).searchParams.get("limit") === "12")).toBe(true);
   });
 });
+
+import { REASON_MAX, subscriptionReason } from "../server/billing/service";
+
+describe("Mercado Pago: descripción de la suscripción", () => {
+  it("lists the cats while it fits and never passes Mercado Pago's 60 characters", () => {
+    expect(subscriptionReason(["Invoice Cat"])).toBe("MeowLab · Invoice Cat");
+    expect(subscriptionReason(["Invoice Cat", "Sales Cat"])).toBe("MeowLab · Invoice Cat + Sales Cat");
+    const all = ["Invoice Cat", "Sales Cat", "Stock Cat", "Reorder Cat", "Support Cat", "Collections Cat"];
+    expect(subscriptionReason(all)).toBe("MeowLab · 6 gatos");
+    for (let n = 1; n <= all.length; n++) expect(subscriptionReason(all.slice(0, n)).length).toBeLessThanOrEqual(REASON_MAX);
+  });
+});
+

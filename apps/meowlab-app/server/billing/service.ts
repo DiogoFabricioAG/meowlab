@@ -109,10 +109,10 @@ export class BillingService {
     if (await this.store.createSubscription({ id, userId, tenantId, agents: priced.agents, amountCents: priced.totalCents, externalReference, payerEmail: email }) === "already_live") {
       return { status: "already_subscribed" };
     }
-    const names = agents.filter((agent) => priced.agents.includes(agent.key)).map((agent) => agent.name).join(" + ");
+    const names = agents.filter((agent) => priced.agents.includes(agent.key)).map((agent) => agent.name);
     try {
       const preapproval = await this.mercadopago.createPreapproval({
-        reason: `MeowLab · ${names}`,
+        reason: subscriptionReason(names),
         externalReference,
         payerEmail: email,
         amount: priced.totalCents / 100,
@@ -254,4 +254,14 @@ export class BillingService {
     // 5xx makes Mercado Pago retry; anything we understood is acknowledged.
     return { status: outcome === "provider_error" ? 503 : 200, outcome };
   }
+}
+
+/** Mercado Pago rejects a preapproval reason longer than 60 characters. */
+export const REASON_MAX = 60;
+
+/** «MeowLab · Invoice Cat + Sales Cat» while it fits; «MeowLab · 4 gatos» otherwise. */
+export function subscriptionReason(names: readonly string[]): string {
+  const listed = `MeowLab · ${names.join(" + ")}`;
+  if (listed.length <= REASON_MAX) return listed;
+  return `MeowLab · ${names.length} gatos`.slice(0, REASON_MAX);
 }
