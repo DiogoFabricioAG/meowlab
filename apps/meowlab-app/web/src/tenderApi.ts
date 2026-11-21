@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "./api";
 
 export type Quote = {
   description: string;
@@ -160,9 +161,8 @@ export async function tenderApi<T>(
   options: { method?: string; body?: unknown; signal?: AbortSignal } = {},
 ): Promise<T> {
   const { method = "GET", body, signal } = options;
-  const response = await fetch(`${tenderBase(companyId)}${path}`, {
+  const response = await apiFetch(`${tenderBase(companyId)}${path}`, {
     method,
-    credentials: "same-origin",
     signal,
     ...(body === undefined
       ? {}

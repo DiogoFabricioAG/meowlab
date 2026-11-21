@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { apiFetch } from "./api";
 import { Icon } from "./icons";
 import { tenderBase, type TenderOpportunity } from "./tenderApi";
 
@@ -42,9 +43,8 @@ export function TenderBases({
     setError("");
     setBusy(true);
     try {
-      const response = await fetch(`${url}?${query}`, {
+      const response = await apiFetch(`${url}?${query}`, {
         method: "POST",
-        credentials: "same-origin",
         headers: { "Content-Type": "application/octet-stream" },
         body: file,
       });

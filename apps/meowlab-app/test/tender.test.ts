@@ -71,4 +71,21 @@ describe("Tender Cat through the portal", () => {
     expect(failure.status).toBe(503);
     expect(await failure.json()).toEqual({ error: "tender_unavailable" });
   });
+
+  it("tenderApi delegates through apiFetch preserving same-origin credentials in web", async () => {
+    vi.resetModules();
+    const fetchSpy = vi.fn<typeof fetch>(async () => Response.json({ opportunities: [] }));
+    vi.stubGlobal("fetch", fetchSpy);
+    try {
+      const { tenderApi } = await import("../web/src/tenderApi");
+      const data = await tenderApi<{ opportunities: unknown[] }>("org_1", "/opportunities");
+      expect(data).toEqual({ opportunities: [] });
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchSpy.mock.calls[0];
+      expect(url).toBe("/api/companies/org_1/tender/opportunities");
+      expect(init?.credentials).toBe("same-origin");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });

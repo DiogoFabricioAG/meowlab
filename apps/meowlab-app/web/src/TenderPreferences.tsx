@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { apiFetch } from "./api";
 import "./tender-preferences.css";
 
 type Settings = {
@@ -78,9 +79,8 @@ async function businessApi(
   signal?: AbortSignal,
   body?: unknown,
 ): Promise<Snapshot> {
-  const response = await fetch("/api/companies/" + encodeURIComponent(company) + "/tender/business", {
+  const response = await apiFetch("/api/companies/" + encodeURIComponent(company) + "/tender/business", {
     method,
-    credentials: "same-origin",
     signal,
     headers: { "Content-Type": "application/json" },
     ...(body ? { body: JSON.stringify(body) } : {}),
