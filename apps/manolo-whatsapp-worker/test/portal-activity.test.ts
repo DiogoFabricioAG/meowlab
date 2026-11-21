@@ -172,5 +172,31 @@ describe("PortalActivityService", () => {
     expect(formatInvoiceEvent("invoice_issued", { id: "x", document_type: "03", number: "B001-00000002", total: "35.5", customer: { name: null } }))
       .toBe("Invoice Cat emitió la boleta B001-00000002 por S/ 35.50");
   });
+
+  it("distinguishes record_payment from approve_payment without duplicating 'registró un cobro'", async () => {
+    const pool = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("FROM whatsapp.portal_company_members")) return { rows: [{ "?column?": 1 }] };
+        if (sql.includes("FROM receivables.audit_log")) {
+          return {
+            rows: [
+              { id: "a1", action: "record_payment", details: { amountCents: 12000 }, created_at: "2026-11-20T15:00:00.000Z", customer_name: null },
+              { id: "a2", action: "approve_payment", details: { paymentId: "p1", applied: 1 }, created_at: "2026-11-20T14:00:00.000Z", customer_name: "Ana" },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+    const service = new PortalActivityService(pool, { decrypt: () => "t" }, "https://f.test", () => undefined, () => fixedNow);
+    const res = await service.handle("user-1", "org_jd");
+    expect(res.status).toBe("ok");
+    if (res.status === "ok" && "activity" in res) {
+      expect(res.activity.events.map((e) => e.text)).toEqual([
+        "Collections Cat registró un cobro por S/ 120.00",
+        "Collections Cat validó una constancia de pago de Ana",
+      ]);
+    }
+  });
 });
 

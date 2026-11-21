@@ -415,7 +415,10 @@ function formatSalesEvent(entity: string, action: string, details: Record<string
     const doc = typeof details.invoiceNumber === "string" ? ` (${details.invoiceNumber})` : "";
     return `Sales Cat facturó una venta${doc}`;
   }
-  if (entity === "quote" && action === "created") return `Sales Cat preparó una cotización${num}`;
+  if (entity === "quote" && action === "created") {
+    const amount = details.totalCents !== undefined ? ` por ${money(details.totalCents)}` : "";
+    return `Sales Cat preparó una cotización${num}${amount}`;
+  }
   if (entity === "product") return `Sales Cat actualizó un producto del catálogo`;
   return `Sales Cat actualizó un registro`;
 }
@@ -427,9 +430,12 @@ function formatCollectionsEvent(action: string, details: Record<string, unknown>
     const amount = details.amountCents !== undefined ? ` por ${money(details.amountCents)}` : "";
     return `Collections Cat registró una deuda${customer ? ` de ${customer}` : ""}${amount}`;
   }
-  if (action === "record_payment" || action === "approve_payment") {
+  if (action === "record_payment") {
     const amount = details.amountCents !== undefined ? ` por ${money(details.amountCents)}` : "";
     return `Collections Cat registró un cobro${amount}`;
+  }
+  if (action === "approve_payment") {
+    return `Collections Cat validó una constancia de pago${customer ? ` de ${customer}` : ""}`;
   }
   if (action === "capture") return `Collections Cat recibió una constancia de pago`;
   if (action === "reject_payment") return `Collections Cat rechazó una constancia de pago`;
