@@ -4,7 +4,7 @@
 
 - Worker `535d842a`, desde `1b5a2fe9734c`.
 - Bridge `main-20261121T063947Z`, desde `5b927b7798d2`.
-- Portal y servicio de Tender Cat `5b927b7798d2`.
+- Portal y servicio de Tender Cat `d2eedd05321d`, por la corrección del cobro con varios gatos.
 - Landing `meowlab-web:5b927b7798d2` (Astro 7).
 - Facturación `error-extraccion-marca-20261121T025707Z`.
 
