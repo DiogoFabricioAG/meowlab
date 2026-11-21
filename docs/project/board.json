@@ -2413,6 +2413,17 @@
       "updated": "2026-11-20",
       "evidence": "",
       "notes": "Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md."
+    },
+    {
+      "id": "portal-actividad-numeros-duplicados-20261121",
+      "title": "Portal: la actividad del Inicio muestra IDs internos de Invoice Cat y entradas duplicadas",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Visto en producción el 21/11 (CREACIONES J&D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación."
     }
   ]
 }

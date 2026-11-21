@@ -131,3 +131,26 @@ operador («Sí, despliega todo»), después de que Tender Cat se reintegró en 
 - **Compra real con Mercado Pago en producción:** la hace el operador.
 - **Trabajo en curso de AGY-1, AGY-2 y AGY-3:** todavía no está en `main` (Sales Cat
   fase 3, activación de todos los gatos por pago y Stock Cat fase 2).
+
+## Corrección posterior: actividad del Inicio y fecha de cierre — 21/11/2026, ~04:20 UTC
+
+- **Qué faltaba:**
+  - **Actividad del Inicio:** al revisar el portal con sesión iniciada, el Inicio mostraba «No pudimos cargar la tendencia…». El portal respondía 503 `companies_unavailable` porque el validador `isPortalCompanyRequest` del bridge no aceptaba la acción `activity`.
+  - **Fecha de cierre:** «Para atender» mostraba el cierre de Tender Cat en ISO crudo.
+- **Corrección:** PR #60, commit `37194119efc1ca15007396ae3cf687137d4494d1`, con una prueba nueva del contrato y una de `attentionItems`. Lo autorizó el operador con «Sí, despliégalo».
+- **Bridge:**
+  - release `hotfix-actividad-20261121T042006Z`;
+  - `compose.yml` sin cambios;
+  - `cutover_verified`.
+  - Rollback: `bash /opt/manolo-platform/releases/hotfix-actividad-20261121T042006Z/rollback.sh`.
+- **Portal y servicio de Tender:**
+  - `MEOWLAB_APP_TAG` pasa de `cad7f320a781` a `37194119efc1`;
+  - los dos contenedores quedan `healthy`;
+  - Mercado Pago sigue en producción.
+  - Rollback: `bash /opt/manolo-platform/releases/portal-37194119efc1/rollback.sh`, que vuelve a `cad7f320a781`.
+- **Verificación en Chrome, con sesión:**
+  - el Inicio muestra «Tendencia (14 días)» con comprobantes, monto vendido y cobros, y «Actividad reciente» con 30 acciones;
+  - los cierres se leen como «cierra 24 nov., 11:59 p. m.».
+- **Pendiente, anotado en el tablero:**
+  - algunas entradas de Invoice Cat muestran el ID interno del documento en lugar de su número (F001-…);
+  - la guía del 06/11 aparece dos veces.

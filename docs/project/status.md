@@ -1,11 +1,11 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026:** Worker, bridge, portal y servicio de Tender Cat salen todos de `main` `cad7f320a781`:
+**Estado al 21/11/2026:** Worker, bridge, portal y servicio de Tender Cat salen de `main`. El Worker sale de `cad7f320a781`; los otros tres, de `37194119efc1`, que corrige la actividad del Inicio:
 
 - Worker `9c8dc2a1`;
-- bridge `main-20261121T035915Z`;
-- portal `meowlab-app:cad7f320a781`;
-- servicio de Tender Cat `meowlab-tender-service:cad7f320a781`.
+- bridge `hotfix-actividad-20261121T042006Z` (desde `37194119efc1`);
+- portal `meowlab-app:37194119efc1`;
+- servicio de Tender Cat `meowlab-tender-service:37194119efc1`.
 
 Fuera de ese commit:
 
