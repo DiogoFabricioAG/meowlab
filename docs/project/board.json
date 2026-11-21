@@ -2251,14 +2251,14 @@
     },
     {
       "area": "App móvil",
-      "owner": "",
-      "status": "todo",
+      "owner": "AGY-1",
+      "status": "in_progress",
       "updated": "2026-11-20",
       "evidence": "",
       "id": "app-movil-1-shell-20261120",
       "title": "App móvil fase 1: Capacitor con el portal, apiFetch, sesión con token y APK de prueba",
       "priority": "high",
-      "notes": "ADR-0018 fase 1: apiFetch() con VITE_API_ORIGIN, plugin bearer de better-auth, CORS para https://localhost, apps/meowlab-mobile con android/, ícono, splash, botón atrás, enlaces externos y pantalla sin conexión. El despliegue del servidor espera la fusión de las ramas de Tender Cat."
+      "notes": "ADR-0018 fase 1: apiFetch() con VITE_API_ORIGIN, plugin bearer de better-auth, CORS para https://localhost, apps/meowlab-mobile con android/, ícono, splash, botón atrás, enlaces externos y pantalla sin conexión. El despliegue del servidor espera la fusión de las ramas de Tender Cat. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
     },
     {
       "area": "App móvil",
@@ -2295,14 +2295,14 @@
     },
     {
       "area": "Portal",
-      "owner": "",
-      "status": "todo",
+      "owner": "AGY-2",
+      "status": "in_progress",
       "updated": "2026-11-20",
       "evidence": "",
       "id": "portal-page-header-20261120",
       "title": "Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas",
       "priority": "medium",
-      "notes": "Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione."
+      "notes": "Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
     },
     {
       "area": "Tender",
@@ -2314,6 +2314,50 @@
       "title": "Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones",
       "priority": "medium",
       "notes": "Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat."
+    },
+    {
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "portal-hono-node-server-2-20261120",
+      "title": "Portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción)",
+      "area": "Portal",
+      "owner": "AGY-3",
+      "priority": "medium",
+      "notes": "Detectado por npm audit en la tanda 2 (PR #41). server/node.ts usa serve y serveStatic. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
+    },
+    {
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "worker-npm-audit-dev-20261120",
+      "title": "Worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers)",
+      "area": "Manolo",
+      "owner": "AGY-3",
+      "priority": "low",
+      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Solo desarrollo y pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
+    },
+    {
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "facturaya-test-vite-manifest-20261120",
+      "title": "facturaya-ai: que las pruebas no dependan del manifiesto de Vite",
+      "area": "FacturaYa",
+      "owner": "AGY-3",
+      "priority": "low",
+      "notes": "CompanyAdministrationTest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
+    },
+    {
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "landing-astro-7-20261120",
+      "title": "Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro <=7.4.6)",
+      "area": "Landing",
+      "owner": "",
+      "priority": "medium",
+      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto."
     }
   ]
 }
