@@ -107,7 +107,7 @@ const HELP = [
   "• «¿Cuánto vendí esta semana?»",
   "• «El polo blanco ahora cuesta 30»",
   "• «Anula la venta 12»",
-  "Escribe /salir para volver con Manolo.",
+  "Escribe /salir para volver al menú de MeowLab.",
 ].join("\n");
 
 /**
@@ -206,7 +206,7 @@ export class SalesRoleHandler implements RoleHandler {
     if (state.draft && /^(cancelar|descartar|no)$/i.test(message)) {
       state.draft = null;
       await save();
-      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver con Manolo.");
+      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver al menú de MeowLab.");
       return;
     }
 
@@ -378,7 +378,7 @@ export class SalesRoleHandler implements RoleHandler {
     if (interaction === "sales:discard") {
       state.draft = null;
       await save();
-      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver con Manolo.");
+      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver al menú de MeowLab.");
       return;
     }
     if (interaction === "sales:keep") {
@@ -536,7 +536,7 @@ export class SalesRoleHandler implements RoleHandler {
     };
     const draft = await facturaya.importInvoiceDraft(input);
     if (!draft.ok) {
-      await context.reply(`No pude preparar el comprobante: ${draft.message ?? "FacturaYa no respondió"}. La venta quedó guardada.`);
+      await context.reply(`No pude preparar el comprobante: ${draft.message ?? "el servicio de facturación no respondió"}. La venta quedó guardada.`);
       return;
     }
     state.pendingInvoice = { ...pending, facturayaDraftId: draft.data.id };
@@ -564,7 +564,7 @@ export class SalesRoleHandler implements RoleHandler {
     await save();
     const issued = await facturaya.issueInvoice(draftId);
     if (!issued.ok) {
-      await context.reply(`No pude emitir el comprobante: ${issued.message ?? "FacturaYa no respondió"}. Revísalo con Invoice Cat.`);
+      await context.reply(`No pude emitir el comprobante: ${issued.message ?? "el servicio de facturación no respondió"}. Revísalo con Invoice Cat.`);
       return;
     }
     await client.linkInvoice(companyId, pending.saleNumber, issued.data.number);

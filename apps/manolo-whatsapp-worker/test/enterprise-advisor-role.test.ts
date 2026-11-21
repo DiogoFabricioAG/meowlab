@@ -842,7 +842,7 @@ describe("enterprise-advisor role", () => {
     await new EnterpriseAdvisorRoleHandler().handle(context);
 
     expect(context.sendButtons).toHaveBeenCalledWith(
-      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
+      "¡Hola! Soy Invoice Cat de MeowLab. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
     );
   });
 
@@ -861,7 +861,7 @@ describe("enterprise-advisor role", () => {
     await handler.handle(context);
 
     expect(context.sendButtons).toHaveBeenCalledWith(
-      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
+      "¡Hola! Soy Invoice Cat de MeowLab. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
     );
   });
 
@@ -1079,7 +1079,7 @@ describe("enterprise-advisor role", () => {
 
     expect(facturaya.importInvoiceDraft).toHaveBeenCalledOnce();
     expect(context.sendButtons).not.toHaveBeenCalled();
-    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("no pudo determinar un importe válido"));
+    expect(context.reply).toHaveBeenCalledWith(expect.stringContaining("no pude determinar un importe válido"));
   });
 
   it("creates a boleta draft with DNI and the receipt contract", async () => {
@@ -1614,7 +1614,7 @@ describe("enterprise-advisor role", () => {
 
     expect(documents.values.size).toBe(0);
     expect(reset.sendButtons).toHaveBeenCalledWith(
-      "Sesión reiniciada. Soy Manolo, ¿en qué puedo ayudarte?", MAIN_MENU_BUTTONS,
+      "Sesión reiniciada. Soy Invoice Cat de MeowLab, ¿en qué puedo ayudarte?", MAIN_MENU_BUTTONS,
     );
   });
 
@@ -1674,7 +1674,7 @@ describe("enterprise-advisor role", () => {
     await handler.handle(context);
 
     expect(context.sendButtons).toHaveBeenCalledWith(
-      "¡Hola! Soy Manolo. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
+      "¡Hola! Soy Invoice Cat de MeowLab. ¿En qué puedo ayudarte hoy?", MAIN_MENU_BUTTONS,
     );
   });
 

@@ -396,7 +396,7 @@ describe("enterprise intent-first navigation", () => {
   it.each(["Hola", "Manolo", "Hola Manolo"])("greets %s with three choices after a processed invoice", async (text) => {
     const p = fixture(ready("issued")); const ctx = await p.turn(text);
     expect(p.ai.decide).toHaveBeenCalledOnce();
-    expect(ctx.sendButtons).toHaveBeenCalledWith(expect.stringContaining("Soy Manolo"), mainButtons);
+    expect(ctx.sendButtons).toHaveBeenCalledWith(expect.stringContaining("Soy Invoice Cat de MeowLab"), mainButtons);
     expect(JSON.stringify(vi.mocked(ctx.reply).mock.calls)).not.toContain("F001-OLD");
     expect(p.client.issueInvoice).not.toHaveBeenCalled();
   });
