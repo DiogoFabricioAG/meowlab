@@ -2463,12 +2463,12 @@
       "id": "tender-activacion-suscripcion-20261120",
       "title": "Tender Cat: activar el servicio de Tender cuando el pago de suscripción llega al bridge",
       "area": "Tender",
-      "owner": "",
+      "owner": "AGY-1",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until. Tanda 6, T10 (OPS 1): docs/agents/tareas-agy-2026-11-21-tanda6.md.",
-      "evidence": ""
+      "evidence": "PR feat/tender-activacion-pago: migración 025-tender-subscriptions.sql (radar.settings, sin aplicar), 'tender' agregado a ENTITLED_AGENTS y EntitlementService, lectura de vigencia en weekly-service.ts, selection-service.ts y DiscoveryWorker (opportunity_discovery.py). Probado en portal-entitlement.test.ts, suite completa del Worker y test_tender_service.py."
     },
     {
       "id": "sales-alias-sin-consulta-por-mensaje-20261121",

@@ -275,13 +275,31 @@ export class PortalWeeklyService {
   }
 
   private async tender(tenantId: string, start: Date, end: Date, day: Date): Promise<WeeklySummary["tender"]> {
-    const enabled = await this.query(
-      `SELECT 1 FROM whatsapp.tenant_members AS member
-         JOIN whatsapp.contacts AS contact ON contact.id = member.contact_id
-        WHERE member.tenant_id = $1 AND member.status = 'active' AND contact.active_role_key = 'radar'
-        LIMIT 1`,
-      [tenantId],
-    );
+    let isEnabled = false;
+    let hasSettingsRow = false;
+    try {
+      const settings = await this.query(
+        `SELECT enabled AND (active_until IS NULL OR active_until > $2) AS active
+           FROM radar.settings WHERE tenant_id = $1`,
+        [tenantId, this.now()],
+      );
+      if (settings.rows.length > 0) {
+        hasSettingsRow = true;
+        isEnabled = Boolean(settings.rows[0].active);
+      }
+    } catch {
+      // Before migration 025, radar.settings does not exist yet: fall back to contact.active_role_key.
+    }
+    if (!hasSettingsRow) {
+      const enabled = await this.query(
+        `SELECT 1 FROM whatsapp.tenant_members AS member
+           JOIN whatsapp.contacts AS contact ON contact.id = member.contact_id
+          WHERE member.tenant_id = $1 AND member.status = 'active' AND contact.active_role_key = 'radar'
+          LIMIT 1`,
+        [tenantId],
+      );
+      isEnabled = enabled.rows.length > 0;
+    }
     const { rows } = await this.query(
       `WITH people AS (
          SELECT member.contact_id FROM whatsapp.tenant_members AS member
@@ -304,7 +322,7 @@ export class PortalWeeklyService {
     const descriptions = highlights.map(row => text((row.alert as Record<string, unknown> | null)?.description, 800));
     const titles = await this.titles?.forDescriptions(descriptions);
     return {
-      enabled: enabled.rows.length > 0,
+      enabled: isEnabled,
       found: rows.length,
       foundToday: rows.filter((row) => new Date(row.published_at as string | Date).getTime() >= day.getTime()).length,
       interesting: rows.filter((row) => row.state === "interesting").length,

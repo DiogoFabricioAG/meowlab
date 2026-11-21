@@ -15,6 +15,7 @@ const SETTINGS_SCHEMA: Record<EntitledAgent, string> = {
   collections: "receivables",
   reorder: "purchasing",
   support: "support",
+  tender: "radar",
 };
 
 /**

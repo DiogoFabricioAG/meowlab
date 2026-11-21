@@ -304,6 +304,8 @@ class DiscoveryWorker:
             if state.next_send_at > now or next_slot(now) > now:
                 return "not_due"
         status, remote = self.gateway("/status")
+        if status == 200 and isinstance(remote, dict) and remote.get("entitled") is False:
+            return "subscription_inactive"
         if status != 200 or not isinstance(remote, dict) or not remote.get("linked") or not remote.get("open"):
             return "window_closed"
         with self.factory() as db:
@@ -370,6 +372,15 @@ class DiscoveryWorker:
             db.commit()
         return outcome
 
+    def entitled(self):
+        try:
+            status, remote = self.gateway("/status")
+        except Exception:
+            return None
+        if status == 200 and isinstance(remote, dict) and "entitled" in remote:
+            return bool(remote["entitled"])
+        return None
+
     def cycle(self, *, send=False, force=False):
         if os.getenv("RADAR_DISCOVERY_ENABLED") != "1":
             return {"status": "disabled"}
@@ -386,6 +397,8 @@ class DiscoveryWorker:
                 due = force or (state.retry_at <= now and (state.fingerprint != digest(memory) or now < state.searched_at or now - state.searched_at >= REFRESH_SECONDS or changed_day))
             if not queries_for(memory):
                 return {"status": "missing_business"}
+            if self.entitled() is False:
+                return {"status": "subscription_inactive", "received": 0, "searchComplete": False, "browserRequired": False}
             received, complete = self.collect(memory, token) if due else (0, True)
             outcome = "dry_run"
             if send:
