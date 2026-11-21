@@ -16,6 +16,50 @@
   ],
   "tasks": [
     {
+      "id": "tender-ficha-documentos-postulacion-20261120",
+      "title": "Simplificar ficha, bases y documentos para participar",
+      "area": "Portal",
+      "owner": "OPS 1, OPS 2 y Control",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-20",
+      "notes": "Publicado en producción desde el commit privado 887bba550816. La ficha reúne el título, las bases descargables y su reemplazo. Cotización conserva el avance y los errores. Expediente muestra los documentos para participar y conserva los borradores editados.",
+      "evidence": "Chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un PDF inválido, el ZIP y el ancho móvil de 390 px."
+    },
+    {
+      "id": "tender-investigacion-precios-20261120",
+      "title": "Búsqueda automática y alternativas de precio en Tender Cat",
+      "area": "Portal",
+      "owner": "OPS 1, OPS 2 y Control",
+      "priority": "high",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "Publicado en producción desde el commit privado 19df5ac88224. El portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por HTTPS. Pendiente la aceptación con un PDF nuevo por WhatsApp.",
+      "evidence": "Pruebas de servicio con ingreso de bases por WhatsApp simulado. Pruebas locales con PostgreSQL, proveedor simulado y Chrome para confirmar referencias, precio guardado y subtotal."
+    },
+    {
+      "id": "portal-tender-nativo-20261120",
+      "title": "Tender Cat dentro del portal de MeowLab",
+      "area": "Portal",
+      "owner": "OPS 1, OPS 2 y Control",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-20",
+      "notes": "Desplegado desde el commit privado a1f7966a1c9a. Listado, históricos y archivo, intereses, bases, cotización y expediente comparten la sesión de MeowLab. Portal y servicio saludables, se comprobó la lectura del histórico del piloto y se cotejó el JavaScript servido por HTTPS. Pendiente la aceptación con personal autorizado.",
+      "evidence": "59 pruebas del portal y 4 del servicio. Chrome en escritorio y móvil con sesión y análisis simulados, API y almacenamiento reales de prueba: perfil, carga PDF, precio persistido y descarga ZIP. Acta en docs/operations/tender-cat-portal-nativo.md."
+    },
+    {
+      "id": "portal-tender-vistas-20261119",
+      "title": "Tender Cat en el centro de mando",
+      "area": "Portal",
+      "owner": "OPS 1, OPS 2 y Control",
+      "priority": "high",
+      "status": "done",
+      "updated": "2026-11-19",
+      "notes": "Desplegado el 19 de noviembre. Portal y bridge 3ed0fef5ab64, RADAR 394b1fa1550a. Cuenta piloto vinculada a su empresa. Ruta /agentes/licitaciones y recursos públicos verificados. Acta en docs/operations/tender-cat-portal-2026-11-19.md.",
+      "evidence": "Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos. Actualización 1fde2b38cfa7 publicada con títulos breves por IA, descripción oficial desplegable, 3 pruebas de títulos y comprobación de las cinco destacadas reales."
+    },
+    {
       "id": "marca-unica-sin-radar-facturaya-20261120",
       "title": "Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios",
       "area": "Producto",
@@ -41,12 +85,12 @@
       "id": "tender-ramas-sin-publicar-20261120",
       "title": "Publicar y fusionar el código de Tender Cat que ya corre en producción",
       "area": "Ops",
-      "owner": "",
+      "owner": "Control",
       "priority": "high",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-20",
-      "notes": "Revisión del 2026-11-20. El portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree D:/meowlab-wt-tender-nativo) y no está en origin. Eso incumple la regla crítica de git de AGENTS.md. El Worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. Las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. El dueño del flujo Tender debe publicar la rama, abrir los PR y fusionarlos en orden, y registrar el hash en las actas.",
-      "evidence": ""
+      "notes": "El release 887bba550816 ya estaba publicado en el repositorio privado de plataforma y el Worker fcc737d3 en feat/tender-bases-whatsapp. Se rebasaron e integraron las cuatro entregas al main del monorepo en orden: confirmación de interés, recepción de bases, vistas y títulos, portal y servicio nativo.",
+      "evidence": "PR #52 (0d8072c4b093), #53 (bc23a42c13e0), #54 (5295f311597a) y el PR de integración nativa que cierra esta tarea."
     },
     {
       "id": "portal-centro-de-mando-20261119",
@@ -2306,14 +2350,14 @@
     },
     {
       "area": "Tender",
-      "owner": "",
-      "status": "todo",
+      "owner": "OPS 2 y Control",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "Pruebas del portal y recorrido en Chrome con datos de ensayo.",
       "id": "tender-lista-simplificar-20261120",
       "title": "Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones",
       "priority": "medium",
-      "notes": "Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat."
+      "notes": "TenderList adopta PageHeader y muestra Destacadas de la semana con filtros Todas y Guardadas. Las fichas históricas siguen accesibles por enlace directo para los miembros de la empresa."
     },
     {
       "status": "done",

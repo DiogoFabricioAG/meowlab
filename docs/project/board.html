@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 82 · Total: 224</span>
+      <span class="summary">Abiertas: 81 · Total: 228</span>
     </div>
   </div>
 </header>
@@ -229,20 +229,9 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">71</span>
+          <span class="count">69</span>
         </header>
         <div class="column-body">
-        <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
-          <div class="card-top">
-            <span class="badge area-ops">Ops</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Publicar y fusionar el código de Tender Cat que ya corre en producción</h3>
-          
-          <p class="card-notes">Revisión del 2026-11-20. El portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree D:/meowlab-wt-tender-nativo) y no está en origin. Eso incumple la regla crítica de git de AGENTS.md. El Worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. Las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. El dueño del flujo Tender debe publicar la rama, abrir los PR y fusionarlos en orden, y registrar el hash en las actas.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
-          <code class="card-id">tender-ramas-sin-publicar-20261120</code>
-        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -870,17 +859,6 @@
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-3-play-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: dejar solo «destacadas de la semana» en /agentes/licitaciones tender pedido del operador el 20/11: quitar las secciones «guardadas anteriores» y «quitadas» de tenderlist.tsx (solo existe en las ramas de tender cat). le toca al flujo de tender cat. ">
-          <div class="card-top">
-            <span class="badge area-other">Tender</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones</h3>
-          
-          <p class="card-notes">Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
-          <code class="card-id">tender-lista-simplificar-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. ">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
@@ -1018,9 +996,20 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">11</span>
+          <span class="count">12</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Búsqueda automática y alternativas de precio en Tender Cat</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Pruebas de servicio con ingreso de bases por WhatsApp simulado. Pruebas locales con PostgreSQL, proveedor simulado y Chrome para confirmar referencias, precio guardado y subtotal.</p>
+          <p class="card-notes">Publicado en producción desde el commit privado 19df5ac88224. El portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por HTTPS. Pendiente la aceptación con un PDF nuevo por WhatsApp.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: OPS 1, OPS 2 y Control</p>
+          <code class="card-id">tender-investigacion-precios-20261120</code>
+        </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -1147,9 +1136,53 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">142</span>
+          <span class="count">147</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Simplificar ficha, bases y documentos para participar</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un PDF inválido, el ZIP y el ancho móvil de 390 px.</p>
+          <p class="card-notes">Publicado en producción desde el commit privado 887bba550816. La ficha reúne el título, las bases descargables y su reemplazo. Cotización conserva el avance y los errores. Expediente muestra los documentos para participar y conserva los borradores editados.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: OPS 1, OPS 2 y Control</p>
+          <code class="card-id">tender-ficha-documentos-postulacion-20261120</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="tender cat dentro del portal de meowlab portal desplegado desde el commit privado a1f7966a1c9a. listado, históricos y archivo, intereses, bases, cotización y expediente comparten la sesión de meowlab. portal y servicio saludables, se comprobó la lectura del histórico del piloto y se cotejó el javascript servido por https. pendiente la aceptación con personal autorizado. 59 pruebas del portal y 4 del servicio. chrome en escritorio y móvil con sesión y análisis simulados, api y almacenamiento reales de prueba: perfil, carga pdf, precio persistido y descarga zip. acta en docs/operations/tender-cat-portal-nativo.md.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Tender Cat dentro del portal de MeowLab</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 59 pruebas del portal y 4 del servicio. Chrome en escritorio y móvil con sesión y análisis simulados, API y almacenamiento reales de prueba: perfil, carga PDF, precio persistido y descarga ZIP. Acta en docs/operations/tender-cat-portal-nativo.md.</p>
+          <p class="card-notes">Desplegado desde el commit privado a1f7966a1c9a. Listado, históricos y archivo, intereses, bases, cotización y expediente comparten la sesión de MeowLab. Portal y servicio saludables, se comprobó la lectura del histórico del piloto y se cotejó el JavaScript servido por HTTPS. Pendiente la aceptación con personal autorizado.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: OPS 1, OPS 2 y Control</p>
+          <code class="card-id">portal-tender-nativo-20261120</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="tender cat en el centro de mando portal desplegado el 19 de noviembre. portal y bridge 3ed0fef5ab64, radar 394b1fa1550a. cuenta piloto vinculada a su empresa. ruta /agentes/licitaciones y recursos públicos verificados. acta en docs/operations/tender-cat-portal-2026-11-19.md. tipos y compilación correctos. portal 56 pruebas, resumen semanal 5 y radar workspace 7. recorrido en chrome a 1440 y 390 px con datos sintéticos. actualización 1fde2b38cfa7 publicada con títulos breves por ia, descripción oficial desplegable, 3 pruebas de títulos y comprobación de las cinco destacadas reales.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Tender Cat en el centro de mando</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Tipos y compilación correctos. Portal 56 pruebas, resumen semanal 5 y RADAR workspace 7. Recorrido en Chrome a 1440 y 390 px con datos sintéticos. Actualización 1fde2b38cfa7 publicada con títulos breves por IA, descripción oficial desplegable, 3 pruebas de títulos y comprobación de las cinco destacadas reales.</p>
+          <p class="card-notes">Desplegado el 19 de noviembre. Portal y bridge 3ed0fef5ab64, RADAR 394b1fa1550a. Cuenta piloto vinculada a su empresa. Ruta /agentes/licitaciones y recursos públicos verificados. Acta en docs/operations/tender-cat-portal-2026-11-19.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-19 · Responsable: OPS 1, OPS 2 y Control</p>
+          <code class="card-id">portal-tender-vistas-20261119</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops el release 887bba550816 ya estaba publicado en el repositorio privado de plataforma y el worker fcc737d3 en feat/tender-bases-whatsapp. se rebasaron e integraron las cuatro entregas al main del monorepo en orden: confirmación de interés, recepción de bases, vistas y títulos, portal y servicio nativo. pr #52 (0d8072c4b093), #53 (bc23a42c13e0), #54 (5295f311597a) y el pr de integración nativa que cierra esta tarea.">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Publicar y fusionar el código de Tender Cat que ya corre en producción</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR #52 (0d8072c4b093), #53 (bc23a42c13e0), #54 (5295f311597a) y el PR de integración nativa que cierra esta tarea.</p>
+          <p class="card-notes">El release 887bba550816 ya estaba publicado en el repositorio privado de plataforma y el Worker fcc737d3 en feat/tender-bases-whatsapp. Se rebasaron e integraron las cuatro entregas al main del monorepo en orden: confirmación de interés, recepción de bases, vistas y títulos, portal y servicio nativo.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: Control</p>
+          <code class="card-id">tender-ramas-sin-publicar-20261120</code>
+        </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -2524,6 +2557,17 @@
           <p class="card-notes">Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
           <code class="card-id">portal-page-header-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: dejar solo «destacadas de la semana» en /agentes/licitaciones tender tenderlist adopta pageheader y muestra destacadas de la semana con filtros todas y guardadas. las fichas históricas siguen accesibles por enlace directo para los miembros de la empresa. pruebas del portal y recorrido en chrome con datos de ensayo.">
+          <div class="card-top">
+            <span class="badge area-other">Tender</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Pruebas del portal y recorrido en Chrome con datos de ensayo.</p>
+          <p class="card-notes">TenderList adopta PageHeader y muestra Destacadas de la semana con filtros Todas y Guardadas. Las fichas históricas siguen accesibles por enlace directo para los miembros de la empresa.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: OPS 2 y Control</p>
+          <code class="card-id">tender-lista-simplificar-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción) portal detectado por npm audit en la tanda 2 (pr #41). server/node.ts usa serve y servestatic. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. subido @hono/node-server a ^2.1.11 en apps/meowlab-app/package.json; npm audit: 1 moderate -&gt; 0 vulnerabilities. verificado npm run typecheck, npm test (13 archivos, 59/59), npm run build, npm run build:node, y servidor build/server.mjs local (/, /agentes, asset con hash 200; /api/no-existe pasa a api y no a index.html).">
           <div class="card-top">

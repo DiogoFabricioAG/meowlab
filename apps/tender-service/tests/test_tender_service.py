@@ -461,4 +461,3 @@ def test_replace_bases_atomic_preserves_work_and_enforces_isolation(service_clie
     )
     assert repeat.status_code == 200
     assert new_base_id in [b["id"] for b in repeat.json()["uploadedBases"]]
-
