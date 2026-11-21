@@ -12,9 +12,9 @@ una aplicación, cambian una fuente de verdad o son costosas de revertir.
   y el gato le pide al proveedor desde el número de MeowLab, insiste y escala solo lo que no
   puede cerrar; productos propios como órdenes de producción.
 - [0017 — Support Cat](0017-support-cat.md): postventa 24/7 en el WhatsApp de la empresa: responde
-- [0018 — App móvil Android](0018-app-movil-android-capacitor.md): el portal empaquetado con Capacitor, sesión con token, push por FCM desde el bridge y publicación en Google Play por fases.
   con las preguntas frecuentes y el estado en Sales Cat, cotiza con el catálogo y pasa a la titular
   lo que no sabe, con resumen diario.
+- [0018 — App móvil Android](0018-app-movil-android-capacitor.md): el portal empaquetado con Capacitor, sesión con token, push por FCM desde el bridge y publicación en Google Play por fases.
 - [0014 — Stock Cat](0014-stock-cat.md): alertas para que nada se acabe; el stock baja con los
   comprobantes de Invoice Cat y se carga por chat, Excel o imagen.
 
