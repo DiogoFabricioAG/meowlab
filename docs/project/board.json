@@ -1324,10 +1324,11 @@
       "title": "Lint y pruebas de interfaz para la landing",
       "area": "Landing",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "owner": "AGY-3",
-      "notes": "Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md."
+      "notes": "Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.",
+      "evidence": "Agregados scripts check (astro check) y test (vitest run) en package.json, tsconfig.json y vitest.config.ts (happy-dom). Corregido atributo title en SVG de WhatsAppChatRuntime.astro. Pruebas nuevas en test/landing/chats.test.ts y test/landing/chat-player.test.ts (6/6 PASS). npm run check (0 errors), npm test (6/6) y npm run build (5 páginas) PASS."
     },
     {
       "id": "commit-landing-y-scratch",
@@ -1351,10 +1352,11 @@
       "title": "Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)",
       "area": "Worker",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "Reportado por npm audit el 2026-09-13. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.",
-      "owner": "AGY-3"
+      "owner": "AGY-3",
+      "evidence": "Auditoría ejecutada en los 3 paquetes: landing 6 (2 low, 3 high, 1 critical: astro/esbuild/sharp/zod/zod-to-ts, todas requieren salto mayor astro@7.4.13); portal 1 moderate (@hono/node-server, requiere salto mayor @hono/node-server@2.1.11); worker 12 (3 moderate, 9 high, solo reporte sin tocar dependencias). Landing npm run check/test/build y portal npm test (56/56)/build PASS."
     },
     {
       "id": "bridge-production-drift-20261107",
