@@ -1,18 +1,26 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026:** Worker, bridge, portal y servicio de Tender Cat salen de `main`. El Worker sale de `cad7f320a781`; los otros tres, de `37194119efc1`, que corrige la actividad del Inicio:
+**Estado al 21/11/2026 (00:25 Lima):**
 
-- Worker `9c8dc2a1`;
-- bridge `hotfix-actividad-20261121T042006Z` (desde `37194119efc1`);
-- portal `meowlab-app:37194119efc1`;
-- servicio de Tender Cat `meowlab-tender-service:37194119efc1`.
+- Worker `9c8dc2a1`, desde `cad7f320a781`.
+- Bridge `main-20261121T052505Z`, desde `1fea259e81e7`.
+- Portal y servicio de Tender Cat `1fea259e81e7`.
+- Landing `meowlab-web:4ddbb6052f72`.
+- Facturación `error-extraccion-marca-20261121T025707Z`.
 
-Fuera de ese commit:
+Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, Stock, Reorder, Support y Collections Cat. Tender Cat aparece en el catálogo, pero todavía no se vende.
 
-- landing `meowlab-web:4ddbb6052f72`;
-- facturación `error-extraccion-marca-20261121T025707Z`.
+## Portal y bridge: gatos a la venta, Stock Cat fase 2 y Sales Cat fase 3 — publicado 2026-11-21
 
-Mercado Pago funciona en modo producción desde el 20/11.
+El bridge y el portal salen de `1fea259e81e7` e incluyen los PR #49, #51 y #58. Se aplicaron las migraciones `022`, `023` (bridge) y `0005` (portal), con respaldo previo.
+
+- **Plan:** vende seis gatos, y el pago los activa en su tabla `*.settings`.
+- **Stock Cat:** guarda las facturas de proveedor sin duplicarlas.
+- **Sales Cat:** metas del mes, nombre propio y ventas al crédito como deuda en Collections.
+
+El Worker queda en `cad7f320a781` hasta la tarea T5 de la tanda 5. Mientras tanto, el nombre propio de Sales Cat y la carga de Stock Cat por Excel o foto no funcionan en el chat.
+
+[Acta con respaldos y rollback](../operations/portal-bridge-tanda4-2026-11-21.md).
 
 ## Despliegue conjunto desde main: Worker, bridge, portal y Tender Cat — publicado 2026-11-20
 
