@@ -1,4 +1,4 @@
-import readXlsxFile from "read-excel-file/node";
+import { readSheet } from "read-excel-file/node";
 import type { ItemKind, StockLineInput } from "../../stock/bridge-contracts";
 
 export const MAX_SPREADSHEET_BYTES = 2 * 1024 * 1024;
@@ -15,7 +15,7 @@ export class SpreadsheetError extends Error {
   }
 }
 
-function normalizeHeader(raw: unknown): string {
+export function normalizeHeader(raw: unknown): string {
   return String(raw ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -98,15 +98,20 @@ const MIN_HEADERS = new Set([
 ]);
 const KIND_HEADERS = new Set(["tipo", "categoria"]);
 
-function matchColumn(headers: string[], candidates: Set<string>): number {
+export function matchColumn(headers: string[], candidates: Set<string>): number {
   return headers.findIndex((h) => candidates.has(h));
 }
 
-export async function parseStockSpreadsheet(input: {
+export type RawSpreadsheetResult =
+  | { status: "empty" }
+  | { status: "rows"; rawHeaders: string[]; headers: string[]; dataRows: unknown[][] };
+
+/** Shared Excel/CSV reader used by Stock Cat and Reorder Cat. */
+export async function readSpreadsheetRows(input: {
   filename: string;
   mimeType?: string;
   dataBase64: string;
-}): Promise<SpreadsheetParseResult> {
+}): Promise<RawSpreadsheetResult> {
   const buffer = Buffer.from(input.dataBase64, "base64");
   if (buffer.byteLength === 0) return { status: "empty" };
   if (buffer.byteLength > MAX_SPREADSHEET_BYTES) {
@@ -119,7 +124,7 @@ export async function parseStockSpreadsheet(input: {
   try {
     rawRows = isCsv
       ? parseCsvRows(buffer.toString("utf8"))
-      : (await readXlsxFile(buffer)) as unknown as unknown[][];
+      : (await readSheet(buffer)) as unknown as unknown[][];
   } catch {
     throw new SpreadsheetError("invalid_spreadsheet");
   }
@@ -127,8 +132,24 @@ export async function parseStockSpreadsheet(input: {
   const nonEmptyRows = rawRows.filter((row) => row.some((cell) => String(cell ?? "").trim() !== ""));
   if (nonEmptyRows.length === 0) return { status: "empty" };
 
-  const headerRaw = nonEmptyRows[0].map((c) => String(c ?? "").trim());
-  const headers = headerRaw.map(normalizeHeader);
+  const rawHeaders = nonEmptyRows[0].map((c) => String(c ?? "").trim());
+  const headers = rawHeaders.map(normalizeHeader);
+  const dataRows = nonEmptyRows.slice(1);
+  if (dataRows.length > MAX_SPREADSHEET_ROWS) {
+    throw new SpreadsheetError("too_many_rows", { maxRows: MAX_SPREADSHEET_ROWS, rows: dataRows.length });
+  }
+  return { status: "rows", rawHeaders, headers, dataRows };
+}
+
+export async function parseStockSpreadsheet(input: {
+  filename: string;
+  mimeType?: string;
+  dataBase64: string;
+}): Promise<SpreadsheetParseResult> {
+  const read = await readSpreadsheetRows(input);
+  if (read.status === "empty") return { status: "empty" };
+
+  const { rawHeaders, headers, dataRows } = read;
   const nameIdx = matchColumn(headers, NAME_HEADERS);
   const qtyIdx = matchColumn(headers, QTY_HEADERS);
   const costIdx = matchColumn(headers, COST_HEADERS);
@@ -138,14 +159,9 @@ export async function parseStockSpreadsheet(input: {
   if (nameIdx === -1 || qtyIdx === -1) {
     return {
       status: "unknown_columns",
-      headers: headerRaw.filter(Boolean).slice(0, 12),
-      sampleRows: nonEmptyRows.slice(1, 4).map((r) => r.map((c) => String(c ?? "").trim()).slice(0, 12)),
+      headers: rawHeaders.filter(Boolean).slice(0, 12),
+      sampleRows: dataRows.slice(0, 3).map((r) => r.map((c) => String(c ?? "").trim()).slice(0, 12)),
     };
-  }
-
-  const dataRows = nonEmptyRows.slice(1);
-  if (dataRows.length > MAX_SPREADSHEET_ROWS) {
-    throw new SpreadsheetError("too_many_rows", { maxRows: MAX_SPREADSHEET_ROWS, rows: dataRows.length });
   }
 
   const lines: StockLineInput[] = [];

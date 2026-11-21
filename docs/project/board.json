@@ -2199,12 +2199,12 @@
       "id": "reorder-cat-2-20261115",
       "title": "Reorder Cat fase 2: proveedores por Excel, varios proveedores con pedido de precios y número propio de la empresa",
       "area": "Manolo",
-      "owner": "",
+      "owner": "AGY-3",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "ADR-0016, Fases. Tanda 6, T12 (OPS 3): solo proveedores por Excel; pedir precios y número propio quedan pendientes.",
-      "evidence": ""
+      "evidence": "T12 (feat/reorder-proveedores-excel): lectura compartida en src/node/stock/spreadsheet.ts + parseSuppliersSpreadsheet en src/node/reorder/spreadsheet.ts; operaciones parse_suppliers_spreadsheet e import_suppliers (deduplicadas por teléfono normalizado y aisladas por tenant) en ReorderService; confirmación sí/no y listado de filas dudosas en ReorderRoleHandler. Validado con tsc --noEmit (0 errores) y npm test (67 archivos, 763/763 pruebas en verde)."
     },
     {
       "id": "reorder-cat-3-20261115",

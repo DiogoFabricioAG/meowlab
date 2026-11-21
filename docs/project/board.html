@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 72 · Total: 240</span>
+      <span class="summary">Abiertas: 71 · Total: 240</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">65</span>
+          <span class="count">64</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -760,17 +760,6 @@
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">cotizacion-pdf-prueba-whatsapp-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Manolo" data-text="reorder cat fase 2: proveedores por excel, varios proveedores con pedido de precios y número propio de la empresa manolo adr-0016, fases. tanda 6, t12 (ops 3): solo proveedores por excel; pedir precios y número propio quedan pendientes. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Reorder Cat fase 2: proveedores por Excel, varios proveedores con pedido de precios y número propio de la empresa</h3>
-          
-          <p class="card-notes">ADR-0016, Fases. Tanda 6, T12 (OPS 3): solo proveedores por Excel; pedir precios y número propio quedan pendientes.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">reorder-cat-2-20261115</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="plantilla de meta para avisar a la titular fuera de su ventana de 24 horas (reorder y collections) manolo hoy los avisos de reorder cat a la titular solo salen si escribió en las últimas 24 horas; si no, esperan en purchasing.notices hasta que abre /reorder o el portal. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -1037,7 +1026,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">168</span>
+          <span class="count">169</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2601,6 +2590,17 @@
           <p class="card-notes">ADR-0015 fase 3 (parte de venta y activación en Plan).</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
           <code class="card-id">collections-cat-3-venta-20261114</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Manolo" data-text="reorder cat fase 2: proveedores por excel, varios proveedores con pedido de precios y número propio de la empresa manolo adr-0016, fases. tanda 6, t12 (ops 3): solo proveedores por excel; pedir precios y número propio quedan pendientes. t12 (feat/reorder-proveedores-excel): lectura compartida en src/node/stock/spreadsheet.ts + parsesuppliersspreadsheet en src/node/reorder/spreadsheet.ts; operaciones parse_suppliers_spreadsheet e import_suppliers (deduplicadas por teléfono normalizado y aisladas por tenant) en reorderservice; confirmación sí/no y listado de filas dudosas en reorderrolehandler. validado con tsc --noemit (0 errores) y npm test (67 archivos, 763/763 pruebas en verde).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Reorder Cat fase 2: proveedores por Excel, varios proveedores con pedido de precios y número propio de la empresa</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> T12 (feat/reorder-proveedores-excel): lectura compartida en src/node/stock/spreadsheet.ts + parseSuppliersSpreadsheet en src/node/reorder/spreadsheet.ts; operaciones parse_suppliers_spreadsheet e import_suppliers (deduplicadas por teléfono normalizado y aisladas por tenant) en ReorderService; confirmación sí/no y listado de filas dudosas en ReorderRoleHandler. Validado con tsc --noEmit (0 errores) y npm test (67 archivos, 763/763 pruebas en verde).</p>
+          <p class="card-notes">ADR-0016, Fases. Tanda 6, T12 (OPS 3): solo proveedores por Excel; pedir precios y número propio quedan pendientes.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-3</p>
+          <code class="card-id">reorder-cat-2-20261115</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: encabezado estándar (pageheader) con la misma altura y tamaño en todas las páginas portal pedido del operador el 20/11: tender usa h1 sm:text-4xl sin negrita y logo de 44 px; invoice y el resto usan text-3xl font-bold y logo de 48 px. las páginas de agentes ponen «← tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. un componente con una fila superior de altura fija en todas. tenderlist lo adopta cuando su rama se fusione. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. pageheader.tsx adoptado en weeklyhome, agentspage, tenderpanel, planpanel, adminpanel, panel (configuración), invoicingpanel, collectionspanel, stockpanel, reorderpanel y supportpanel; vitest 14/14 (61 tests), npm run typecheck y vite build ok; h1.top = 70 px (1280 px) y 118 px (390 px) idéntico en las páginas medidas con chrome headless.">
           <div class="card-top">

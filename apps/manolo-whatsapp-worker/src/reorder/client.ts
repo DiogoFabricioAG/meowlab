@@ -1,13 +1,16 @@
 import type { SignedVpsBridgeClient } from "../adapters/bridge/signed-vps-client";
 import type { RoleLog } from "../roles/contracts";
 import type {
+  ImportSuppliersResult,
   Notice,
   OrderSummary,
+  ParsedSupplierRow,
   ReorderBridgeRequest,
   ReorderOperation,
   ReorderQueryType,
   ReorderSettings,
   SupplierReply,
+  SuppliersSpreadsheetParseResult,
   SupplyType,
 } from "./bridge-contracts";
 
@@ -71,6 +74,8 @@ export interface ReorderClient {
   supplierMatch(phone: string): Promise<ReorderResult<SupplierMatch[]>>;
   supplierReply(companyId: string, orderId: string, phone: string, reply: SupplierReply): Promise<ReorderResult<SupplierReplyResult>>;
   followups(): Promise<ReorderResult<Followups>>;
+  parseSuppliersSpreadsheet?(companyId: string, input: { filename: string; mimeType?: string; dataBase64: string }): Promise<ReorderResult<SuppliersSpreadsheetParseResult>>;
+  importSuppliers?(companyId: string, suppliers: ParsedSupplierRow[]): Promise<ReorderResult<ImportSuppliersResult>>;
 }
 
 /**
@@ -174,6 +179,14 @@ export class VpsReorderClient implements ReorderClient {
 
   followups() {
     return this.call<Followups>("followups", undefined, {});
+  }
+
+  parseSuppliersSpreadsheet(companyId: string, input: { filename: string; mimeType?: string; dataBase64: string }) {
+    return this.call<SuppliersSpreadsheetParseResult>("parse_suppliers_spreadsheet", companyId, input);
+  }
+
+  importSuppliers(companyId: string, suppliers: ParsedSupplierRow[]) {
+    return this.call<ImportSuppliersResult>("import_suppliers", companyId, { suppliers });
   }
 }
 
