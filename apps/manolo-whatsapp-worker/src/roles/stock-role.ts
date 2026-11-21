@@ -7,7 +7,26 @@ export const STOCK_ROLE_KEY = "stock";
 /** While a Stock Cat conversation is open, the next messages stay with it. */
 export const STOCK_SESSION_MS = 30 * 60_000;
 
-type Pending = { kind: MoveKind; lines: StockLineInput[]; supplier?: { name: string; ruc: string | null } | null };
+type Pending = {
+  kind: MoveKind;
+  lines: StockLineInput[];
+  supplier?: { name: string; ruc: string | null } | null;
+  documentNumber?: string | null;
+  note?: string | null;
+  illegible?: string[];
+};
+
+const MAX_SPREADSHEET_BYTES = 2 * 1024 * 1024;
+const isSpreadsheet = (filename: string, mimeType: string) =>
+  /\.(xlsx|csv)$/i.test(filename) || /spreadsheetml|text\/csv|application\/csv/i.test(mimeType);
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
 export type StockState = {
   v: 1;
   expiresAt: number;
@@ -60,14 +79,24 @@ export function formatReceptions(receptions: StockReception[] | undefined): stri
   }).join("\n");
 }
 
-export function formatPending(pending: Pending): string {
-  const lines = pending.lines.map((line) => {
+export function formatPending(pending: Pending, knownNames?: Set<string>): string {
+  const shown = pending.lines.slice(0, 10);
+  const lines = shown.map((line) => {
     const cost = line.unitCostCents !== null && line.unitCostCents !== undefined ? ` a ${soles(line.unitCostCents)} c/u` : "";
+    const min = line.minQty !== null && line.minQty !== undefined ? ` · mín ${quantityText(line.minQty)}` : "";
+    const tag = knownNames && !knownNames.has(line.name.trim().toLowerCase()) ? " (nuevo)" : "";
     return pending.kind === "count"
-      ? `• ${line.name}: hay ${quantityText(line.quantity)}`
-      : `• ${quantityText(line.quantity)} × ${line.name}${cost}`;
+      ? `• ${line.name}: hay ${quantityText(line.quantity)}${min}${tag}`
+      : `• ${quantityText(line.quantity)} × ${line.name}${cost}${min}${tag}`;
   });
-  return [`*${KIND_LABEL[pending.kind]}*${pending.supplier ? ` de ${pending.supplier.name}` : ""}`, ...lines].join("\n");
+  if (pending.lines.length > shown.length) {
+    lines.push(`… y ${pending.lines.length - shown.length} productos más.`);
+  }
+  if (pending.illegible?.length) {
+    lines.push(`⚠️ No pude leer bien: ${pending.illegible.join("; ")}. ¿Qué dice ahí?`);
+  }
+  const header = `*${KIND_LABEL[pending.kind]}*${pending.supplier ? ` de ${pending.supplier.name}` : ""}${pending.documentNumber ? ` (${pending.documentNumber})` : ""}`;
+  return [header, ...lines].join("\n");
 }
 
 function itemLine(item: StockItem): string {
@@ -110,7 +139,7 @@ const HELP = [
   "• «Avísame cuando queden 10 polos»",
   "• «¿Qué se está acabando?» · «¿Cuánto me queda de tazas?» · «¿Cuánto vale mi inventario?»",
   "Las facturas y boletas que emites con Invoice Cat descuentan el stock solas.",
-  "Escribe /salir para volver con Manolo.",
+  "Escribe /salir para volver con MeowLab.",
 ].join("\n");
 
 const ERROR_TEXT: Record<string, string> = {
@@ -207,6 +236,10 @@ export class StockRoleHandler implements RoleHandler {
     }
 
     const message = text.replace(/^\/stock\b/i, "").trim();
+    if (context.document) {
+      await this.onDocument(context, client, state, companyId, save);
+      return;
+    }
     if (!message && !state.pending) {
       await save();
       await this.open(context, client, state, `Hola, soy Stock Cat${state.companyName ? ` de ${state.companyName}` : ""}.`);
@@ -219,15 +252,16 @@ export class StockRoleHandler implements RoleHandler {
     if (state.pending && /^(cancelar|descartar|no)$/i.test(message)) {
       state.pending = null;
       await save();
-      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver con Manolo.");
+      await context.reply("Descartado. ¿Algo más? Escribe /salir para volver con MeowLab.");
       return;
     }
 
     const [items, sync] = await Promise.all([client.items(companyId), client.syncDocuments(companyId)]);
+    const itemNames = items.ok ? items.data.items.map((item) => item.name) : [];
     const extraction = await extractStock(context.ai, context.tenant, {
       message: message || text,
       pending: state.pending,
-      items: items.ok ? items.data.items.map((item) => item.name) : [],
+      items: itemNames,
       unmatched: sync.ok ? sync.data.unmatched : [],
     }, context.log);
     if (sync.ok && sync.data.alerts.length) {
@@ -239,7 +273,7 @@ export class StockRoleHandler implements RoleHandler {
       await context.reply("No te entendí bien. ¿Me lo dices de otra forma? Por ejemplo: «me llegaron 20 polos».");
       return;
     }
-    await this.onExtraction(context, client, state, companyId, extraction, save, close);
+    await this.onExtraction(context, client, state, companyId, extraction, new Set(itemNames.map((n) => n.toLowerCase())), save, close);
   }
 
   /** Greets, brings documents up to date and says what needs attention. */
@@ -272,6 +306,14 @@ export class StockRoleHandler implements RoleHandler {
       await this.confirm(context, client, state, companyId, save);
       return;
     }
+    if (interaction === "stock:edit") {
+      if (!state.pending) {
+        await context.reply("No hay nada pendiente para corregir. Cuéntame qué entró, salió o contaste.");
+        return;
+      }
+      await context.reply("¿Qué quieres corregir? Dime el producto y la cantidad o el costo correcto.");
+      return;
+    }
     if (interaction === "stock:cancel") {
       state.pending = null;
       await save();
@@ -291,8 +333,70 @@ export class StockRoleHandler implements RoleHandler {
     await context.reply("Ese botón ya no aplica. Escribe /stock para empezar de nuevo.");
   }
 
+  private async sendConfirmation(context: RoleHandlerContext, pending: Pending, knownNames?: Set<string>) {
+    const summary = formatPending(pending, knownNames);
+    const sent = await context.sendButtons?.(summary, [
+      { id: "stock:confirm", title: "Guardar" },
+      { id: "stock:edit", title: "Corregir" },
+      { id: "stock:cancel", title: "Cancelar" },
+    ]);
+    if (!sent || sent.status !== "sent") await context.reply(`${summary}\n\nResponde *confirmar* para guardar o *cancelar*.`);
+  }
+
+  private async onDocument(context: RoleHandlerContext, client: StockClient, state: StockState, companyId: string, save: () => Promise<void>) {
+    const doc = context.document!;
+    if (!isSpreadsheet(doc.filename, doc.mimeType)) {
+      await save();
+      await context.reply("Por ahora solo leo archivos Excel (.xlsx o .csv). Si es una lista o factura en foto, mándamela como imagen.");
+      return;
+    }
+    if (doc.bytes.byteLength > MAX_SPREADSHEET_BYTES) {
+      await save();
+      await context.reply("Ese archivo pesa más de 2 MB. Mándame uno más pequeño (máximo 2 MB y 500 filas).");
+      return;
+    }
+    if (!client.parseSpreadsheet) {
+      await save();
+      await context.reply("No puedo leer archivos Excel en este momento. Inténtalo en unos minutos.");
+      return;
+    }
+    const [parsed, items] = await Promise.all([
+      client.parseSpreadsheet(companyId, { filename: doc.filename, mimeType: doc.mimeType, dataBase64: bytesToBase64(doc.bytes) }),
+      client.items(companyId),
+    ]);
+    if (!parsed.ok) {
+      await save();
+      const msg = parsed.code === "file_too_large"
+        ? "Ese archivo pesa más de 2 MB. Mándame uno más pequeño (máximo 2 MB y 500 filas)."
+        : parsed.code === "too_many_rows"
+          ? "Ese archivo tiene más de 500 filas. Divídelo en partes de hasta 500 productos."
+          : "No pude leer ese archivo. Verifica que sea .xlsx o .csv válido.";
+      await context.reply(msg);
+      return;
+    }
+    if (parsed.data.status === "empty") {
+      await save();
+      await context.reply("Ese archivo está vacío o no tiene filas con producto y cantidad.");
+      return;
+    }
+    if (parsed.data.status === "unknown_columns") {
+      await save();
+      const cols = parsed.data.headers.length ? parsed.data.headers.join(", ") : "sin encabezados";
+      await context.reply(`No reconocí las columnas de tu archivo (encontré: ${cols}). Dime cuál es el producto y cuál es la cantidad, o renómbralas a «Producto» y «Cantidad».`);
+      return;
+    }
+    state.pending = {
+      kind: "in",
+      lines: parsed.data.lines,
+      note: `Excel: ${doc.filename}`.slice(0, 300),
+    };
+    await save();
+    const knownNames = items.ok ? new Set(items.data.items.map((item) => item.name.toLowerCase())) : undefined;
+    await this.sendConfirmation(context, state.pending, knownNames);
+  }
+
   private async onExtraction(context: RoleHandlerContext, client: StockClient, state: StockState, companyId: string,
-    extraction: StockExtraction, save: () => Promise<void>, close: (text: string) => Promise<void>) {
+    extraction: StockExtraction, knownNames: Set<string>, save: () => Promise<void>, close: (text: string) => Promise<void>) {
     switch (extraction.intent) {
       case "exit":
         await close("Listo, saliste de Stock Cat. Escribe /stock cuando quieras volver.");
@@ -307,7 +411,11 @@ export class StockRoleHandler implements RoleHandler {
       case "count": {
         if (!extraction.items.length) {
           await save();
-          await context.reply(extraction.reply || "¿Qué productos y cuántos?");
+          if (extraction.illegible.length) {
+            await context.reply(`No pude leer bien esa foto (${extraction.illegible.join("; ")}). ¿Me escribes los productos y cantidades o me mandas otra foto más clara?`);
+          } else {
+            await context.reply(extraction.reply || "¿Qué productos y cuántos?");
+          }
           return;
         }
         state.pending = {
@@ -319,14 +427,11 @@ export class StockRoleHandler implements RoleHandler {
             ...(item.kind ? { kind: item.kind } : {}),
           })),
           ...(extraction.intent === "in" && extraction.supplier ? { supplier: extraction.supplier } : {}),
+          ...(extraction.intent === "in" && extraction.invoiceNumber ? { documentNumber: extraction.invoiceNumber } : {}),
+          ...(extraction.illegible.length ? { illegible: extraction.illegible } : {}),
         };
         await save();
-        const summary = formatPending(state.pending);
-        const sent = await context.sendButtons?.(summary, [
-          { id: "stock:confirm", title: "Guardar" },
-          { id: "stock:cancel", title: "Cancelar" },
-        ]);
-        if (!sent || sent.status !== "sent") await context.reply(`${summary}\n\nResponde *confirmar* para guardar o *cancelar*.`);
+        await this.sendConfirmation(context, state.pending, knownNames);
         return;
       }
       case "set_min": {
@@ -406,9 +511,15 @@ export class StockRoleHandler implements RoleHandler {
       await context.reply("No hay nada pendiente de guardar. Cuéntame qué entró, salió o contaste.");
       return;
     }
-    const result = await client.move(companyId, pending.kind, pending.lines, null, pending.supplier ?? null);
+    const result = await client.move(companyId, pending.kind, pending.lines, pending.note ?? null, pending.supplier ?? null, pending.documentNumber ?? null);
     if (!result.ok) {
-      const details = result.details as { name?: string; onHand?: number } | undefined;
+      const details = result.details as { name?: string; onHand?: number; supplier?: string; documentNumber?: string } | undefined;
+      if (result.code === "duplicate_supplier_invoice") {
+        state.pending = null;
+        await save();
+        await context.reply(`Esa factura${details?.documentNumber ? ` (${details.documentNumber})` : ""}${details?.supplier ? ` de ${details.supplier}` : ""} ya estaba registrada en tu inventario. No la volví a sumar.`);
+        return;
+      }
       await context.reply(result.code === "insufficient" && details?.name
         ? `No hay suficiente ${details.name}: quedan ${quantityText(details.onHand ?? 0)}. La regla de tu empresa no permite quedar en negativo; corrige la cantidad o haz un conteo.`
         : result.code === "not_found" && (result.details as { name?: string } | undefined)?.name

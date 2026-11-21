@@ -2090,10 +2090,10 @@
       "area": "Manolo",
       "owner": "AGY-3",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "ADR-0014. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
-      "evidence": ""
+      "evidence": "Implementada fase 2 de Stock Cat: parser Excel/CSV en bridge con read-excel-file@9.3.20 (límite 2 MB / 500 filas, variantes de encabezados en español, pregunta columnas desconocidas), lectura de fotos/cuadernos y facturas de proveedor con marca de ítems ilegibles sin inventarlos, confirmación con botones Guardar/Corregir/Cancelar, migración 022-stock-supplier-invoices.sql (sin aplicar) para proveedor/número e idempotencia. Pruebas nuevas en test/stock-role.test.ts y test/stock-digitalize.test.ts; npx tsc --noEmit y npm run build:node PASS; vitest run PASS salvo las 2 pruebas conocidas de Tender Cat."
     },
     {
       "id": "stock-cat-3-venta-20261113",

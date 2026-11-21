@@ -13,6 +13,7 @@ export const STOCK_OPERATIONS = [
   "query",
   "sync_documents",
   "link_alias",
+  "parse_spreadsheet",
 ] as const;
 export type StockOperation = (typeof STOCK_OPERATIONS)[number];
 
@@ -29,7 +30,7 @@ export type QueryType = (typeof QUERY_TYPES)[number];
 export const MOVE_PERIODS = ["today", "yesterday", "week", "month", "last_month"] as const;
 export type MovePeriod = (typeof MOVE_PERIODS)[number];
 
-export type StockLineInput = { name: string; quantity: number; unitCostCents?: number | null; kind?: ItemKind };
+export type StockLineInput = { name: string; quantity: number; unitCostCents?: number | null; kind?: ItemKind; minQty?: number | null };
 
 export type StockBridgeRequest = {
   channel_tenant_id: string;
@@ -72,10 +73,12 @@ const cents = (value: unknown) => value === undefined || value === null
 const company = (value: unknown) => typeof value === "string" && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
 
 export function isStockLines(value: unknown, kind: MoveKind): value is StockLineInput[] {
-  return Array.isArray(value) && value.length >= 1 && value.length <= 50 && value.every((line) =>
+  return Array.isArray(value) && value.length >= 1 && value.length <= 500 && value.every((line) =>
     record(line) && text(line.name, 200) && quantity(line.quantity)
     && (kind === "count" || Number(line.quantity) > 0)
-    && cents(line.unitCostCents) && (line.kind === undefined || ITEM_KINDS.includes(line.kind as ItemKind)));
+    && cents(line.unitCostCents)
+    && (line.minQty === undefined || line.minQty === null || quantity(line.minQty))
+    && (line.kind === undefined || ITEM_KINDS.includes(line.kind as ItemKind)));
 }
 
 export function isStockPayload(operation: StockOperation, payload: Record<string, unknown>): boolean {
@@ -87,6 +90,8 @@ export function isStockPayload(operation: StockOperation, payload: Record<string
     case "move":
       return MOVE_KINDS.includes(payload.kind as MoveKind) && isStockLines(payload.lines, payload.kind as MoveKind)
         && (payload.note === undefined || payload.note === null || (typeof payload.note === "string" && payload.note.length <= 300))
+        && (payload.documentNumber === undefined || payload.documentNumber === null
+          || (payload.kind === "in" && text(payload.documentNumber, 64)))
         // Who sold it, read from the purchase invoice (ADR-0016, point 3); only on entries.
         && (payload.supplier === undefined || (payload.kind === "in" && record(payload.supplier) && text(payload.supplier.name, 200)
           && (payload.supplier.ruc === undefined || payload.supplier.ruc === null || (typeof payload.supplier.ruc === "string" && /^[0-9]{11}$/.test(payload.supplier.ruc)))));
@@ -100,6 +105,10 @@ export function isStockPayload(operation: StockOperation, payload: Record<string
         && (payload.type !== "moves" || MOVE_PERIODS.includes(payload.period as MovePeriod));
     case "link_alias":
       return text(payload.description, 300) && text(payload.name, 200);
+    case "parse_spreadsheet":
+      return text(payload.filename, 255)
+        && (payload.mimeType === undefined || typeof payload.mimeType === "string")
+        && typeof payload.dataBase64 === "string" && payload.dataBase64.length > 0 && payload.dataBase64.length <= 3_000_000;
   }
 }
 

@@ -23,16 +23,22 @@ export type StockAnswer =
   | { valueCents: number; withoutCost: number; withStock: number }
   | { period: MovePeriod; items: Array<{ name: string; entered: number; left: number; countDifference: number }> };
 
+export type SpreadsheetParseResponse =
+  | { status: "parsed"; lines: StockLineInput[]; skippedRows: number }
+  | { status: "unknown_columns"; headers: string[]; sampleRows: string[][] }
+  | { status: "empty" };
+
 /** What the Stock Cat role needs from the platform (ADR-0014). */
 export interface StockClient {
   companies(): Promise<StockResult<StockCompany[]>>;
   items(companyId: string): Promise<StockResult<{ items: StockItem[]; owner: boolean; settings: { allowNegative: boolean } }>>;
-  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier?: { name: string; ruc: string | null } | null): Promise<StockResult<StockMoved>>;
+  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier?: { name: string; ruc: string | null } | null, documentNumber?: string | null): Promise<StockResult<StockMoved>>;
   setMin(companyId: string, name: string, minQty: number | null): Promise<StockResult<{ item: { name: string; onHand: number; minQty: number | null }; alerts: StockAlert[] }>>;
   settings(companyId: string, allowNegative: boolean): Promise<StockResult<{ settings: { allowNegative: boolean } }>>;
   query(companyId: string, type: QueryType, options: { name?: string; period?: MovePeriod }): Promise<StockResult<StockAnswer>>;
   syncDocuments(companyId: string): Promise<StockResult<StockSync>>;
   linkAlias(companyId: string, description: string, name: string): Promise<StockResult<{ item: { name: string; onHand: number }; applied: number; alerts: StockAlert[] }>>;
+  parseSpreadsheet?(companyId: string, input: { filename: string; mimeType: string; dataBase64: string }): Promise<StockResult<SpreadsheetParseResponse>>;
 }
 
 /** Through the signed VPS bridge; the WhatsApp message id seeds idempotent writes. */
@@ -76,10 +82,11 @@ export class VpsStockClient implements StockClient {
     return this.call<{ items: StockItem[]; owner: boolean; settings: { allowNegative: boolean } }>("items", companyId, {});
   }
 
-  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier: { name: string; ruc: string | null } | null = null) {
+  move(companyId: string, kind: MoveKind, lines: StockLineInput[], note: string | null, supplier: { name: string; ruc: string | null } | null = null, documentNumber: string | null = null) {
     return this.call<StockMoved>("move", companyId, {
       kind, lines, note,
       ...(supplier && kind === "in" ? { supplier: supplier.ruc ? supplier : { name: supplier.name } } : {}),
+      ...(documentNumber && kind === "in" ? { documentNumber } : {}),
     });
   }
 
@@ -101,5 +108,9 @@ export class VpsStockClient implements StockClient {
 
   linkAlias(companyId: string, description: string, name: string) {
     return this.call<{ item: { name: string; onHand: number }; applied: number; alerts: StockAlert[] }>("link_alias", companyId, { description, name });
+  }
+
+  parseSpreadsheet(companyId: string, input: { filename: string; mimeType: string; dataBase64: string }) {
+    return this.call<SpreadsheetParseResponse>("parse_spreadsheet", companyId, input);
   }
 }
