@@ -1,10 +1,10 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026 (02:25 Lima):**
+**Estado al 21/11/2026 (15:20 Lima):**
 
 - Worker `535d842a`, desde `1b5a2fe9734c`.
-- Bridge `main-20261121T072425Z`, desde `e8facb05a217`.
-- Portal y servicio de Tender Cat `e8facb05a217`.
+- Bridge `main-20261121T202124Z`, desde `f77be1184b10`.
+- Portal y servicio de Tender Cat `f77be1184b10`.
 - Landing `meowlab-web:5b927b7798d2` (Astro 7).
 - Facturación `error-extraccion-marca-20261121T025707Z`.
 
@@ -14,6 +14,16 @@ Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, 
 
 
 
+
+## Tus agentes como mesa del consejo — publicado 2026-11-21
+
+Desde `f77be1184b10`, sin migraciones.
+
+- **La mesa:** cada gato da un consejo de tendencia con datos reales, y los gatos que no tienes aparecen como silla libre.
+- **«Lo que revisa el consejo»:** Tendencia sale de Inicio y pasa aquí.
+- **«Quién habla con tus gatos»:** muestra, por gato y en los últimos 30 días, las personas del equipo, sus pedidos y los clientes de Support Cat.
+
+[Acta](../operations/consejo-de-gatos-2026-11-21.md).
 ## Plan como página de venta y resumen diario de Support Cat — publicado 2026-11-21
 
 Desde `e8facb05a217`, sin migraciones:
