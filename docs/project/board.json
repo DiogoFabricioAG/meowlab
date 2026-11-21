@@ -2468,6 +2468,17 @@
       "updated": "2026-11-20",
       "notes": "PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until.",
       "evidence": ""
+    },
+    {
+      "id": "sales-alias-sin-consulta-por-mensaje-20261121",
+      "title": "Sales Cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     }
   ]
 }

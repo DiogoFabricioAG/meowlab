@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 79 · Total: 233</span>
+      <span class="summary">Abiertas: 80 · Total: 234</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">73</span>
+          <span class="count">74</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -528,6 +528,17 @@
           <p class="card-notes">Reportado por el operador el 21/11: hay negocios informales o desconfiados que pueden usar Sales, Stock, Collections, Reorder, Support y Tender sin RUC. Requiere ADR, cambio en create del bridge, migración sin aplicar y nueva bienvenida. Tanda 5, T2. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">portal-alta-sin-ruc-20261121</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato manolo hallado en la revisión del pr #58. index.ts llama a resolvealias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. bloquea desplegar el worker con sales cat fase 3. tanda 5, t5: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Sales Cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato</h3>
+          
+          <p class="card-notes">Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
+          <code class="card-id">sales-alias-sin-consulta-por-mensaje-20261121</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
