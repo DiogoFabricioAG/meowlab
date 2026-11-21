@@ -602,7 +602,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
               disabled={busy || price.selectedKeys.length === 0}
               className="btn-primary shrink-0 px-4 py-2.5 text-sm"
             >
-              {busy ? "Abriendo…" : payMode === "prepaid" ? `Pagar ${prepayMonths} m` : "Suscribirme"}
+              {busy ? "Abriendo…" : payMode === "prepaid" ? "Pagar" : "Suscribirme"}
             </button>
           </div>
         </div>
