@@ -5,6 +5,7 @@ import { EDITORIAL_ALERT_HEADING, friendlyAlertText, safeAlertDraft, type RadarA
 import { interactiveAlert } from "./follow-up";
 import { validateEvidence, type RadarEvidence } from "./evidence";
 import { radarSyncHttp } from "./sync-http";
+import { radarBasesHttp } from "./bases-http";
 import { publishAlertCandidate } from "./publish-alert-candidate";
 import { ALERT_INTERVAL_MS, nextAlertTime } from "./pacing";
 
@@ -243,6 +244,9 @@ export async function radarHttp(request: Request, env: Env, now = () => Date.now
     }
     if (path === "/revoke" && request.method === "POST") { await store.revoke(installation, now()); return json({ revoked: true }); }
     if (["/candidates", "/sync", "/sync/ack"].includes(path)) return await radarSyncHttp(request, env, store, installation, now);
+    if (path === "/bases/pending" || path.startsWith("/bases/") || path === "/preparation-notices") {
+      return await radarBasesHttp(request, env, store, installation, now);
+    }
     if (path === "/alerts" && request.method === "POST") return await sendAlert(request, store, installation, env, now, writer);
     if (path === "/alerts/preview" && request.method === "POST") return await previewAlert(request, store, installation, env, now, writer);
     return json({ error: "not_found" }, 404);
