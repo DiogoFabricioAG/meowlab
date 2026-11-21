@@ -71,6 +71,22 @@ volverán a ejecutar estos archivos manualmente.
 - No se desplegará Chromium en este VPS mientras conserve 3.8 GiB de RAM sin la
   ampliación o separación indicada en el plan de migración.
 
+## Staging de releases del bridge
+
+Para preparar una nueva release del bridge en `/opt/manolo-platform/releases/<release-id>` desde un commit ya publicado en `origin` (sin cambiar todavía el contenedor activo), usar [`stage-bridge-release.sh`](stage-bridge-release.sh):
+
+```sh
+scp apps/manolo-whatsapp-worker/infra/vps/stage-bridge-release.sh meowlab:/tmp/
+git archive --format=tar <commit-publicado> apps/manolo-whatsapp-worker \
+  | ssh meowlab 'bash /tmp/stage-bridge-release.sh <commit-publicado> <release-id>'
+```
+
+El VPS no tiene clon del repositorio, así que el código llega por stdin desde el
+`git archive` local. Si algún día existe un clon en el host, basta con
+`MEOWLAB_REPO_DIR=<clon>` y sin tubería.
+
+El script ejecuta en orden: extracción de `source/` desde ese tar, generación de `companies-check.mjs` (comprobaciones firmadas esperando `forbidden` con cuenta ajena), creación de `cutover.sh` y `rollback.sh`, respaldo `source-before.tar.gz`, etiquetado `manolo-platform-bridge:rollback-<release-id>` y `docker build`. Admite `--dry-run` para verificar el plan sin mutar el host.
+
 ## Rollback
 
 ### Release fiscal — 2026-11-05

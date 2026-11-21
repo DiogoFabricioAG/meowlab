@@ -1,5 +1,87 @@
 # Estado del proyecto
 
+**Estado al 20/11/2026:** Worker `509a3384` (desde `feat/tender-bases-whatsapp`); portal `meowlab-app:887bba550816` (con `meowlab-tender-service:887bba550816`); bridge `support-cat-20261115T201344Z` (`manolo-platform-bridge:latest`); landing `meowlab-web:130f6c1215c3`; facturación `nombres-padron-pdf-20261119T055023Z`.
+
+## Tender Cat: recepción de bases PDF/DOCX por WhatsApp y resumen de preparación — publicado 2026-11-19
+
+Desplegado desde ramas sin fusionar en `main` (`feat/tender-bases-whatsapp`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Worker `509a3384` (desde `fcc737d3`) y backend de licitaciones `cae75bd02c32`, con migración D1 `0020_radar_bases_uploads.sql`. Intercepta adjuntos PDF/DOCX hasta 15 MB en WhatsApp, los ingiere de forma idempotente verificando SHA-256, encola la preparación y devuelve al chat el resumen con fuentes y páginas para convocatorias solicitadas por WhatsApp. Acta en `origin/feat/tender-bases-whatsapp:docs/operations/tender-cat-bases-whatsapp-2026-11-19.md`.
+
+## Tender Cat: «Me interesa» con enlace oficial a bases — publicado 2026-11-19
+
+Desplegado desde ramas sin fusionar en `main` (`feat/tender-respuesta-interes` y `feat/tender-enlace-bases`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Worker `7d33f0e0` (desde `2c670f88`) y backend de licitaciones `2d814a166d5c`. Enriquece los avisos con metadatos de documentos oficiales de SEACE (priorizando Bases Integradas hasta el tope de 6) y, al pulsar «Me interesa», responde en el chat con el enlace directo a las bases o a la ficha oficial. Acta en `origin/feat/tender-bases-whatsapp:docs/operations/tender-cat-me-interesa-2026-11-19.md`.
+
+## Tender Cat en producción: vistas en el portal y títulos breves — publicado 2026-11-19
+
+Desplegado desde ramas sin fusionar en `main` (`feat/tender-cat-vistas`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Portal y bridge desde `3ed0fef5ab64` y actualización posterior a `1fde2b38cfa7` para títulos breves generados con IA; API/web de licitaciones en `394b1fa1550a`. Habilita `/agentes/licitaciones` con lista, ficha y enlace al espacio de cotización y expediente. Acta en `origin/feat/tender-cat-vistas:docs/operations/tender-cat-portal-2026-11-19.md`.
+
+## Portal app.meowlab.tech: Inicio como centro de mando y barra lateral clara — publicado 2026-11-19
+
+Portal desplegado en el VPS (`meowlab-app:4b35a5e1608f` desde `4b35a5e`, PR #24). Reorganiza `/inicio` como centro de mando (cifras de la semana, pendientes en «Para atender» y estado de cada gato en «Tus gatos hoy») con barra lateral clara. [Acta de despliegue y rollback](../operations/portal-centro-de-mando-2026-11-19.md).
+
+## Portal app.meowlab.tech: tipografía Crete Round y Figtree — publicado 2026-11-19
+
+Portal desplegado en el VPS (`meowlab-app:8a6aee5f008f` desde `8a6aee5`, PR #22). Títulos en Crete Round (`font-synthesis: none`), textos, botones y montos en Figtree, y logotipo en Blinker. [Acta de despliegue y rollback](../operations/portal-tipografia-2026-11-19.md).
+
+## Invoice Cat y FacturaYa: nombre del padrón y etiqueta de cliente en PDF — publicado 2026-11-19
+
+Worker `34da882d` (desde `0151f`, PR #20) y FacturaYa `nombres-padron-pdf-20261119T055023Z` (desde `74972b0` en `facturaya-ai`). Invoice Cat consulta RUC/DNI aunque llegue un nombre escrito, usa el del padrón y avisa si difiere; el PDF muestra «Nombre» para DNI/RUC 10, «Razón social» para RUC 20 y nombre comercial junto al legal. [Acta en MeowLab](../operations/invoice-cat-nombre-padron-2026-11-19.md) y acta en `facturaya-ai` (`docs/deployment-2026-11-19-nombres-padron-pdf.md`).
+
+## Landing: captura real de Yape en los chats — publicado 2026-11-16
+
+Landing desplegada en el VPS (`meowlab-web:130f6c1215c3` desde `130f6c1`, PR #17). Las burbujas de Yape de Sales y Collections muestran la captura real (`/assets/landing/yape-captura.webp`) alineada con los textos del chat. [Acta de despliegue y rollback](../operations/landing-yape-captura-2026-11-16.md).
+
+## Landing: cada gato con una pestaña por actor — publicado 2026-11-16
+
+Landing desplegada en el VPS (`meowlab-web:0b66b18e71af` desde `0b66b18`, PR #15). Cada paso del recorrido `#gatos` separa pestañas por actor (cliente, dueño o proveedor) según `matriz-participacion.md`, con 14 conversaciones. [Acta de despliegue y rollback](../operations/landing-gatos-por-actor-2026-11-16.md).
+
+## Landing: cada gato a su máxima capacidad — publicado 2026-11-16
+
+Landing desplegada en el VPS (`meowlab-web:98dff71bf357` desde `98dff71`, PR #12). Conversaciones completas en `#gatos` mostrando cadenas entre gatos y Sales Cat como cara del negocio. [Acta de despliegue y rollback](../operations/landing-gatos-al-maximo-2026-11-16.md).
+
+## Landing: rediseño con WhatsApp interactivo — publicado 2026-11-16
+
+Landing desplegada en el VPS (`meowlab-web:b2cb2a2967f0` desde `b2cb2a2`, PR #10). Hero con WhatsApp interactivo, recorrido `#gatos`, sección `#juntos`, `#panel` y `/precios`. [Acta de despliegue y rollback](../operations/landing-rediseno-2026-11-16.md).
+
+## Landing: los siete gatos y marca MeowLab — publicado 2026-11-16
+
+Landing desplegada en el VPS (`meowlab-web:7a058ca8a4c5` desde `7a058ca`, PR #8). Los siete gatos figuran disponibles en `#agentes`, nueva sección `#juntos` y adopción de la marca MeowLab en la página, privacidad y términos. [Acta de despliegue y rollback](../operations/landing-siete-gatos-2026-11-16.md).
+
+## Support Cat fase 1 — publicado 2026-11-15
+
+Desplegado desde `d932a980` (`feat/support-cat`): migración PostgreSQL `021-support-cat.sql`, bridge `support-cat-20261115T201344Z`, Worker `432dddd4` y portal `meowlab-app:d932a980e1dc`. Atención 24/7 a clientes, tickets escalados a la titular (`/support`), resumen diario y `/agentes/soporte`. [Acta de despliegue y rollback](../operations/support-cat-2026-11-15.md).
+
+## Reorder Cat fase 1 — publicado 2026-11-15
+
+Desplegado desde `48922079` (`feat/reorder-cat`): FacturaYa `purchase-order-pdf-20261115T170430Z`, migración `020-reorder-cat.sql`, bridge `reorder-cat-20261115T170543Z`, Worker `13055d67` (y `dab69833` con ajuste de variables de plantilla) y portal `meowlab-app:489220796c85`. [Acta de despliegue y rollback](../operations/reorder-cat-2026-11-15.md).
+
+## Collections Cat fase 1 — publicado 2026-11-14
+
+Desplegado desde `369472f1` (`feat/collections-cat`): FacturaYa `collections-terms-20261115T011242Z`, migración `019-collections-cat.sql`, bridge `collections-cat-20261115T011409Z`, Worker `a825cfc8` y portal `meowlab-app:369472f15e95`. [Acta de despliegue y rollback](../operations/collections-cat-2026-11-14.md).
+
+## Sales Cat a la venta por empresa — publicado 2026-11-14
+
+Desplegado desde `fc1f59dd` (`feat/sales-venta-integrada`): migración `017-sales-subscriptions.sql` y activación de suscripciones por empresa en portal y bridge. [Acta de despliegue y rollback](../operations/sales-venta-por-empresa-2026-11-14.md).
+
+## Stock Cat fase 1 — publicado 2026-11-13
+
+Desplegado desde `76719df8` (`feat/stock-cat`): FacturaYa `stock-items-20261113T222135Z`, migración `018-stock-cat.sql`, bridge `stock-cat-20261113T222237Z` y Worker `0e82850a`. [Acta de despliegue y rollback](../operations/stock-cat-2026-11-13.md).
+
+## Cotización en PDF con plantilla única — publicado 2026-11-13
+
+Desplegado desde `5c92d858` (`feat/cotizacion-pdf`): FacturaYa `cotizacion-pdf-20261113T204757Z`, migración `016-quote-pdf.sql`, bridge `cotizacion-pdf-20261113T204859Z` y Worker `c7d865b2`. [Acta de despliegue y rollback](../operations/cotizacion-pdf-2026-11-13.md).
+
+## Kit de marca fase 1 — publicado 2026-11-13
+
+Desplegado desde `2726a0aa` (`feat/brand-kit`): migración `015-brand-kit.sql`, bridge `brand-kit-20261113T194050Z` y portal `meowlab-app:e77b2a4472ef`. [Acta de despliegue y rollback](../operations/brand-kit-2026-11-13.md).
+
+## Sales Cat fase 1 — publicado 2026-11-13
+
+Desplegado desde `beb37b67` (`feat/sales-cat-fase1`): migración `014-sales-cat.sql`, bridge `sales-cat-20261113T174650Z`, Worker `404f87d3` y portal `meowlab-app:395204fb1cc5`. [Acta de despliegue y rollback](../operations/sales-cat-2026-11-13.md).
+
+## Portal app.meowlab.tech y landing Taste — publicado 2026-11-13
+
+Lanzamiento del diseño Taste en la landing ([acta](../operations/landing-taste-2026-11-13.md)) y módulos del portal (`inicio`, `empresas`, `agentes`, `facturación`, `invitaciones` y `vinculación OTP`; actas del `2026-11-13` en `docs/operations/`).
+
 ## Portal app.meowlab.tech: compresión de imágenes a WebP — publicado 2026-11-12
 
 Portal desplegado en el VPS (`meowlab-app:fbfcf294de82` desde `fbfcf29`). Imágenes
