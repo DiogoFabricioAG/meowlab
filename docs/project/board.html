@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 86 · Total: 223</span>
+      <span class="summary">Abiertas: 87 · Total: 224</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">76</span>
+          <span class="count">77</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -539,6 +539,17 @@
           <p class="card-notes">Lo hace el operador (ADR-0018). Decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere D-U-N-S). Clave de subida fuera del repo con respaldo.</p>
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-0-cuentas-20261120</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="cobros: que el pago active cada gato (stock, collections, reorder, support y tender) y que todos se puedan comprar en plan portal pedido del operador el 20/11, para los agentes agy. hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y tender cat no está en el catálogo (s/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). portalentitlementservice (bridge) solo activa sales cat (sales.settings, source subscription, active_until). falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y tender cat; entitled_agents y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; invoice cat sigue requiriendo clave sol (el pago no la sustituye; decir en plan qué falta); pruebas por gato y del aislamiento por tenant. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: que el pago active cada gato (Stock, Collections, Reorder, Support y Tender) y que todos se puedan comprar en Plan</h3>
+          
+          <p class="card-notes">Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">billing-activacion-gatos-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
