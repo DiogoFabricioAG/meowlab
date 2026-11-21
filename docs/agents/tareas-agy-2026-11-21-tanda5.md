@@ -8,7 +8,7 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
 - Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
-  **T1**, **T2**, **T3**, **T4**, **T5**, **T6**, **T7** y **T8**. Hay una para cada agente y una de reserva, así
+  **T1**, **T2**, **T3**, **T4**, **T5**, **T6**, **T7**, **T8** y **T9**. Hay una para cada agente y una de reserva, así
   ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
@@ -580,4 +580,59 @@ Anota en el PR qué patrón tomaste de cada referencia.
 - **Paso 2:** pasan `npm test`, `npm run typecheck` y `npm run build`, y el PR trae
   capturas de la versión final a 1366 y 390 px.
 - La tarea del tablero queda en `done`.
+
+---
+
+## T9 — Pagar con Yape: meses por adelantado con el checkout de Mercado Pago
+
+- **Tarea del tablero:** `billing-pago-unico-yape-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t9-yape`, rama `feat/pago-unico-yape`, desde `origin/main`.
+- **Coordinación:**
+  - Si T6 (Plan como página de venta) no está en `main`, rebasa sobre su rama y coordina: las dos tocan `PlanPanel.tsx`.
+  - Lee `docs/decisions/0007-cobros-mercado-pago-y-yape.md`.
+
+### Contexto
+
+- **Por qué no hay Yape hoy:** la suscripción mensual usa `preapproval`, que solo acepta tarjeta. Yape no permite cobros recurrentes.
+- **Lo que quiere el operador:** dejar pagar con Yape sin revisar capturas a mano. El checkout de pago único de Mercado Pago (Checkout Pro, con `preferences`) sí ofrece Yape.
+
+### Qué hacer
+
+1. **En Plan, una segunda forma de pago:** «Pagar 1, 3 o 6 meses».
+   - Mismos gatos elegidos y mismo precio mensual con descuento por equipo, multiplicado por los meses. No agregues descuentos nuevos por pagar adelantado sin preguntar: déjalo como pregunta abierta en el PR.
+   - Debe decir claro que no se renueva solo y que se puede pagar con Yape, tarjeta u otros medios de Mercado Pago.
+   - La suscripción con tarjeta sigue igual. Si la empresa ya tiene una suscripción activa, no se ofrece el pago adelantado, para no cobrar dos veces.
+2. **Servidor del portal (`server/billing/`):**
+   - **Preferencia:** `POST /checkout/preferences` con `items` (descripción de 60 caracteres como máximo, igual que `subscriptionReason`), `external_reference` propio, `back_urls`, `notification_url` hacia el webhook actual y `auto_return`. No excluyas Yape de `payment_methods`.
+   - **Webhook:** el actual (`/api/webhooks/mercadopago`) debe atender también `type=payment`. Verifica la firma como hoy, consulta `GET /v1/payments/{id}` y acredita solo si:
+     - `status = approved`;
+     - el `external_reference` es nuestro;
+     - el monto coincide.
+   - **Acreditar:** N meses encadenados tras el periodo ya pagado, una sola vez por pago (idempotente, como `grantMonth`). Después llama a la misma activación de gatos en el bridge (`entitlements`) hasta el nuevo fin.
+   - **Reconsulta:** al volver con `back_urls`, se reconsulta el pago, por si el webhook tarda.
+3. **Migración nueva del portal** (`migrations-postgres/0006_…`, sin aplicar), si hace falta guardar órdenes de pago único (meses, monto, referencia, estado).
+4. **Pruebas con dobles de `MercadoPagoApi`.** **Mercado Pago está en producción: no llames a su API real ni hagas compras.** Casos:
+   - pago aprobado acredita N meses;
+   - pago pendiente o rechazado no acredita;
+   - el mismo pago dos veces acredita una sola vez;
+   - monto distinto no acredita;
+   - referencia ajena se ignora;
+   - firma inválida da 401;
+   - con suscripción activa no se ofrece pagar adelantado.
+5. **Fuera de alcance:** el aviso por WhatsApp antes de que venzan los meses pagados. Déjalo como tarea `todo` en el tablero.
+
+### Archivos permitidos
+
+- `apps/meowlab-app/server/billing/`, `server/app.ts` (solo las rutas de pago), `web/src/PlanPanel.tsx` y sus componentes.
+- `migrations-postgres/` y las pruebas del portal.
+
+### Terminado cuando
+
+- Pasan `npm test`, `npm run typecheck` y `npm run build` del portal.
+- El PR trae:
+  - capturas de Plan con la opción nueva a 1366 y 390 px;
+  - el flujo descrito paso a paso;
+  - la migración a aplicar.
+- La tarea del tablero queda en `done`.
+- La primera prueba real con Yape la hace el operador después del despliegue.
 

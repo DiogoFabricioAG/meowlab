@@ -2394,14 +2394,13 @@
       "notes": "CompanyAdministrationTest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
     },
     {
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-21",
       "evidence": "",
       "id": "landing-astro-7-20261120",
       "title": "Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro <=7.4.6)",
       "area": "Landing",
       "owner": "Codex T4",
-      "status": "in_progress",
       "priority": "medium",
       "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md. Bloqueo: @astrojs/tailwind 6.0.2 solo admite Astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerDependencies. T4 exige detenerse si falta una integraci?n compatible."
     },
@@ -2514,6 +2513,17 @@
       "updated": "2026-11-21",
       "evidence": "",
       "notes": "Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "id": "billing-pago-unico-yape-20261121",
+      "title": "Cobros: pagar 1, 3 o 6 meses por adelantado con el checkout de Mercado Pago (acepta Yape)",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Pedido del operador el 21/11: Plan no ofrece Yape porque las suscripciones (preapproval) solo aceptan tarjeta. Se elige la opción A, pago único con Checkout Pro y webhook type=payment, frente a la B (QR propio con aprobación, billing-3-yape-qr-20261111). Tanda 5, T9: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     }
   ]
 }

@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 76 · Total: 237</span>
+      <span class="summary">Abiertas: 77 · Total: 238</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">70</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -539,6 +539,17 @@
           <p class="card-notes">Visto el 21/11 a las 06:00 UTC: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de CREACIONES J&amp;D sigue NULL (summary_hour 20). El handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. No usar el teléfono de prueba del operador.</p>
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">support-resumen-diario-falla-20261121</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="cobros: pagar 1, 3 o 6 meses por adelantado con el checkout de mercado pago (acepta yape) portal pedido del operador el 21/11: plan no ofrece yape porque las suscripciones (preapproval) solo aceptan tarjeta. se elige la opción a, pago único con checkout pro y webhook type=payment, frente a la b (qr propio con aprobación, billing-3-yape-qr-20261111). tanda 5, t9: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: pagar 1, 3 o 6 meses por adelantado con el checkout de Mercado Pago (acepta Yape)</h3>
+          
+          <p class="card-notes">Pedido del operador el 21/11: Plan no ofrece Yape porque las suscripciones (preapproval) solo aceptan tarjeta. Se elige la opción A, pago único con Checkout Pro y webhook type=payment, frente a la B (QR propio con aprobación, billing-3-yape-qr-20261111). Tanda 5, T9: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
+          <code class="card-id">billing-pago-unico-yape-20261121</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
