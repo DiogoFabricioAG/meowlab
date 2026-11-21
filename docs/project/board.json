@@ -674,8 +674,8 @@
       "area": "Tests",
       "priority": "medium",
       "status": "todo",
-      "updated": "2026-11-05",
-      "notes": "Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado.",
+      "updated": "2026-11-21",
+      "notes": "Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.",
       "evidence": "test/radar.test.ts: full Worker route; test/radar-routing.test.ts: composes AI alert writing. src/radar/http.ts nextAlertTime; src/radar/pacing.ts."
     },
     {
@@ -1629,8 +1629,8 @@
       "owner": "",
       "priority": "low",
       "status": "todo",
-      "updated": "2026-11-12",
-      "notes": "radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.",
+      "updated": "2026-11-21",
+      "notes": "radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.",
       "evidence": ""
     },
     {
@@ -2394,14 +2394,14 @@
     },
     {
       "status": "todo",
-      "updated": "2026-11-20",
+      "updated": "2026-11-21",
       "evidence": "",
       "id": "landing-astro-7-20261120",
       "title": "Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro <=7.4.6)",
       "area": "Landing",
       "owner": "",
       "priority": "medium",
-      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto."
+      "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     },
     {
       "id": "billing-activacion-gatos-20261120",

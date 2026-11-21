@@ -7,8 +7,9 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
-- Las tareas de esta tanda las toma **el primer agente que quede libre**: **T1**
-  primero, después **T2**.
+- Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
+  **T1**, **T2**, **T3** y **T4**. Hay una para cada agente y una de reserva, así
+  ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
 
@@ -210,3 +211,92 @@ Además:
   - las migraciones que habrá que aplicar, en orden;
   - capturas de la bienvenida en los dos caminos, a 1366 y 390 px.
 - La tarea del tablero queda en `done`.
+
+---
+
+## T3 — Pruebas de Tender Cat con reloj fijo (la suite del Worker en verde)
+
+- **Tareas del tablero:** `radar-tests-clock-20261112` y `radar-tests-real-clock`.
+- **Worktree y rama:** `D:/meowlab-wt-t3-reloj`, rama `test/tender-reloj-fijo`, desde
+  `origin/main`.
+
+### Problema
+
+- `test/radar.test.ts` y `test/radar-routing.test.ts` usan la hora real.
+- Tender Cat difiere los avisos fuera de la franja de 08:00 a 20:00 de Lima. De
+  noche esas pruebas reciben `deferred` y esperan `accepted`.
+- Por eso todas las tandas cargan una «línea base» de 2 fallas, que oculta fallas
+  nuevas.
+
+### Qué hacer
+
+- Inyecta un reloj fijo, dentro de la franja, en esas dos pruebas: con
+  `vi.useFakeTimers` y `vi.setSystemTime`, o con el reloj que ya acepte el runtime
+  de Tender.
+- **No cambies la política de horario.**
+- Agrega una prueba que fije una hora **fuera** de la franja y espere `deferred`,
+  para que la política quede cubierta.
+- Si el pool de Workers no permite fake timers en ese camino, inyecta el reloj por
+  dependencia con el menor cambio posible en `src/`, y explícalo en el PR.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/test/radar.test.ts`, `test/radar-routing.test.ts` y,
+  si hace falta, el punto de inyección del reloj en `src/` del runtime de Tender.
+
+### Terminado cuando
+
+- `npm test` del Worker, con `.dev.vars`, pasa **completo**, tanto de día como de noche.
+  Corre la suite fijando las dos horas y muestra los resultados en el PR.
+- `npx tsc --noEmit` pasa.
+- Las dos tareas del tablero quedan en `done`.
+- **Desde este PR**, las reglas comunes ya no aceptan la línea base de 2 fallas.
+
+---
+
+## T4 — Landing: subir Astro 5 a Astro 7 (vulnerabilidad crítica)
+
+- **Tarea del tablero:** `landing-astro-7-20261120`.
+- **Worktree y rama:** `D:/meowlab-wt-t4-astro`, rama `chore/landing-astro-7`, desde
+  `origin/main`.
+
+### Problema
+
+`npm audit` marca una vulnerabilidad **crítica** en `astro <= 7.4.6` y otras
+transitivas (`sharp`, `zod`, `esbuild`). La landing usa `astro ^5.3.0`, y el arreglo
+exige subir de versión mayor.
+
+### Qué hacer
+
+- Lee las guías de migración oficiales de Astro de 5 a 6 y de 6 a 7.
+- Sube `astro` y sus integraciones (`@astrojs/react`, `@astrojs/tailwind` u otras
+  que use) a versiones compatibles.
+- Usa **pnpm** y `pnpm-lock.yaml`; nunca `package-lock.json` en la raíz.
+- Adapta solo lo que la migración obligue: configuración, View Transitions
+  (`ClientRouter`), imports deprecados. **No cambies textos ni diseño.**
+- Si alguna integración no tiene versión compatible, no la quites: anótalo y
+  detente.
+
+### Verificación
+
+- `pnpm run check`, `pnpm test` y `pnpm run build` pasan.
+- `pnpm audit` antes y después, en una tabla del PR.
+- Revisión visual de `/`, `/precios/` y `/contacto/` a 1440, 1024, 768 y 390 px:
+  - sin scroll horizontal;
+  - las fuentes WOFF2 cargan;
+  - los chats animados de `#gatos` funcionan (reproducción y botones);
+  - capturas antes y después.
+- Compila también la imagen con `Dockerfile.deploy` en local o en un contenedor
+  temporal. **No la despliegues.**
+
+### Archivos permitidos
+
+- `package.json`, `pnpm-lock.yaml`, `astro.config.mjs`, `tsconfig.json` y lo mínimo
+  en `src/` que la migración obligue.
+
+### Terminado cuando
+
+- El PR trae la tabla de `pnpm audit`, las capturas y la lista de cambios que obligó
+  la migración.
+- La tarea del tablero queda en `done`.
+

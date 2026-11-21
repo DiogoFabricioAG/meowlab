@@ -584,15 +584,15 @@
           <p class="card-meta">Actualizado: 2026-11-05</p>
           <code class="card-id">manolo-gre-whatsapp-files</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Tests" data-text="fijar reloj de pruebas radar que esperan alertas aceptadas tests dos integraciones usan date.now real y esperan accepted fuera de la franja 08:00–20:00 perú; el runtime devuelve deferred. mantener política y fijar reloj sólo en pruebas. descubierto durante crédito, radar no modificado. test/radar.test.ts: full worker route; test/radar-routing.test.ts: composes ai alert writing. src/radar/http.ts nextalerttime; src/radar/pacing.ts.">
+        <article class="card" data-priority="medium" data-area="Tests" data-text="fijar reloj de pruebas radar que esperan alertas aceptadas tests dos integraciones usan date.now real y esperan accepted fuera de la franja 08:00–20:00 perú; el runtime devuelve deferred. mantener política y fijar reloj sólo en pruebas. descubierto durante crédito, radar no modificado. tanda 5, t3: docs/agents/tareas-agy-2026-11-21-tanda5.md. test/radar.test.ts: full worker route; test/radar-routing.test.ts: composes ai alert writing. src/radar/http.ts nextalerttime; src/radar/pacing.ts.">
           <div class="card-top">
             <span class="badge area-other">Tests</span>
             <span class="priority priority-medium">Media</span>
           </div>
           <h3 class="card-title">Fijar reloj de pruebas RADAR que esperan alertas aceptadas</h3>
           <p class="card-evidence"><strong>Evidencia:</strong> test/radar.test.ts: full Worker route; test/radar-routing.test.ts: composes AI alert writing. src/radar/http.ts nextAlertTime; src/radar/pacing.ts.</p>
-          <p class="card-notes">Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado.</p>
-          <p class="card-meta">Actualizado: 2026-11-05</p>
+          <p class="card-notes">Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">radar-tests-real-clock</code>
         </article>
         <article class="card" data-priority="medium" data-area="Ops" data-text="retirar secretos financieros residuales del worker con rollback controlado ops la lista de nombres de secretos de producción conserva finance_player_api_token y neon_database_url. el código y las variables ya no usan finance. no se eliminaron secretos en el despliegue del checkpoint; revisar consumidores y necesidad del rollback previo antes de retirarlos. ">
@@ -870,15 +870,15 @@
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-3-play-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. ">
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. tanda 5, t4: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
             <span class="priority priority-medium">Media</span>
           </div>
           <h3 class="card-title">Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6)</h3>
           
-          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">landing-astro-7-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: la actividad del inicio muestra ids internos de invoice cat y entradas duplicadas portal visto en producción el 21/11 (creaciones j&amp;d). formatinvoiceevent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «invoice cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de f001-00000027. además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. tanda 5, t1: avance en origin/feat/portal-actividad-config-plan (25ebe). definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
@@ -958,15 +958,15 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">meowlab-platform-prototype-route-20261111</code>
         </article>
-        <article class="card" data-priority="low" data-area="Worker" data-text="fijar el reloj en las pruebas de ruta completa de radar worker radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en lima (radar difiere alertas fuera del horario diurno). inyectar un reloj fijo. ">
+        <article class="card" data-priority="low" data-area="Worker" data-text="fijar el reloj en las pruebas de ruta completa de radar worker radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en lima (radar difiere alertas fuera del horario diurno). inyectar un reloj fijo. tanda 5, t3: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
           <div class="card-top">
             <span class="badge area-worker">Worker</span>
             <span class="priority priority-low">Baja</span>
           </div>
           <h3 class="card-title">Fijar el reloj en las pruebas de ruta completa de RADAR</h3>
           
-          <p class="card-notes">radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo.</p>
-          <p class="card-meta">Actualizado: 2026-11-12</p>
+          <p class="card-notes">radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">radar-tests-clock-20261112</code>
         </article>
         <article class="card" data-priority="low" data-area="Portal" data-text="avisar por whatsapp cuando se vincula un número al portal portal hoy la vinculación no envía confirmación. un aviso alerta al dueño si alguien vincula su número; fuera de la ventana de 24 h requiere plantilla de utilidad. ">
