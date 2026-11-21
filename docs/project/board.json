@@ -19,11 +19,11 @@
       "id": "marca-unica-sin-radar-facturaya-20261120",
       "title": "Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios",
       "area": "Producto",
-      "owner": "",
+      "owner": "AGY-1",
       "priority": "medium",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-20",
-      "notes": "Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos.",
+      "notes": "Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     },
     {
@@ -195,11 +195,11 @@
       "id": "portal-inicio-nombre-meowlab-20261116",
       "title": "Portal: el Inicio todavía dice «chat de Manolo»",
       "area": "Portal",
-      "owner": "",
+      "owner": "AGY-1",
       "priority": "low",
-      "status": "todo",
-      "updated": "2026-11-16",
-      "notes": "apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia.",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     },
     {
@@ -1454,11 +1454,11 @@
       "id": "vps-caddyfile-drift-20261111",
       "title": "Versionar el Caddyfile real del VPS",
       "area": "Ops",
-      "owner": "",
+      "owner": "AGY-2",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-11",
-      "notes": "/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech.",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     },
     {
@@ -1850,22 +1850,22 @@
       "id": "landing-tablet-revision-20261113",
       "title": "Landing: revisar a mano los anchos de tablet (768-1024 px)",
       "area": "Landing",
-      "owner": "",
+      "owner": "AGY-3",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-13",
-      "notes": "El gate de taste-skill sólo mide 1440 y 390.",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "El gate de taste-skill sólo mide 1440 y 390. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     },
     {
       "id": "landing-fuentes-woff2-20261113",
       "title": "Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)",
       "area": "Landing",
-      "owner": "",
+      "owner": "AGY-3",
       "priority": "low",
-      "status": "todo",
-      "updated": "2026-11-13",
-      "notes": "WARN de perf.mjs.",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "WARN de perf.mjs. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     },
     {
@@ -2213,11 +2213,11 @@
       "id": "collections-remind-clock-20261120",
       "title": "Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado",
       "area": "Manolo",
-      "owner": "",
+      "owner": "AGY-2",
       "priority": "low",
-      "status": "todo",
+      "status": "in_progress",
       "updated": "2026-11-20",
-      "notes": "CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche.",
+      "notes": "CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": ""
     }
   ]
