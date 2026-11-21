@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   root: "web",
   plugins: [react(), tailwindcss()],
+  css: { postcss: { plugins: [] } },
   build: { outDir: "../dist", emptyOutDir: true },
   server: {
     // `npm run dev:web` serves the UI with hot reload and sends the API to wrangler dev.
