@@ -495,6 +495,8 @@ Anota en el PR qué patrón tomaste de cada referencia.
 
 ## T8 — «Tus agentes» como el consejo de gatos de tu negocio
 
+> **Actualizada el 21/11/2026.** El operador eligió la **mesa redonda**, pero con otro enfoque, para que nada se repita con Inicio. El paso 2 de abajo queda reemplazado por la sección **T8, versión 2** de [`tareas-agy-2026-11-21-tanda6.md`](tareas-agy-2026-11-21-tanda6.md).
+
 - **Tarea del tablero:** `portal-consejo-de-gatos-20261121`.
 - **Worktree y rama:** `D:/meowlab-wt-t8-consejo`, rama `feat/consejo-de-gatos`, desde
   `origin/main`.
