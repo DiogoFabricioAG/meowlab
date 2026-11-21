@@ -26,8 +26,25 @@ function asData<T>(value: unknown): T | null {
   return value.data as T;
 }
 
+const KNOWN_DRAFT_ERROR_CODES = new Set([
+  "missing_items",
+  "missing_item_description",
+  "invalid_item_quantity",
+  "missing_item_price",
+  "invalid_currency",
+  "invalid_payment_terms",
+  "extraction_failed",
+]);
+
 function safeMessage(value: unknown): string | undefined {
-  if (!isRecord(value) || typeof value.message !== "string") return undefined;
+  if (!isRecord(value)) return undefined;
+  const data = isRecord(value.data) ? value.data : null;
+  if (data && isRecord(data.error)) {
+    const code = typeof data.error.code === "string" ? data.error.code.trim() : "";
+    const message = typeof data.error.message === "string" ? data.error.message.trim().slice(0, 300) : "";
+    return KNOWN_DRAFT_ERROR_CODES.has(code) && message.length > 0 ? message : undefined;
+  }
+  if (typeof value.message !== "string") return undefined;
   return value.message.trim().slice(0, 300) || undefined;
 }
 

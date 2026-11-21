@@ -250,4 +250,36 @@ describe("FacturayaApiClient", () => {
     expect(result).toEqual({ ok: false, reason: "unauthorized", message: "El token de empresa no es válido." });
     expect(JSON.stringify(log.mock.calls)).not.toContain("secret-token");
   });
+
+  it("propagates data.error.message only when data.error.code is known", async () => {
+    vi.stubGlobal("fetch", vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: { error: { code: "missing_item_price", message: "Falta el precio de \"polos\"." } },
+      }), { status: 422, headers: { "Content-Type": "application/json" } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        data: { error: { code: "internal_sql_error", message: "SQLSTATE[42P01] relation missing" } },
+      }), { status: 422, headers: { "Content-Type": "application/json" } })));
+    const client = new FacturayaApiClient("https://facturaya.example", "company-token", vi.fn());
+    const input = {
+      documentType: "01" as const,
+      customerDocumentType: "6" as const,
+      customerRuc: "20123456789",
+      customerName: "Cliente Demo",
+      issueDate: "2026-11-20",
+      taxMode: "included" as const,
+      productsText: "10 polos",
+    };
+
+    await expect(client.importInvoiceDraft(input)).resolves.toEqual({
+      ok: false,
+      reason: "api_error",
+      message: "Falta el precio de \"polos\".",
+    });
+
+    await expect(client.importInvoiceDraft(input)).resolves.toEqual({
+      ok: false,
+      reason: "api_error",
+      message: undefined,
+    });
+  });
 });
