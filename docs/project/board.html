@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 84 · Total: 224</span>
+      <span class="summary">Abiertas: 83 · Total: 224</span>
     </div>
   </div>
 </header>
@@ -1084,7 +1084,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">7</span>
+          <span class="count">6</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1153,23 +1153,12 @@
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: encabezado estándar (pageheader) con la misma altura y tamaño en todas las páginas portal pedido del operador el 20/11: tender usa h1 sm:text-4xl sin negrita y logo de 44 px; invoice y el resto usan text-3xl font-bold y logo de 48 px. las páginas de agentes ponen «← tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. un componente con una fila superior de altura fija en todas. tenderlist lo adopta cuando su rama se fusione. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas</h3>
-          
-          <p class="card-notes">Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">portal-page-header-20261120</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">140</span>
+          <span class="count">141</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2524,6 +2513,17 @@
           <p class="card-notes">ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">docs-formato-1-prueba-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: encabezado estándar (pageheader) con la misma altura y tamaño en todas las páginas portal pedido del operador el 20/11: tender usa h1 sm:text-4xl sin negrita y logo de 44 px; invoice y el resto usan text-3xl font-bold y logo de 48 px. las páginas de agentes ponen «← tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. un componente con una fila superior de altura fija en todas. tenderlist lo adopta cuando su rama se fusione. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. pageheader.tsx adoptado en weeklyhome, agentspage, tenderpanel, planpanel, adminpanel, panel (configuración), invoicingpanel, collectionspanel, stockpanel, reorderpanel y supportpanel; vitest 14/14 (61 tests), npm run typecheck y vite build ok; h1.top = 70 px (1280 px) y 118 px (390 px) idéntico en las páginas medidas con chrome headless.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PageHeader.tsx adoptado en WeeklyHome, AgentsPage, TenderPanel, PlanPanel, AdminPanel, Panel (Configuración), InvoicingPanel, CollectionsPanel, StockPanel, ReorderPanel y SupportPanel; vitest 14/14 (61 tests), npm run typecheck y vite build OK; h1.top = 70 px (1280 px) y 118 px (390 px) idéntico en las páginas medidas con Chrome headless.</p>
+          <p class="card-notes">Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">portal-page-header-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción) portal detectado por npm audit en la tanda 2 (pr #41). server/node.ts usa serve y servestatic. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. subido @hono/node-server a ^2.1.11 en apps/meowlab-app/package.json; npm audit: 1 moderate -&gt; 0 vulnerabilities. verificado npm run typecheck, npm test (13 archivos, 59/59), npm run build, npm run build:node, y servidor build/server.mjs local (/, /agentes, asset con hash 200; /api/no-existe pasa a api y no a index.html).">
           <div class="card-top">

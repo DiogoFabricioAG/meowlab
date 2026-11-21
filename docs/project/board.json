@@ -2296,9 +2296,9 @@
     {
       "area": "Portal",
       "owner": "AGY-2",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "PageHeader.tsx adoptado en WeeklyHome, AgentsPage, TenderPanel, PlanPanel, AdminPanel, Panel (Configuración), InvoicingPanel, CollectionsPanel, StockPanel, ReorderPanel y SupportPanel; vitest 14/14 (61 tests), npm run typecheck y vite build OK; h1.top = 70 px (1280 px) y 118 px (390 px) idéntico en las páginas medidas con Chrome headless.",
       "id": "portal-page-header-20261120",
       "title": "Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas",
       "priority": "medium",
