@@ -672,11 +672,12 @@
       "id": "radar-tests-real-clock",
       "title": "Fijar reloj de pruebas RADAR que esperan alertas aceptadas",
       "area": "Tests",
+      "owner": "AGY-2",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "Dos integraciones usan Date.now real y esperan accepted fuera de la franja 08:00–20:00 Perú; el runtime devuelve deferred. Mantener política y fijar reloj sólo en pruebas. Descubierto durante crédito, RADAR no modificado. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.",
-      "evidence": "test/radar.test.ts: full Worker route; test/radar-routing.test.ts: composes AI alert writing. src/radar/http.ts nextAlertTime; src/radar/pacing.ts."
+      "evidence": "vi.useFakeTimers() + vi.setSystemTime() en test/radar.test.ts (09:00 Lima -> accepted; 22:30 Lima -> 429 deferred) y test/radar-routing.test.ts (09:00 Lima -> accepted); npm test completo y npx tsc --noEmit en verde."
     },
     {
       "id": "manolo-credit-payment-terms",
@@ -1626,12 +1627,12 @@
       "id": "radar-tests-clock-20261112",
       "title": "Fijar el reloj en las pruebas de ruta completa de RADAR",
       "area": "Worker",
-      "owner": "",
+      "owner": "AGY-2",
       "priority": "low",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "radar.test.ts y radar-routing.test.ts usan la hora real y fallan de noche en Lima (RADAR difiere alertas fuera del horario diurno). Inyectar un reloj fijo. Tanda 5, T3: docs/agents/tareas-agy-2026-11-21-tanda5.md.",
-      "evidence": ""
+      "evidence": "test/radar.test.ts y test/radar-routing.test.ts fijan el reloj con vi.useFakeTimers() y cubren tanto franja diurna (accepted) como nocturna (429 deferred); suite completa npm test y npx tsc --noEmit en verde."
     },
     {
       "id": "erp-data-model-draft-20261112",
