@@ -451,6 +451,19 @@ export function createApp(deps: AppDeps) {
     return company(c, { action: "remove", tenantId, memberId });
   });
 
+  app.post("/api/companies/:tenantId/members/:memberId/transfer", async (c) => {
+    const tenantId = tenantParam(c);
+    const memberId = c.req.param("memberId")?.trim();
+    if (!tenantId || !memberId || memberId.length > 128) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "transfer", tenantId, memberId });
+  });
+
+  app.post("/api/companies/:tenantId/leave", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    return company(c, { action: "leave", tenantId });
+  });
+
   app.get("/api/invitations/:token", async (c) => {
     const token = c.req.param("token");
     if (!INVITATION.test(token)) return c.json({ status: "invalid" });

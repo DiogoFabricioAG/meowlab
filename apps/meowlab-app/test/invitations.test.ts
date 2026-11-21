@@ -20,6 +20,20 @@ function app(companies: (userId: string, request: Record<string, unknown>) => Pr
 }
 
 describe("invitation routes (ADR-0010, phase 2)", () => {
+  it("binds membership changes to the session and selected company", async () => {
+    const { app: api, bridge } = app(async (_user, request) => request.action === "transfer"
+      ? { status: "transferred" } : { status: "owner_cannot_leave" });
+    const transfer = "/api/companies/org_1/members/member-2/transfer";
+    const leave = "/api/companies/org_2/leave";
+    expect((await api.request(transfer, { method: "POST" })).status).toBe(403);
+    expect((await api.request("/api/companies/org%201/leave", { method: "POST", headers: ORIGIN })).status).toBe(400);
+    expect(bridge.companies).not.toHaveBeenCalled();
+    expect(await (await api.request(transfer, { method: "POST", headers: ORIGIN })).json()).toEqual({ status: "transferred" });
+    expect(bridge.companies).toHaveBeenLastCalledWith("owner-1", { action: "transfer", tenantId: "org_1", memberId: "member-2" });
+    expect(await (await api.request(leave, { method: "POST", headers: ORIGIN })).json()).toEqual({ status: "owner_cannot_leave" });
+    expect(bridge.companies).toHaveBeenLastCalledWith("owner-1", { action: "leave", tenantId: "org_2" });
+  });
+
   it("returns the link once, built from the code, without the raw code field", async () => {
     const { app: api, bridge } = app(async () => ({ status: "invited", invitation: { id: "i1", token: TOKEN, createdAt: "x",
       expiresAt: "2026-11-20T05:00:00.000Z", maskedPhone: null, access: "view" } }));

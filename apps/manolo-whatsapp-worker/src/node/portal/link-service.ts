@@ -11,6 +11,7 @@ import {
   type PortalLinkResponse,
 } from "../../bridge/portal-link-contracts";
 import type { RoleLog } from "../../roles/contracts";
+import { TEAM_ACCESS_LOCK, syncInvitedWhatsAppAccess } from "./invitation-service";
 
 export type LinkLimits = {
   ttlSeconds: number;
@@ -228,6 +229,7 @@ export class PgPortalLinkStore implements PortalLinkStore {
 
   verifyChallenge(input: Parameters<PortalLinkStore["verifyChallenge"]>[0]): Promise<VerifyChallengeResult> {
     return this.transaction(async (client) => {
+      await client.query(TEAM_ACCESS_LOCK);
       const { rows: [challenge] } = await client.query<{
         wa_phone: string; code_hash: string; attempts: number; expires_at: Date; consumed_at: Date | null; delivery: string;
       }>(
@@ -250,14 +252,12 @@ export class PgPortalLinkStore implements PortalLinkStore {
       }
       await client.query("UPDATE whatsapp.portal_link_challenges SET consumed_at = $2 WHERE id = $1", [input.challengeId, input.now]);
       // A number belongs to one account: proving it from another account moves it.
-      await client.query(
-        "DELETE FROM whatsapp.portal_whatsapp_links WHERE wa_phone = $1 OR portal_user_id = $2",
-        [challenge.wa_phone, input.portalUserId],
-      );
+      await this.removeLinks(client, input.portalUserId, challenge.wa_phone);
       await client.query(
         "INSERT INTO whatsapp.portal_whatsapp_links (portal_user_id, wa_phone, linked_at) VALUES ($1, $2, $3)",
         [input.portalUserId, challenge.wa_phone, input.now],
       );
+      await syncInvitedWhatsAppAccess(client, input.portalUserId, challenge.wa_phone);
       return { status: "linked" as const, phone: challenge.wa_phone, linkedAt: input.now };
     });
   }
@@ -272,6 +272,31 @@ export class PgPortalLinkStore implements PortalLinkStore {
   }
 
   async unlink(portalUserId: string): Promise<void> {
-    await this.pool.query("DELETE FROM whatsapp.portal_whatsapp_links WHERE portal_user_id = $1", [portalUserId]);
+    await this.transaction(async (client) => {
+      await client.query(TEAM_ACCESS_LOCK);
+      await this.removeLinks(client, portalUserId, null);
+    });
+  }
+
+  private async removeLinks(client: QueryClient, portalUserId: string, phone: string | null): Promise<void> {
+    await client.query(
+      `WITH removed AS (
+         DELETE FROM whatsapp.portal_whatsapp_links WHERE portal_user_id = $1 OR wa_phone = $2
+         RETURNING portal_user_id, wa_phone
+       )
+       UPDATE whatsapp.tenant_members AS access
+          SET status = 'inactive', updated_at = CURRENT_TIMESTAMP
+         FROM removed
+         JOIN whatsapp.contacts AS contact ON contact.whatsapp_user_id = removed.wa_phone
+         JOIN whatsapp.portal_company_members AS member ON member.portal_user_id = removed.portal_user_id
+        WHERE access.tenant_id = member.tenant_id AND access.contact_id = contact.id
+          AND EXISTS (
+            SELECT 1 FROM whatsapp.portal_company_invitations AS invitation
+             WHERE invitation.tenant_id = member.tenant_id AND invitation.accepted_by = removed.portal_user_id
+               AND invitation.accepted_at IS NOT NULL
+               AND (invitation.wa_phone IS NULL OR invitation.wa_phone = removed.wa_phone)
+          )`,
+      [portalUserId, phone],
+    );
   }
 }

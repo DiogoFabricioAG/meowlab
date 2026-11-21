@@ -190,6 +190,10 @@ describe("portal invitation contracts", () => {
     expect(isPortalCompanyRequest({ ...base, action: "revoke", tenantId: "org_1", invitationId: "not-a-uuid" })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "revoke", tenantId: "org_1", invitationId: "6f1c2b3a-1d2e-4f50-9a6b-7c8d9e0f1a2b" })).toBe(true);
     expect(isPortalCompanyRequest({ ...base, action: "remove", tenantId: "org_1", memberId: "user-2" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "transfer", tenantId: "org_1", memberId: "user-2" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "transfer", tenantId: "org_1" })).toBe(false);
+    expect(isPortalCompanyRequest({ ...base, action: "leave", tenantId: "org_1" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "leave" })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "preview", token: TOKEN })).toBe(true);
     expect(isPortalCompanyRequest({ ...base, action: "accept", token: TOKEN + "x" })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "accept", token: "../../etc/passwd/xxxxx" })).toBe(false);

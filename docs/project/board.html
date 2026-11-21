@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 74 · Total: 240</span>
+      <span class="summary">Abiertas: 72 · Total: 240</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">67</span>
+          <span class="count">65</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -694,28 +694,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-3-invoice-sol-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transferir la propiedad y salir de una empresa portal adr-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. tanda 6, t11 (ops 4), junto con portal-org-vincular-despues-20261113. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: transferir la propiedad y salir de una empresa</h3>
-          
-          <p class="card-notes">ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. Tanda 6, T11 (OPS 4), junto con portal-org-vincular-despues-20261113.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-org-transferir-20261113</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: dar acceso a los agentes cuando el miembro vincula su whatsapp después de unirse portal hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. tanda 6, t11 (ops 4). ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse</h3>
-          
-          <p class="card-notes">Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. Tanda 6, T11 (OPS 4).</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-org-vincular-despues-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="asignar dueño en el portal a las empresas creadas por el operador (p. ej. creaciones j&amp;d) portal creaciones j&amp;d ya tiene dueño (cuenta admin del portal, 13/11/2026; acta portal-invitaciones-2026-11-13). faltan kromata, home finance y manolo si llegan a necesitar invitaciones. ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -1059,7 +1037,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">166</span>
+          <span class="count">168</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2491,6 +2469,28 @@
           <p class="card-notes">El número vinculado (…0280) no es miembro de ninguna empresa con FacturaYa; la única membresía activa es la de …2447. Opciones: agregar …0280 como miembro con view_invoice (TUI) o vincular …2447.</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-membership-0280-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transferir la propiedad y salir de una empresa portal adr-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. tanda 6, t11 (ops 4), junto con portal-org-vincular-despues-20261113. postgresql desechable: transferencia, rechazo a no miembro, salida y aislamiento. portal 88/88, worker 755/755, typecheck y builds. capturas a 1366 y 390 px en el pr de t11.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: transferir la propiedad y salir de una empresa</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PostgreSQL desechable: transferencia, rechazo a no miembro, salida y aislamiento. Portal 88/88, Worker 755/755, typecheck y builds. Capturas a 1366 y 390 px en el PR de T11.</p>
+          <p class="card-notes">ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. Tanda 6, T11 (OPS 4), junto con portal-org-vincular-despues-20261113.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T11</p>
+          <code class="card-id">portal-org-transferir-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: dar acceso a los agentes cuando el miembro vincula su whatsapp después de unirse portal hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. tanda 6, t11 (ops 4). postgresql desechable: vincular tras aceptar, desvincular, revincular y conservar los permisos por empresa. worker 755/755 y typecheck.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PostgreSQL desechable: vincular tras aceptar, desvincular, revincular y conservar los permisos por empresa. Worker 755/755 y typecheck.</p>
+          <p class="card-notes">Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. Tanda 6, T11 (OPS 4).</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T11</p>
+          <code class="card-id">portal-org-vincular-despues-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="agregar tender cat (s/ 35) al catálogo de cobros para que se pueda sumar desde plan portal hoy la ficha muestra «pídeselo a manolo» porque no está en el catálogo (adr-0008 fija s/ 35). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. migración 0005_billing_todos_los_gatos.sql agrega tender (s/ 35, available=true) y amplía billing_subscriptions a 7 agentes; probado en apps/meowlab-app/test/billing.test.ts.">
           <div class="card-top">

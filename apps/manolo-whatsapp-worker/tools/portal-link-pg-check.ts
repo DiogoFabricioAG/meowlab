@@ -14,9 +14,16 @@ if (!url) throw new Error("PORTAL_LINK_CHECK_DATABASE_URL is required");
 const pool = new pg.Pool({ connectionString: url });
 
 await pool.query(`CREATE SCHEMA IF NOT EXISTS whatsapp;
-  CREATE TABLE IF NOT EXISTS whatsapp.contacts (id BIGSERIAL PRIMARY KEY, whatsapp_user_id TEXT NOT NULL);`);
+  CREATE TABLE IF NOT EXISTS whatsapp.tenants (id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'active');
+  CREATE TABLE IF NOT EXISTS whatsapp.contacts (id BIGSERIAL PRIMARY KEY, whatsapp_user_id TEXT NOT NULL, display_name TEXT);
+  CREATE TABLE IF NOT EXISTS whatsapp.tenant_members (
+    tenant_id TEXT NOT NULL, contact_id BIGINT NOT NULL, display_name TEXT,
+    permissions JSONB NOT NULL, status TEXT NOT NULL, updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (tenant_id, contact_id));`);
 // Run from apps/manolo-whatsapp-worker.
-await pool.query(readFileSync("infra/postgres/migrations/011-portal-whatsapp-links.sql", "utf8"));
+for (const file of ["011-portal-whatsapp-links.sql", "012-portal-companies.sql", "013-portal-invitations.sql"]) {
+  await pool.query(readFileSync(`infra/postgres/migrations/${file}`, "utf8"));
+}
 await pool.query("TRUNCATE whatsapp.portal_link_challenges, whatsapp.portal_whatsapp_links, whatsapp.contacts");
 await pool.query("INSERT INTO whatsapp.contacts (whatsapp_user_id) VALUES ('51987654321'), ('51911111111')");
 

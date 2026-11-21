@@ -62,7 +62,7 @@ export function SettingsPage({ me, company, companies, weekly, catalog, openTeam
   go: (path: string) => void;
   onChange: () => void;
 }) {
-  const [teamOf, setTeamOf] = useState<string | null>(openTeam && company?.role === "owner" ? company.id : null);
+  const [teamOf, setTeamOf] = useState<string | null>(openTeam ? company?.id ?? null : null);
   const [addingRucFor, setAddingRucFor] = useState<string | null>(null);
   const [rucInput, setRucInput] = useState("");
   const [rucBusy, setRucBusy] = useState(false);
@@ -226,20 +226,18 @@ export function SettingsPage({ me, company, companies, weekly, catalog, openTeam
                     {current && (
                       <button type="button" onClick={() => go("/plan")} className="btn-secondary">Ver plan</button>
                     )}
-                    {item.role === "owner" && (
-                      <button
-                        type="button"
-                        onClick={() => setTeamOf(teamOf === item.id ? null : item.id)}
-                        aria-expanded={teamOf === item.id}
-                        className="btn-secondary"
-                      >
-                        {teamOf === item.id ? "Cerrar equipo" : "Equipo e invitaciones"}
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setTeamOf(teamOf === item.id ? null : item.id)}
+                      aria-expanded={teamOf === item.id}
+                      className="btn-secondary"
+                    >
+                      {teamOf === item.id ? "Cerrar equipo" : item.role === "owner" ? "Equipo e invitaciones" : "Mi membresía"}
+                    </button>
                   </footer>
                   {teamOf === item.id && (
                     <div className="border-t border-line p-5">
-                      <TeamPanel key={item.id} company={item} />
+                      <TeamPanel key={item.id} company={item} onChange={() => { setTeamOf(null); onChange(); }} />
                     </div>
                   )}
                 </article>

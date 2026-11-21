@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { fetchJson, postJson, type Membership } from "./auth-client";
 
 type Member = { id: string; role: "owner" | "member"; joinedAt: string; name: string; email: string | null; you: boolean };
@@ -22,7 +22,7 @@ function whatsappDigits(raw: string): string | null {
 }
 
 /** The owner's team (ADR-0010, phase 2): members, open invitations and new links to send by WhatsApp. */
-export function TeamPanel({ company }: { company: Membership }) {
+export function TeamPanel({ company, onChange = () => window.location.reload() }: { company: Membership; onChange?: () => void }) {
   const [team, setTeam] = useState<Team | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [phone, setPhone] = useState("");
@@ -34,12 +34,67 @@ export function TeamPanel({ company }: { company: Membership }) {
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
   const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<Member | "leave" | null>(null);
+  const [changeError, setChangeError] = useState<string | null>(null);
+  const [changing, setChanging] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const dialogTitle = useId();
+  const dialogDescription = useId();
 
   const base = `/api/companies/${encodeURIComponent(company.id)}`;
   const load = useCallback(() => {
     void fetchJson<Team>(`${base}/team`).then((value) => (value ? setTeam(value) : setLoadFailed(true))).catch(() => setLoadFailed(true));
   }, [base]);
-  useEffect(load, [load]);
+  useEffect(() => { if (company.role === "owner") load(); }, [company.role, load]);
+
+  function openConfirmation(target: Member | "leave") {
+    setChangeError(null);
+    setConfirm(target);
+    dialog.current?.showModal();
+  }
+
+  async function changeMembership() {
+    if (!confirm || changing) return;
+    const leaving = confirm === "leave";
+    const path = leaving ? "leave" : `members/${encodeURIComponent(confirm.id)}/transfer`;
+    setChanging(true);
+    setChangeError(null);
+    const result = await postJson<{ status: string }>(`${base}/${path}`).catch(() => null);
+    setChanging(false);
+    if (result?.status === (leaving ? "left" : "transferred")) {
+      dialog.current?.close();
+      onChange();
+      return;
+    }
+    setChangeError(result?.status === "owner_cannot_leave"
+      ? "Transfiere la titularidad antes de salir."
+      : result?.status === "limit_reached"
+        ? "Esa persona ya administra el máximo de empresas."
+        : result?.status === "not_found"
+          ? "Esa persona ya no forma parte del equipo."
+          : "No pudimos confirmar el cambio. Vuelve a intentarlo.");
+  }
+
+  const leaving = confirm === "leave";
+  const changeDialog = (
+    <dialog ref={dialog} aria-labelledby={dialogTitle} aria-describedby={dialogDescription}
+      onCancel={(event) => { if (changing) event.preventDefault(); }}
+      className="m-auto max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-lg rounded-3xl border border-line bg-white p-5 shadow-elevated backdrop:bg-ink/40 sm:p-7">
+      <div className="space-y-4">
+        <h3 id={dialogTitle} className="text-2xl text-ink">{leaving ? "Salir de la empresa" : "Transferir titularidad"}</h3>
+        <p id={dialogDescription} className="text-ink-2">{leaving
+          ? `Perderás el acceso a ${company.name} y a sus gatos en WhatsApp. Para volver, necesitarás otra invitación.`
+          : `${confirm?.name ?? ""} administrará Plan, cobros y Configuración, y podrá quitar miembros. Tú seguirás en ${company.name} como miembro sin esos permisos.`}</p>
+        {changeError && <p role="alert" className="text-sm text-red-800">{changeError}</p>}
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <button type="button" autoFocus className="btn-secondary" disabled={changing} onClick={() => dialog.current?.close()}>Cancelar</button>
+          <button type="button" className="btn-danger" disabled={changing} onClick={() => void changeMembership()}>
+            {changing ? "Confirmando…" : leaving ? "Confirmar salida" : "Confirmar transferencia"}
+          </button>
+        </div>
+      </div>
+    </dialog>
+  );
 
   async function invite(event: FormEvent) {
     event.preventDefault();
@@ -93,11 +148,20 @@ export function TeamPanel({ company }: { company: Membership }) {
     : "";
   const whatsappUrl = created ? `https://wa.me/${created.phone ?? ""}?text=${encodeURIComponent(message)}` : "";
 
+  if (company.role !== "owner") return (
+    <section className="space-y-3" aria-labelledby={`team-${company.id}`}>
+      <h3 id={`team-${company.id}`} className="text-xl text-ink">Tu membresía en {company.name}</h3>
+      <button type="button" onClick={() => openConfirmation("leave")} className="btn-secondary text-red-800">Salir de la empresa</button>
+      {changeDialog}
+    </section>
+  );
+
   return (
     <section className="space-y-6 rounded-3xl border border-line bg-white p-6 shadow-card sm:p-8" aria-labelledby={`team-${company.id}`}>
       <div className="space-y-1">
         <h3 id={`team-${company.id}`} className="text-xl font-bold tracking-tight text-ink">Equipo de {company.name}</h3>
         <p className="text-ink-muted">Invita a tu equipo con un enlace que les mandas por WhatsApp. Cada enlace sirve para una persona.</p>
+        <p className="text-sm text-ink-muted">Para salir de la empresa, primero transfiere la titularidad a un miembro.</p>
       </div>
 
       <form onSubmit={invite} className="space-y-4 rounded-2xl border border-line-mint bg-mint-light p-5">
@@ -166,8 +230,12 @@ export function TeamPanel({ company }: { company: Membership }) {
                       <button type="button" onClick={() => setConfirmRemove(null)} className="btn-secondary min-h-11 px-3 py-2 text-sm">Cancelar</button>
                     </span>
                   ) : (
-                    <button type="button" onClick={() => setConfirmRemove(member.id)} aria-label={`Quitar a ${member.name} del equipo`}
-                      className="min-h-11 text-sm font-semibold text-red-800 underline-offset-4 hover:underline">Quitar del equipo</button>
+                    <div className="flex flex-wrap gap-x-3">
+                      <button type="button" onClick={() => openConfirmation(member)} aria-label={`Transferir titularidad a ${member.name}`}
+                        className="min-h-11 text-sm font-semibold text-forest underline-offset-4 hover:underline">Transferir titularidad</button>
+                      <button type="button" onClick={() => setConfirmRemove(member.id)} aria-label={`Quitar a ${member.name} del equipo`}
+                        className="min-h-11 text-sm font-semibold text-red-800 underline-offset-4 hover:underline">Quitar del equipo</button>
+                    </div>
                   )}
                 </li>
               ))}
@@ -204,6 +272,7 @@ export function TeamPanel({ company }: { company: Membership }) {
           </div>
         </div>
       )}
+      {changeDialog}
     </section>
   );
 }
