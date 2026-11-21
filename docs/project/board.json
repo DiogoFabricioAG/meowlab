@@ -79,7 +79,7 @@
       "status": "done",
       "updated": "2026-11-20",
       "notes": "InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.",
-      "evidence": "facturaya-ai PR #3 fusionado en main f1c05 (InvoicePdfService/CreditNotePdfService::issuerFromXml + tests/Unit/FiscalPdfIssuerFromXmlTest.php). Suite en contenedor temporal del VPS: solo falla la prueba conocida de manifiesto Vite. Pendiente de desplegar: requiere autorización."
+      "evidence": "facturaya-ai PR #3 fusionado en main f1c05 (InvoicePdfService/CreditNotePdfService::issuerFromXml + tests/Unit/FiscalPdfIssuerFromXmlTest.php). Suite en contenedor temporal del VPS: solo falla la prueba conocida de manifiesto Vite. Desplegado el 20/11 con autorización del operador: release emisor-xml-pdf-20261121T010714Z desde f1c05, cutover_verified; acta en facturaya-ai docs/deployment-2026-11-20-emisor-xml-pdf.md (PR #4)."
     },
     {
       "id": "jd-legal-name-padron-20261119",
