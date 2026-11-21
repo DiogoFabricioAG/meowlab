@@ -1,0 +1,50 @@
+# Override for the native Tender Cat screens. Use alongside compose.yml on the pilot VPS.
+services:
+  app:
+    environment:
+      TENDER_SERVICE_URL: http://tender-service:8000
+      TENDER_SERVICE_TOKEN_FILE: /run/secrets/tender_service_token
+    secrets:
+      - tender_service_token
+    networks:
+      - tender_portal
+
+  tender-service:
+    image: meowlab-tender-service:${MEOWLAB_APP_TAG:?definir MEOWLAB_APP_TAG}
+    restart: unless-stopped
+    env_file:
+      - ${TENDER_ENV_FILE:?ruta al archivo privado de configuración del piloto}
+    environment:
+      TENDER_SERVICE_TOKEN_FILE: /run/secrets/tender_service_token
+      # The current pilot workers already consume this database and WhatsApp queue.
+      RADAR_PREPARATION_ENABLED: "0"
+      RADAR_DISCOVERY_ENABLED: "0"
+      TENDER_MARKET_ENABLED: "1"
+    secrets:
+      - tender_service_token
+    networks:
+      - tender_portal
+      - tender_database
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+secrets:
+  tender_service_token:
+    file: ./secrets/tender_service_token
+
+networks:
+  tender_portal:
+    internal: true
+  tender_database:
+    external: true
+    name: ${TENDER_DB_NETWORK:?red privada que contiene el PostgreSQL de oportunidades}

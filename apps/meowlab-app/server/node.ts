@@ -10,6 +10,7 @@ import pg from "pg";
 import { createApp } from "./app";
 import { createAuth, googleEnabled, type AuthSettings } from "./auth";
 import { createPortalBridge } from "./bridge";
+import { createTenderService } from "./tender";
 import { postgresAdminMetrics } from "./admin-metrics";
 import { MercadoPagoClient } from "./billing/mercadopago";
 import { BillingService } from "./billing/service";
@@ -101,6 +102,7 @@ if (billing) {
 const api = createApp({
   auth,
   googleEnabled: googleEnabled(settings),
+  tender: createTenderService(process.env.TENDER_SERVICE_URL, secret("TENDER_SERVICE_TOKEN", true)),
   bridge,
   allowedOrigins,
   adminMetrics: postgresAdminMetrics((sql, values) => pool.query(sql, values), billing ? () => billingStore.metrics() : undefined),

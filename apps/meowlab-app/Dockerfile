@@ -12,7 +12,7 @@ WORKDIR /app
 ENV NODE_ENV=production PORT=8080 DIST_DIR=/app/dist
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
-COPY --from=build /app/dist ./dist
+COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build /app/build/server.mjs ./server.mjs
 COPY migrations-postgres ./migrations-postgres
 USER node

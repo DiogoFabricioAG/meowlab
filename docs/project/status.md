@@ -4,15 +4,15 @@
 
 ## Tender Cat: recepción de bases PDF/DOCX por WhatsApp y resumen de preparación — publicado 2026-11-19
 
-Desplegado desde ramas sin fusionar en `main` (`feat/tender-bases-whatsapp`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Worker `509a3384` (desde `fcc737d3`) y backend de licitaciones `cae75bd02c32`, con migración D1 `0020_radar_bases_uploads.sql`. Intercepta adjuntos PDF/DOCX hasta 15 MB en WhatsApp, los ingiere de forma idempotente verificando SHA-256, encola la preparación y devuelve al chat el resumen con fuentes y páginas para convocatorias solicitadas por WhatsApp. Acta en `origin/feat/tender-bases-whatsapp:docs/operations/tender-cat-bases-whatsapp-2026-11-19.md`.
+Código integrado en `main` en el PR #53. Worker `509a3384` (desde `fcc737d3`) y backend de licitaciones `cae75bd02c32`, con migración D1 `0020_radar_bases_uploads.sql`. Intercepta adjuntos PDF/DOCX hasta 15 MB en WhatsApp, los ingiere de forma idempotente verificando SHA-256, encola la preparación y devuelve al chat el resumen con fuentes y páginas para convocatorias solicitadas por WhatsApp. Acta en [acta de recepción de bases](../operations/tender-cat-bases-whatsapp-2026-11-19.md).
 
 ## Tender Cat: «Me interesa» con enlace oficial a bases — publicado 2026-11-19
 
-Desplegado desde ramas sin fusionar en `main` (`feat/tender-respuesta-interes` y `feat/tender-enlace-bases`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Worker `7d33f0e0` (desde `2c670f88`) y backend de licitaciones `2d814a166d5c`. Enriquece los avisos con metadatos de documentos oficiales de SEACE (priorizando Bases Integradas hasta el tope de 6) y, al pulsar «Me interesa», responde en el chat con el enlace directo a las bases o a la ficha oficial. Acta en `origin/feat/tender-bases-whatsapp:docs/operations/tender-cat-me-interesa-2026-11-19.md`.
+Código del Worker integrado en `main` en el PR #52. Worker `7d33f0e0` (desde `2c670f88`) y backend de licitaciones `2d814a166d5c`. Enriquece los avisos con metadatos de documentos oficiales de SEACE (priorizando Bases Integradas hasta el tope de 6) y, al pulsar «Me interesa», responde en el chat con el enlace directo a las bases o a la ficha oficial. Acta en [acta de confirmación de interés](../operations/tender-cat-me-interesa-2026-11-19.md).
 
 ## Tender Cat en producción: vistas en el portal y títulos breves — publicado 2026-11-19
 
-Desplegado desde ramas sin fusionar en `main` (`feat/tender-cat-vistas`; ver tarea `tender-ramas-sin-publicar-20261120` del tablero). Portal y bridge desde `3ed0fef5ab64` y actualización posterior a `1fde2b38cfa7` para títulos breves generados con IA; API/web de licitaciones en `394b1fa1550a`. Habilita `/agentes/licitaciones` con lista, ficha y enlace al espacio de cotización y expediente. Acta en `origin/feat/tender-cat-vistas:docs/operations/tender-cat-portal-2026-11-19.md`.
+Vistas y títulos integrados en `main` en el PR #54. Portal y bridge desde `3ed0fef5ab64` y actualización posterior a `1fde2b38cfa7` para títulos breves generados con IA; API/web de licitaciones en `394b1fa1550a`. Habilita `/agentes/licitaciones` con lista, ficha y enlace al espacio de cotización y expediente. Acta en [acta de vistas del portal](../operations/tender-cat-portal-2026-11-19.md).
 
 ## Portal app.meowlab.tech: Inicio como centro de mando y barra lateral clara — publicado 2026-11-19
 
