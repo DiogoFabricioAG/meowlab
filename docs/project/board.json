@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-20",
+  "updatedAt": "2026-11-21",
   "columns": [
     {
       "id": "todo",
@@ -2423,7 +2423,40 @@
       "status": "todo",
       "updated": "2026-11-21",
       "evidence": "",
-      "notes": "Visto en producción el 21/11 (CREACIONES J&D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación."
+      "notes": "Visto en producción el 21/11 (CREACIONES J&D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. Tanda 5, T1: avance en origin/feat/portal-actividad-config-plan (25ebe). Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "id": "portal-plan-correo-mercadopago-20261121",
+      "title": "Plan: no mostrar siempre el campo «Correo de tu cuenta de Mercado Pago»",
+      "area": "Portal",
+      "priority": "medium",
+      "notes": "Reportado por el operador el 21/11. Mercado Pago exige payer_email en preapproval; usar el correo del portal por defecto y ofrecer «Usar otro correo». Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "id": "portal-configuracion-ui-20261121",
+      "title": "Portal: rediseñar Configuración (cuenta, WhatsApp, empresa con el estado de cada gato)",
+      "area": "Portal",
+      "priority": "medium",
+      "notes": "Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "id": "portal-alta-sin-ruc-20261121",
+      "title": "Alta de empresa sin RUC obligatorio (solo Invoice Cat lo exige) y bienvenida con UI moderna",
+      "area": "Portal",
+      "priority": "high",
+      "notes": "Reportado por el operador el 21/11: hay negocios informales o desconfiados que pueden usar Sales, Stock, Collections, Reorder, Support y Tender sin RUC. Requiere ADR, cambio en create del bridge, migración sin aplicar y nueva bienvenida. Tanda 5, T2. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
     }
   ]
 }

@@ -1,0 +1,212 @@
+# Tareas para los agentes AGY — quinta tanda (21/11/2026)
+
+Problemas que el operador encontró al revisar el portal en producción después del
+despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
+
+**Cómo se reparte:** los agentes de la tanda 4 terminan primero su tarea en curso.
+
+- AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
+  AGY-3 con Stock Cat fase 2.
+- Las tareas de esta tanda las toma **el primer agente que quede libre**: **T1**
+  primero, después **T2**.
+- Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
+  otro no la tome.
+
+Como siempre, quien coordina revisa, fusiona y despliega. **Ningún agente fusiona ni
+despliega.**
+
+Es un documento fechado. Si contradice al código o a `AGENTS.md`, mandan ellos.
+
+---
+
+## Reglas comunes
+
+Valen las «Reglas comunes» de las tandas anteriores:
+
+- [`tareas-agy-2026-11-20.md`](tareas-agy-2026-11-20.md);
+- [`tareas-agy-2026-11-20-tanda2.md`](tareas-agy-2026-11-20-tanda2.md);
+- [`tareas-agy-2026-11-20-tanda3.md`](tareas-agy-2026-11-20-tanda3.md);
+- [`tareas-agy-2026-11-20-tanda4.md`](tareas-agy-2026-11-20-tanda4.md).
+
+Además:
+
+1. **`node_modules` real en tu worktree.** Corre `npm ci` en cada app que toques. Los
+   junctions a `D:\meowlab` dan errores de tipos, porque esa copia tiene dependencias
+   viejas.
+2. **Revisión visual obligatoria para cambios de pantalla.**
+   - Compila el portal y sírvelo localmente con un mock de `/api` (incluido
+     `/api/auth/get-session`).
+   - Adjunta al PR capturas a 1366 y 390 px.
+   - Que las pruebas pasen no basta: en la tanda 4 la actividad pasaba las pruebas y en
+     producción no cargaba.
+3. **Contratos del bridge.** Si agregas una acción del portal, agrégala también a
+   `isPortalCompanyRequest` en `src/bridge/portal-company-contracts.ts`, con su
+   prueba de contrato. Ese olvido fue lo que dejó sin datos la actividad del Inicio.
+4. **Mercado Pago está en producción.** No hagas compras ni llames a su API con las
+   credenciales del VPS.
+
+---
+
+## T1 — Terminar: actividad legible, correo de Mercado Pago y Configuración nueva
+
+- **Tareas del tablero:** `portal-actividad-numeros-duplicados-20261121`,
+  `portal-plan-correo-mercadopago-20261121` y `portal-configuracion-ui-20261121`.
+- **Rama de partida:** `origin/feat/portal-actividad-config-plan`, con el avance del
+  coordinador (commit `25ebe`).
+  - Créate un worktree en `D:/meowlab-wt-t1-portal` sobre esa rama, rebasada sobre
+    `origin/main`.
+  - Revisa el avance: no lo des por bueno.
+
+### Qué reportó el operador
+
+1. **«Actividad reciente» no se entiende.** Muestra «Invoice Cat emitió
+   01m7j3emrtxy1f05x211j39pfd», repite la guía del 06/11 y mezcla pasos internos
+   (borradores, ediciones).
+2. **Plan pide el correo de Mercado Pago.** Mercado Pago exige, en las suscripciones
+   (`preapproval`), el correo de la cuenta que paga. Pero el campo siempre visible
+   confunde.
+3. **Configuración se ve fea:**
+   - una tarjeta de empresa a media pantalla con solo «Invoice Cat activo»;
+   - la tarjeta de WhatsApp con otro estilo que el resto;
+   - mucho espacio vacío.
+
+### Lo que ya trae la rama (revisar y terminar)
+
+- **Bridge (`src/node/portal/activity-service.ts`):**
+  - solo muestra `invoice_issued`, `credit_note_created`, `invoice_cancelled` e
+    `issue_despatch`, sin las guías en borrador;
+  - deduplica por operación y recurso;
+  - traduce el `resource_id` (es el `id` del comprobante; verificado: `01m7j3emrtx…` es
+    F001-27) a número, cliente y total, con la lista `issued-documents` del servicio
+    de facturación, en un rango de hasta 90 días;
+  - nunca muestra un ID interno.
+- **Portal:**
+  - `HomeActivity.tsx` agrupa por día («Hoy», «Ayer», «Lunes, 16 nov.»), pone el nombre
+    del gato en negrita y la hora a la derecha, muestra 8 acciones y luego «Ver las N
+    acciones»;
+  - `PlanPanel.tsx` oculta el correo detrás de «Pagarás con la cuenta de Mercado Pago
+    de X. Usar otro correo» y abre el campo si Mercado Pago lo rechaza;
+  - `SettingsPage.tsx` es nuevo: secciones con título a la izquierda (Tu cuenta,
+    WhatsApp, Tu empresa) y el estado de cada gato con un enlace a su ficha o a Plan.
+- **Pruebas:**
+  - bridge: 20 en `portal-activity` y `portal-company`;
+  - portal: 79.
+
+### Qué falta
+
+- **Revisión visual completa** de Inicio, Plan y Configuración a 1366 y 390 px. En
+  Configuración había una diferencia de estilo entre tarjetas que se corrigió sin
+  volver a mirarla.
+- **Guías de remisión:** el servicio de facturación no las incluye en
+  `issued-documents`. Busca de dónde sacar su número
+  (`/api/invoicing/{tenant}/despatches` o equivalente) para escribir «Invoice Cat
+  envió la guía T001-… a SUNAT». Si no hay forma barata, deja el texto actual sin
+  número.
+- **Resto de gatos en la actividad:**
+  - revisa que sus textos digan algo útil, con cliente, monto o producto, y sin IDs;
+  - Collections hoy dice «registró un cobro» dos veces por pago (`record_payment` y
+    `approve_payment`): deja uno.
+- **Configuración en celular:** comprueba que las secciones se apilen bien y que la
+  lista de gatos se lea.
+- **Pruebas:**
+  - Worker completo, con la línea base de 2 fallas de Tender;
+  - portal: `npm test`, `npm run typecheck` y `npm run build`.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts` y sus pruebas.
+- En `apps/meowlab-app/web/src`: `HomeActivity.tsx`, `PlanPanel.tsx`,
+  `SettingsPage.tsx` y `Panel.tsx` (solo el cableado de Configuración).
+- Las pruebas de esos archivos.
+- **No toques** las tarjetas de Plan de cada gato ni la activación por pago: eso es
+  de AGY-2 en la tanda 4.
+
+### Terminado cuando
+
+- El PR trae capturas antes y después de las tres pantallas, a 1366 y 390 px, con
+  datos de ejemplo.
+- Ninguna línea de la actividad muestra un ID interno ni se repite.
+- Las tres tareas del tablero quedan en `done`.
+
+---
+
+## T2 — Alta de empresa sin RUC obligatorio y bienvenida con UI moderna
+
+- **Tarea del tablero:** `portal-alta-sin-ruc-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t2-alta`, rama `feat/alta-empresa-sin-ruc`,
+  desde `origin/main`.
+- **Lectura obligatoria:**
+  - `docs/decisions/0010-empresas-e-invitaciones-en-el-portal.md`;
+  - `docs/decisions/0008-modelo-de-datos-erp.md`.
+
+### Qué reportó el operador
+
+- **El RUC obligatorio deja fuera a muchos negocios.** La pantalla de bienvenida
+  («¿Con qué empresa vas a usar MeowLab?») solo deja crear la empresa con RUC
+  («Buscar en SUNAT»). Eso solo importa para Invoice Cat. Sales, Stock, Collections,
+  Reorder, Support y Tender pueden venderse a negocios **informales** o que no quieren
+  dar su RUC por desconfianza.
+- **La pantalla se ve anticuada.**
+
+### Qué hacer
+
+1. **Decisión primero.** Escribe una ADR nueva en `docs/decisions/`, con el siguiente
+   número libre. Debe cubrir:
+   - que una empresa puede existir sin RUC, con nombre comercial y, si quiere, rubro y
+     ciudad;
+   - que **Invoice Cat exige RUC**: al contratarlo o configurarlo, se pide el RUC y se
+     valida con SUNAT como hoy;
+   - qué pasa si después agrega el RUC: cómo se actualiza el nombre legal y cómo se
+     evita duplicar una empresa que ya existe con ese RUC;
+   - unicidad: sin RUC no hay forma de detectar duplicados. Propón la regla, por
+     ejemplo un límite por cuenta.
+
+   Si algo necesita una decisión del operador, déjalo en «Preguntas abiertas» y sigue
+   con la opción más conservadora.
+2. **Bridge:**
+   - la acción `create` de `PortalCompanyService` (hoy devuelve `invalid_ruc` sin RUC)
+     acepta crear con nombre y sin RUC;
+   - agrega una acción para añadir el RUC después;
+   - actualiza el contrato `isPortalCompanyRequest` y sus pruebas.
+3. **Migración nueva del bridge** en `infra/postgres/migrations/`, si la columna del
+   RUC o su unicidad lo exigen. Sin aplicar; revisa el siguiente número libre también
+   en las ramas abiertas de AGY.
+4. **Portal:**
+   - **Bienvenida (`CompanyStep.tsx`, `OnboardingPage.tsx`):**
+     - dos caminos claros: «Tengo RUC» (busca en SUNAT como hoy) y «Todavía no tengo
+       RUC o prefiero no darlo» (nombre del negocio);
+     - más «Me invitaron a una empresa».
+   - **UI moderna**, con el mismo sistema que el resto del portal: tokens de
+     `styles.css`, `PageHeader`, tarjetas `rounded-3xl` y `shadow-card`, botones
+     grandes y clicables, y buen comportamiento a 390 px.
+   - **Invoice Cat sin RUC:** donde se muestra, dice «Para emitir comprobantes,
+     agrega el RUC de tu empresa», con un botón que lleva a agregarlo.
+5. **Pruebas:**
+   - crear sin RUC;
+   - crear con RUC (sigue igual);
+   - agregar el RUC después;
+   - RUC ya tomado por otra empresa;
+   - Invoice Cat bloqueado sin RUC;
+   - aislamiento por tenant.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/src/node/portal/company-service.ts`,
+  `src/bridge/portal-company-contracts.ts`, sus pruebas e
+  `infra/postgres/migrations/`.
+- `apps/meowlab-app/server/` (las rutas de empresas), y en `web/src`:
+  `CompanyStep.tsx`, `OnboardingPage.tsx`, y los textos de Invoice Cat en
+  `agents.ts` y `AgentsPage.tsx`.
+- La ADR nueva.
+- **No toques** Plan ni la activación por pago (AGY-2) ni `SettingsPage.tsx` (T1).
+  Si T1 todavía no está en `main`, coordina el rebase.
+
+### Terminado cuando
+
+- **Worker:** pasan `npm test` (con la línea base) y `npx tsc --noEmit`.
+- **Portal:** pasan `npm test`, `npm run typecheck` y `npm run build`.
+- **El PR trae:**
+  - la ADR;
+  - las migraciones que habrá que aplicar, en orden;
+  - capturas de la bienvenida en los dos caminos, a 1366 y 390 px.
+- La tarea del tablero queda en `done`.
