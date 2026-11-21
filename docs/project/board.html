@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 75 · Total: 239</span>
+      <span class="summary">Abiertas: 74 · Total: 239</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">68</span>
+          <span class="count">67</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -848,17 +848,6 @@
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-3-play-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: activar el servicio de tender cuando el pago de suscripción llega al bridge tender portalentitlementservice ya registra el pago de tender y lo devuelve en skipped sin error. falta conectar el flujo de tender cat para habilitar el servicio de la empresa hasta active_until. tanda 6, t10 (ops 1): docs/agents/tareas-agy-2026-11-21-tanda6.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Tender</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Tender Cat: activar el servicio de Tender cuando el pago de suscripción llega al bridge</h3>
-          
-          <p class="card-notes">PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until. Tanda 6, T10 (OPS 1): docs/agents/tareas-agy-2026-11-21-tanda6.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">tender-activacion-suscripcion-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="bridge: dato de productos sin movimiento (30 días) y capital inmovilizado para el consejo de gatos manolo stock cat lo necesita en la mesa del consejo (t8, versión 2) para dar un consejo de tendencia. se agrega a weeklysummary.stock, con su contrato y sus pruebas. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -1070,7 +1059,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">164</span>
+          <span class="count">165</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2667,6 +2656,17 @@
           <p class="card-notes">Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
           <code class="card-id">portal-configuracion-ui-20261121</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: activar el servicio de tender cuando el pago de suscripción llega al bridge tender portalentitlementservice ya registra el pago de tender y lo devuelve en skipped sin error. falta conectar el flujo de tender cat para habilitar el servicio de la empresa hasta active_until. tanda 6, t10 (ops 1): docs/agents/tareas-agy-2026-11-21-tanda6.md. pr feat/tender-activacion-pago: migración 025-tender-subscriptions.sql (radar.settings, sin aplicar), &#39;tender&#39; agregado a entitled_agents y entitlementservice, lectura de vigencia en weekly-service.ts, selection-service.ts y discoveryworker (opportunity_discovery.py). probado en portal-entitlement.test.ts, suite completa del worker y test_tender_service.py.">
+          <div class="card-top">
+            <span class="badge area-other">Tender</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tender Cat: activar el servicio de Tender cuando el pago de suscripción llega al bridge</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR feat/tender-activacion-pago: migración 025-tender-subscriptions.sql (radar.settings, sin aplicar), &#39;tender&#39; agregado a ENTITLED_AGENTS y EntitlementService, lectura de vigencia en weekly-service.ts, selection-service.ts y DiscoveryWorker (opportunity_discovery.py). Probado en portal-entitlement.test.ts, suite completa del Worker y test_tender_service.py.</p>
+          <p class="card-notes">PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until. Tanda 6, T10 (OPS 1): docs/agents/tareas-agy-2026-11-21-tanda6.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
+          <code class="card-id">tender-activacion-suscripcion-20261120</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio portal pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. en dos pasos: dos propuestas visuales en un pr en borrador para que el operador elija; después la construcción. tanda 5, t8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir para atender ni tus gatos hoy). tendencia sale de inicio y pasa a la mesa. la versión 2 está en tareas-agy-2026-11-21-tanda6.md. rama feat/consejo-mesa: mesa redonda con un consejo de tendencia por gato (web/src/council.ts, 12 pruebas), «lo que revisa el consejo» (tendencia movida desde inicio) e informe «quién habla con tus gatos» (people en weeklysummary, 2 pruebas del bridge). portal 99/99, worker 757/757, typecheck y build ok; revisión visual a 1366 y 390 px con datos de ejemplo; consulta probada en solo lectura con creaciones j&amp;d.">
           <div class="card-top">

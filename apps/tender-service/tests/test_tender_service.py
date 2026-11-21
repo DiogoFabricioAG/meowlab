@@ -461,3 +461,28 @@ def test_replace_bases_atomic_preserves_work_and_enforces_isolation(service_clie
     )
     assert repeat.status_code == 200
     assert new_base_id in [b["id"] for b in repeat.json()["uploadedBases"]]
+
+
+def test_discovery_worker_stops_when_entitlement_inactive(service_client, monkeypatch):
+    from app import business_profile, database, opportunity_discovery
+
+    _, factory, _ = service_client
+    with factory() as db:
+        database.Base.metadata.create_all(bind=db.get_bind())
+        db.add(
+            business_profile.WebBusiness(
+                account=OWNER,
+                memory={"topics": ["polos de algodón"], "excludedTopics": [], "searchPreferences": {"regions": ["Lima"]}},
+            )
+        )
+        db.commit()
+
+    monkeypatch.setenv("RADAR_DISCOVERY_ENABLED", "1")
+    worker = opportunity_discovery.DiscoveryWorker(factory, OWNER)
+    monkeypatch.setattr(worker, "gateway", lambda path, body=None: (200, {"linked": True, "open": True, "entitled": False}))
+    search_calls = []
+    monkeypatch.setattr(worker, "search", lambda query, category: search_calls.append((query, category)) or [])
+
+    result = worker.cycle(send=True, force=True)
+    assert result["status"] == "subscription_inactive"
+    assert search_calls == []

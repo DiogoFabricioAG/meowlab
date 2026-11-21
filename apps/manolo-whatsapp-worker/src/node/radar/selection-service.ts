@@ -70,8 +70,13 @@ export class PgRadarSelectionService {
            ON contact_role.role_key = NULLIF(BTRIM(contact.active_role_key), '') AND contact_role.active = TRUE
          LEFT JOIN whatsapp.role_catalog AS tenant_role
            ON tenant_role.role_key = NULLIF(BTRIM(config.role_key), '') AND tenant_role.active = TRUE
+         LEFT JOIN radar.settings AS radar_settings ON radar_settings.tenant_id = tenant.id
          WHERE tenant.id = $1 AND tenant.status = 'active'
-           AND COALESCE(contact_role.role_key, tenant_role.role_key) = 'radar'
+           AND (
+             (radar_settings.tenant_id IS NOT NULL AND radar_settings.enabled = TRUE
+               AND (radar_settings.active_until IS NULL OR radar_settings.active_until > CURRENT_TIMESTAMP))
+             OR (radar_settings.tenant_id IS NULL AND COALESCE(contact_role.role_key, tenant_role.role_key) = 'radar')
+           )
          LIMIT 1`,
         [request.tenantId, request.phoneNumberId, request.whatsappUserId],
       );
