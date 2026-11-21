@@ -6,7 +6,8 @@
 export const PORTAL_ENTITLEMENT_BRIDGE_PATH = "/v1/portal/entitlements";
 
 /** Billing keys the platform can switch on by itself; the rest are skipped. */
-export const ENTITLED_AGENTS = ["sales"] as const;
+export const ENTITLED_AGENTS = ["sales", "stock", "collections", "reorder", "support"] as const;
+export type EntitledAgent = (typeof ENTITLED_AGENTS)[number];
 
 export type PortalEntitlementRequest = {
   version: 1;

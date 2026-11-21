@@ -1,5 +1,6 @@
 import {
   ENTITLED_AGENTS,
+  type EntitledAgent,
   type PortalEntitlementRequest,
   type PortalEntitlementResponse,
 } from "../../bridge/portal-entitlement-contracts";
@@ -8,8 +9,16 @@ import type { RoleLog } from "../../roles/contracts";
 type Rows = { rows: Array<Record<string, unknown>> };
 export type EntitlementPool = { query(sql: string, values?: readonly unknown[]): Promise<unknown> };
 
+const SETTINGS_SCHEMA: Record<EntitledAgent, string> = {
+  sales: "sales",
+  stock: "stock",
+  collections: "receivables",
+  reorder: "purchasing",
+  support: "support",
+};
+
 /**
- * Switches on what a company paid for (Sales Cat today) until the end of the paid period.
+ * Switches on what a company paid for until the end of the paid period.
  * Idempotent and monotonic: repeating a call or sending an older date never shortens the
  * period. Courtesy activations (set by hand) are never touched.
  */
@@ -22,28 +31,33 @@ export class PortalEntitlementService {
       [request.tenantId],
     ) as Rows;
     if (!rows.length) return { status: "not_found" };
+
+    const activeUntil = new Date(request.activeUntil);
     const applied: string[] = [];
     const skipped: string[] = [];
+
     for (const agent of new Set(request.agents)) {
       if (!(ENTITLED_AGENTS as readonly string[]).includes(agent)) {
         skipped.push(agent);
         continue;
       }
+      const schema = SETTINGS_SCHEMA[agent as EntitledAgent];
       await this.pool.query(
-        `INSERT INTO sales.settings (tenant_id, enabled, source, active_until, updated_at)
+        `INSERT INTO ${schema}.settings (tenant_id, enabled, source, active_until, updated_at)
          VALUES ($1, TRUE, 'subscription', $2, CURRENT_TIMESTAMP)
          ON CONFLICT (tenant_id) DO UPDATE SET
            -- An active courtesy is never touched; a switched-off one becomes the paid subscription.
-           source = CASE WHEN sales.settings.source = 'courtesy' AND sales.settings.enabled THEN 'courtesy' ELSE 'subscription' END,
+           source = CASE WHEN ${schema}.settings.source = 'courtesy' AND ${schema}.settings.enabled THEN 'courtesy' ELSE 'subscription' END,
            enabled = TRUE,
-           active_until = CASE WHEN sales.settings.source = 'courtesy' AND sales.settings.enabled THEN NULL
-                               WHEN sales.settings.source = 'courtesy' THEN EXCLUDED.active_until
-                               ELSE GREATEST(sales.settings.active_until, EXCLUDED.active_until) END,
+           active_until = CASE WHEN ${schema}.settings.source = 'courtesy' AND ${schema}.settings.enabled THEN NULL
+                               WHEN ${schema}.settings.source = 'courtesy' THEN EXCLUDED.active_until
+                               ELSE GREATEST(${schema}.settings.active_until, EXCLUDED.active_until) END,
            updated_at = CURRENT_TIMESTAMP`,
-        [request.tenantId, new Date(request.activeUntil)],
+        [request.tenantId, activeUntil],
       );
       applied.push(agent);
     }
+
     this.log("portal_entitlement_applied", { applied, skipped });
     return { status: "ok", applied, skipped };
   }

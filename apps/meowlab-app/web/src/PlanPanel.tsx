@@ -239,6 +239,9 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
                     <span className="tabular-nums font-semibold text-ink">{soles(agent.priceCents)}</span>
                   </span>
                   <span className="text-sm text-ink-muted">{agent.description}</span>
+                  {agent.key === "invoice" && (
+                    <span className="text-xs font-semibold text-forest">Después del pago, conecta tu clave SOL de SUNAT.</span>
+                  )}
                   {!agent.available && <span className="chip w-fit border border-line bg-white text-ink-muted">Próximamente</span>}
                 </label>
               );
