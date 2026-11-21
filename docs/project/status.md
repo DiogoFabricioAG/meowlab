@@ -1,16 +1,25 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026 (01:00 Lima):**
+**Estado al 21/11/2026 (01:40 Lima):**
 
 - Worker `9c8dc2a1`, desde `cad7f320a781`.
-- Bridge `main-20261121T055857Z`, desde `9d64c7d6ae16`.
-- Portal y servicio de Tender Cat `9d64c7d6ae16`.
-- Landing `meowlab-web:4ddbb6052f72`.
+- Bridge `main-20261121T063947Z`, desde `5b927b7798d2`.
+- Portal y servicio de Tender Cat `5b927b7798d2`.
+- Landing `meowlab-web:5b927b7798d2` (Astro 7).
 - Facturación `error-extraccion-marca-20261121T025707Z`.
 
 Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, Stock, Reorder, Support y Collections Cat. Tender Cat aparece en el catálogo, pero todavía no se vende.
 
 
+
+## Alta de empresa sin RUC y landing en Astro 7 — publicado 2026-11-21
+
+Desde `5b927b7798d2`. Se aplicó la migración `024`, con respaldo previo.
+
+- **Alta sin RUC:** la bienvenida tiene tres caminos y se puede crear una empresa sin RUC (ADR-0019). Invoice Cat exige agregar el RUC, que se hace desde Configuración.
+- **Landing:** pasa a Astro 7. Ya no tiene la vulnerabilidad crítica y el diseño no cambia.
+
+[Acta](../operations/t2-alta-sin-ruc-y-landing-astro7-2026-11-21.md).
 ## Portal y bridge: actividad legible, correo de Mercado Pago y Configuración nueva — publicado 2026-11-21
 
 Desde `9d64c7d6ae16` (T1, PR #65). Los cambios:
