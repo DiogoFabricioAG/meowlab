@@ -31,7 +31,8 @@ export type PendingInvitation = { id: string; createdAt: string; expiresAt: stri
 export type PortalCompanyAction =
   | { action: "mine" }
   | { action: "lookup"; ruc: string }
-  | { action: "create"; ruc: string; name?: string }
+  | { action: "create"; ruc?: string; name?: string; sector?: string; city?: string }
+  | { action: "set_ruc"; tenantId: string; ruc: string }
   | { action: "team"; tenantId: string }
   | { action: "invite"; tenantId: string; phone?: string; access: InvitationAccess }
   | { action: "revoke"; tenantId: string; invitationId: string }
@@ -110,9 +111,9 @@ export type ActivitySummary = {
 export type PortalCompanyResponse =
   | { status: "ok"; companies: PortalMembership[] }
   | { status: "ok"; taxpayer: Taxpayer }
-  | { status: "created"; company: PortalMembership }
+  | { status: "created" | "updated"; company: PortalMembership }
   | { status: "inactive"; taxpayer: Taxpayer }
-  | { status: "invalid_ruc" | "not_found" | "taken" | "limit_reached" | "unavailable" }
+  | { status: "invalid_ruc" | "invalid_name" | "already_has_ruc" | "not_found" | "taken" | "limit_reached" | "unavailable" }
   | { status: "ok"; team: { members: TeamMember[]; invitations: PendingInvitation[] } }
   | { status: "invited"; invitation: PendingInvitation & { token: string } }
   | { status: "ok"; invitation: { companyName: string; invitedBy: string; expiresAt: string; maskedPhone: string | null; alreadyMember: boolean } }

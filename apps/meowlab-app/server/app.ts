@@ -472,14 +472,31 @@ export function createApp(deps: AppDeps) {
   });
 
   app.post("/api/companies", async (c) => {
-    const body = await c.req.json().catch(() => null) as { ruc?: unknown; name?: unknown } | null;
+    const body = await c.req.json().catch(() => null) as { ruc?: unknown; name?: unknown; sector?: unknown; city?: unknown } | null;
+    const hasRuc = body?.ruc !== undefined && body?.ruc !== null && String(body.ruc).trim() !== "";
     const ruc = typeof body?.ruc === "string" ? body.ruc.trim() : "";
     const name = typeof body?.name === "string" ? body.name.trim().replace(/\s+/g, " ") : "";
+    const sector = typeof body?.sector === "string" ? body.sector.trim().replace(/\s+/g, " ") : "";
+    const city = typeof body?.city === "string" ? body.city.trim().replace(/\s+/g, " ") : "";
+    if (name.length > 160 || sector.length > 80 || city.length > 80) return c.json({ error: "invalid_request" }, 400);
+    if (hasRuc) {
+      if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
+      // Creation with RUC re-reads the registry too, so it shares the lookup budget.
+      if (!allowLookup(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
+      return company(c, { action: "create", ruc, ...(name ? { name } : {}), ...(sector ? { sector } : {}), ...(city ? { city } : {}) });
+    }
+    if (!name) return c.json({ status: "invalid_name" });
+    return company(c, { action: "create", name, ...(sector ? { sector } : {}), ...(city ? { city } : {}) });
+  });
+
+  app.post("/api/companies/:tenantId/ruc", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    const body = await c.req.json().catch(() => null) as { ruc?: unknown } | null;
+    const ruc = typeof body?.ruc === "string" ? body.ruc.trim() : "";
     if (!RUC.test(ruc)) return c.json({ status: "invalid_ruc" });
-    if (name.length > 160) return c.json({ error: "invalid_request" }, 400);
-    // Creation re-reads the registry too, so it shares the lookup budget.
     if (!allowLookup(c.get("session").user.id)) return c.json({ status: "rate_limited" }, 429);
-    return company(c, { action: "create", ruc, ...(name ? { name } : {}) });
+    return company(c, { action: "set_ruc", tenantId, ruc });
   });
 
   const relay = async (c: Context<{ Variables: { session: Session } }>, request: PortalLinkAction) => {

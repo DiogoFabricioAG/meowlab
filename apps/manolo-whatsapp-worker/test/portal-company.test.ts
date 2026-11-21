@@ -26,6 +26,10 @@ describe("portal company contracts", () => {
     expect(isPortalCompanyRequest({ ...base, action: "activity" })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "lookup", ruc: RUC })).toBe(true);
     expect(isPortalCompanyRequest({ ...base, action: "create", ruc: RUC, name: "Agu" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "create", name: "Bodega Rosita", sector: "Bodega", city: "Lima" })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "create", name: "   " })).toBe(false);
+    expect(isPortalCompanyRequest({ ...base, action: "set_ruc", tenantId: "org_1", ruc: RUC })).toBe(true);
+    expect(isPortalCompanyRequest({ ...base, action: "set_ruc", tenantId: "bad/id", ruc: RUC })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "create", ruc: RUC, name: "x".repeat(161) })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "lookup", ruc: "2".repeat(40) })).toBe(false);
     expect(isPortalCompanyRequest({ ...base, action: "delete" })).toBe(false);
@@ -105,7 +109,7 @@ describe("portal company service", () => {
       company: { id: "org_new", name: "Agu Bello", legalName: "AGU BELLO E.I.R.L.", ruc: RUC, role: "owner", invoicing: "needs_sol" },
     });
     const tenant = statements.find((s) => s.sql.includes("INSERT INTO whatsapp.tenants"));
-    expect(tenant?.values).toEqual(["org_new", "Agu Bello", "AGU BELLO E.I.R.L.", RUC, "LIMA"]);
+    expect(tenant?.values).toEqual(["org_new", "Agu Bello", "AGU BELLO E.I.R.L.", RUC, "LIMA", null, null]);
     const owner = statements.find((s) => s.sql.includes("INSERT INTO whatsapp.portal_company_members"));
     expect(owner?.values).toEqual(["org_new", "user-1"]);
     expect(statements.at(-1)?.sql).toBe("COMMIT");
@@ -230,5 +234,56 @@ describe("portal invitation service", () => {
     const service = new PortalCompanyService({ connect: vi.fn(), query: vi.fn() }, null, vi.fn(), () => "org", invitations);
     expect(await service.handle({ ...base, action: "team", tenantId: "org_1" })).toEqual({ status: "forbidden" });
     expect(invitations.handle).toHaveBeenCalledWith({ ...base, action: "team", tenantId: "org_1" });
+  });
+
+  it("creates a company without RUC using name, optional sector and city", async () => {
+    const { service, statements, directory } = setup();
+    const res = await service.handle({ ...base, action: "create", name: "  Bodega Rosita ", sector: "Bodega", city: "Lima" });
+    expect(res).toEqual({
+      status: "created",
+      company: { id: "org_new", name: "Bodega Rosita", legalName: null, ruc: null, role: "owner", invoicing: "needs_sol" },
+    });
+    expect(directory?.find).not.toHaveBeenCalled();
+    const tenant = statements.find((s) => s.sql.includes("INSERT INTO whatsapp.tenants"));
+    expect(tenant?.values).toEqual(["org_new", "Bodega Rosita", "Bodega", "Lima"]);
+  });
+
+  it("sets RUC later for owner, rejects taken RUC and enforces tenant isolation", async () => {
+    const clientQuery = vi.fn(async (sql: string) => {
+      if (sql.includes("UPDATE whatsapp.tenants")) {
+        return { rows: [{ id: "org_1", name: "Bodega Rosita", legal_name: "AGU BELLO E.I.R.L.", ruc: RUC }] };
+      }
+      return { rows: [] };
+    });
+    const pool = {
+      connect: vi.fn(async () => ({ query: clientQuery, release: vi.fn() })),
+      query: vi.fn(async (sql: string, values?: readonly unknown[]) => {
+        if (sql.includes("FROM whatsapp.portal_company_members")) {
+          if (values?.[0] === "org_other") return { rows: [] };
+          if (values?.[1] === "user-member") return { rows: [{ id: "org_1", name: "Bodega Rosita", ruc: null, role: "member" }] };
+          return { rows: [{ id: "org_1", name: "Bodega Rosita", ruc: null, role: "owner" }] };
+        }
+        return { rows: [] };
+      }),
+    };
+    const svc = new PortalCompanyService(pool, { find: async () => taxpayer }, vi.fn());
+
+    expect(await svc.handle({ ...base, action: "set_ruc", tenantId: "org_other", ruc: RUC })).toEqual({ status: "forbidden" });
+    expect(await svc.handle({ ...base, portalUserId: "user-member", action: "set_ruc", tenantId: "org_1", ruc: RUC })).toEqual({ status: "owner_only" });
+    expect(await svc.handle({ ...base, action: "set_ruc", tenantId: "org_1", ruc: RUC })).toEqual({
+      status: "updated",
+      company: { id: "org_1", name: "Bodega Rosita", legalName: "AGU BELLO E.I.R.L.", ruc: RUC, role: "owner", invoicing: "needs_sol" },
+    });
+
+    const takenPool = {
+      connect: vi.fn(async () => ({ query: clientQuery, release: vi.fn() })),
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("FROM whatsapp.portal_company_members")) return { rows: [{ id: "org_1", name: "Bodega Rosita", ruc: null, role: "owner" }] };
+        if (sql.includes("WHERE ruc = $1")) return { rows: [{ "?column?": 1 }] };
+        return { rows: [] };
+      }),
+    };
+    const takenSvc = new PortalCompanyService(takenPool, { find: async () => taxpayer }, vi.fn());
+    expect(await takenSvc.handle({ ...base, action: "set_ruc", tenantId: "org_1", ruc: RUC })).toEqual({ status: "taken" });
   });
 });

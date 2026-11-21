@@ -58,7 +58,16 @@ export function AgentsPage({ company, weekly, catalog, go }: {
                 {state.kind === "active" && (
                   <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">{state.today}</p>
                 )}
-                {state.kind === "setup" && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{state.step}</p>}
+                {state.kind === "setup" && (
+                  <div className="space-y-3">
+                    <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{state.step}</p>
+                    {card.key === "invoice" && !company.ruc && (
+                      <button type="button" onClick={() => go("/configuracion")} className="btn-secondary min-h-11 w-full sm:w-auto">
+                        Agregar RUC
+                      </button>
+                    )}
+                  </div>
+                )}
                 {state.kind === "ask" && <p className="text-sm text-ink-2">Pídelo por WhatsApp en tu chat de MeowLab y lo activamos.</p>}
                 {(state.kind === "available" || state.kind === "soon") && monthlyPrice(state.priceCents) && (
                   <p className="text-sm font-semibold text-ink-2">{monthlyPrice(state.priceCents)}</p>

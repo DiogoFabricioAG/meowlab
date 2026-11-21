@@ -26,7 +26,8 @@ export type InvitationAccess = "view" | "full";
 export type PortalCompanyRequest =
   | (Base & { action: "mine" })
   | (Base & { action: "lookup"; ruc: string })
-  | (Base & { action: "create"; ruc: string; name?: string })
+  | (Base & { action: "create"; ruc?: string; name?: string; sector?: string; city?: string })
+  | (Base & { action: "set_ruc"; tenantId: string; ruc: string })
   // Phase 2: invitations by the owner.
   | (Base & { action: "team"; tenantId: string })
   | (Base & { action: "invite"; tenantId: string; phone?: string; access: InvitationAccess })
@@ -177,8 +178,8 @@ export type PortalCompanyResponse =
   | { status: "ok"; sales: SalesView }
   | { status: "invalid_cat_name" }
   | { status: "ok"; taxpayer: Taxpayer }
-  | { status: "created"; company: PortalMembership }
-  | { status: "invalid_ruc" }
+  | { status: "created" | "updated"; company: PortalMembership }
+  | { status: "invalid_ruc" | "invalid_name" | "already_has_ruc" }
   | { status: "not_found" }
   | { status: "inactive"; taxpayer: Taxpayer }
   | { status: "taken" }
@@ -302,9 +303,18 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
     // A malformed RUC still reaches the service, which answers invalid_ruc.
     case "lookup":
       return typeof value.ruc === "string" && value.ruc.length <= 11;
-    case "create":
-      return typeof value.ruc === "string" && value.ruc.length <= 11
-        && (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160));
+    case "create": {
+      const hasRuc = value.ruc !== undefined;
+      const validRuc = !hasRuc || (typeof value.ruc === "string" && value.ruc.length <= 11);
+      const validName = hasRuc
+        ? (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160))
+        : text(value.name, 160);
+      const validSector = value.sector === undefined || (typeof value.sector === "string" && value.sector.length <= 80);
+      const validCity = value.city === undefined || (typeof value.city === "string" && value.city.length <= 80);
+      return validRuc && validName && validSector && validCity;
+    }
+    case "set_ruc":
+      return tenant(value.tenantId) && typeof value.ruc === "string" && value.ruc.length <= 11;
     case "team":
     case "weekly":
     case "activity":

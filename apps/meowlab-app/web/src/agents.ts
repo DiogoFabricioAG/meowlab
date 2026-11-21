@@ -157,9 +157,9 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
 export function agentState(key: AgentKey, company: Membership, weekly: Weekly | null, catalog: CatalogAgent[] | null): AgentState {
   const listed = catalog?.find((agent) => agent.key === key) ?? null;
   if (key === "invoice") {
-    return company.invoicing === "active"
-      ? { kind: "active", today: todayLine("invoice", weekly) }
-      : { kind: "setup", step: "Después del pago, conecta tu clave SOL de SUNAT. Escríbele a MeowLab y lo conectamos contigo." };
+    if (company.invoicing === "active") return { kind: "active", today: todayLine("invoice", weekly) };
+    if (!company.ruc) return { kind: "setup", step: "Para emitir comprobantes, agrega el RUC de tu empresa." };
+    return { kind: "setup", step: "Después del pago, conecta tu clave SOL de SUNAT. Escríbele a MeowLab y lo conectamos contigo." };
   }
   if (key === "tender") {
     if (weekly?.tender.enabled) return { kind: "active", today: todayLine("tender", weekly) };
