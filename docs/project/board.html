@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 87 · Total: 224</span>
+      <span class="summary">Abiertas: 84 · Total: 224</span>
     </div>
   </div>
 </header>
@@ -1084,7 +1084,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">10</span>
+          <span class="count">7</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1164,45 +1164,12 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
           <code class="card-id">portal-page-header-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción) portal detectado por npm audit en la tanda 2 (pr #41). server/node.ts usa serve y servestatic. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción)</h3>
-          
-          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). server/node.ts usa serve y serveStatic. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">portal-hono-node-server-2-20261120</code>
-        </article>
-        <article class="card" data-priority="low" data-area="Manolo" data-text="worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers) manolo detectado por npm audit en la tanda 2 (pr #41). solo desarrollo y pruebas. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers)</h3>
-          
-          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Solo desarrollo y pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">worker-npm-audit-dev-20261120</code>
-        </article>
-        <article class="card" data-priority="low" data-area="FacturaYa" data-text="facturaya-ai: que las pruebas no dependan del manifiesto de vite facturaya companyadministrationtest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. ">
-          <div class="card-top">
-            <span class="badge area-other">FacturaYa</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">facturaya-ai: que las pruebas no dependan del manifiesto de Vite</h3>
-          
-          <p class="card-notes">CompanyAdministrationTest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">facturaya-test-vite-manifest-20261120</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">137</span>
+          <span class="count">140</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2558,6 +2525,17 @@
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">docs-formato-1-prueba-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción) portal detectado por npm audit en la tanda 2 (pr #41). server/node.ts usa serve y servestatic. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. subido @hono/node-server a ^2.1.11 en apps/meowlab-app/package.json; npm audit: 1 moderate -&gt; 0 vulnerabilities. verificado npm run typecheck, npm test (13 archivos, 59/59), npm run build, npm run build:node, y servidor build/server.mjs local (/, /agentes, asset con hash 200; /api/no-existe pasa a api y no a index.html).">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Subido @hono/node-server a ^2.1.11 en apps/meowlab-app/package.json; npm audit: 1 moderate -&gt; 0 vulnerabilities. Verificado npm run typecheck, npm test (13 archivos, 59/59), npm run build, npm run build:node, y servidor build/server.mjs local (/, /agentes, asset con hash 200; /api/no-existe pasa a API y no a index.html).</p>
+          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). server/node.ts usa serve y serveStatic. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">portal-hono-node-server-2-20261120</code>
+        </article>
         <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. actualizadas en facturaya-ai (rama fix/extraccion-422-y-marca) a meowlab / invoice cat. git grep -i facturaya sobre resources/views, app/mail y app/notifications en facturaya-ai sin coincidencias visibles; phpunit 205 pruebas ejecutadas en contenedor temporal (204 pasando, solo fallo conocido de vite manifest en companyadministrationtest).">
           <div class="card-top">
             <span class="badge area-other">Facturación</span>
@@ -2656,6 +2634,28 @@
           <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
           <code class="card-id">collections-remind-clock-20261120</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Manolo" data-text="worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers) manolo detectado por npm audit en la tanda 2 (pr #41). solo desarrollo y pruebas. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. subidos en apps/manolo-whatsapp-worker/package.json: @cloudflare/vitest-pool-workers ^0.23.0, vitest ^4.1.12 y wrangler ^4.166.0. npm audit: 12 (3 moderate, 9 high) -&gt; 6 (1 moderate, 5 high, ligadas a @cloudflare/vitest-pool-workers deprecado en favor de @cloudflare/vitest-plugin@1.9.0). tsc --noemit pass; vitest run: 713/715 (solo fallan las 2 conocidas de tender cat por reloj real).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Subidos en apps/manolo-whatsapp-worker/package.json: @cloudflare/vitest-pool-workers ^0.23.0, vitest ^4.1.12 y wrangler ^4.166.0. npm audit: 12 (3 moderate, 9 high) -&gt; 6 (1 moderate, 5 high, ligadas a @cloudflare/vitest-pool-workers deprecado en favor de @cloudflare/vitest-plugin@1.9.0). tsc --noEmit PASS; vitest run: 713/715 (solo fallan las 2 conocidas de Tender Cat por reloj real).</p>
+          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Solo desarrollo y pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">worker-npm-audit-dev-20261120</code>
+        </article>
+        <article class="card" data-priority="low" data-area="FacturaYa" data-text="facturaya-ai: que las pruebas no dependan del manifiesto de vite facturaya companyadministrationtest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. agregado $this-&gt;withoutvite() en tests/testcase.php::setup() de facturaya-ai. phpunit en contenedor temporal del vps con la imagen en ejecución: 205/205 pruebas, 3732 aserciones (100% pass, sin public/build/manifest.json).">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">facturaya-ai: que las pruebas no dependan del manifiesto de Vite</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Agregado $this-&gt;withoutVite() en tests/TestCase.php::setUp() de facturaya-ai. PHPUnit en contenedor temporal del VPS con la imagen en ejecución: 205/205 pruebas, 3732 aserciones (100% PASS, sin public/build/manifest.json).</p>
+          <p class="card-notes">CompanyAdministrationTest::test_visual_workspaces_are_available falla sin public/build/manifest.json en cualquier entorno de pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">facturaya-test-vite-manifest-20261120</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="estructurar resumen whatsapp en bloques breves y corregir negritas undefined  activo 35d4c8bb; 271 pruebas, typecheck, 61 aisladas, dry-run y salud. docs/apps/radar-conversation.md">
           <div class="card-top">

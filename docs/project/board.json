@@ -2316,9 +2316,9 @@
       "notes": "Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat."
     },
     {
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "Subido @hono/node-server a ^2.1.11 en apps/meowlab-app/package.json; npm audit: 1 moderate -> 0 vulnerabilities. Verificado npm run typecheck, npm test (13 archivos, 59/59), npm run build, npm run build:node, y servidor build/server.mjs local (/, /agentes, asset con hash 200; /api/no-existe pasa a API y no a index.html).",
       "id": "portal-hono-node-server-2-20261120",
       "title": "Portal: subir @hono/node-server a 2.x (vulnerabilidad moderada en producción)",
       "area": "Portal",
@@ -2327,9 +2327,9 @@
       "notes": "Detectado por npm audit en la tanda 2 (PR #41). server/node.ts usa serve y serveStatic. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
     },
     {
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "Subidos en apps/manolo-whatsapp-worker/package.json: @cloudflare/vitest-pool-workers ^0.23.0, vitest ^4.1.12 y wrangler ^4.166.0. npm audit: 12 (3 moderate, 9 high) -> 6 (1 moderate, 5 high, ligadas a @cloudflare/vitest-pool-workers deprecado en favor de @cloudflare/vitest-plugin@1.9.0). tsc --noEmit PASS; vitest run: 713/715 (solo fallan las 2 conocidas de Tender Cat por reloj real).",
       "id": "worker-npm-audit-dev-20261120",
       "title": "Worker: corregir las 12 vulnerabilidades de dependencias de desarrollo (miniflare, wrangler, vitest-pool-workers)",
       "area": "Manolo",
@@ -2338,9 +2338,9 @@
       "notes": "Detectado por npm audit en la tanda 2 (PR #41). Solo desarrollo y pruebas. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md."
     },
     {
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "Agregado $this->withoutVite() en tests/TestCase.php::setUp() de facturaya-ai. PHPUnit en contenedor temporal del VPS con la imagen en ejecución: 205/205 pruebas, 3732 aserciones (100% PASS, sin public/build/manifest.json).",
       "id": "facturaya-test-vite-manifest-20261120",
       "title": "facturaya-ai: que las pruebas no dependan del manifiesto de Vite",
       "area": "FacturaYa",
