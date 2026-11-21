@@ -90,7 +90,7 @@
       "status": "done",
       "updated": "2026-11-20",
       "notes": "El release 887bba550816 ya estaba publicado en el repositorio privado de plataforma y el Worker fcc737d3 en feat/tender-bases-whatsapp. Se rebasaron e integraron las cuatro entregas al main del monorepo en orden: confirmación de interés, recepción de bases, vistas y títulos, portal y servicio nativo.",
-      "evidence": "PR #52 (0d8072c4b093), #53 (bc23a42c13e0), #54 (5295f311597a) y el PR de integración nativa que cierra esta tarea."
+      "evidence": "PR #52 (0d8072c4b093), #53 (bc23a42c13e0), #54 (5295f311597a) y #56 (código en 3ef6ee787756)."
     },
     {
       "id": "portal-centro-de-mando-20261119",
@@ -2353,7 +2353,7 @@
       "owner": "OPS 2 y Control",
       "status": "done",
       "updated": "2026-11-20",
-      "evidence": "Pruebas del portal y recorrido en Chrome con datos de ensayo.",
+      "evidence": "PR #56. 75 pruebas del portal y Chrome a 390 px con filtros y enlace directo histórico.",
       "id": "tender-lista-simplificar-20261120",
       "title": "Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones",
       "priority": "medium",
