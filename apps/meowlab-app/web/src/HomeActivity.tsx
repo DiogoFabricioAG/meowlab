@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { agentLogo, type ActivityAgentKey, type ActivityDay, type ActivityEvent, type CompanyActivity } from "./agents";
+import { agentLogo, type ActivityDay, type ActivityEvent, type CompanyActivity } from "./agents";
 import { fetchJson } from "./auth-client";
 import { Icon } from "./icons";
 
@@ -224,7 +224,7 @@ function ActivityRow({ event, today }: { event: ActivityEvent; today: string }) 
     <li className="flex items-start gap-3 px-5 py-3">
       <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-mint">
         <img
-          src={agentLogo(event.agent as ActivityAgentKey)}
+          src={agentLogo(event.agent)}
           alt=""
           width={24}
           height={24}
