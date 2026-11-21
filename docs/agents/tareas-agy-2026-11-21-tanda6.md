@@ -9,7 +9,7 @@ Los cuatro agentes terminaron la tanda 5. Esta tanda le da **una tarea a cada un
 | OPS 3 | **T12**: Reorder Cat carga proveedores por Excel |
 | OPS 4 | **T11**: equipo, con transferir la empresa, salir de ella y acceso al vincular WhatsApp después |
 
-**T8 (consejo de gatos) está al final, en su versión 2.** No tiene agente asignado: la toma el **primer agente que termine** su tarea, de preferencia OPS 4, que hizo el paso 1.
+**T8 (consejo de gatos) no es para los agentes.** El operador pidió que la construyera el coordinador. La versión 2 de abajo queda como especificación de lo que se hizo, en la rama `feat/consejo-mesa`.
 
 Antes de empezar, cada agente marca su tarea con su nombre en el tablero. Quien coordina revisa, fusiona y despliega. **Ningún agente fusiona ni despliega.**
 

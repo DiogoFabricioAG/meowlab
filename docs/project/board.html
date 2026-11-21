@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 76 · Total: 239</span>
+      <span class="summary">Abiertas: 75 · Total: 239</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">68</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -859,17 +859,6 @@
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">tender-activacion-suscripcion-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio portal pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. en dos pasos: dos propuestas visuales en un pr en borrador para que el operador elija; después la construcción. tanda 5, t8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir para atender ni tus gatos hoy). tendencia sale de inicio y pasa a la mesa. la versión 2 está en tareas-agy-2026-11-21-tanda6.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio</h3>
-          
-          <p class="card-notes">Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir Para atender ni Tus gatos hoy). Tendencia sale de Inicio y pasa a la mesa. La versión 2 está en tareas-agy-2026-11-21-tanda6.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-consejo-de-gatos-20261121</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="bridge: dato de productos sin movimiento (30 días) y capital inmovilizado para el consejo de gatos manolo stock cat lo necesita en la mesa del consejo (t8, versión 2) para dar un consejo de tendencia. se agrega a weeklysummary.stock, con su contrato y sus pruebas. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -1081,7 +1070,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">163</span>
+          <span class="count">164</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2678,6 +2667,17 @@
           <p class="card-notes">Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
           <code class="card-id">portal-configuracion-ui-20261121</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio portal pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. en dos pasos: dos propuestas visuales en un pr en borrador para que el operador elija; después la construcción. tanda 5, t8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir para atender ni tus gatos hoy). tendencia sale de inicio y pasa a la mesa. la versión 2 está en tareas-agy-2026-11-21-tanda6.md. rama feat/consejo-mesa: mesa redonda con un consejo de tendencia por gato (web/src/council.ts, 12 pruebas), «lo que revisa el consejo» (tendencia movida desde inicio) e informe «quién habla con tus gatos» (people en weeklysummary, 2 pruebas del bridge). portal 99/99, worker 757/757, typecheck y build ok; revisión visual a 1366 y 390 px con datos de ejemplo; consulta probada en solo lectura con creaciones j&amp;d.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/consejo-mesa: mesa redonda con un consejo de tendencia por gato (web/src/council.ts, 12 pruebas), «Lo que revisa el consejo» (Tendencia movida desde Inicio) e informe «Quién habla con tus gatos» (people en WeeklySummary, 2 pruebas del bridge). Portal 99/99, Worker 757/757, typecheck y build OK; revisión visual a 1366 y 390 px con datos de ejemplo; consulta probada en solo lectura con CREACIONES J&amp;D.</p>
+          <p class="card-notes">Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir Para atender ni Tus gatos hoy). Tendencia sale de Inicio y pasa a la mesa. La versión 2 está en tareas-agy-2026-11-21-tanda6.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Coordinador</p>
+          <code class="card-id">portal-consejo-de-gatos-20261121</code>
         </article>
         <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. actualizadas en facturaya-ai (rama fix/extraccion-422-y-marca) a meowlab / invoice cat. git grep -i facturaya sobre resources/views, app/mail y app/notifications en facturaya-ai sin coincidencias visibles; phpunit 205 pruebas ejecutadas en contenedor temporal (204 pasando, solo fallo conocido de vite manifest en companyadministrationtest).">
           <div class="card-top">

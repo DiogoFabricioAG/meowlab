@@ -2507,11 +2507,11 @@
       "id": "portal-consejo-de-gatos-20261121",
       "title": "Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio",
       "area": "Portal",
-      "owner": "",
+      "owner": "Coordinador",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
-      "evidence": "",
+      "evidence": "Rama feat/consejo-mesa: mesa redonda con un consejo de tendencia por gato (web/src/council.ts, 12 pruebas), «Lo que revisa el consejo» (Tendencia movida desde Inicio) e informe «Quién habla con tus gatos» (people en WeeklySummary, 2 pruebas del bridge). Portal 99/99, Worker 757/757, typecheck y build OK; revisión visual a 1366 y 390 px con datos de ejemplo; consulta probada en solo lectura con CREACIONES J&D.",
       "notes": "Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir Para atender ni Tus gatos hoy). Tendencia sale de Inicio y pasa a la mesa. La versión 2 está en tareas-agy-2026-11-21-tanda6.md."
     },
     {
