@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 219</span>
+      <span class="summary">Abiertas: 82 · Total: 219</span>
     </div>
   </div>
 </header>
@@ -1084,7 +1084,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">6</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1120,17 +1120,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: series diarias y registro de actividad para el Inicio</h3>
-          
-          <p class="card-notes">Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">portal-inicio-series-y-actividad-20261119</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1158,7 +1147,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">136</span>
+          <span class="count">137</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2183,6 +2172,17 @@
           <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
           <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. portalactivityservice (action: activity) + get /api/companies/:tenantid/activity + homeactivity.tsx (svg 14 días y actividad reciente); worker tsc ok, vitest 57/60 + whatsapp-burst/portal-activity/portal-company 40/40 (solo fallan las 2 conocidas de radar); portal vitest 59/59 y vite build ok; capturas de inicio con datos y vacío.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: series diarias y registro de actividad para el Inicio</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PortalActivityService (action: activity) + GET /api/companies/:tenantId/activity + HomeActivity.tsx (SVG 14 días y actividad reciente); Worker tsc OK, vitest 57/60 + whatsapp-burst/portal-activity/portal-company 40/40 (solo fallan las 2 conocidas de radar); Portal vitest 59/59 y vite build OK; capturas de Inicio con datos y vacío.</p>
+          <p class="card-notes">Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">portal-inicio-series-y-actividad-20261119</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: títulos en crete round y textos y montos en figtree portal decisión del operador tras comparar tres combinaciones (html en su escritorio). rama feat/portal-tipografia. títulos en crete round, que tiene un solo peso (font-synthesis: none para evitar la negrita falsa). textos, botones y montos en figtree: crete round tiene cifras de estilo antiguo. el logotipo conserva blinker (font-brand). actor deja de usarse. la landing no cambia. fusionado (pr #22, 8a6aee5f008f) y desplegado el 2026-11-19 como meowlab-app:8a6aee5f008f; acta en docs/operations/portal-tipografia-2026-11-19.md. apps/meowlab-app: typecheck ok, vite build ok, vitest 52/52. pantalla de ingreso revisada con chrome headless: títulos en crete round con font-synthesis none y cuerpo en figtree.">
           <div class="card-top">

@@ -65,10 +65,10 @@
       "area": "Portal",
       "owner": "AGY-2",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.",
-      "evidence": ""
+      "evidence": "PortalActivityService (action: activity) + GET /api/companies/:tenantId/activity + HomeActivity.tsx (SVG 14 días y actividad reciente); Worker tsc OK, vitest 57/60 + whatsapp-burst/portal-activity/portal-company 40/40 (solo fallan las 2 conocidas de radar); Portal vitest 59/59 y vite build OK; capturas de Inicio con datos y vacío."
     },
     {
       "id": "portal-tipografia-crete-figtree-20261119",
