@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">68</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -870,17 +870,6 @@
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">tender-activacion-suscripcion-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio portal pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. en dos pasos: dos propuestas visuales en un pr en borrador para que el operador elija; después la construcción. tanda 5, t8: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio</h3>
-          
-          <p class="card-notes">Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-consejo-de-gatos-20261121</code>
-        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -996,7 +985,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">7</span>
+          <span class="count">8</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
@@ -1075,6 +1064,17 @@
           <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md. Bloqueo: @astrojs/tailwind 6.0.2 solo admite Astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerDependencies. T4 exige detenerse si falta una integraci?n compatible.</p>
           <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T4</p>
           <code class="card-id">landing-astro-7-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio portal pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. en dos pasos: dos propuestas visuales en un pr en borrador para que el operador elija; después la construcción. tanda 5, t8: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio</h3>
+          
+          <p class="card-notes">Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T8</p>
+          <code class="card-id">portal-consejo-de-gatos-20261121</code>
         </article>
         </div>
       </section>
