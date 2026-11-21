@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Fuente del código: por defecto, el tar de `git archive` llega por stdin desde
+# el equipo local, porque el VPS no tiene clon del repo (ver README):
+#   git archive --format=tar <commit> apps/manolo-whatsapp-worker \
+#     | ssh meowlab 'bash /tmp/stage-bridge-release.sh <commit> <release-id>'
+# Con MEOWLAB_REPO_DIR=<clon> se usa ese clon en lugar de stdin.
 DRY_RUN=0
 if [[ "${1:-}" == "--dry-run" ]]; then
   DRY_RUN=1
@@ -8,7 +13,8 @@ if [[ "${1:-}" == "--dry-run" ]]; then
 fi
 
 if [[ $# -ne 2 ]]; then
-  echo "Uso: $0 [--dry-run] <commit-publicado> <release-id>" >&2
+  echo "Uso: git archive --format=tar <commit> apps/manolo-whatsapp-worker | $0 [--dry-run] <commit-publicado> <release-id>" >&2
+  echo "     o MEOWLAB_REPO_DIR=<clon> $0 [--dry-run] <commit-publicado> <release-id>" >&2
   exit 2
 fi
 
@@ -26,7 +32,7 @@ if [[ ! "$RELEASE_ID" =~ ^[a-zA-Z0-9._-]{3,80}$ ]]; then
 fi
 
 PLATFORM_DIR="${MANOLO_PLATFORM_DIR:-/opt/manolo-platform}"
-REPO_DIR="${MEOWLAB_REPO_DIR:-$PLATFORM_DIR/repo}"
+REPO_DIR="${MEOWLAB_REPO_DIR:-}"
 RELEASE_DIR="$PLATFORM_DIR/releases/$RELEASE_ID"
 CHECK_TENANT_ID="${CHECK_TENANT_ID:-01m048fqcze7628368f321xytj}"
 
@@ -45,11 +51,25 @@ if [[ "$DRY_RUN" -eq 0 && -e "$RELEASE_DIR" ]]; then
   exit 1
 fi
 
-echo "==> 1/6 Extrayendo source/ desde git archive ($COMMIT)"
+if [[ -z "$REPO_DIR" && -t 0 && "$DRY_RUN" -eq 0 ]]; then
+  echo "Error: no llegó el tar de git archive por stdin y MEOWLAB_REPO_DIR no está definido." >&2
+  exit 2
+fi
+
+echo "==> 1/6 Extrayendo source/ ($COMMIT, fuente: ${REPO_DIR:-stdin})"
 run_cmd mkdir -p "$RELEASE_DIR/source"
 if [[ "$DRY_RUN" -eq 1 ]]; then
-  echo "[dry-run] git -C $REPO_DIR archive --format=tar $COMMIT apps/manolo-whatsapp-worker | tar -x --strip-components=2 -C $RELEASE_DIR/source"
+  if [[ -n "$REPO_DIR" ]]; then
+    echo "[dry-run] git -C $REPO_DIR archive --format=tar $COMMIT apps/manolo-whatsapp-worker | tar -x --strip-components=2 -C $RELEASE_DIR/source"
+  else
+    echo "[dry-run] tar -x --strip-components=2 -C $RELEASE_DIR/source  (desde stdin)"
+  fi
   echo "[dry-run] printf '%s\n' '$COMMIT' > $RELEASE_DIR/commit.txt"
+elif [[ -z "$REPO_DIR" ]]; then
+  tar -x --strip-components=2 -C "$RELEASE_DIR/source"
+  test -f "$RELEASE_DIR/source/package.json" \
+    || { echo "Error: el tar de stdin no contiene apps/manolo-whatsapp-worker." >&2; exit 1; }
+  printf '%s\n' "$COMMIT" > "$RELEASE_DIR/commit.txt"
 else
   git -C "$REPO_DIR" cat-file -e "${COMMIT}^{commit}"
   git -C "$REPO_DIR" archive --format=tar "$COMMIT" apps/manolo-whatsapp-worker \

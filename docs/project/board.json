@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-16",
+  "updatedAt": "2026-11-20",
   "columns": [
     {
       "id": "todo",
@@ -74,12 +74,12 @@
       "id": "facturaya-pdf-emisor-desde-xml-20261119",
       "title": "FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML",
       "area": "FacturaYa",
-      "owner": "",
+      "owner": "AGY",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-19",
+      "status": "done",
+      "updated": "2026-11-20",
       "notes": "InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.",
-      "evidence": ""
+      "evidence": "facturaya-ai PR #3 fusionado en main f1c05 (InvoicePdfService/CreditNotePdfService::issuerFromXml + tests/Unit/FiscalPdfIssuerFromXmlTest.php). Suite en contenedor temporal del VPS: solo falla la prueba conocida de manifiesto Vite. Pendiente de desplegar: requiere autorización."
     },
     {
       "id": "jd-legal-name-padron-20261119",
@@ -2114,12 +2114,12 @@
       "id": "facturaya-fiscal-probe-test-20261114",
       "title": "Arreglar la prueba FiscalSetupProbeEndpointTest de FacturaYa, que falla también en el commit desplegado",
       "area": "FacturaYa",
-      "owner": "",
+      "owner": "AGY",
       "priority": "low",
-      "status": "todo",
-      "updated": "2026-11-14",
+      "status": "done",
+      "updated": "2026-11-20",
       "notes": "Falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms.",
-      "evidence": ""
+      "evidence": "facturaya-ai PR #3 (main f1c05): la prueba espera schema_version 2 con certificado vinculado, igual que FiscalTechnicalEvidence::BOUND_SCHEMA_VERSION. Pasa en la suite."
     },
     {
       "id": "reorder-cat-1-nucleo-20261115",
@@ -2207,6 +2207,17 @@
       "status": "todo",
       "updated": "2026-11-15",
       "notes": "ADR-0017, Fases.",
+      "evidence": ""
+    },
+    {
+      "id": "collections-remind-clock-20261120",
+      "title": "Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "notes": "CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche.",
       "evidence": ""
     }
   ]

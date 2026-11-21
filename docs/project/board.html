@@ -184,7 +184,7 @@
   <div class="page-inner">
     <div class="page-title">
       <h1><span class="dot">●</span> MeowLab · Tablero de trabajo</h1>
-      <span class="meta">Actualizado: 2026-11-16</span>
+      <span class="meta">Actualizado: 2026-11-20</span>
     </div>
     <div class="controls">
       <input id="search" type="search" placeholder="Buscar tarea..." aria-label="Buscar tarea" />
@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 86 · Total: 210</span>
+      <span class="summary">Abiertas: 85 · Total: 211</span>
     </div>
   </div>
 </header>
@@ -226,7 +226,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">81</span>
+          <span class="count">80</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -558,17 +558,6 @@
           <p class="card-notes">Faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). Más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos).</p>
           <p class="card-meta">Actualizado: 2026-11-19</p>
           <code class="card-id">portal-inicio-series-y-actividad-20261119</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="FacturaYa" data-text="facturaya: el pdf de un comprobante emitido debe tomar el nombre del emisor de su xml facturaya invoicepdfservice arma la cabecera con los datos actuales de la empresa. tras corregir el legal_name de j&amp;d, los comprobantes emitidos antes muestran el nombre nuevo, aunque su xml firmado diga creaciones j&amp;d. la representación de un comprobante emitido debería leer la razón social y el nombre comercial de su xml. ">
-          <div class="card-top">
-            <span class="badge area-other">FacturaYa</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML</h3>
-          
-          <p class="card-notes">InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&amp;D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&amp;D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.</p>
-          <p class="card-meta">Actualizado: 2026-11-19</p>
-          <code class="card-id">facturaya-pdf-emisor-desde-xml-20261119</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -1087,17 +1076,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">blob-storage-evaluacion-20261113</code>
         </article>
-        <article class="card" data-priority="low" data-area="FacturaYa" data-text="arreglar la prueba fiscalsetupprobeendpointtest de facturaya, que falla también en el commit desplegado facturaya falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms. ">
-          <div class="card-top">
-            <span class="badge area-other">FacturaYa</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Arreglar la prueba FiscalSetupProbeEndpointTest de FacturaYa, que falla también en el commit desplegado</h3>
-          
-          <p class="card-notes">Falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms.</p>
-          <p class="card-meta">Actualizado: 2026-11-14</p>
-          <code class="card-id">facturaya-fiscal-probe-test-20261114</code>
-        </article>
         <article class="card" data-priority="low" data-area="Manolo" data-text="reorder cat fase 3: cuentas por pagar y recetas de producción con descuento de insumos manolo adr-0016, fases. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -1108,6 +1086,17 @@
           <p class="card-notes">ADR-0016, Fases.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">reorder-cat-3-20261115</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Manolo" data-text="collections: remind() guarda current_timestamp en vez del reloj inyectado manolo collectionsservice.remind() escribe last_reminder_at y reminders.created_at con current_timestamp de postgresql e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncremindertimestamp(); al corregir el servicio, quitar ese parche. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado</h3>
+          
+          <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">collections-remind-clock-20261120</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
@@ -1188,7 +1177,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">124</span>
+          <span class="count">126</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2203,6 +2192,17 @@
           <p class="card-meta">Actualizado: 2026-11-19 · Responsable: Claude</p>
           <code class="card-id">portal-tipografia-crete-figtree-20261119</code>
         </article>
+        <article class="card" data-priority="medium" data-area="FacturaYa" data-text="facturaya: el pdf de un comprobante emitido debe tomar el nombre del emisor de su xml facturaya invoicepdfservice arma la cabecera con los datos actuales de la empresa. tras corregir el legal_name de j&amp;d, los comprobantes emitidos antes muestran el nombre nuevo, aunque su xml firmado diga creaciones j&amp;d. la representación de un comprobante emitido debería leer la razón social y el nombre comercial de su xml. facturaya-ai pr #3 fusionado en main f1c05 (invoicepdfservice/creditnotepdfservice::issuerfromxml + tests/unit/fiscalpdfissuerfromxmltest.php). suite en contenedor temporal del vps: solo falla la prueba conocida de manifiesto vite. pendiente de desplegar: requiere autorización.">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">FacturaYa: el PDF de un comprobante emitido debe tomar el nombre del emisor de su XML</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> facturaya-ai PR #3 fusionado en main f1c05 (InvoicePdfService/CreditNotePdfService::issuerFromXml + tests/Unit/FiscalPdfIssuerFromXmlTest.php). Suite en contenedor temporal del VPS: solo falla la prueba conocida de manifiesto Vite. Pendiente de desplegar: requiere autorización.</p>
+          <p class="card-notes">InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&amp;D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&amp;D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
+          <code class="card-id">facturaya-pdf-emisor-desde-xml-20261119</code>
+        </article>
         <article class="card" data-priority="medium" data-area="VPS" data-text="versionar el script de staging de releases del bridge vps el script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/. apps/manolo-whatsapp-worker/infra/vps/stage-bridge-release.sh y readme.md; validado con bash -n y --dry-run (exit 0).">
           <div class="card-top">
             <span class="badge area-vps">VPS</span>
@@ -2488,6 +2488,17 @@
           <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">docs-formato-5-chat-20261113</code>
+        </article>
+        <article class="card" data-priority="low" data-area="FacturaYa" data-text="arreglar la prueba fiscalsetupprobeendpointtest de facturaya, que falla también en el commit desplegado facturaya falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms. facturaya-ai pr #3 (main f1c05): la prueba espera schema_version 2 con certificado vinculado, igual que fiscaltechnicalevidence::bound_schema_version. pasa en la suite.">
+          <div class="card-top">
+            <span class="badge area-other">FacturaYa</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Arreglar la prueba FiscalSetupProbeEndpointTest de FacturaYa, que falla también en el commit desplegado</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> facturaya-ai PR #3 (main f1c05): la prueba espera schema_version 2 con certificado vinculado, igual que FiscalTechnicalEvidence::BOUND_SCHEMA_VERSION. Pasa en la suite.</p>
+          <p class="card-notes">Falla «2 is identical to 1» en test_endpoint_keeps_legacy_envelope_and_adds_technical_evidence; encontrada al probar feat/collections-terms.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
+          <code class="card-id">facturaya-fiscal-probe-test-20261114</code>
         </article>
         <article class="card" data-priority="low" data-area="Pruebas" data-text="la comprobación collections-pg-check depende de la fecha real en un caso pruebas el 2026-11-15 falla «rosita is due for a reminder…» sin cambios en collections (pasó el 14/11). buscar el uso de la fecha real (current_date o created_at) y fijarla con el reloj de la prueba. apps/manolo-whatsapp-worker/tools/collections-pg-check.ts alinea last_reminder_at/reminders.created_at al reloj simulado now; corrida contra postgresql 16 (puerto 55433) terminó con all collections checks passed (exit 0).">
           <div class="card-top">
