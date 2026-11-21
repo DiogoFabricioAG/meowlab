@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS radar.settings (
 
 -- Conserva como cortesía activa a las empresas piloto que ya tenían el rol `radar`.
 INSERT INTO radar.settings (tenant_id, enabled, source, active_until)
-SELECT DISTINCT member.tenant_id, TRUE, 'courtesy', NULL
+SELECT DISTINCT member.tenant_id, TRUE, 'courtesy', NULL::timestamptz
   FROM whatsapp.tenant_members AS member
   JOIN whatsapp.contacts AS contact ON contact.id = member.contact_id
  WHERE member.status = 'active' AND contact.active_role_key = 'radar'
