@@ -2358,6 +2358,17 @@
       "owner": "",
       "priority": "medium",
       "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto."
+    },
+    {
+      "id": "billing-activacion-gatos-20261120",
+      "title": "Cobros: que el pago active cada gato (Stock, Collections, Reorder, Support y Tender) y que todos se puedan comprar en Plan",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "notes": "Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant."
     }
   ]
 }
