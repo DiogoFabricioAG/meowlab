@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 89 · Total: 210</span>
+      <span class="summary">Abiertas: 86 · Total: 210</span>
     </div>
   </div>
 </header>
@@ -226,7 +226,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">84</span>
+          <span class="count">81</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -239,17 +239,6 @@
           <p class="card-notes">Revisión del 2026-11-20. El portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree D:/meowlab-wt-tender-nativo) y no está en origin. Eso incumple la regla crítica de git de AGENTS.md. El Worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. Las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. El dueño del flujo Tender debe publicar la rama, abrir los PR y fusionarlos en orden, y registrar el hash en las actas.</p>
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">tender-ramas-sin-publicar-20261120</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Docs" data-text="poner al día docs/project/status.md con lo publicado del 13 al 18/11 docs status.md termina el 12/11. falta: collections, reorder y support fase 1, el portal, facturaya y los cambios de la landing. fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/. ">
-          <div class="card-top">
-            <span class="badge area-docs">Docs</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Poner al día docs/project/status.md con lo publicado del 13 al 18/11</h3>
-          
-          <p class="card-notes">status.md termina el 12/11. Falta: Collections, Reorder y Support fase 1, el portal, FacturaYa y los cambios de la landing. Fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/.</p>
-          <p class="card-meta">Actualizado: 2026-11-18</p>
-          <code class="card-id">status-md-puesta-al-dia-20261118</code>
         </article>
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
           <div class="card-top">
@@ -580,17 +569,6 @@
           <p class="card-notes">InvoicePdfService arma la cabecera con los datos actuales de la empresa. Tras corregir el legal_name de J&amp;D, los comprobantes emitidos antes muestran el nombre nuevo, aunque su XML firmado diga CREACIONES J&amp;D. La representación de un comprobante emitido debería leer la razón social y el nombre comercial de su XML.</p>
           <p class="card-meta">Actualizado: 2026-11-19</p>
           <code class="card-id">facturaya-pdf-emisor-desde-xml-20261119</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="VPS" data-text="versionar el script de staging de releases del bridge vps el script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/. ">
-          <div class="card-top">
-            <span class="badge area-vps">VPS</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Versionar el script de staging de releases del bridge</h3>
-          
-          <p class="card-notes">El script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. Reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/.</p>
-          <p class="card-meta">Actualizado: 2026-11-18</p>
-          <code class="card-id">bridge-staging-script-20261118</code>
         </article>
         <article class="card" data-priority="medium" data-area="FacturaYa" data-text="definir elegibilidad gre con notas de credito parciales facturaya hoy cualquier nc aceptada excluye la factura de gre. definir cantidades netas si se necesitan facturas con notas parciales; no inferir inventario ni acumulados de otras guias. docs/operations/manolo-gre-fixes-2026-11-06.md">
           <div class="card-top">
@@ -1131,17 +1109,6 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">reorder-cat-3-20261115</code>
         </article>
-        <article class="card" data-priority="low" data-area="Pruebas" data-text="la comprobación collections-pg-check depende de la fecha real en un caso pruebas el 2026-11-15 falla «rosita is due for a reminder…» sin cambios en collections (pasó el 14/11). buscar el uso de la fecha real (current_date o created_at) y fijarla con el reloj de la prueba. ">
-          <div class="card-top">
-            <span class="badge area-other">Pruebas</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">La comprobación collections-pg-check depende de la fecha real en un caso</h3>
-          
-          <p class="card-notes">El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.</p>
-          <p class="card-meta">Actualizado: 2026-11-15</p>
-          <code class="card-id">collections-pg-check-date-20261115</code>
-        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -1221,7 +1188,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">121</span>
+          <span class="count">124</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -1267,6 +1234,17 @@
           <p class="card-notes">Pedido del operador para delegar en otros agentes. docs/agents/traspaso-2026-11-18.md: producto, matriz, arquitectura, producción al 18/11, qué hace cada gato hoy, sesión del 13 al 18/11, reglas, procedimientos, trampas, pendientes priorizados, reparto en paneles de Herdr, contrato de handoff y prompt de arranque.</p>
           <p class="card-meta">Actualizado: 2026-11-18 · Responsable: Claude</p>
           <code class="card-id">traspaso-agentes-20261118</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Docs" data-text="poner al día docs/project/status.md con lo publicado del 13 al 18/11 docs status.md termina el 12/11. falta: collections, reorder y support fase 1, el portal, facturaya y los cambios de la landing. fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/. docs/project/status.md actualizado arriba con estado al 20/11/2026 y despliegues del 13 al 20/11/2026 verificados con wrangler deployments list y ssh meowlab docker ps.">
+          <div class="card-top">
+            <span class="badge area-docs">Docs</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Poner al día docs/project/status.md con lo publicado del 13 al 18/11</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> docs/project/status.md actualizado arriba con Estado al 20/11/2026 y despliegues del 13 al 20/11/2026 verificados con wrangler deployments list y ssh meowlab docker ps.</p>
+          <p class="card-notes">status.md termina el 12/11. Falta: Collections, Reorder y Support fase 1, el portal, FacturaYa y los cambios de la landing. Fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
+          <code class="card-id">status-md-puesta-al-dia-20261118</code>
         </article>
         <article class="card" data-priority="high" data-area="Landing" data-text="landing: cada gato con una pestaña por actor (cliente, dueño, proveedor) según la matriz landing pedido del operador: la landing seguía sin demostrar la capacidad de cada gato; eligió el enfoque por actor. rama feat/landing-gatos-por-actor. catorce conversaciones (gato × actor) con su tipo de participación; las que no están construidas llevan «próximamente» y lo que el gato hace hoy. las pestañas avanzan solas y se pueden tocar; las tarjetas de lo que pasa entre gatos aparecen bajo las pestañas. fusionado (pr #15, 0b66b18e71af) y desplegado el 2026-11-16 como meowlab-web:0b66b18e71af; acta en docs/operations/landing-gatos-por-actor-2026-11-16.md. astro build ok. capturas con chrome headless a 1440x900 (sales cliente → dueño por avance automático, stock proveedor y reorder proveedor por clic) y a 390x844, sin desborde horizontal.">
           <div class="card-top">
@@ -2225,6 +2203,17 @@
           <p class="card-meta">Actualizado: 2026-11-19 · Responsable: Claude</p>
           <code class="card-id">portal-tipografia-crete-figtree-20261119</code>
         </article>
+        <article class="card" data-priority="medium" data-area="VPS" data-text="versionar el script de staging de releases del bridge vps el script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/. apps/manolo-whatsapp-worker/infra/vps/stage-bridge-release.sh y readme.md; validado con bash -n y --dry-run (exit 0).">
+          <div class="card-top">
+            <span class="badge area-vps">VPS</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Versionar el script de staging de releases del bridge</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> apps/manolo-whatsapp-worker/infra/vps/stage-bridge-release.sh y README.md; validado con bash -n y --dry-run (exit 0).</p>
+          <p class="card-notes">El script que arma /opt/manolo-platform/releases/&lt;id&gt; (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-&lt;id&gt;) quedó fuera de git. Reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
+          <code class="card-id">bridge-staging-script-20261118</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Producto" data-text="documentar la matriz de participación de los gatos (cliente, dueño, proveedor) producto visión del operador: el papel de cada gato con cada actor (proactivo, reactivo, consultado o sin participación), con su diagrama y la distancia con lo construido. las casillas pendientes son sales con el cliente, invoice con el cliente, stock consultado al cotizar, y collections y support proactivos con el cliente. docs/project/matriz-participacion.md y matriz-participacion.png; enlazada desde docs/readme.md.">
           <div class="card-top">
             <span class="badge area-other">Producto</span>
@@ -2499,6 +2488,17 @@
           <p class="card-notes">ADR-0012. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">docs-formato-5-chat-20261113</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Pruebas" data-text="la comprobación collections-pg-check depende de la fecha real en un caso pruebas el 2026-11-15 falla «rosita is due for a reminder…» sin cambios en collections (pasó el 14/11). buscar el uso de la fecha real (current_date o created_at) y fijarla con el reloj de la prueba. apps/manolo-whatsapp-worker/tools/collections-pg-check.ts alinea last_reminder_at/reminders.created_at al reloj simulado now; corrida contra postgresql 16 (puerto 55433) terminó con all collections checks passed (exit 0).">
+          <div class="card-top">
+            <span class="badge area-other">Pruebas</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">La comprobación collections-pg-check depende de la fecha real en un caso</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> apps/manolo-whatsapp-worker/tools/collections-pg-check.ts alinea last_reminder_at/reminders.created_at al reloj simulado now; corrida contra PostgreSQL 16 (puerto 55433) terminó con all collections checks passed (exit 0).</p>
+          <p class="card-notes">El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
+          <code class="card-id">collections-pg-check-date-20261115</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="estructurar resumen whatsapp en bloques breves y corregir negritas undefined  activo 35d4c8bb; 271 pruebas, typecheck, 61 aisladas, dry-run y salud. docs/apps/radar-conversation.md">
           <div class="card-top">

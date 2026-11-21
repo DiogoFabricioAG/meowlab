@@ -118,23 +118,23 @@
       "id": "status-md-puesta-al-dia-20261118",
       "title": "Poner al día docs/project/status.md con lo publicado del 13 al 18/11",
       "area": "Docs",
-      "owner": "",
+      "owner": "AGY",
       "priority": "high",
-      "status": "todo",
-      "updated": "2026-11-18",
+      "status": "done",
+      "updated": "2026-11-20",
       "notes": "status.md termina el 12/11. Falta: Collections, Reorder y Support fase 1, el portal, FacturaYa y los cambios de la landing. Fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/.",
-      "evidence": ""
+      "evidence": "docs/project/status.md actualizado arriba con Estado al 20/11/2026 y despliegues del 13 al 20/11/2026 verificados con wrangler deployments list y ssh meowlab docker ps."
     },
     {
       "id": "bridge-staging-script-20261118",
       "title": "Versionar el script de staging de releases del bridge",
       "area": "VPS",
-      "owner": "",
+      "owner": "AGY",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-18",
+      "status": "done",
+      "updated": "2026-11-20",
       "notes": "El script que arma /opt/manolo-platform/releases/<id> (source/, companies-check.mjs con comprobaciones firmadas, cutover.sh, rollback.sh, imagen rollback-<id>) quedó fuera de git. Reconstruirlo a partir de docs/operations/support-cat-2026-11-15.md y versionarlo en apps/manolo-whatsapp-worker/infra/vps/.",
-      "evidence": ""
+      "evidence": "apps/manolo-whatsapp-worker/infra/vps/stage-bridge-release.sh y README.md; validado con bash -n y --dry-run (exit 0)."
     },
     {
       "id": "landing-yape-captura-real-20261116",
@@ -2169,12 +2169,12 @@
       "id": "collections-pg-check-date-20261115",
       "title": "La comprobación collections-pg-check depende de la fecha real en un caso",
       "area": "Pruebas",
-      "owner": "",
+      "owner": "AGY",
       "priority": "low",
-      "status": "todo",
-      "updated": "2026-11-15",
+      "status": "done",
+      "updated": "2026-11-20",
       "notes": "El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.",
-      "evidence": ""
+      "evidence": "apps/manolo-whatsapp-worker/tools/collections-pg-check.ts alinea last_reminder_at/reminders.created_at al reloj simulado now; corrida contra PostgreSQL 16 (puerto 55433) terminó con all collections checks passed (exit 0)."
     },
     {
       "id": "meowlab-mensajes-terceros-20261115",
