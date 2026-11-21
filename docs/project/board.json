@@ -2518,12 +2518,23 @@
       "id": "billing-pago-unico-yape-20261121",
       "title": "Cobros: pagar 1, 3 o 6 meses por adelantado con el checkout de Mercado Pago (acepta Yape)",
       "area": "Portal",
-      "owner": "",
+      "owner": "OPS 2",
       "priority": "high",
+      "status": "done",
+      "updated": "2026-11-21",
+      "evidence": "Checkout Pro (1, 3 o 6 meses) y webhook type=payment con firma HMAC e idempotencia por provider_payment_id. Migracion 0006_billing_pago_unico_yape.sql creada (sin aplicar). apps/meowlab-app: npm test (20 archivos, 94 pruebas), npm run typecheck y npm run build en verde; captura visual 1366px y 390px.",
+      "notes": "Pedido del operador el 21/11: Plan no ofrece Yape porque las suscripciones (preapproval) solo aceptan tarjeta. Se elige la opción A, pago único con Checkout Pro y webhook type=payment, frente a la B (QR propio con aprobación, billing-3-yape-qr-20261111). Tanda 5, T9: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "id": "billing-aviso-vencimiento-prepago-20261121",
+      "title": "Cobros: aviso por WhatsApp antes de que venzan los meses pagados por adelantado",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
       "status": "todo",
       "updated": "2026-11-21",
       "evidence": "",
-      "notes": "Pedido del operador el 21/11: Plan no ofrece Yape porque las suscripciones (preapproval) solo aceptan tarjeta. Se elige la opción A, pago único con Checkout Pro y webhook type=payment, frente a la B (QR propio con aprobación, billing-3-yape-qr-20261111). Tanda 5, T9: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+      "notes": "Seguimiento de billing-pago-unico-yape-20261121 (T9): notificar por WhatsApp al dueño antes de que venza el periodo de pago único (sin renovación automática) para invitar a renovar."
     },
     {
       "id": "bridge-productos-sin-movimiento-20261121",

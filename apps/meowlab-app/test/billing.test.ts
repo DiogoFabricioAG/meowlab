@@ -1,9 +1,9 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
-import { verifyWebhookSignature, type AuthorizedPayment, type MercadoPagoApi, type Preapproval } from "../server/billing/mercadopago";
+import { verifyWebhookSignature, type AuthorizedPayment, type CheckoutPreference, type MercadoPagoApi, type MercadoPagoPayment, type Preapproval } from "../server/billing/mercadopago";
 import { addOneMonth, discountFor, PricingError, quote, type CatalogAgent } from "../server/billing/pricing";
 import { BillingService } from "../server/billing/service";
-import type { BillingStore, SubscriptionRow, SubscriptionStatus } from "../server/billing/store";
+import type { BillingStore, OrderRow, OrderStatus, SubscriptionRow, SubscriptionStatus } from "../server/billing/store";
 
 const catalog: CatalogAgent[] = [
   { key: "invoice", name: "Invoice Cat", description: "", priceCents: 3900, available: true },
@@ -85,7 +85,9 @@ describe("webhook signature", () => {
 
 class MemoryStore implements BillingStore {
   subs: SubscriptionRow[] = [];
+  orders: OrderRow[] = [];
   payments = new Map<string, { subscriptionId: string; periodEnd: Date }>();
+  orderPayments = new Map<string, { orderId: string; periodEnd: Date }>();
   webhooks: string[] = [];
   async catalog() { return { agents: catalog.map((a) => ({ ...a, available: a.key === "invoice" || a.key === "sales" })), discounts }; }
   async currentFor(tenantId: string) {
@@ -120,12 +122,74 @@ class MemoryStore implements BillingStore {
       || (s.tenantId && s.paidUntil && (!s.entitlementAppliedUntil || s.entitlementAppliedUntil < s.paidUntil)));
   }
   async metrics() { return { live: 0, paying: 0, monthlyRevenueCents: 0, paymentsLast30Days: 0, revenueLast30DaysCents: 0 }; }
+
+  async createOrder(input: Parameters<NonNullable<BillingStore["createOrder"]>>[0]) {
+    this.orders.push({
+      ...input,
+      status: "creating",
+      preferenceId: null,
+      checkoutUrl: null,
+      providerPaymentId: null,
+      paidAt: null,
+      periodStart: null,
+      periodEnd: null,
+      entitlementAppliedUntil: null,
+      createdAt: new Date(),
+    });
+  }
+  async markOrderCreated(id: string, providerRef: string, checkoutUrl: string) {
+    Object.assign(this.orders.find((o) => o.id === id)!, { preferenceId: providerRef, checkoutUrl, status: "pending" as const });
+  }
+  async markOrderFailed(id: string) { this.orders.find((o) => o.id === id)!.status = "failed"; }
+  async markOrderRejected(id: string) { this.orders.find((o) => o.id === id)!.status = "rejected"; }
+  async orderById(id: string) {
+    return this.orders.find((o) => o.id === id) ?? null;
+  }
+  async orderByExternalReference(externalReference: string) {
+    return this.orders.find((o) => o.externalReference === externalReference) ?? null;
+  }
+  async currentOrderFor(tenantId: string) {
+    return [...this.orders].reverse().find((o) => o.tenantId === tenantId && o.status === "approved") ?? null;
+  }
+  async grantOrderPayment(input: Parameters<NonNullable<BillingStore["grantOrderPayment"]>>[0]) {
+    if (this.orderPayments.has(input.providerPaymentId)) return { result: "duplicate" as const };
+    const order = this.orders.find((o) => o.id === input.orderId)!;
+    let base = input.paidAt;
+    for (const s of this.subs) {
+      if (s.tenantId === order.tenantId && s.paidUntil && s.paidUntil > base) base = s.paidUntil;
+    }
+    for (const o of this.orders) {
+      if (o.tenantId === order.tenantId && o.status === "approved" && o.periodEnd && o.periodEnd > base) base = o.periodEnd;
+    }
+    let periodEnd = base;
+    for (let i = 0; i < order.months; i++) periodEnd = addOneMonth(periodEnd);
+    Object.assign(order, {
+      status: "approved" as const,
+      providerPaymentId: input.providerPaymentId,
+      paidAt: input.paidAt,
+      periodStart: base,
+      periodEnd,
+    });
+    this.orderPayments.set(input.providerPaymentId, { orderId: order.id, periodEnd });
+    return { result: "granted" as const, order: { ...order } };
+  }
+  async markOrderEntitlementApplied(id: string, until: Date) {
+    this.orders.find((o) => o.id === id)!.entitlementAppliedUntil = until;
+  }
+  async reconcilableOrders() {
+    return this.orders.filter(
+      (o) => o.status === "pending" || (o.status === "paid" && o.periodEnd && (!o.entitlementAppliedUntil || o.entitlementAppliedUntil < o.periodEnd)),
+    );
+  }
 }
 
 class FakeMercadoPago implements MercadoPagoApi {
   preapprovals = new Map<string, Preapproval>();
+  preferences = new Map<string, CheckoutPreference>();
+  payments = new Map<string, MercadoPagoPayment>();
   charges: AuthorizedPayment[] = [];
   created: Array<Parameters<MercadoPagoApi["createPreapproval"]>[0]> = [];
+  createdPreferences: Array<Parameters<NonNullable<MercadoPagoApi["createPreference"]>>[0]> = [];
   async createPreapproval(input: Parameters<MercadoPagoApi["createPreapproval"]>[0]) {
     this.created.push(input);
     const id = `pre_${this.preapprovals.size + 1}`;
@@ -137,6 +201,21 @@ class FakeMercadoPago implements MercadoPagoApi {
   async cancelPreapproval(id: string) { const p = this.preapprovals.get(id)!; p.status = "cancelled"; return p; }
   async authorizedPayments(id: string) { return this.charges.filter((c) => c.preapproval_id === id); }
   async getAuthorizedPayment(id: string) { return this.charges.find((c) => String(c.id) === id)!; }
+  async createPreference(input: Parameters<NonNullable<MercadoPagoApi["createPreference"]>>[0]) {
+    this.createdPreferences.push(input);
+    const id = `pref_${this.preferences.size + 1}`;
+    const pref: CheckoutPreference = { id, init_point: `https://mp.example/checkout/pref/${id}` };
+    this.preferences.set(id, pref);
+    return pref;
+  }
+  async getPayment(id: string) {
+    const p = this.payments.get(String(id));
+    if (!p) throw new Error("mercadopago_404_not_found");
+    return p;
+  }
+  async searchPaymentsByReference(externalReference: string) {
+    return [...this.payments.values()].filter((p) => p.external_reference === externalReference);
+  }
 }
 
 function setup(webhookSecret?: string, sinkWorks = true) {
@@ -317,6 +396,146 @@ describe("Mercado Pago: descripción de la suscripción", () => {
     const all = ["Invoice Cat", "Sales Cat", "Stock Cat", "Reorder Cat", "Support Cat", "Collections Cat"];
     expect(subscriptionReason(all)).toBe("MeowLab · 6 gatos");
     for (let n = 1; n <= all.length; n++) expect(subscriptionReason(all.slice(0, n)).length).toBeLessThanOrEqual(REASON_MAX);
+  });
+});
+
+describe("prepaid one-time payments (Checkout Pro / Yape)", () => {
+  const webhookCall = (secret: string, id: string, requestId = "req-1", ts = "1704908010") => {
+    const v1 = createHmac("sha256", secret).update(`id:${id.toLowerCase()};request-id:${requestId};ts:${ts};`).digest("hex");
+    return {
+      query: new URLSearchParams({ type: "payment", "data.id": id }),
+      signature: `ts=${ts},v1=${v1}`,
+      requestId,
+      body: { type: "payment", data: { id } },
+    };
+  };
+
+  it("creates a Checkout Pro preference and credits N months when an approved payment arrives", async () => {
+    const { service, mp, store, entitlements } = setup("sec-yape");
+    const result = await service.createPrepaidOrder("u1", "org_1", ["invoice"], 3, "yape@test.com");
+    expect(result).toEqual({ status: "redirect", checkoutUrl: "https://mp.example/checkout/pref/pref_1" });
+    expect(mp.createdPreferences[0]).toMatchObject({
+      title: "MeowLab · Invoice Cat",
+      amount: 117,
+      payerEmail: "yape@test.com",
+      notificationUrl: "https://app.meowlab.tech/api/webhooks/mercadopago",
+    });
+    expect(mp.createdPreferences[0].externalReference).toMatch(/^meowlab-order:/);
+    expect(mp.createdPreferences[0].title.length).toBeLessThanOrEqual(REASON_MAX);
+
+    const ref = store.orders[0].externalReference;
+    mp.payments.set("9001", {
+      id: 9001,
+      status: "approved",
+      external_reference: ref,
+      transaction_amount: 117,
+      currency_id: "PEN",
+      date_approved: "2026-11-11T12:00:00Z",
+    });
+    expect(await service.webhook(webhookCall("sec-yape", "9001"))).toMatchObject({ status: 200 });
+
+    expect(store.orders[0].status).toBe("approved");
+    expect(store.orders[0].periodEnd?.toISOString()).toBe("2027-02-11T12:00:00.000Z");
+    expect(entitlements.apply).toHaveBeenCalledWith("org_1", ["invoice"], new Date("2027-02-11T12:00:00.000Z"));
+    expect((await service.status("org_1")).prepaid).toMatchObject({
+      months: 3,
+      agents: ["invoice"],
+      amountCents: 11700,
+      paidUntil: "2027-02-11T12:00:00.000Z",
+      active: true,
+    });
+  });
+
+  it("does not credit pending or rejected payments", async () => {
+    const { service, mp, store, entitlements } = setup("sec-yape");
+    await service.createPrepaidOrder("u1", "org_1", ["invoice"], 1, "yape@test.com");
+    const ref = store.orders[0].externalReference;
+
+    mp.payments.set("9002", { id: 9002, status: "pending", external_reference: ref, transaction_amount: 39, currency_id: "PEN" });
+    mp.payments.set("9003", { id: 9003, status: "rejected", external_reference: ref, transaction_amount: 39, currency_id: "PEN" });
+    await service.webhook(webhookCall("sec-yape", "9002"));
+    await service.webhook(webhookCall("sec-yape", "9003"));
+
+    expect(store.orders[0].status).toBe("rejected");
+    expect(entitlements.apply).not.toHaveBeenCalled();
+  });
+
+  it("credits a duplicate payment notification only once", async () => {
+    const { service, mp, store, entitlements } = setup("sec-yape");
+    await service.createPrepaidOrder("u1", "org_1", ["invoice"], 3, "yape@test.com");
+    const ref = store.orders[0].externalReference;
+
+    mp.payments.set("9004", {
+      id: 9004,
+      status: "approved",
+      external_reference: ref,
+      transaction_amount: 117,
+      currency_id: "PEN",
+      date_approved: "2026-11-11T12:00:00Z",
+    });
+    await service.webhook(webhookCall("sec-yape", "9004"));
+    await service.webhook(webhookCall("sec-yape", "9004"));
+    await service.syncPrepaid("org_1", store.orders[0].id, "9004");
+
+    expect(store.orders[0].periodEnd?.toISOString()).toBe("2027-02-11T12:00:00.000Z");
+    expect(entitlements.apply).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not credit when payment amount or currency does not match the order", async () => {
+    const { service, mp, store, entitlements } = setup("sec-yape");
+    await service.createPrepaidOrder("u1", "org_1", ["invoice"], 3, "yape@test.com");
+    const ref = store.orders[0].externalReference;
+
+    mp.payments.set("9005", { id: 9005, status: "approved", external_reference: ref, transaction_amount: 39, currency_id: "PEN" });
+    mp.payments.set("9006", { id: 9006, status: "approved", external_reference: ref, transaction_amount: 117, currency_id: "USD" });
+    await service.webhook(webhookCall("sec-yape", "9005"));
+    await service.webhook(webhookCall("sec-yape", "9006"));
+
+    expect(store.orders[0].status).toBe("pending");
+    expect(entitlements.apply).not.toHaveBeenCalled();
+  });
+
+  it("ignores payments whose external_reference belongs to another app or unknown order", async () => {
+    const { service, mp, store, entitlements } = setup("sec-yape");
+    await service.createPrepaidOrder("u1", "org_1", ["invoice"], 1, "yape@test.com");
+
+    mp.payments.set("9007", {
+      id: 9007,
+      status: "approved",
+      external_reference: "foreign-app:order-999",
+      transaction_amount: 39,
+      currency_id: "PEN",
+    });
+    expect(await service.webhook(webhookCall("sec-yape", "9007"))).toEqual({ status: 200, outcome: "ignored" });
+    expect(store.orders[0].status).toBe("pending");
+    expect(store.webhooks).toContain("payment:ignored");
+    expect(entitlements.apply).not.toHaveBeenCalled();
+  });
+
+  it("returns 401 from /api/webhooks/mercadopago when the signature is invalid", async () => {
+    const { createApp } = await import("../server/app");
+    const { service } = setup("sec-yape");
+    const app = createApp({
+      auth: { api: { getSession: async () => null } } as never,
+      allowedOrigins: ["https://app.meowlab.tech"],
+      tenants: { listForUser: async () => [], roleFor: async () => null } as never,
+      billing: service,
+    });
+    const res = await app.request("/api/webhooks/mercadopago?type=payment&data.id=9001", {
+      method: "POST",
+      headers: { "x-signature": "ts=1704908010,v1=deadbeef", "x-request-id": "req-bad" },
+      body: JSON.stringify({ type: "payment", data: { id: "9001" } }),
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it("blocks prepaid checkout when the company already has a live subscription", async () => {
+    const { service, mp, store } = setup("sec-yape");
+    await service.subscribe("u1", "org_1", ["invoice"], "sub@test.com");
+    mp.preapprovals.get("pre_1")!.status = "authorized";
+    await service.syncFor("org_1");
+    expect(await service.createPrepaidOrder("u1", "org_1", ["invoice"], 1, "yape@test.com")).toEqual({ status: "already_subscribed" });
+    expect(store.orders).toHaveLength(0);
   });
 });
 

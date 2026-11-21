@@ -23,11 +23,19 @@ type Subscription = {
   active: boolean;
   checkoutUrl: string | null;
 };
+type Prepaid = {
+  months: number;
+  agents: string[];
+  amountCents: number;
+  paidUntil: string;
+  active: boolean;
+};
 type Billing = {
   agents: PlanAgent[];
   discounts: PlanDiscount[];
   testMode?: boolean;
   subscription: Subscription | null;
+  prepaid?: Prepaid | null;
   canManage?: boolean;
 };
 
@@ -58,6 +66,8 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
   const [message, setMessage] = useState<string | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [showChangeNotice, setShowChangeNotice] = useState(false);
+  const [payMode, setPayMode] = useState<"subscription" | "prepaid">("subscription");
+  const [prepayMonths, setPrepayMonths] = useState<1 | 3 | 6>(1);
 
   const companyQuery = `company=${encodeURIComponent(company.id)}`;
 
@@ -65,10 +75,17 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
     setBilling(null);
     setUnavailable(false);
     setMessage(null);
-    const returning = new URLSearchParams(window.location.search).get("pago") === "retorno";
-    const load = returning
+    const params = new URLSearchParams(window.location.search);
+    const pago = params.get("pago");
+    const load = pago === "retorno"
       ? postJson<Billing>("/api/billing/sync", { company: company.id })
-      : fetchJson<Billing>(`/api/billing?${companyQuery}`);
+      : pago === "retorno_unico"
+        ? postJson<Billing>("/api/billing/sync-order", {
+            company: company.id,
+            orderId: params.get("order") ?? undefined,
+            paymentId: params.get("payment_id") ?? params.get("collection_id") ?? undefined,
+          })
+        : fetchJson<Billing>(`/api/billing?${companyQuery}`);
     void load.then((value) => {
       if (!value) return setUnavailable(true);
       setBilling(value);
@@ -77,7 +94,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
         const valid = current.filter((k) => availableKeys.has(k));
         return valid.length ? valid : value.agents.filter((a) => a.available).slice(0, 2).map((a) => a.key);
       });
-      if (returning) window.history.replaceState(null, "", "/plan");
+      if (pago === "retorno" || pago === "retorno_unico") window.history.replaceState(null, "", "/plan");
     });
   }, [company.id, companyQuery]);
 
@@ -102,17 +119,20 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
   }
 
   const sub = billing.subscription;
+  const prepaid = billing.prepaid ?? null;
   const live = sub && ["creating", "pending", "authorized", "paused"].includes(sub.status);
   const nudge = nextDiscountNudge(price.selectedKeys.length, billing.discounts);
   const chosenAgents = billing.agents.filter((agent) => price.selectedKeys.includes(agent.key));
+  const prepaidTotalCents = price.totalCents * prepayMonths;
 
-  async function subscribe() {
+  async function startCheckout(endpoint: "/api/billing/subscribe" | "/api/billing/prepay", extra?: { months: 1 | 3 | 6 }) {
     setMessage(null);
     setBusy(true);
-    const result = await postJson<{ status: string; checkoutUrl?: string; reason?: string }>("/api/billing/subscribe", {
+    const result = await postJson<{ status: string; checkoutUrl?: string; reason?: string }>(endpoint, {
       company: company.id,
       agents: price?.selectedKeys ?? selected,
       payerEmail,
+      ...extra,
     });
     if (result?.status === "redirect" && result.checkoutUrl) {
       window.location.assign(result.checkoutUrl);
@@ -132,6 +152,8 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
               : "No pudimos abrir Mercado Pago. Inténtalo en unos minutos.",
     );
   }
+  const subscribe = () => startCheckout("/api/billing/subscribe");
+  const prepay = () => startCheckout("/api/billing/prepay", { months: prepayMonths });
 
   async function cancel() {
     setBusy(true);
@@ -243,6 +265,34 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
               Autorizaste el pago. Mercado Pago puede tardar unos minutos en cobrar la primera cuota; esta página se actualiza sola al volver.
             </p>
           )}
+        </section>
+      )}
+
+      {!live && prepaid?.active && (
+        <section className="rounded-3xl border border-line bg-white p-6 shadow-card" aria-labelledby="prepaid-title">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-forest">Pago único vigente de {company.name}</p>
+              <h2 id="prepaid-title" className="text-2xl text-ink">{names(prepaid.agents)}</h2>
+              <p className="text-sm text-ink-muted">
+                Sin renovación automática · Acepta Yape, tarjetas y otros medios en Mercado Pago.
+              </p>
+            </div>
+            <span className="chip border border-emerald-200 bg-emerald-50 text-emerald-800">
+              Pagado ({prepaid.months} {prepaid.months === 1 ? "mes" : "meses"})
+            </span>
+          </div>
+
+          <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="rounded-2xl bg-surface-subtle px-4 py-3">
+              <dt className="text-ink-muted">Pagado hasta</dt>
+              <dd className="font-semibold text-ink">{date(prepaid.paidUntil)}</dd>
+            </div>
+            <div className="rounded-2xl bg-surface-subtle px-4 py-3">
+              <dt className="text-ink-muted">Renovación</dt>
+              <dd className="font-semibold text-ink">Manual (sin cobro automático)</dd>
+            </div>
+          </dl>
         </section>
       )}
 
@@ -394,7 +444,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
             <PlanFaqSection />
           </div>
 
-          <aside className="hidden rounded-3xl border border-line bg-white p-6 shadow-card lg:sticky lg:top-6 lg:block" aria-label="Resumen de tu plan">
+          <aside className="rounded-3xl border border-line bg-white p-6 shadow-card lg:sticky lg:top-6" aria-label="Resumen de tu plan">
             <h2 className="text-xl text-ink">Tu resumen</h2>
             <p className="mt-1 text-sm text-ink-muted">
               {chosenAgents.length
@@ -425,8 +475,14 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
                 </div>
               )}
               <div className="flex items-baseline justify-between border-t border-line pt-3">
-                <dt className="font-semibold text-ink">Total al mes (IGV incl.)</dt>
-                <dd className="font-sans text-2xl font-semibold tabular-nums text-ink">{soles(price.totalCents)}</dd>
+                <dt className="font-semibold text-ink">
+                  {payMode === "prepaid"
+                    ? `Total por ${prepayMonths} ${prepayMonths === 1 ? "mes" : "meses"} (IGV incl.)`
+                    : "Total al mes (IGV incl.)"}
+                </dt>
+                <dd className="font-sans text-2xl font-semibold tabular-nums text-ink">
+                  {soles(payMode === "prepaid" ? prepaidTotalCents : price.totalCents)}
+                </dd>
               </div>
             </dl>
 
@@ -435,6 +491,63 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
                 Agrega {nudge.needed} {nudge.needed === 1 ? "gato más" : "gatos más"} y ahorra {nudge.nextPercent} %
               </p>
             )}
+
+            <div className="mt-4 space-y-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Forma de pago</p>
+              <div className="grid grid-cols-2 gap-2" role="group" aria-label="Modalidad de pago">
+                <button
+                  type="button"
+                  aria-pressed={payMode === "subscription"}
+                  onClick={() => setPayMode("subscription")}
+                  className={`rounded-2xl border px-3 py-2.5 text-left text-xs transition-colors ${
+                    payMode === "subscription"
+                      ? "border-forest bg-mint-light font-semibold text-ink"
+                      : "border-line bg-white text-ink-2 hover:border-line-mint"
+                  }`}
+                >
+                  <span className="block font-semibold text-ink">Suscripción</span>
+                  <span className="text-ink-muted">Mensual con tarjeta</span>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={payMode === "prepaid"}
+                  onClick={() => setPayMode("prepaid")}
+                  className={`rounded-2xl border px-3 py-2.5 text-left text-xs transition-colors ${
+                    payMode === "prepaid"
+                      ? "border-forest bg-mint-light font-semibold text-ink"
+                      : "border-line bg-white text-ink-2 hover:border-line-mint"
+                  }`}
+                >
+                  <span className="block font-semibold text-ink">Pago único</span>
+                  <span className="text-ink-muted">1, 3 o 6 meses · Yape</span>
+                </button>
+              </div>
+
+              {payMode === "prepaid" && (
+                <div className="space-y-2 rounded-2xl border border-line bg-surface-subtle p-3">
+                  <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Meses de pago único">
+                    {([1, 3, 6] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        aria-pressed={prepayMonths === m}
+                        onClick={() => setPrepayMonths(m)}
+                        className={`rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                          prepayMonths === m
+                            ? "border-forest bg-forest text-white"
+                            : "border-line bg-white text-ink hover:border-forest"
+                        }`}
+                      >
+                        {m} {m === 1 ? "mes" : "meses"}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-ink-2">
+                    No se renueva automáticamente. Acepta Yape, tarjetas y otros medios de Mercado Pago.
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div className="mt-5 space-y-3">
               {editingEmail ? (
@@ -445,11 +558,15 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
               ) : null}
               <button
                 type="button"
-                onClick={subscribe}
+                onClick={payMode === "prepaid" ? prepay : subscribe}
                 disabled={busy || price.selectedKeys.length === 0}
                 className="btn-primary w-full"
               >
-                {busy ? "Abriendo Mercado Pago…" : "Suscribirme con Mercado Pago"}
+                {busy
+                  ? "Abriendo Mercado Pago…"
+                  : payMode === "prepaid"
+                    ? `Pagar ${prepayMonths} ${prepayMonths === 1 ? "mes" : "meses"} con Mercado Pago`
+                    : "Suscribirme con Mercado Pago"}
               </button>
               {!editingEmail && (
                 <p className="text-xs text-ink-muted">
@@ -470,18 +587,22 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
             <div className="min-w-0">
               <p className="truncate text-xs text-ink-muted">
                 {price.discountPercent > 0 ? `${price.selectedKeys.length} gatos · ${price.discountPercent} % dto.` : `${price.selectedKeys.length} gatos`}
+                {payMode === "prepaid" ? " · Pago único" : ""}
               </p>
               <p className="font-sans text-lg font-semibold tabular-nums text-ink">
-                {soles(price.totalCents)} <span className="text-xs font-normal text-ink-muted">/ mes</span>
+                {soles(payMode === "prepaid" ? prepaidTotalCents : price.totalCents)}{" "}
+                <span className="text-xs font-normal text-ink-muted">
+                  {payMode === "prepaid" ? `/ ${prepayMonths} ${prepayMonths === 1 ? "mes" : "meses"}` : "/ mes"}
+                </span>
               </p>
             </div>
             <button
               type="button"
-              onClick={subscribe}
+              onClick={payMode === "prepaid" ? prepay : subscribe}
               disabled={busy || price.selectedKeys.length === 0}
               className="btn-primary shrink-0 px-4 py-2.5 text-sm"
             >
-              {busy ? "Abriendo…" : "Suscribirme"}
+              {busy ? "Abriendo…" : payMode === "prepaid" ? "Pagar" : "Suscribirme"}
             </button>
           </div>
         </div>

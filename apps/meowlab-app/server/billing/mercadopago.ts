@@ -25,6 +25,22 @@ export type AuthorizedPayment = {
   payment?: { id?: number | string; status?: string } | null;
 };
 
+export type CheckoutPreference = {
+  id: string;
+  init_point?: string;
+  external_reference?: string | null;
+};
+
+export type MercadoPagoPayment = {
+  id: string | number;
+  status: string;
+  external_reference?: string | null;
+  transaction_amount: number;
+  currency_id: string;
+  date_approved?: string | null;
+  date_created?: string | null;
+};
+
 export interface MercadoPagoApi {
   createPreapproval(input: {
     reason: string;
@@ -37,6 +53,16 @@ export interface MercadoPagoApi {
   cancelPreapproval(id: string): Promise<Preapproval>;
   authorizedPayments(preapprovalId: string): Promise<AuthorizedPayment[]>;
   getAuthorizedPayment(id: string): Promise<AuthorizedPayment>;
+  createPreference?(input: {
+    title: string;
+    externalReference: string;
+    payerEmail: string;
+    amount: number;
+    backUrl: string;
+    notificationUrl: string;
+  }): Promise<CheckoutPreference>;
+  getPayment?(id: string): Promise<MercadoPagoPayment>;
+  searchPaymentsByReference?(externalReference: string): Promise<MercadoPagoPayment[]>;
 }
 
 export class MercadoPagoError extends Error {
@@ -121,6 +147,40 @@ export class MercadoPagoClient implements MercadoPagoApi {
 
   getAuthorizedPayment(id: string) {
     return this.request<AuthorizedPayment>("GET", `/authorized_payments/${encodeURIComponent(id)}`);
+  }
+
+  createPreference(input: Parameters<NonNullable<MercadoPagoApi["createPreference"]>>[0]) {
+    return this.request<CheckoutPreference>("POST", "/checkout/preferences", {
+      items: [
+        {
+          title: input.title,
+          quantity: 1,
+          currency_id: "PEN",
+          unit_price: input.amount,
+        },
+      ],
+      external_reference: input.externalReference,
+      payer: { email: input.payerEmail },
+      back_urls: {
+        success: input.backUrl,
+        pending: input.backUrl,
+        failure: input.backUrl,
+      },
+      auto_return: "approved",
+      notification_url: input.notificationUrl,
+    }, input.externalReference);
+  }
+
+  getPayment(id: string) {
+    return this.request<MercadoPagoPayment>("GET", `/v1/payments/${encodeURIComponent(id)}`);
+  }
+
+  async searchPaymentsByReference(externalReference: string) {
+    const page = await this.request<{ results?: MercadoPagoPayment[] }>(
+      "GET",
+      `/v1/payments/search?external_reference=${encodeURIComponent(externalReference)}&sort=date_created&criteria=desc&limit=5`,
+    );
+    return page.results ?? [];
   }
 }
 

@@ -76,7 +76,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   });
   const company = companies.find((item) => item.id === companyId) ?? companies[0] ?? null;
   const [section, setSection] = useState<Section>(() =>
-    new URLSearchParams(window.location.search).get("pago") === "retorno" ? "plan" : sectionOf(window.location.pathname));
+    ["retorno", "retorno_unico"].includes(new URLSearchParams(window.location.search).get("pago") ?? "") ? "plan" : sectionOf(window.location.pathname));
   const navigated = useRef(false);
 
   // Data shared by Inicio and Tus agentes, loaded once per company.

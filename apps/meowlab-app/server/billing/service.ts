@@ -1,11 +1,13 @@
-import { type MercadoPagoApi, type Preapproval, verifyWebhookSignature } from "./mercadopago";
+import { type MercadoPagoApi, type MercadoPagoPayment, type Preapproval, verifyWebhookSignature } from "./mercadopago";
 import { PricingError, quote } from "./pricing";
-import type { BillingStore, SubscriptionRow, SubscriptionStatus } from "./store";
+import type { BillingStore, OrderRow, SubscriptionRow, SubscriptionStatus } from "./store";
 
 export type BillingLog = (event: string, details?: Record<string, unknown>) => void;
 
 const LIVE: readonly SubscriptionStatus[] = ["creating", "pending", "authorized", "paused"];
 const REFERENCE_PREFIX = "meowlab:";
+const ORDER_REFERENCE_PREFIX = "meowlab-order:";
+const PREPAID_MONTHS = new Set([1, 3, 6]);
 
 function mapStatus(status: string): SubscriptionStatus {
   if (status === "authorized" || status === "paused" || status === "cancelled" || status === "pending") return status;
@@ -16,6 +18,7 @@ export type SubscribeResult =
   | { status: "redirect"; checkoutUrl: string }
   | { status: "already_subscribed" }
   | { status: "invalid_agents"; reason: string }
+  | { status: "invalid_months" }
   | { status: "invalid_email" }
   | { status: "test_account_mismatch" }
   | { status: "provider_error" };
@@ -52,11 +55,12 @@ export class BillingService {
     return this.store.catalog();
   }
 
-  /** The catalog, plus the company's subscription when a company is given. */
+  /** The catalog, plus the company's subscription and prepaid period when a company is given. */
   async status(tenantId: string | null) {
-    const [{ agents, discounts }, subscription] = await Promise.all([
+    const [{ agents, discounts }, subscription, prepaidOrder] = await Promise.all([
       this.store.catalog(),
       tenantId ? this.store.currentFor(tenantId) : Promise.resolve(null),
+      tenantId && this.store.currentOrderFor ? this.store.currentOrderFor(tenantId) : Promise.resolve(null),
     ]);
     const now = this.now();
     return {
@@ -73,6 +77,15 @@ export class BillingService {
         active: Boolean(subscription.paidUntil && subscription.paidUntil > now),
         checkoutUrl: subscription.status === "pending" ? subscription.checkoutUrl : null,
       },
+      prepaid: prepaidOrder && prepaidOrder.periodEnd
+        ? {
+            months: prepaidOrder.months,
+            agents: prepaidOrder.agents,
+            amountCents: prepaidOrder.amountCents,
+            paidUntil: prepaidOrder.periodEnd.toISOString(),
+            active: prepaidOrder.periodEnd > now,
+          }
+        : null,
     };
   }
 
@@ -139,6 +152,139 @@ export class BillingService {
     await this.store.updateStatus(current.id, "cancelled", null);
     this.options.log("billing_subscription_cancelled");
     return "cancelled";
+  }
+
+  /** One-time Checkout Pro preference for 1, 3 or 6 months (supports Yape). */
+  async createPrepaidOrder(
+    userId: string,
+    tenantId: string,
+    requestedAgents: string[],
+    months: number,
+    payerEmail: string,
+  ): Promise<SubscribeResult> {
+    if (!PREPAID_MONTHS.has(months)) return { status: "invalid_months" };
+    const email = payerEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return { status: "invalid_email" };
+    if (!this.store.createOrder || !this.store.markOrderCreated || !this.store.markOrderFailed || !this.mercadopago.createPreference) {
+      return { status: "provider_error" };
+    }
+
+    const current = await this.store.currentFor(tenantId);
+    if (current && LIVE.includes(current.status) && current.status !== "pending" && current.status !== "creating") {
+      return { status: "already_subscribed" };
+    }
+
+    const { agents, discounts } = await this.store.catalog();
+    let priced;
+    try {
+      priced = quote(requestedAgents, agents, discounts);
+    } catch (error) {
+      if (error instanceof PricingError) return { status: "invalid_agents", reason: error.code };
+      throw error;
+    }
+
+    const totalCents = priced.totalCents * months;
+    const id = crypto.randomUUID();
+    const externalReference = `${ORDER_REFERENCE_PREFIX}${id}`;
+    await this.store.createOrder({
+      id,
+      userId,
+      tenantId,
+      agents: priced.agents,
+      months,
+      amountCents: totalCents,
+      externalReference,
+    });
+
+    const names = agents.filter((agent) => priced.agents.includes(agent.key)).map((agent) => agent.name);
+    try {
+      const preference = await this.mercadopago.createPreference({
+        title: subscriptionReason(names),
+        externalReference,
+        payerEmail: email,
+        amount: totalCents / 100,
+        backUrl: `${this.options.appUrl}/plan?pago=retorno_unico&order=${id}`,
+        notificationUrl: `${this.options.appUrl}/api/webhooks/mercadopago`,
+      });
+      if (!preference.init_point) throw new Error("unexpected_preference");
+      await this.store.markOrderCreated(id, preference.id, preference.init_point);
+      this.options.log("billing_prepaid_order_created", { agents: priced.agents, months, amountCents: totalCents });
+      return { status: "redirect", checkoutUrl: preference.init_point };
+    } catch (error) {
+      await this.store.markOrderFailed(id);
+      const reason = error instanceof Error ? error.message.slice(0, 80) : "error";
+      this.options.log("billing_prepaid_order_failed", { reason });
+      if (/payer and collector must be real or test/i.test(reason)) return { status: "test_account_mismatch" };
+      return { status: "provider_error" };
+    }
+  }
+
+  async applyOrderEntitlements(order: OrderRow): Promise<void> {
+    const sink = this.options.entitlements;
+    const until = order.periodEnd;
+    if (!sink || !until || until <= this.now()) return;
+    if (order.entitlementAppliedUntil && order.entitlementAppliedUntil >= until) return;
+    if (await sink.apply(order.tenantId, order.agents, until)) {
+      await this.store.markOrderEntitlementApplied?.(order.id, until);
+      this.options.log("billing_entitlement_applied", { agents: order.agents, months: order.months });
+    } else {
+      this.options.log("billing_entitlement_pending");
+    }
+  }
+
+  async processPayment(payment: MercadoPagoPayment): Promise<string> {
+    const ref = payment.external_reference;
+    if (!ref || !ref.startsWith(ORDER_REFERENCE_PREFIX)) return "ignored";
+    const order = await this.store.orderByExternalReference?.(ref);
+    if (!order) return "unknown_order";
+    if (payment.status === "rejected" || payment.status === "cancelled") {
+      await this.store.markOrderRejected?.(order.id);
+      return "rejected";
+    }
+    if (payment.status !== "approved") return "pending";
+
+    const amountCents = Math.round(Number(payment.transaction_amount) * 100);
+    if (payment.currency_id !== "PEN" || amountCents !== order.amountCents) {
+      this.options.log("billing_order_amount_mismatch", { expected: order.amountCents, received: amountCents });
+      return "amount_mismatch";
+    }
+    if (!this.store.grantOrderPayment) return "provider_error";
+
+    const paidAt = new Date(payment.date_approved ?? payment.date_created ?? this.now().toISOString());
+    const { result, order: updated } = await this.store.grantOrderPayment({
+      orderId: order.id,
+      providerPaymentId: String(payment.id),
+      paidAt: Number.isNaN(paidAt.getTime()) ? this.now() : paidAt,
+    });
+    if (result === "granted") {
+      this.options.log("billing_prepaid_granted", { months: order.months, amountCents });
+    }
+    if (updated) await this.applyOrderEntitlements(updated);
+    return result === "granted" ? "payment_granted" : "payment_duplicate";
+  }
+
+  async syncPrepaid(tenantId: string, orderId?: string, paymentId?: string): Promise<void> {
+    if (paymentId && this.mercadopago.getPayment) {
+      const payment = await this.mercadopago.getPayment(paymentId);
+      if (payment.external_reference?.startsWith(ORDER_REFERENCE_PREFIX)) {
+        const order = await this.store.orderByExternalReference?.(payment.external_reference);
+        if (order && order.tenantId === tenantId) {
+          await this.processPayment(payment);
+          return;
+        }
+      }
+    }
+    if (orderId && this.store.orderById && this.mercadopago.searchPaymentsByReference) {
+      const order = await this.store.orderById(orderId);
+      if (!order || order.tenantId !== tenantId) return;
+      if (order.status === "approved") {
+        await this.applyOrderEntitlements(order);
+        return;
+      }
+      for (const payment of await this.mercadopago.searchPaymentsByReference(order.externalReference)) {
+        await this.processPayment(payment);
+      }
+    }
   }
 
   async syncFor(tenantId: string) {
@@ -212,6 +358,19 @@ export class BillingService {
         this.options.log("billing_reconcile_failed", { reason: error instanceof Error ? error.message.slice(0, 80) : "error" });
       }
     }
+    for (const order of await this.store.reconcilableOrders?.() ?? []) {
+      try {
+        if (order.status === "approved") await this.applyOrderEntitlements(order);
+        else if (this.mercadopago.searchPaymentsByReference) {
+          for (const payment of await this.mercadopago.searchPaymentsByReference(order.externalReference)) {
+            await this.processPayment(payment);
+          }
+        }
+        synced++;
+      } catch (error) {
+        this.options.log("billing_order_reconcile_failed", { reason: error instanceof Error ? error.message.slice(0, 80) : "error" });
+      }
+    }
     return synced;
   }
 
@@ -235,16 +394,23 @@ export class BillingService {
 
     let outcome = "ignored";
     try {
-      let providerRef: string | null = null;
-      if (topic === "subscription_preapproval") providerRef = dataId;
-      else if (topic === "subscription_authorized_payment") providerRef = String((await this.mercadopago.getAuthorizedPayment(dataId)).preapproval_id);
-      if (providerRef) {
-        const subscription = await this.store.byProviderRef(providerRef);
-        if (subscription) {
-          await this.sync(subscription);
-          outcome = "synced";
-        } else {
-          outcome = "unknown_subscription";
+      if (topic === "payment") {
+        if (this.mercadopago.getPayment) {
+          const payment = await this.mercadopago.getPayment(dataId);
+          outcome = await this.processPayment(payment);
+        }
+      } else {
+        let providerRef: string | null = null;
+        if (topic === "subscription_preapproval") providerRef = dataId;
+        else if (topic === "subscription_authorized_payment") providerRef = String((await this.mercadopago.getAuthorizedPayment(dataId)).preapproval_id);
+        if (providerRef) {
+          const subscription = await this.store.byProviderRef(providerRef);
+          if (subscription) {
+            await this.sync(subscription);
+            outcome = "synced";
+          } else {
+            outcome = "unknown_subscription";
+          }
         }
       }
     } catch {
