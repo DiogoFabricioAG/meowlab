@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 85 · Total: 219</span>
+      <span class="summary">Abiertas: 83 · Total: 219</span>
     </div>
   </div>
 </header>
@@ -1084,7 +1084,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">8</span>
+          <span class="count">6</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1142,28 +1142,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="lint y pruebas de interfaz para la landing landing asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Lint y pruebas de interfaz para la landing</h3>
-          
-          <p class="card-notes">Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">lint-y-pruebas-landing</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Worker" data-text="atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas) worker reportado por npm audit el 2026-09-13. asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. ">
-          <div class="card-top">
-            <span class="badge area-worker">Worker</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)</h3>
-          
-          <p class="card-notes">Reportado por npm audit el 2026-09-13. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">npm-audit</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en adr-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3. ">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
@@ -1180,7 +1158,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">134</span>
+          <span class="count">136</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2381,6 +2359,28 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">tablero-trabajo</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="lint y pruebas de interfaz para la landing landing asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. agregados scripts check (astro check) y test (vitest run) en package.json, tsconfig.json y vitest.config.ts (happy-dom). corregido atributo title en svg de whatsappchatruntime.astro. pruebas nuevas en test/landing/chats.test.ts y test/landing/chat-player.test.ts (6/6 pass). npm run check (0 errors), npm test (6/6) y npm run build (5 páginas) pass.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Lint y pruebas de interfaz para la landing</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Agregados scripts check (astro check) y test (vitest run) en package.json, tsconfig.json y vitest.config.ts (happy-dom). Corregido atributo title en SVG de WhatsAppChatRuntime.astro. Pruebas nuevas en test/landing/chats.test.ts y test/landing/chat-player.test.ts (6/6 PASS). npm run check (0 errors), npm test (6/6) y npm run build (5 páginas) PASS.</p>
+          <p class="card-notes">Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">lint-y-pruebas-landing</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Worker" data-text="atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas) worker reportado por npm audit el 2026-09-13. asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md. auditoría ejecutada en los 3 paquetes: landing 6 (2 low, 3 high, 1 critical: astro/esbuild/sharp/zod/zod-to-ts, todas requieren salto mayor astro@7.4.13); portal 1 moderate (@hono/node-server, requiere salto mayor @hono/node-server@2.1.11); worker 12 (3 moderate, 9 high, solo reporte sin tocar dependencias). landing npm run check/test/build y portal npm test (56/56)/build pass.">
+          <div class="card-top">
+            <span class="badge area-worker">Worker</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Atender las 9 vulnerabilidades de npm (3 moderadas, 6 altas)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Auditoría ejecutada en los 3 paquetes: landing 6 (2 low, 3 high, 1 critical: astro/esbuild/sharp/zod/zod-to-ts, todas requieren salto mayor astro@7.4.13); portal 1 moderate (@hono/node-server, requiere salto mayor @hono/node-server@2.1.11); worker 12 (3 moderate, 9 high, solo reporte sin tocar dependencias). Landing npm run check/test/build y portal npm test (56/56)/build PASS.</p>
+          <p class="card-notes">Reportado por npm audit el 2026-09-13. Asignada en docs/agents/tareas-agy-2026-11-20-tanda2.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">npm-audit</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: pantallas de comprobantes, descargas, resumen y guías portal fase 4 del adr-0006. sólo lectura; pdf de la guía cuando exista una fuente común con manolo. diseño: docs/decisions/0006-portal-app-meowlab.md 2026-11-13: pantallas de comprobantes, resumen y guías hechas junto con la fase 3 (feat/portal-facturacion-app).  desplegado el 2026-11-13 (facturaya, bridge y portal); datos reales verificados: 46 comprobantes y 12 meses. acta: docs/operations/portal-facturacion-2026-11-13.md">
           <div class="card-top">
