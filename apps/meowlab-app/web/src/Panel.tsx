@@ -9,6 +9,7 @@ import { CompanyCards } from "./CompanyStep";
 import { WeeklyHome } from "./WeeklyHome";
 import { AgentsPage } from "./AgentsPage";
 import { TenderPanel } from "./TenderPanel";
+import { SalesPanel } from "./SalesPanel";
 import { StockPanel } from "./StockPanel";
 import { CollectionsPanel } from "./CollectionsPanel";
 import { ReorderPanel } from "./ReorderPanel";
@@ -18,7 +19,7 @@ import { agentPulse, attentionItems, PULSE_LABEL } from "./attention";
 import { Icon, type IconName } from "./icons";
 import { PageHeader } from "./PageHeader";
 
-type Section = "home" | "agents" | "invoice" | "tender" | "stock" | "collections" | "reorder" | "support" | "plan" | "settings" | "team" | "business";
+type Section = "home" | "agents" | "invoice" | "tender" | "sales" | "stock" | "collections" | "reorder" | "support" | "plan" | "settings" | "team" | "business";
 
 /** Each section has its own address, so Back works and a link can point at it. */
 const ROUTES: Record<string, Section> = {
@@ -27,6 +28,7 @@ const ROUTES: Record<string, Section> = {
   "/agentes": "agents",
   "/agentes/facturas": "invoice",
   "/agentes/licitaciones": "tender",
+  "/agentes/ventas": "sales",
   "/agentes/stock": "stock",
   "/agentes/cobranza": "collections",
   "/agentes/reposicion": "reorder",
@@ -37,7 +39,7 @@ const ROUTES: Record<string, Section> = {
   "/negocio": "business",
 };
 const TITLES: Record<Section, string> = {
-  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", stock: "Stock Cat", collections: "Collections Cat", reorder: "Reorder Cat", support: "Support Cat", plan: "Plan",
+  home: "Inicio", agents: "Tus agentes", invoice: "Invoice Cat", tender: "Tender Cat", sales: "Sales Cat", stock: "Stock Cat", collections: "Collections Cat", reorder: "Reorder Cat", support: "Support Cat", plan: "Plan",
   settings: "Configuración", team: "Equipo", business: "Negocio",
 };
 const sectionOf = (path: string): Section => ROUTES[path.replace(/\/+$/, "") || "/"] ?? "home";
@@ -84,6 +86,11 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const weekly = currentSummary?.data ?? null;
   const weeklyFailed = currentSummary?.data === null;
   const [catalog, setCatalog] = useState<CatalogAgent[] | null>(null);
+  const loadWeekly = useCallback((id: string) => {
+    void fetchJson<Weekly>(`/api/companies/${encodeURIComponent(id)}/weekly`)
+      .then((data) => setSummary({ companyId: id, data }))
+      .catch(() => setSummary({ companyId: id, data: null }));
+  }, []);
   useEffect(() => {
     if (!company) return;
     let current = true;
@@ -253,6 +260,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         {company && section === "agents" && <AgentsPage company={company} weekly={weekly} catalog={catalog} go={go} />}
         {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
         {section === "tender" && company && <TenderPanel key={company.id} companyId={company.id} weekly={weekly} failed={weeklyFailed} onBack={() => go("/agentes")} />}
+        {company && section === "sales" && <SalesPanel key={company.id} company={company} onBack={() => go("/agentes")} onSaved={() => loadWeekly(company.id)} />}
         {company && section === "stock" && <StockPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "collections" && <CollectionsPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "reorder" && <ReorderPanel key={company.id} company={company} onBack={() => go("/agentes")} />}

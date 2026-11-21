@@ -144,6 +144,30 @@ export class PortalWeeklyService {
         ),
       ]);
       const row = sales.rows[0] ?? {};
+      let extras: { catName?: string; goalTargetCents?: number; monthTotalCents?: number } | null = null;
+      try {
+        const limaTodayStr = new Date(this.now().getTime() - LIMA_OFFSET_MS).toISOString().slice(0, 10);
+        const ym = limaTodayStr.slice(0, 7);
+        const [yStr, mStr] = ym.split("-");
+        const mStart = new Date(Date.UTC(Number(yStr), Number(mStr) - 1, 1) + LIMA_OFFSET_MS);
+        const mEnd = new Date(Date.UTC(Number(yStr), Number(mStr), 1) + LIMA_OFFSET_MS);
+        const [catRow, goalRow, monthRow] = await Promise.all([
+          this.query("SELECT cat_name FROM sales.settings WHERE tenant_id = $1", [tenantId]),
+          this.query("SELECT target_cents FROM sales.monthly_goals WHERE tenant_id = $1 AND month = $2", [tenantId, ym]),
+          this.query(
+            "SELECT COALESCE(sum(total_cents), 0)::bigint AS total FROM sales.sales WHERE tenant_id = $1 AND status = 'confirmed' AND sold_at >= $2 AND sold_at < $3",
+            [tenantId, mStart, mEnd],
+          ),
+        ]);
+        const catName = catRow.rows[0]?.cat_name ? String(catRow.rows[0].cat_name) : null;
+        const goalTargetCents = goalRow.rows[0] ? Number(goalRow.rows[0].target_cents) : null;
+        extras = {
+          ...(catName ? { catName } : {}),
+          ...(goalTargetCents !== null ? { goalTargetCents, monthTotalCents: Number(monthRow.rows[0]?.total ?? 0) } : {}),
+        };
+      } catch {
+        // Before migration 023, monthly_goals/cat_name do not exist yet.
+      }
       return {
         enabled: true,
         todayCount: Number(row.today_n ?? 0),
@@ -151,6 +175,7 @@ export class PortalWeeklyService {
         weekCount: Number(row.week_n ?? 0),
         weekTotalCents: Number(row.week_total ?? 0),
         weekQuotes: Number(quotes.rows[0]?.n ?? 0),
+        ...(extras ?? {}),
       };
     } catch {
       // Before migration 014 the schema does not exist: Sales Cat is simply off.

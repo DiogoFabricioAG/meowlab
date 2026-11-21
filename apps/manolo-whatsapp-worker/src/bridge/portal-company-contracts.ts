@@ -47,7 +47,30 @@ export type PortalCompanyRequest =
   | (Base & { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> })
   // Support Cat (ADR-0017): FAQs, tickets and today's numbers; FAQs edited by the owner.
   | (Base & { action: "support_view"; tenantId: string })
-  | (Base & { action: "support_faq"; tenantId: string; faq: SupportFaqChange });
+  | (Base & { action: "support_faq"; tenantId: string; faq: SupportFaqChange })
+  // Sales Cat (ADR-0011 fase 3): monthly goal and custom cat name.
+  | (Base & { action: "sales_view"; tenantId: string })
+  | (Base & { action: "sales_settings"; tenantId: string; change: SalesSettingsChange });
+
+export type SalesSettingsChange = {
+  catName?: string | null;
+  goalTargetCents?: number | null;
+  month?: string;
+};
+
+export type SalesView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    catName: string | null;
+    month: string;
+    goalTargetCents: number | null;
+    monthTotalCents: number;
+    monthCount: number;
+    daysInMonth: number;
+    currentDay: number | null;
+  };
 
 /** Add (no id), edit (id + texts) or remove (id + remove) one frequent question. */
 export type SupportFaqChange = { id?: string; question?: string; answer?: string; remove?: boolean };
@@ -73,8 +96,18 @@ export type WeeklySummary = {
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
   /** Support Cat (ADR-0017): customers this week, solved alone, passed to the owner, still open. */
   support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
-  /** Sales Cat (ADR-0011): sales registered today and this week. */
-  sales: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
+  /** Sales Cat (ADR-0011): sales registered today and this week, plus optional month goal. */
+  sales: {
+    enabled: boolean;
+    todayCount: number;
+    todayTotalCents: number;
+    weekCount: number;
+    weekTotalCents: number;
+    weekQuotes: number;
+    catName?: string | null;
+    goalTargetCents?: number | null;
+    monthTotalCents?: number;
+  };
   /** Null when the company has no Invoice Cat (FacturaYa) yet. */
   invoicing:
     | null
@@ -141,6 +174,8 @@ export type PortalMembership = {
 
 export type PortalCompanyResponse =
   | { status: "ok"; companies: PortalMembership[] }
+  | { status: "ok"; sales: SalesView }
+  | { status: "invalid_cat_name" }
   | { status: "ok"; taxpayer: Taxpayer }
   | { status: "created"; company: PortalMembership }
   | { status: "invalid_ruc" }
@@ -249,6 +284,16 @@ const text = (value: unknown, max: number): value is string =>
 const tenant = (value: unknown) => typeof value === "string" && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const isSalesSettingsChange = (value: unknown): value is SalesSettingsChange => {
+  if (!record(value)) return false;
+  const { catName, goalTargetCents, month } = value;
+  if (catName !== undefined && catName !== null && (typeof catName !== "string" || catName.length > 40)) return false;
+  if (goalTargetCents !== undefined && goalTargetCents !== null
+    && (!Number.isSafeInteger(goalTargetCents) || Number(goalTargetCents) <= 0 || Number(goalTargetCents) > 100_000_000_000)) return false;
+  if (month !== undefined && (typeof month !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month))) return false;
+  return catName !== undefined || goalTargetCents !== undefined;
+};
+
 export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRequest {
   if (!record(value) || value.version !== 1 || !text(value.requestId, 255) || !text(value.portalUserId, 128)) return false;
   switch (value.action) {
@@ -272,7 +317,10 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
     case "reorder_settings":
       return tenant(value.tenantId) && isReorderSettingsChange(value.change);
     case "support_view":
+    case "sales_view":
       return tenant(value.tenantId);
+    case "sales_settings":
+      return tenant(value.tenantId) && isSalesSettingsChange(value.change);
     case "support_faq":
       return tenant(value.tenantId) && isSupportFaqChange(value.faq);
     case "invite":

@@ -44,6 +44,7 @@ import { roleRegistry } from "./roles/registry";
 import { ENTERPRISE_ADVISOR_ROLE_KEY } from "./roles/enterprise-advisor-role";
 import { QUOTE_ROLE_KEY } from "./quotes/types";
 import { SALES_ROLE_KEY, SalesRoleHandler, isSalesCommand, parseSalesState } from "./roles/sales-role";
+import { leadingAliasCandidate } from "./sales/cat-name";
 import { VpsSalesClient } from "./sales/client";
 import { STOCK_ROLE_KEY, StockRoleHandler, isStockCommand, parseStockState, stockAlertsAfterInvoice } from "./roles/stock-role";
 import { VpsStockClient } from "./stock/client";
@@ -761,7 +762,6 @@ export async function processConversationTurn(
       const roleState = new D1RoleStateRepository(env.DB);
       // Stock Cat (ADR-0014) works the same way with `/stock`. An explicit command or button
       // picks the cat; otherwise the open conversation keeps the turn, Stock Cat first.
-      const salesSignal = isSalesCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("sales:"));
       const stockSignal = isStockCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("stock:"));
       // Collections Cat (ADR-0015) too, with `/collections`; an explicit signal wins, then the open conversation.
       const collectionsSignal = isCollectionsCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("collections:"));
@@ -769,6 +769,19 @@ export async function processConversationTurn(
       const reorderSignal = isReorderCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("reorder:"));
       // Support Cat (ADR-0017), the owner's side: `/support` and the «Responder» buttons.
       const supportSignal = isSupportCommand(activeMessage.text) || isSupportOwnerInteraction(activeMessage.interactionId);
+      const explicitOtherSignal = stockSignal || collectionsSignal || reorderSignal || supportSignal;
+      const baseSalesSignal = isSalesCommand(activeMessage.text) || Boolean(activeMessage.interactionId?.startsWith("sales:"));
+      let salesAliasMatch = false;
+      if (!baseSalesSignal && !explicitOtherSignal && !activeMessage.interactionId && bridgeEnabled && bridgeClient && persisted.contactId !== null) {
+        const aliasCandidate = leadingAliasCandidate(activeMessage.text);
+        if (aliasCandidate) {
+          const aliasResult = await new VpsSalesClient(bridgeClient, tenant.tenantId, persisted.contactId, bridgeRequestId, logSafeEvent)
+            .resolveAlias(aliasCandidate)
+            .catch(() => null);
+          salesAliasMatch = Boolean(aliasResult?.ok && aliasResult.data);
+        }
+      }
+      const salesSignal = baseSalesSignal || salesAliasMatch;
       const otherSignal = salesSignal || stockSignal || collectionsSignal || reorderSignal;
       const supportOpen = persisted.contactId !== null && !otherSignal
         && parseSupportState(await roleState.get(tenant.tenantId, persisted.contactId, SUPPORT_ROLE_KEY).catch(() => null)) !== null;
@@ -789,7 +802,7 @@ export async function processConversationTurn(
       // Opening one cat closes the others' open conversations.
       const opened = persisted.contactId === null ? null
         : isStockCommand(activeMessage.text) ? STOCK_ROLE_KEY
-        : isSalesCommand(activeMessage.text) ? SALES_ROLE_KEY
+        : (isSalesCommand(activeMessage.text) || salesAliasMatch) ? SALES_ROLE_KEY
         : isCollectionsCommand(activeMessage.text) ? COLLECTIONS_ROLE_KEY
         : isReorderCommand(activeMessage.text) || activeMessage.interactionId?.startsWith("reorder:open:") ? REORDER_ROLE_KEY
         : isSupportCommand(activeMessage.text) || isSupportOwnerInteraction(activeMessage.interactionId) ? SUPPORT_ROLE_KEY

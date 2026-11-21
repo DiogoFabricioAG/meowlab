@@ -378,6 +378,50 @@ export function createApp(deps: AppDeps) {
     return c.json(result.reorder);
   });
 
+  // Sales Cat (ADR-0011 fase 3): monthly goal and custom cat name.
+  app.get("/api/companies/:tenantId/sales", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "sales_view", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("sales" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.sales);
+  });
+
+  app.post("/api/companies/:tenantId/sales/settings", async (c) => {
+    const tenantId = tenantParam(c);
+    const body = await c.req.json().catch(() => null) as { catName?: unknown; goalTargetCents?: unknown; month?: unknown } | null;
+    if (!tenantId || !body || typeof body !== "object") return c.json({ error: "invalid_request" }, 400);
+    const change: { catName?: string | null; goalTargetCents?: number | null; month?: string } = {};
+    if (body.catName !== undefined) {
+      if (body.catName !== null && (typeof body.catName !== "string" || body.catName.length > 40)) return c.json({ error: "invalid_request" }, 400);
+      change.catName = body.catName;
+    }
+    if (body.goalTargetCents !== undefined) {
+      if (body.goalTargetCents === null) {
+        change.goalTargetCents = null;
+      } else if (typeof body.goalTargetCents === "number" && Number.isSafeInteger(body.goalTargetCents) && body.goalTargetCents > 0 && body.goalTargetCents <= 100_000_000_000) {
+        change.goalTargetCents = body.goalTargetCents;
+      } else {
+        return c.json({ error: "invalid_request" }, 400);
+      }
+    }
+    if (body.month !== undefined) {
+      if (typeof body.month !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(body.month)) return c.json({ error: "invalid_request" }, 400);
+      change.month = body.month;
+    }
+    if (change.catName === undefined && change.goalTargetCents === undefined) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "sales_settings", tenantId, change });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status === "invalid_cat_name") return c.json({ error: "invalid_cat_name" }, 400);
+    if (result.status !== "ok" || !("sales" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.sales);
+  });
+
   app.post("/api/companies/:tenantId/invitations", async (c) => {
     const tenantId = tenantParam(c);
     const body = await c.req.json().catch(() => null) as { access?: unknown; phone?: unknown } | null;

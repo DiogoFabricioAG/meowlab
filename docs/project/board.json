@@ -1870,10 +1870,10 @@
       "area": "Manolo",
       "owner": "AGY-1",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "ADR-0011. Asignada (metas, nombre propio y deudas; sin stock) en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
-      "evidence": ""
+      "evidence": "PR feat/sales-cat-fase-3: migración 023-sales-goals-alias-collections.sql (sin aplicar), metas mensuales (hora Lima, sin anuladas), nombre propio con ruteo aislado, deudas al crédito en Collections (alta/anulación e invitación por chat) y ficha SalesPanel + Inicio en el portal."
     },
     {
       "id": "sales-cat-numero-jd-20261113",

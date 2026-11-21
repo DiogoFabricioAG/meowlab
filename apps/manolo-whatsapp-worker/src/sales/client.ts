@@ -6,6 +6,7 @@ import type {
   SalesBridgeRequest,
   SalesCompany,
   SalesCustomerInput,
+  SalesGoalStatus,
   SalesLineInput,
   SalesOperation,
   SalesSummary,
@@ -19,15 +20,21 @@ export type SalesResult<T> = { ok: true; data: T } | { ok: false; code: string }
 /** What the Sales Cat role needs from the platform (ADR-0011). */
 export interface SalesClient {
   companies(): Promise<SalesResult<SalesCompany[]>>;
+  resolveAlias?(candidate: string): Promise<SalesResult<{ id: string; name: string; catName: string } | null>>;
   catalog(companyId: string): Promise<SalesResult<CatalogProduct[]>>;
   upsertProduct(companyId: string, name: string, unitPriceCents: number): Promise<SalesResult<{ name: string; unitPriceCents: number; created: boolean }>>;
   createQuote(companyId: string, input: { customer: SalesCustomerInput; lines: SalesLineInput[]; discountCents: number; notes: string | null }): Promise<SalesResult<SavedQuote>>;
-  createSale(companyId: string, input: { customer: SalesCustomerInput; lines: SalesLineInput[]; discountCents: number; notes: string | null; paymentMethod: PaymentMethod }): Promise<SalesResult<SavedSale>>;
-  cancelSale(companyId: string, number: number, reason: string | null): Promise<SalesResult<{ number: number }>>;
+  createSale(companyId: string, input: { customer: SalesCustomerInput; lines: SalesLineInput[]; discountCents: number; notes: string | null; paymentMethod: PaymentMethod; dueDate?: string | null }): Promise<SalesResult<SavedSale>>;
+  cancelSale(companyId: string, number: number, reason: string | null): Promise<SalesResult<{ number: number; debtStatus?: "none" | "cancelled" | "has_payments" }>>;
   linkInvoice(companyId: string, number: number, invoiceNumber: string): Promise<SalesResult<true>>;
   summary(companyId: string, period: SummaryPeriod): Promise<SalesResult<SalesSummary>>;
   /** ADR-0013: the quote's PDF, to send it in the chat. */
   quotePdf(companyId: string, number: number): Promise<SalesResult<{ filename: string; bytes: Uint8Array }>>;
+  setGoal?(companyId: string, month: string, targetCents: number): Promise<SalesResult<SalesGoalStatus>>;
+  goalStatus?(companyId: string, month: string): Promise<SalesResult<SalesGoalStatus>>;
+  setCatName?(companyId: string, catName: string): Promise<SalesResult<{ catName: string }>>;
+  creditSyncStatus?(companyId: string): Promise<SalesResult<{ pendingCount: number }>>;
+  syncCreditDebts?(companyId: string): Promise<SalesResult<{ added: number }>>;
 }
 
 /** Through the signed VPS bridge; the WhatsApp message id seeds idempotent writes. */
@@ -71,6 +78,10 @@ export class VpsSalesClient implements SalesClient {
     return this.call("companies", undefined, {}, (data) => data.companies as SalesCompany[]);
   }
 
+  resolveAlias(candidate: string) {
+    return this.call("resolve_alias", undefined, { candidate }, (data) => (data.company as { id: string; name: string; catName: string } | null) ?? null);
+  }
+
   catalog(companyId: string) {
     return this.call("catalog", companyId, {}, (data) => data.products as CatalogProduct[]);
   }
@@ -89,7 +100,7 @@ export class VpsSalesClient implements SalesClient {
   }
 
   cancelSale(companyId: string, number: number, reason: string | null) {
-    return this.call("cancel_sale", companyId, { number, reason }, (data) => data.cancelled as { number: number });
+    return this.call("cancel_sale", companyId, { number, reason }, (data) => data.cancelled as { number: number; debtStatus?: "none" | "cancelled" | "has_payments" });
   }
 
   linkInvoice(companyId: string, number: number, invoiceNumber: string) {
@@ -108,5 +119,25 @@ export class VpsSalesClient implements SalesClient {
       if (bytes.length < 100 || new TextDecoder().decode(bytes.subarray(0, 5)) !== "%PDF-") throw new Error("malformed");
       return { filename: pdf.filename, bytes };
     });
+  }
+
+  setGoal(companyId: string, month: string, targetCents: number) {
+    return this.call("set_goal", companyId, { month, targetCents }, (data) => data.goal as SalesGoalStatus);
+  }
+
+  goalStatus(companyId: string, month: string) {
+    return this.call("goal_status", companyId, { month }, (data) => data.goal as SalesGoalStatus);
+  }
+
+  setCatName(companyId: string, catName: string) {
+    return this.call("set_cat_name", companyId, { catName }, (data) => ({ catName: String(data.catName) }));
+  }
+
+  creditSyncStatus(companyId: string) {
+    return this.call("credit_sync_status", companyId, {}, (data) => ({ pendingCount: Number(data.pendingCount ?? 0) }));
+  }
+
+  syncCreditDebts(companyId: string) {
+    return this.call("sync_credit_debts", companyId, {}, (data) => ({ added: Number(data.added ?? 0) }));
   }
 }
