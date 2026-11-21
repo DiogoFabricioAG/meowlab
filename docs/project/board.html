@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 85 · Total: 232</span>
+      <span class="summary">Abiertas: 81 · Total: 233</span>
     </div>
   </div>
 </header>
@@ -804,17 +804,6 @@
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">cotizacion-pdf-prueba-whatsapp-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="collections cat fase 3: a la venta en el plan (s/ 25) y meowlab cobrando sus suscripciones portal adr-0015 fase 3. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Collections Cat fase 3: a la venta en el Plan (S/ 25) y MeowLab cobrando sus suscripciones</h3>
-          
-          <p class="card-notes">ADR-0015 fase 3.</p>
-          <p class="card-meta">Actualizado: 2026-11-14</p>
-          <code class="card-id">collections-cat-3-venta-20261114</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="reorder cat fase 2: proveedores por excel, varios proveedores con pedido de precios y número propio de la empresa manolo adr-0016, fases. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -913,6 +902,17 @@
           <p class="card-notes">Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">portal-configuracion-ui-20261121</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: activar el servicio de tender cuando el pago de suscripción llega al bridge tender portalentitlementservice ya registra el pago de tender y lo devuelve en skipped sin error. falta conectar el flujo de tender cat para habilitar el servicio de la empresa hasta active_until. ">
+          <div class="card-top">
+            <span class="badge area-other">Tender</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Tender Cat: activar el servicio de Tender cuando el pago de suscripción llega al bridge</h3>
+          
+          <p class="card-notes">PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">tender-activacion-suscripcion-20261120</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
@@ -1040,7 +1040,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">12</span>
+          <span class="count">8</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
@@ -1098,17 +1098,6 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
           <code class="card-id">stock-cat-2-digitalizar-20261113</code>
         </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="cobros: que el pago active cada gato (stock, collections, reorder, support y tender) y que todos se puedan comprar en plan portal pedido del operador el 20/11, para los agentes agy. hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y tender cat no está en el catálogo (s/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). portalentitlementservice (bridge) solo activa sales cat (sales.settings, source subscription, active_until). falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y tender cat; entitled_agents y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; invoice cat sigue requiriendo clave sol (el pago no la sustituye; decir en plan qué falta); pruebas por gato y del aislamiento por tenant. asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Cobros: que el pago active cada gato (Stock, Collections, Reorder, Support y Tender) y que todos se puedan comprar en Plan</h3>
-          
-          <p class="card-notes">Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">billing-activacion-gatos-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1131,17 +1120,6 @@
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="agregar tender cat (s/ 35) al catálogo de cobros para que se pueda sumar desde plan portal hoy la ficha muestra «pídeselo a manolo» porque no está en el catálogo (adr-0008 fija s/ 35). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros para que se pueda sumar desde Plan</h3>
-          
-          <p class="card-notes">Hoy la ficha muestra «Pídeselo a Manolo» porque no está en el catálogo (ADR-0008 fija S/ 35). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">portal-tender-catalogo-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Manolo" data-text="sales cat fase 3: metas, nombre propio del gato, stock y deudas manolo adr-0011. asignada (metas, nombre propio y deudas; sin stock) en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
           <div class="card-top">
             <span class="badge area-other">Manolo</span>
@@ -1153,34 +1131,12 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
           <code class="card-id">sales-cat-3-extras-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="stock cat fase 3: a la venta en el plan a s/ 29, por empresa portal adr-0014; reutiliza la activación por empresa de sales cat (feat/billing-por-empresa). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa</h3>
-          
-          <p class="card-notes">ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">stock-cat-3-venta-20261113</code>
-        </article>
-        <article class="card" data-priority="low" data-area="Cobros" data-text="agregar tender cat (s/ 35) al catálogo de cobros cobros decisión 2026-11-12: tender cat (hoy radar) cuesta s/ 35 al mes y atiende como rol transversal en el número de meowlab (adr-0008). migración nueva en el portal para billing_agents (no editar 0003). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Cobros</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros</h3>
-          
-          <p class="card-notes">Decisión 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes y atiende como rol transversal en el número de MeowLab (ADR-0008). Migración nueva en el portal para billing_agents (no editar 0003). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">billing-tender-cat-catalog-20261112</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">147</span>
+          <span class="count">152</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2250,6 +2206,17 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
           <code class="card-id">app-movil-1-shell-20261120</code>
         </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="cobros: que el pago active cada gato (stock, collections, reorder, support y tender) y que todos se puedan comprar en plan portal pedido del operador el 20/11, para los agentes agy. hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y tender cat no está en el catálogo (s/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). portalentitlementservice (bridge) solo activa sales cat (sales.settings, source subscription, active_until). falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y tender cat; entitled_agents y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; invoice cat sigue requiriendo clave sol (el pago no la sustituye; decir en plan qué falta); pruebas por gato y del aislamiento por tenant. asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. 0005_billing_todos_los_gatos.sql (7 gatos disponibles + tender s/ 35); portalentitlementservice activa sales/stock/receivables/purchasing/support.settings y omite tender/invoice en skipped; aviso sol en planpanel.tsx y agents.ts; portal vitest+typecheck+build y worker portal-entitlement.test.ts+tsc en verde.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Cobros: que el pago active cada gato (Stock, Collections, Reorder, Support y Tender) y que todos se puedan comprar en Plan</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 0005_billing_todos_los_gatos.sql (7 gatos disponibles + Tender S/ 35); PortalEntitlementService activa sales/stock/receivables/purchasing/support.settings y omite tender/invoice en skipped; aviso SOL en PlanPanel.tsx y agents.ts; portal vitest+typecheck+build y worker portal-entitlement.test.ts+tsc en verde.</p>
+          <p class="card-notes">Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">billing-activacion-gatos-20261120</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. asignada en docs/agents/tareas-agy-2026-11-20.md. rama feat/marca-unica-20261120. landing (index.astro, agentesdetalle.astro), portal (agents.ts, companystep.tsx, invoicingpanel.tsx, etc.) y worker (cat-role.ts, enterprise-advisor-role.ts, enterprise-despatch.ts, sales-role.ts) actualizados. validado con git grep sin textos visibles; worker tsc --noemit + 4 archivos de roles (201 pruebas ok); portal vitest (12 archivos, 56 pruebas) + vite build ok; landing astro build (5 páginas) ok.">
           <div class="card-top">
             <span class="badge area-other">Producto</span>
@@ -2525,6 +2492,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-membership-0280-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="agregar tender cat (s/ 35) al catálogo de cobros para que se pueda sumar desde plan portal hoy la ficha muestra «pídeselo a manolo» porque no está en el catálogo (adr-0008 fija s/ 35). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. migración 0005_billing_todos_los_gatos.sql agrega tender (s/ 35, available=true) y amplía billing_subscriptions a 7 agentes; probado en apps/meowlab-app/test/billing.test.ts.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros para que se pueda sumar desde Plan</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Migración 0005_billing_todos_los_gatos.sql agrega tender (S/ 35, available=true) y amplía billing_subscriptions a 7 agentes; probado en apps/meowlab-app/test/billing.test.ts.</p>
+          <p class="card-notes">Hoy la ficha muestra «Pídeselo a Manolo» porque no está en el catálogo (ADR-0008 fija S/ 35). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">portal-tender-catalogo-20261113</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: más verde de la marca (menú, inicio, fichas) portal pedido del operador. acta: docs/operations/portal-agentes-2026-11-13.md (sección «más verde de la marca»). producción: meowlab-app:b81c604327c7 healthy; rutas 200; css servido con las clases nuevas. antes: portal vitest 29/29 y revisión local.">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -2590,6 +2568,28 @@
           <p class="card-notes">ADR-0012 fase 1 recién desplegada; hoy no hay kits cargados en producción. Cerrada sin hacer: ADR-0013 reemplaza a ADR-0012 (plantilla única, sin kit de marca).</p>
           <p class="card-meta">Actualizado: 2026-11-13 · Responsable: operador</p>
           <code class="card-id">docs-formato-1-prueba-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="stock cat fase 3: a la venta en el plan a s/ 29, por empresa portal adr-0014; reutiliza la activación por empresa de sales cat (feat/billing-por-empresa). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. migración 0005_billing_todos_los_gatos.sql habilita stock (available=true) y portalentitlementservice activa stock.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts).">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Stock Cat fase 3: a la venta en el Plan a S/ 29, por empresa</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Migración 0005_billing_todos_los_gatos.sql habilita stock (available=true) y PortalEntitlementService activa stock.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts).</p>
+          <p class="card-notes">ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">stock-cat-3-venta-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="collections cat fase 3: a la venta en el plan (s/ 25) y meowlab cobrando sus suscripciones portal adr-0015 fase 3 (parte de venta y activación en plan). migración 0005_billing_todos_los_gatos.sql habilita collections (available=true) y portalentitlementservice activa receivables.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts).">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Collections Cat fase 3: a la venta en el Plan (S/ 25) y MeowLab cobrando sus suscripciones</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Migración 0005_billing_todos_los_gatos.sql habilita collections (available=true) y PortalEntitlementService activa receivables.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts).</p>
+          <p class="card-notes">ADR-0015 fase 3 (parte de venta y activación en Plan).</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">collections-cat-3-venta-20261114</code>
         </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: encabezado estándar (pageheader) con la misma altura y tamaño en todas las páginas portal pedido del operador el 20/11: tender usa h1 sm:text-4xl sin negrita y logo de 44 px; invoice y el resto usan text-3xl font-bold y logo de 48 px. las páginas de agentes ponen «← tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. un componente con una fila superior de altura fija en todas. tenderlist lo adopta cuando su rama se fusione. asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md. pageheader.tsx adoptado en weeklyhome, agentspage, tenderpanel, planpanel, adminpanel, panel (configuración), invoicingpanel, collectionspanel, stockpanel, reorderpanel y supportpanel; vitest 14/14 (61 tests), npm run typecheck y vite build ok; h1.top = 70 px (1280 px) y 118 px (390 px) idéntico en las páginas medidas con chrome headless.">
           <div class="card-top">
@@ -2667,6 +2667,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">nota-arquitectura-13-09</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Cobros" data-text="agregar tender cat (s/ 35) al catálogo de cobros cobros decisión 2026-11-12: tender cat (hoy radar) cuesta s/ 35 al mes y atiende como rol transversal en el número de meowlab (adr-0008). migración nueva en el portal para billing_agents (no editar 0003). asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md. migración 0005_billing_todos_los_gatos.sql agrega tender (s/ 35, available=true); portalentitlementservice lo registra en skipped sin error; prueba de catálogo 7 gatos y descuento 20 % en apps/meowlab-app/test/billing.test.ts.">
+          <div class="card-top">
+            <span class="badge area-other">Cobros</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Agregar Tender Cat (S/ 35) al catálogo de cobros</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Migración 0005_billing_todos_los_gatos.sql agrega tender (S/ 35, available=true); PortalEntitlementService lo registra en skipped sin error; prueba de catálogo 7 gatos y descuento 20 % en apps/meowlab-app/test/billing.test.ts.</p>
+          <p class="card-notes">Decisión 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes y atiende como rol transversal en el número de MeowLab (ADR-0008). Migración nueva en el portal para billing_agents (no editar 0003). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">billing-tender-cat-catalog-20261112</code>
         </article>
         <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. asignada en docs/agents/tareas-agy-2026-11-20.md. 4 fuentes subconjuntadas (latín + español + lnum/tnum) a woff2 en public/fonts/: blinker regular 73000-&gt;18872 b, semibold 80044-&gt;20900 b, bold 74312-&gt;19408 b, actor regular 62752-&gt;21184 b (284.1 kib -&gt; 79.2 kib). actualizados src/styles/fonts.css y src/layouts/landinglayout.astro. perf.mjs: pass font bytes 79.2 kib.">
           <div class="card-top">

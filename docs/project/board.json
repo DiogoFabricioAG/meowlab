@@ -1650,10 +1650,10 @@
       "area": "Cobros",
       "owner": "AGY-2",
       "priority": "low",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "Decisión 2026-11-12: Tender Cat (hoy RADAR) cuesta S/ 35 al mes y atiende como rol transversal en el número de MeowLab (ADR-0008). Migración nueva en el portal para billing_agents (no editar 0003). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
-      "evidence": ""
+      "evidence": "Migración 0005_billing_todos_los_gatos.sql agrega tender (S/ 35, available=true); PortalEntitlementService lo registra en skipped sin error; prueba de catálogo 7 gatos y descuento 20 % en apps/meowlab-app/test/billing.test.ts."
     },
     {
       "id": "erp-phase-1-core-agents-20261112",
@@ -1815,10 +1815,10 @@
       "area": "Portal",
       "owner": "AGY-2",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "Hoy la ficha muestra «Pídeselo a Manolo» porque no está en el catálogo (ADR-0008 fija S/ 35). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
-      "evidence": ""
+      "evidence": "Migración 0005_billing_todos_los_gatos.sql agrega tender (S/ 35, available=true) y amplía billing_subscriptions a 7 agentes; probado en apps/meowlab-app/test/billing.test.ts."
     },
     {
       "id": "portal-ayuda-contacto-20261113",
@@ -2101,10 +2101,10 @@
       "area": "Portal",
       "owner": "AGY-2",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "ADR-0014; reutiliza la activación por empresa de Sales Cat (feat/billing-por-empresa). Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
-      "evidence": ""
+      "evidence": "Migración 0005_billing_todos_los_gatos.sql habilita stock (available=true) y PortalEntitlementService activa stock.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts)."
     },
     {
       "id": "stock-cat-prueba-whatsapp-20261113",
@@ -2165,12 +2165,12 @@
       "id": "collections-cat-3-venta-20261114",
       "title": "Collections Cat fase 3: a la venta en el Plan (S/ 25) y MeowLab cobrando sus suscripciones",
       "area": "Portal",
-      "owner": "",
+      "owner": "AGY-2",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-14",
-      "notes": "ADR-0015 fase 3.",
-      "evidence": ""
+      "status": "done",
+      "updated": "2026-11-20",
+      "notes": "ADR-0015 fase 3 (parte de venta y activación en Plan).",
+      "evidence": "Migración 0005_billing_todos_los_gatos.sql habilita collections (available=true) y PortalEntitlementService activa receivables.settings con cortesía preservada y active_until monótono (portal-entitlement.test.ts)."
     },
     {
       "id": "facturaya-fiscal-probe-test-20261114",
@@ -2409,9 +2409,9 @@
       "area": "Portal",
       "owner": "AGY-2",
       "priority": "high",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "0005_billing_todos_los_gatos.sql (7 gatos disponibles + Tender S/ 35); PortalEntitlementService activa sales/stock/receivables/purchasing/support.settings y omite tender/invoice en skipped; aviso SOL en PlanPanel.tsx y agents.ts; portal vitest+typecheck+build y worker portal-entitlement.test.ts+tsc en verde.",
       "notes": "Pedido del operador el 20/11, para los agentes AGY. Hoy: en billing_agents solo invoice y sales tienen available=true; stock, reorder, support y collections están en false y Tender Cat no está en el catálogo (S/ 35, tareas billing-tender-cat-catalog-20261112 y portal-tender-catalogo-20261113). PortalEntitlementService (bridge) solo activa Sales Cat (sales.settings, source subscription, active_until). Falta: migración nueva del portal (0005, sin aplicar) con available=true, descripciones actuales y Tender Cat; ENTITLED_AGENTS y activación por gato en su tabla de settings, con la misma regla de cortesía y active_until monótono; Invoice Cat sigue requiriendo clave SOL (el pago no la sustituye; decir en Plan qué falta); pruebas por gato y del aislamiento por tenant. Asignada en docs/agents/tareas-agy-2026-11-20-tanda4.md."
     },
     {
@@ -2457,6 +2457,17 @@
       "area": "Portal",
       "priority": "high",
       "notes": "Reportado por el operador el 21/11: hay negocios informales o desconfiados que pueden usar Sales, Stock, Collections, Reorder, Support y Tender sin RUC. Requiere ADR, cambio en create del bridge, migración sin aplicar y nueva bienvenida. Tanda 5, T2. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "id": "tender-activacion-suscripcion-20261120",
+      "title": "Tender Cat: activar el servicio de Tender cuando el pago de suscripción llega al bridge",
+      "area": "Tender",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "notes": "PortalEntitlementService ya registra el pago de tender y lo devuelve en skipped sin error. Falta conectar el flujo de Tender Cat para habilitar el servicio de la empresa hasta active_until.",
+      "evidence": ""
     }
   ]
 }
