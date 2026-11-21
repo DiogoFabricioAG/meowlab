@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
-<<<<<<< HEAD
 import { PageHeader } from "./PageHeader";
-=======
 import { apiFetch } from "./api";
-import { agentLogo } from "./agents";
->>>>>>> 6cc3d (feat(app-movil): shell Capacitor Android, apiFetch, bearer auth y CORS)
 
 type Settings = { monthlyBudgetCents: number | null; followupHours: number; escalateHours: number };
 type Order = {
