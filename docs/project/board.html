@@ -226,7 +226,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">80</span>
+          <span class="count">74</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -537,17 +537,6 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">meowlab-mensajes-terceros-20261115</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. ">
-          <div class="card-top">
-            <span class="badge area-other">Producto</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios</h3>
-          
-          <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
-          <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: series diarias y registro de actividad para el inicio portal faltan dos piezas de la propuesta de diseño: gráficas de tendencia (requieren que el bridge entregue series por día) y un registro de actividad de los gatos (requiere guardar eventos con hora). más adelante: aprobar desde el portal (pedidos, capturas de pago, respuesta a casos). ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -724,17 +713,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">landing-libro-reclamaciones-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Ops" data-text="versionar el caddyfile real del vps ops /opt/facturaya-ai/docker/caddy/caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. ">
-          <div class="card-top">
-            <span class="badge area-ops">Ops</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Versionar el Caddyfile real del VPS</h3>
-          
-          <p class="card-notes">/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech.</p>
-          <p class="card-meta">Actualizado: 2026-11-11</p>
-          <code class="card-id">vps-caddyfile-drift-20261111</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: activar el inicio de sesión con google portal crear el cliente oauth (origen https://app.meowlab.tech, redirección /api/auth/callback/google; consentimiento con meowlab.tech/privacidad y /terminos), cargar google_client_id/secret en /opt/meowlab-app/deploy/secrets y reiniciar el portal. ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -856,17 +834,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">sales-cat-3-extras-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: revisar a mano los anchos de tablet (768-1024 px) landing el gate de taste-skill sólo mide 1440 y 390. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Landing: revisar a mano los anchos de tablet (768-1024 px)</h3>
-          
-          <p class="card-notes">El gate de taste-skill sólo mide 1440 y 390.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">landing-tablet-revision-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="landing: libro de reclamaciones con destino real landing el enlace anterior llevaba a /contacto y se quitó. ">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
@@ -954,17 +921,6 @@
           <p class="card-notes">ADR-0017, Fases.</p>
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-2-20261115</code>
-        </article>
-        <article class="card" data-priority="low" data-area="Portal" data-text="portal: el inicio todavía dice «chat de manolo» portal apps/meowlab-app/web/src/weeklyhome.tsx dice «en el chat de manolo» y «le escribió … a manolo». la landing y la presentación ya lo llaman meowlab; decidir si el portal también cambia. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Portal: el Inicio todavía dice «chat de Manolo»</h3>
-          
-          <p class="card-notes">apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia.</p>
-          <p class="card-meta">Actualizado: 2026-11-16</p>
-          <code class="card-id">portal-inicio-nombre-meowlab-20261116</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
@@ -1054,17 +1010,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-leads-20261113</code>
         </article>
-        <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)</h3>
-          
-          <p class="card-notes">WARN de perf.mjs.</p>
-          <p class="card-meta">Actualizado: 2026-11-13</p>
-          <code class="card-id">landing-fuentes-woff2-20261113</code>
-        </article>
         <article class="card" data-priority="low" data-area="VPS" data-text="revisar si pasar los pdf de cotización a r2 (blob storage) vps según adr-0013: pasar a r2 si sales.quote_files supera ~1 gb o un cuarto de la base, si llegan archivos que no son pdf pequeños (fotos, catálogos, escaneos) o si hace falta servir sin el bridge. consulta: select pg_size_pretty(sum(octet_length(content))), count(*) from sales.quote_files; ">
           <div class="card-top">
             <span class="badge area-vps">VPS</span>
@@ -1087,17 +1032,6 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">reorder-cat-3-20261115</code>
         </article>
-        <article class="card" data-priority="low" data-area="Manolo" data-text="collections: remind() guarda current_timestamp en vez del reloj inyectado manolo collectionsservice.remind() escribe last_reminder_at y reminders.created_at con current_timestamp de postgresql e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncremindertimestamp(); al corregir el servicio, quitar ese parche. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado</h3>
-          
-          <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche.</p>
-          <p class="card-meta">Actualizado: 2026-11-20</p>
-          <code class="card-id">collections-remind-clock-20261120</code>
-        </article>
         <article class="card" data-priority="" data-area="" data-text="simplificar escritorio a oportunidades elegidas y preparacion undefined requires coordinating parallel webview editing. remove manual discovery surface; contextual bases/quotes/documents; refresh guardadas while open. do not claim current ui already changed. docs/apps/radar-selection-sync.md">
           <div class="card-top">
             <span class="badge area-other"></span>
@@ -1114,7 +1048,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">5</span>
+          <span class="count">11</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1150,6 +1084,17 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Producto</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios</h3>
+          
+          <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1161,6 +1106,17 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Ops" data-text="versionar el caddyfile real del vps ops /opt/facturaya-ai/docker/caddy/caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Versionar el Caddyfile real del VPS</h3>
+          
+          <p class="card-notes">/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">vps-caddyfile-drift-20261111</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en adr-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3. ">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
@@ -1171,6 +1127,50 @@
           <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3.</p>
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: revisar a mano los anchos de tablet (768-1024 px) landing el gate de taste-skill sólo mide 1440 y 390. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: revisar a mano los anchos de tablet (768-1024 px)</h3>
+          
+          <p class="card-notes">El gate de taste-skill sólo mide 1440 y 390. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">landing-tablet-revision-20261113</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="portal: el inicio todavía dice «chat de manolo» portal apps/meowlab-app/web/src/weeklyhome.tsx dice «en el chat de manolo» y «le escribió … a manolo». la landing y la presentación ya lo llaman meowlab; decidir si el portal también cambia. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Portal: el Inicio todavía dice «chat de Manolo»</h3>
+          
+          <p class="card-notes">apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">portal-inicio-nombre-meowlab-20261116</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)</h3>
+          
+          <p class="card-notes">WARN de perf.mjs. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">landing-fuentes-woff2-20261113</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Manolo" data-text="collections: remind() guarda current_timestamp en vez del reloj inyectado manolo collectionsservice.remind() escribe last_reminder_at y reminders.created_at con current_timestamp de postgresql e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncremindertimestamp(); al corregir el servicio, quitar ese parche. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado</h3>
+          
+          <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">collections-remind-clock-20261120</code>
         </article>
         </div>
       </section>
