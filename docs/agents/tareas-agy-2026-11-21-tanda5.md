@@ -8,7 +8,7 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
 - Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
-  **T1**, **T2**, **T3** y **T4**. Hay una para cada agente y una de reserva, así
+  **T1**, **T2**, **T3**, **T4** y **T5**. Hay una para cada agente y una de reserva, así
   ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
@@ -298,5 +298,56 @@ exige subir de versión mayor.
 
 - El PR trae la tabla de `pnpm audit`, las capturas y la lista de cambios que obligó
   la migración.
+- La tarea del tablero queda en `done`.
+
+---
+
+## T5 — Nombre propio de Sales Cat sin una consulta al bridge por cada mensaje
+
+- **Tarea del tablero:** `sales-alias-sin-consulta-por-mensaje-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t5-alias`, rama `perf/sales-alias-cache`, desde
+  `origin/main`.
+- **Bloquea el despliegue del Worker** con Sales Cat fase 3 (PR #58).
+
+### Problema
+
+Lo detectó el coordinador al revisar el PR #58.
+
+- En `src/index.ts`, por **cada mensaje normal** de un contacto (sin comando, sin
+  botón, sin otra señal), el Worker toma la primera palabra con
+  `leadingAliasCandidate` («Hola», «Emite», «Cuánto»…).
+- Con esa palabra llama al bridge (`VpsSalesClient.resolveAlias`) para saber si es el
+  nombre propio de Sales Cat.
+- **Consecuencias:**
+  - casi todos los mensajes suman un viaje de ida y vuelta al VPS antes de
+    responder;
+  - si el bridge está lento o caído, **cada mensaje espera el timeout** del cliente.
+
+### Qué hacer
+
+- **Sin consulta en cada mensaje.** Elige una de estas opciones o una equivalente:
+  - guardar el nombre propio de la empresa del contacto en el estado que el Worker ya
+    carga en cada turno, por ejemplo junto al rol efectivo que resuelve el bridge;
+  - o una caché en D1 o en memoria con expiración corta (por ejemplo 5 minutos) que
+    se invalide cuando la dueña cambia el nombre.
+- **Si de todos modos hay que consultar,** que sea con un timeout corto (por ejemplo
+  800 ms) y sin bloquear: ante cualquier error, el mensaje sigue su ruteo normal.
+- **Pruebas:**
+  - un mensaje normal no llama al bridge cuando no hace falta;
+  - con el bridge caído, el mensaje se rutea igual y sin esperar;
+  - el nombre propio sigue funcionando («Michi, ¿cuánto vendimos?»);
+  - los comandos `/stock`, `/collections`, etc. no cambian.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/src/index.ts` (solo este ruteo),
+  `src/sales/cat-name.ts`, `src/sales/client.ts`, la respuesta del bridge que haga
+  falta y sus pruebas.
+
+### Terminado cuando
+
+- Pasan `npm test` del Worker (con la línea base vigente) y `npx tsc --noEmit`.
+- El PR explica la opción elegida y cuántas llamadas al bridge hace ahora un mensaje
+  normal.
 - La tarea del tablero queda en `done`.
 
