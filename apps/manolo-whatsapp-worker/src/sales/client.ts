@@ -15,6 +15,8 @@ import type {
   SummaryPeriod,
 } from "./bridge-contracts";
 
+export const SALES_ALIAS_TIMEOUT_MS = 800;
+
 export type SalesResult<T> = { ok: true; data: T } | { ok: false; code: string };
 
 /** What the Sales Cat role needs from the platform (ADR-0011). */
@@ -139,5 +141,30 @@ export class VpsSalesClient implements SalesClient {
 
   syncCreditDebts(companyId: string) {
     return this.call("sync_credit_debts", companyId, {}, (data) => ({ added: Number(data.added ?? 0) }));
+  }
+}
+
+/**
+ * Fetches the contact's Sales Cat custom names with a short non-blocking timeout so
+ * routing never stalls when the bridge is slow or unreachable.
+ */
+export async function fetchSalesAliasesWithTimeout(
+  client: Pick<SalesClient, "companies">,
+  timeoutMs = SALES_ALIAS_TIMEOUT_MS,
+): Promise<string[] | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const result = await Promise.race([
+      client.companies().catch(() => null),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+    if (!result || !result.ok) return null;
+    return result.data
+      .map((company) => company.catName?.trim().toLowerCase() ?? "")
+      .filter(Boolean);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
   }
 }

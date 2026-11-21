@@ -44,8 +44,14 @@ import { roleRegistry } from "./roles/registry";
 import { ENTERPRISE_ADVISOR_ROLE_KEY } from "./roles/enterprise-advisor-role";
 import { QUOTE_ROLE_KEY } from "./quotes/types";
 import { SALES_ROLE_KEY, SalesRoleHandler, isSalesCommand, parseSalesState } from "./roles/sales-role";
-import { leadingAliasCandidate } from "./sales/cat-name";
-import { VpsSalesClient } from "./sales/client";
+import {
+  SALES_ALIAS_CACHE_KEY,
+  leadingAliasCandidate,
+  matchesSalesAlias,
+  parseSalesAliasCache,
+  serializeSalesAliasCache,
+} from "./sales/cat-name";
+import { VpsSalesClient, fetchSalesAliasesWithTimeout } from "./sales/client";
 import { STOCK_ROLE_KEY, StockRoleHandler, isStockCommand, parseStockState, stockAlertsAfterInvoice } from "./roles/stock-role";
 import { VpsStockClient } from "./stock/client";
 import { COLLECTIONS_ROLE_KEY, CollectionsRoleHandler, isCollectionsCommand, parseCollectionsState } from "./roles/collections-role";
@@ -775,10 +781,17 @@ export async function processConversationTurn(
       if (!baseSalesSignal && !explicitOtherSignal && !activeMessage.interactionId && bridgeEnabled && bridgeClient && persisted.contactId !== null) {
         const aliasCandidate = leadingAliasCandidate(activeMessage.text);
         if (aliasCandidate) {
-          const aliasResult = await new VpsSalesClient(bridgeClient, tenant.tenantId, persisted.contactId, bridgeRequestId, logSafeEvent)
-            .resolveAlias(aliasCandidate)
-            .catch(() => null);
-          salesAliasMatch = Boolean(aliasResult?.ok && aliasResult.data);
+          let aliases = parseSalesAliasCache(
+            await roleState.get(tenant.tenantId, persisted.contactId, SALES_ALIAS_CACHE_KEY).catch(() => null),
+          );
+          if (aliases === null) {
+            const salesClient = new VpsSalesClient(bridgeClient, tenant.tenantId, persisted.contactId, bridgeRequestId, logSafeEvent);
+            aliases = await fetchSalesAliasesWithTimeout(salesClient);
+            if (aliases !== null) {
+              await roleState.set(tenant.tenantId, persisted.contactId, SALES_ALIAS_CACHE_KEY, serializeSalesAliasCache(aliases)).catch(() => false);
+            }
+          }
+          salesAliasMatch = aliases !== null && matchesSalesAlias(activeMessage.text, aliases);
         }
       }
       const salesSignal = baseSalesSignal || salesAliasMatch;
@@ -811,6 +824,9 @@ export async function processConversationTurn(
         for (const key of [STOCK_ROLE_KEY, SALES_ROLE_KEY, COLLECTIONS_ROLE_KEY, REORDER_ROLE_KEY, SUPPORT_ROLE_KEY].filter((roleKey) => roleKey !== opened)) {
           await roleState.clear(tenant.tenantId, persisted.contactId, key).catch(() => false);
         }
+      }
+      if (salesTurn && persisted.contactId !== null) {
+        await roleState.clear(tenant.tenantId, persisted.contactId, SALES_ALIAS_CACHE_KEY).catch(() => false);
       }
       const salesRole = new SalesRoleHandler((context) => bridgeClient
         ? new VpsSalesClient(bridgeClient, context.tenant.tenantId, context.persisted.contactId, bridgeRequestId, logSafeEvent)

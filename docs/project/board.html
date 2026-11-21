@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 77 · Total: 237</span>
+      <span class="summary">Abiertas: 76 · Total: 237</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">70</span>
+          <span class="count">69</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -517,17 +517,6 @@
           <p class="card-notes">Lo hace el operador (ADR-0018). Decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere D-U-N-S). Clave de subida fuera del repo con respaldo.</p>
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-0-cuentas-20261120</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato manolo hallado en la revisión del pr #58. index.ts llama a resolvealias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. bloquea desplegar el worker con sales cat fase 3. tanda 5, t5: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Sales Cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato</h3>
-          
-          <p class="card-notes">Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">sales-alias-sin-consulta-por-mensaje-20261121</code>
         </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo portal pedido del operador el 21/11: plan se ve soso; inspirarse en páginas de suscripción por módulos (hubspot, zoho one, alegra, siigo, treble). depende de t1 (#65). tanda 5, t6: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
           <div class="card-top">
@@ -1092,7 +1081,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">160</span>
+          <span class="count">161</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2194,6 +2183,17 @@
           <p class="card-notes">Reportado por el operador el 21/11: hay negocios informales o desconfiados que pueden usar Sales, Stock, Collections, Reorder, Support y Tender sin RUC. Requiere ADR, cambio en create del bridge, migración sin aplicar y nueva bienvenida. Tanda 5, T2. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-3</p>
           <code class="card-id">portal-alta-sin-ruc-20261121</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Manolo" data-text="sales cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato manolo hallado en la revisión del pr #58. index.ts llama a resolvealias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. bloquea desplegar el worker con sales cat fase 3. tanda 5, t5: docs/agents/tareas-agy-2026-11-21-tanda5.md. pr perf/sales-alias-cache: caché en d1 (sales:aliases, ttl 5 min, invalidada en salesturn) + consulta fallback con timeout de 800 ms no bloqueante (fetchsalesaliaseswithtimeout). verificado con tsc --noemit y npm test (incl. test/sales-alias-cache.test.ts).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Sales Cat: no consultar al bridge en cada mensaje para detectar el nombre propio del gato</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR perf/sales-alias-cache: caché en D1 (sales:aliases, TTL 5 min, invalidada en salesTurn) + consulta fallback con timeout de 800 ms no bloqueante (fetchSalesAliasesWithTimeout). Verificado con tsc --noEmit y npm test (incl. test/sales-alias-cache.test.ts).</p>
+          <p class="card-notes">Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
+          <code class="card-id">sales-alias-sin-consulta-por-mensaje-20261121</code>
         </article>
         <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. asignada en docs/agents/tareas-agy-2026-11-20.md. rama feat/marca-unica-20261120. landing (index.astro, agentesdetalle.astro), portal (agents.ts, companystep.tsx, invoicingpanel.tsx, etc.) y worker (cat-role.ts, enterprise-advisor-role.ts, enterprise-despatch.ts, sales-role.ts) actualizados. validado con git grep sin textos visibles; worker tsc --noemit + 4 archivos de roles (201 pruebas ok); portal vitest (12 archivos, 56 pruebas) + vite build ok; landing astro build (5 páginas) ok.">
           <div class="card-top">
