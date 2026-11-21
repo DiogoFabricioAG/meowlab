@@ -2479,6 +2479,17 @@
       "updated": "2026-11-21",
       "evidence": "",
       "notes": "Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "id": "portal-plan-pagina-de-venta-20261121",
+      "title": "Plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo",
+      "area": "Portal",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Pedido del operador el 21/11: Plan se ve soso; inspirarse en páginas de suscripción por módulos (HubSpot, Zoho One, Alegra, Siigo, Treble). Depende de T1 (#65). Tanda 5, T6: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     }
   ]
 }
