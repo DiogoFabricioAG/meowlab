@@ -1,14 +1,21 @@
 import type { RoleHandler, RoleHandlerContext, TenantContext } from "./contracts";
-import type { OrderSummary, ReorderSettings } from "../reorder/bridge-contracts";
+import type { OrderSummary, ParsedSupplierRow, ReorderSettings } from "../reorder/bridge-contracts";
 import type { ReorderAnswer, ReorderClient, ReorderOverview } from "../reorder/client";
 import { extractReorder, type ReorderExtraction } from "../reorder/extractor";
 import { SUPPLIER_TEMPLATE, openLine, orderCode, orderText, quantityText, soles, supplierTemplateParameters, type SupplierTemplateParameters } from "../reorder/messages";
 import type { StockClient } from "../stock/client";
+import { bytesToBase64, isSpreadsheet, MAX_SPREADSHEET_BYTES } from "../stock/spreadsheet-utils";
 import type { WhatsAppSendResult } from "../whatsapp/contracts";
 
 export const REORDER_ROLE_KEY = "reorder";
 /** While a Reorder Cat conversation is open, the next messages stay with it. */
 export const REORDER_SESSION_MS = 30 * 60_000;
+
+export type PendingSupplierImport = {
+  filename: string;
+  suppliers: ParsedSupplierRow[];
+  doubtful: string[];
+};
 
 export type ReorderState = {
   v: 1;
@@ -17,6 +24,8 @@ export type ReorderState = {
   companyName: string | null;
   /** The proposal whose quantities the owner is changing. */
   editing: string | null;
+  /** Suppliers parsed from an Excel/CSV waiting for yes/no confirmation. */
+  pendingSuppliers?: PendingSupplierImport | null;
 };
 
 /** Writes to someone who is not in this chat: the supplier, from MeowLab's number (ADR-0016, point 7). */
@@ -33,6 +42,7 @@ const HELP = [
   "• «Los polos estampados los hacemos nosotros»",
   "• «Mi presupuesto de compras es 3000 al mes»",
   "• «¿Qué está por llegar?» o «¿Cuánto compré este mes?»",
+  "• También puedes mandarme un Excel (.xlsx) o CSV con tus proveedores (nombre, teléfono, productos y días de entrega).",
   "Lo que llega lo registras en /stock y yo lo cruzo con el pedido.",
   "Escribe /salir para volver con Manolo.",
 ].join("\n");
@@ -122,7 +132,7 @@ export class ReorderRoleHandler implements RoleHandler {
       const companies = await client.companies();
       const chosen = companies.ok ? companies.data.find((company) => company.id === interaction.slice("reorder:company:".length)) : null;
       if (chosen) {
-        state = { ...state, companyId: chosen.id, companyName: chosen.name, editing: null };
+        state = { ...state, companyId: chosen.id, companyName: chosen.name, editing: null, pendingSuppliers: null };
         await save();
         await this.open(context, client, state);
         return;
@@ -150,7 +160,7 @@ export class ReorderRoleHandler implements RoleHandler {
         return;
       }
       const company = preferred ?? companies.data[0];
-      state = { ...state, companyId: company.id, companyName: company.name, editing: null };
+      state = { ...state, companyId: company.id, companyName: company.name, editing: null, pendingSuppliers: null };
     }
     const companyId = state.companyId!;
 
@@ -160,7 +170,22 @@ export class ReorderRoleHandler implements RoleHandler {
       return;
     }
 
+    if (context.document) {
+      await this.onDocument(context, client, state, companyId, save);
+      return;
+    }
+
     const message = text.replace(/^\/(reorder|reposici[oó]n|pedidos)\b/i, "").trim();
+    if (state.pendingSuppliers && /^(s[ií]|confirmar|confirmo|guardar|ok|dale)$/i.test(message)) {
+      await this.confirmSuppliers(context, client, state, companyId, save);
+      return;
+    }
+    if (state.pendingSuppliers && /^(no|cancelar|descartar)$/i.test(message)) {
+      state.pendingSuppliers = null;
+      await save();
+      await context.reply("Descartado. No guardé ningún proveedor. ¿Algo más? Escribe /salir para volver con Manolo.");
+      return;
+    }
     if (!message) {
       state.editing = null;
       await save();
@@ -264,9 +289,121 @@ export class ReorderRoleHandler implements RoleHandler {
       case "later":
         await context.reply("Listo, lo dejo por aprobar.");
         return;
+      case "suppliers":
+        if (orderId === "confirm") {
+          await this.confirmSuppliers(context, client, state, companyId, save);
+        } else {
+          state.pendingSuppliers = null;
+          await save();
+          await context.reply("Descartado. No guardé ningún proveedor. ¿Algo más?");
+        }
+        return;
       default:
         await this.open(context, client, state);
     }
+  }
+
+  private async onDocument(
+    context: RoleHandlerContext,
+    client: ReorderClient,
+    state: ReorderState,
+    companyId: string,
+    save: () => Promise<void>,
+  ) {
+    const doc = context.document!;
+    if (!isSpreadsheet(doc.filename, doc.mimeType)) {
+      await save();
+      await context.reply("Por ahora solo leo archivos Excel (.xlsx o .csv) con tus proveedores.");
+      return;
+    }
+    if (doc.bytes.byteLength > MAX_SPREADSHEET_BYTES) {
+      await save();
+      await context.reply("Ese archivo pesa más de 2 MB. Mándame uno más pequeño (máximo 2 MB y 500 filas).");
+      return;
+    }
+    if (!client.parseSuppliersSpreadsheet) {
+      await save();
+      await context.reply("No puedo leer archivos Excel en este momento. Inténtalo en unos minutos.");
+      return;
+    }
+    const parsed = await client.parseSuppliersSpreadsheet(companyId, {
+      filename: doc.filename,
+      mimeType: doc.mimeType,
+      dataBase64: bytesToBase64(doc.bytes),
+    });
+    if (!parsed.ok) {
+      await save();
+      const msg = parsed.code === "file_too_large"
+        ? "Ese archivo pesa más de 2 MB. Mándame uno más pequeño (máximo 2 MB y 500 filas)."
+        : parsed.code === "too_many_rows"
+          ? "Ese archivo tiene más de 500 filas. Divídelo en partes de hasta 500 proveedores."
+          : "No pude leer ese archivo. Verifica que sea .xlsx o .csv válido.";
+      await context.reply(msg);
+      return;
+    }
+    if (parsed.data.status === "empty") {
+      await save();
+      await context.reply("Ese archivo está vacío o no tiene proveedores.");
+      return;
+    }
+    if (parsed.data.status === "unknown_columns") {
+      await save();
+      const cols = parsed.data.headers.length ? parsed.data.headers.join(", ") : "sin encabezados";
+      await context.reply(`No reconocí las columnas de tu archivo (encontré: ${cols}). Necesito al menos «Nombre» y «Teléfono» (y opcionalmente «Productos» y «Días de entrega»).`);
+      return;
+    }
+    const { suppliers, doubtful } = parsed.data;
+    if (!suppliers.length) {
+      await save();
+      const lines = doubtful.slice(0, 10).map((line) => `• ${line}`);
+      if (doubtful.length > 10) lines.push(`…y ${doubtful.length - 10} más.`);
+      await context.reply(`No encontré proveedores válidos para guardar:\n${lines.join("\n")}`);
+      return;
+    }
+    state.pendingSuppliers = { filename: doc.filename, suppliers, doubtful };
+    await save();
+    const summary = formatSupplierImportSummary(state.pendingSuppliers);
+    const sent = await context.sendButtons?.(summary, [
+      { id: "reorder:suppliers:confirm", title: "Sí, guardar" },
+      { id: "reorder:suppliers:cancel", title: "No, cancelar" },
+    ]);
+    if (!sent || sent.status !== "sent") {
+      await context.reply(`${summary}\n\n¿Los guardo? Responde *sí* o *no*.`);
+    }
+  }
+
+  private async confirmSuppliers(
+    context: RoleHandlerContext,
+    client: ReorderClient,
+    state: ReorderState,
+    companyId: string,
+    save: () => Promise<void>,
+  ) {
+    const pending = state.pendingSuppliers;
+    if (!pending?.suppliers.length) {
+      await context.reply("No hay ninguna carga de proveedores pendiente. Mándame un archivo Excel (.xlsx o .csv).");
+      return;
+    }
+    if (!client.importSuppliers) {
+      await context.reply("No puedo guardar los proveedores en este momento. Inténtalo en unos minutos.");
+      return;
+    }
+    const result = await client.importSuppliers(companyId, pending.suppliers);
+    state.pendingSuppliers = null;
+    await save();
+    if (!result.ok) {
+      await context.reply(ERROR_TEXT[result.code] ?? "No pude guardar los proveedores. Inténtalo otra vez.");
+      return;
+    }
+    const { created, updated, linked, notFound } = result.data;
+    const parts: string[] = [];
+    if (created) parts.push(`${created} ${created === 1 ? "proveedor nuevo" : "proveedores nuevos"}`);
+    if (updated) parts.push(`${updated} ${updated === 1 ? "actualizado" : "actualizados"}`);
+    if (linked) parts.push(`${linked} ${linked === 1 ? "producto asignado" : "productos asignados"}`);
+    const lines = [`Listo: ${parts.length ? parts.join(", ") : "proveedores al día"}.`];
+    if (notFound.length) lines.push(`No encontré en el inventario: ${notFound.join(", ")}.`);
+    await context.reply(lines.join("\n"));
+    await this.afterRuleChange(context, client, companyId);
   }
 
   /**
@@ -473,6 +610,29 @@ export class ReorderRoleHandler implements RoleHandler {
     const overview = await client.overview(companyId);
     if (overview.ok && overview.data.created.length) await this.showProposals(context, { ...overview.data, proposals: overview.data.created });
   }
+}
+
+function formatSupplierImportSummary(pending: PendingSupplierImport): string {
+  const totalSuppliers = pending.suppliers.length;
+  const totalProducts = pending.suppliers.reduce((sum, supplier) => sum + supplier.items.length, 0);
+  const header = `Leí *${totalSuppliers} ${totalSuppliers === 1 ? "proveedor" : "proveedores"}, ${totalProducts} ${totalProducts === 1 ? "producto asignado" : "productos asignados"}* de ${pending.filename}:`;
+  const preview = pending.suppliers.slice(0, 10).map((supplier) => {
+    const items = supplier.items.length
+      ? `: ${supplier.items.slice(0, 5).join(", ")}${supplier.items.length > 5 ? ` (+${supplier.items.length - 5})` : ""}`
+      : "";
+    const delivery = supplier.deliveryDays ? ` — entrega: ${supplier.deliveryDays}` : "";
+    return `• ${supplier.name} (+${supplier.phone})${items}${delivery}`;
+  });
+  if (pending.suppliers.length > 10) {
+    preview.push(`…y ${pending.suppliers.length - 10} proveedores más.`);
+  }
+  const sections = [header, preview.join("\n")];
+  if (pending.doubtful.length) {
+    const doubtfulLines = pending.doubtful.slice(0, 8).map((line) => `• ${line}`);
+    if (pending.doubtful.length > 8) doubtfulLines.push(`…y ${pending.doubtful.length - 8} más.`);
+    sections.push(`⚠️ *Con dudas (no se guardarán):*\n${doubtfulLines.join("\n")}`);
+  }
+  return sections.join("\n\n");
 }
 
 /** Sent after Stock Cat's alert (ADR-0016, point 17), only when Reorder Cat is on for the company. */

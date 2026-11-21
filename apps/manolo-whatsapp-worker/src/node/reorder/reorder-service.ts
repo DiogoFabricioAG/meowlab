@@ -4,6 +4,7 @@ import type {
   OrderLine,
   OrderStatus,
   OrderSummary,
+  ParsedSupplierRow,
   ReorderBridgeRequest,
   ReorderBridgeResponse,
   ReorderQueryType,
@@ -13,6 +14,7 @@ import type {
 } from "../../reorder/bridge-contracts";
 import type { BridgeRequestIdentity, BridgeRequestStore } from "../bridge/request-store";
 import type { RoleLog } from "../../roles/contracts";
+import { parseSuppliersSpreadsheet, SpreadsheetError } from "./spreadsheet";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type Db = { query(sql: string, values?: readonly unknown[]): Promise<unknown> };
@@ -85,7 +87,7 @@ class ReorderError extends Error {
   }
 }
 
-const WRITES = new Set(["set_rule", "set_supplier", "approve", "mark_sent", "discard", "change_line", "settings", "notices_delivered", "supplier_reply"]);
+const WRITES = new Set(["set_rule", "set_supplier", "import_suppliers", "approve", "mark_sent", "discard", "change_line", "settings", "notices_delivered", "supplier_reply"]);
 const OPEN_STATUSES = ["proposed", "sent", "confirmed", "partial", "in_production"];
 const RECEIVING_STATUSES = ["sent", "confirmed", "partial", "in_production"];
 const LIMA_OFFSET_MS = 5 * 60 * 60 * 1000;
@@ -283,6 +285,10 @@ export class ReorderService {
         return this.orderPdf(companyId, String(payload.orderId));
       case "notices_delivered":
         return this.noticesDelivered(companyId, payload.ids as string[]);
+      case "parse_suppliers_spreadsheet":
+        return this.parseSuppliersSpreadsheet(companyId, payload);
+      case "import_suppliers":
+        return this.transaction((client) => this.importSuppliers(client, companyId, actor, payload));
       case "supplier_reply":
         throw new ReorderError("forbidden");
     }
@@ -479,6 +485,108 @@ export class ReorderService {
     await this.audit(client, companyId, actor, "set_supplier", { supplierId: supplier.id, phone: payload.phone !== undefined, linked: linked.length });
     const { rows } = await client.query("SELECT name, phone, ruc FROM purchasing.suppliers WHERE id = $1", [supplier.id]);
     return { supplier: { name: String(rows[0].name), phone: optional(rows[0].phone), ruc: optional(rows[0].ruc) }, linked, notFound };
+  }
+
+  private async parseSuppliersSpreadsheet(companyId: string, payload: Record<string, unknown>) {
+    const { rows } = await this.query(
+      "SELECT name FROM stock.items WHERE tenant_id = $1 AND active",
+      [companyId],
+    );
+    const knownItems = new Map<string, string>();
+    for (const row of rows) {
+      const name = String(row.name);
+      knownItems.set(name.toLowerCase(), name);
+    }
+    try {
+      return await parseSuppliersSpreadsheet({
+        filename: String(payload.filename),
+        mimeType: typeof payload.mimeType === "string" ? payload.mimeType : undefined,
+        dataBase64: String(payload.dataBase64),
+        knownItems,
+      });
+    } catch (error) {
+      if (error instanceof SpreadsheetError) throw new ReorderError(error.code, error.details);
+      throw error;
+    }
+  }
+
+  private async importSuppliers(
+    client: QueryClient,
+    companyId: string,
+    actor: { contactId: number | null; portalUserId: string | null },
+    payload: Record<string, unknown>,
+  ) {
+    const rows = payload.suppliers as ParsedSupplierRow[];
+    let created = 0;
+    let updated = 0;
+    let linked = 0;
+    const notFound: string[] = [];
+    const seenNotFound = new Set<string>();
+
+    for (const row of rows) {
+      const cleanName = row.name.trim().replace(/\s+/g, " ");
+      const byPhone = await client.query(
+        "SELECT id, name FROM purchasing.suppliers WHERE tenant_id = $1 AND phone = $2 LIMIT 1 FOR UPDATE",
+        [companyId, row.phone],
+      );
+      let supplierId: string;
+      if (byPhone.rows[0]) {
+        supplierId = String(byPhone.rows[0].id);
+        const nameConflict = await client.query(
+          "SELECT id FROM purchasing.suppliers WHERE tenant_id = $1 AND lower(name) = lower($2) AND id <> $3 LIMIT 1",
+          [companyId, cleanName, supplierId],
+        );
+        const nextName = nameConflict.rows[0] ? String(byPhone.rows[0].name) : cleanName;
+        await client.query(
+          `UPDATE purchasing.suppliers
+              SET name = $2, ruc = COALESCE(ruc, $3), active = TRUE, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1`,
+          [supplierId, nextName, row.ruc ?? null],
+        );
+        updated++;
+      } else {
+        const byOther = await client.query(
+          `SELECT id FROM purchasing.suppliers
+            WHERE tenant_id = $1 AND (($3::text IS NOT NULL AND ruc = $3) OR lower(name) = lower($2))
+            ORDER BY (ruc = $3) DESC NULLS LAST LIMIT 1 FOR UPDATE`,
+          [companyId, cleanName, row.ruc ?? null],
+        );
+        const upserted = await this.upsertSupplier(client, companyId, {
+          name: cleanName,
+          phone: row.phone,
+          ruc: row.ruc ?? null,
+        });
+        supplierId = upserted.id;
+        if (byOther.rows[0]) updated++;
+        else created++;
+      }
+
+      for (const itemName of row.items) {
+        const item = (await client.query(ITEM_SQL, [companyId, itemName.trim()])).rows[0];
+        if (!item) {
+          const key = itemName.toLowerCase();
+          if (!seenNotFound.has(key)) {
+            seenNotFound.add(key);
+            notFound.push(itemName);
+          }
+          continue;
+        }
+        await client.query(
+          `INSERT INTO purchasing.item_rules (item_id, tenant_id, supplier_id) VALUES ($1, $2, $3)
+           ON CONFLICT (item_id) DO UPDATE SET supplier_id = $3, updated_at = CURRENT_TIMESTAMP`,
+          [item.id, companyId, supplierId],
+        );
+        linked++;
+      }
+    }
+
+    await this.audit(client, companyId, actor, "import_suppliers", {
+      created,
+      updated,
+      linked,
+      withDeliveryDays: rows.filter((r) => Boolean(r.deliveryDays)).length,
+    });
+    return { created, updated, linked, notFound };
   }
 
   private async lockOrder(client: QueryClient, companyId: string, orderId: string) {

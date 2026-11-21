@@ -23,6 +23,8 @@ export const REORDER_OPERATIONS = [
   "supplier_match",
   "supplier_reply",
   "followups",
+  "parse_suppliers_spreadsheet",
+  "import_suppliers",
 ] as const;
 export type ReorderOperation = (typeof REORDER_OPERATIONS)[number];
 
@@ -78,6 +80,26 @@ export type OrderSummary = {
   supplierNote: string | null;
 };
 export type Notice = { id: string; kind: "supplier_reply" | "declined" | "escalated" | "received"; body: string; createdAt: string };
+
+export type ParsedSupplierRow = {
+  name: string;
+  phone: string;
+  ruc?: string | null;
+  deliveryDays?: string | null;
+  items: string[];
+};
+
+export type SuppliersSpreadsheetParseResult =
+  | { status: "parsed"; suppliers: ParsedSupplierRow[]; doubtful: string[] }
+  | { status: "unknown_columns"; headers: string[]; sampleRows: string[][] }
+  | { status: "empty" };
+
+export type ImportSuppliersResult = {
+  created: number;
+  updated: number;
+  linked: number;
+  notFound: string[];
+};
 
 /** What the supplier said, already read by the Worker's model (ADR-0016, point 9). */
 export type SupplierReply = {
@@ -157,6 +179,17 @@ export function isReorderPayload(operation: ReorderOperation, payload: Record<st
       return isPhone(payload.phone);
     case "supplier_reply":
       return uuid(payload.orderId) && isPhone(payload.phone) && isSupplierReply(payload.reply);
+    case "parse_suppliers_spreadsheet":
+      return text(payload.filename, 200) && optionalText(payload.mimeType, 200)
+        && typeof payload.dataBase64 === "string" && payload.dataBase64.length > 0 && payload.dataBase64.length <= 3_000_000;
+    case "import_suppliers":
+      return Array.isArray(payload.suppliers) && payload.suppliers.length >= 1 && payload.suppliers.length <= 500
+        && payload.suppliers.every((row) => record(row)
+          && text(row.name, 200)
+          && isPhone(row.phone)
+          && ruc(row.ruc)
+          && optionalText(row.deliveryDays, 100)
+          && Array.isArray(row.items) && row.items.length <= 200 && row.items.every((item) => text(item, 200)));
   }
 }
 
