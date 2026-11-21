@@ -1456,10 +1456,10 @@
       "area": "Ops",
       "owner": "AGY-2",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
-      "evidence": ""
+      "evidence": "PR https://github.com/DiogoFabricioAG/facturaya-ai/pull/5 (rama ops/caddyfile-vivo): docker/caddy/Caddyfile.vps sincronizado con {$DEBT_HUB_API_UPSTREAM}, docs/caddy-vivo-2026-11-20.md agregado y validado con caddy:2-alpine caddy validate (Valid configuration)."
     },
     {
       "id": "app-portal-google-oauth-20261111",
@@ -2215,10 +2215,10 @@
       "area": "Manolo",
       "owner": "AGY-2",
       "priority": "low",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
-      "evidence": ""
+      "evidence": "CollectionsService usa this.now() en remind(), companies(), overview(), apply() y decidePayment(); se quitó syncReminderTimestamp() de tools/collections-pg-check.ts; vitest (collections-service.test.ts + collections-role.test.ts: 14 passed), npx tsc --noEmit y collections-pg-check contra PostgreSQL 16 (all collections checks passed, exit 0)."
     }
   ]
 }
