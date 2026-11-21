@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">71</span>
+          <span class="count">70</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -870,17 +870,6 @@
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-3-play-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. tanda 5, t4: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6)</h3>
-          
-          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">landing-astro-7-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: activar el servicio de tender cuando el pago de suscripción llega al bridge tender portalentitlementservice ya registra el pago de tender y lo devuelve en skipped sin error. falta conectar el flujo de tender cat para habilitar el servicio de la empresa hasta active_until. ">
           <div class="card-top">
             <span class="badge area-other">Tender</span>
@@ -1018,7 +1007,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">6</span>
+          <span class="count">7</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
@@ -1086,6 +1075,17 @@
           <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3.</p>
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. tanda 5, t4: docs/agents/tareas-agy-2026-11-21-tanda5.md. bloqueo: @astrojs/tailwind 6.0.2 solo admite astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerdependencies. t4 exige detenerse si falta una integraci?n compatible. ">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6)</h3>
+          
+          <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md. Bloqueo: @astrojs/tailwind 6.0.2 solo admite Astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerDependencies. T4 exige detenerse si falta una integraci?n compatible.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T4</p>
+          <code class="card-id">landing-astro-7-20261120</code>
         </article>
         </div>
       </section>
