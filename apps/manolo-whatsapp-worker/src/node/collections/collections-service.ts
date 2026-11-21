@@ -175,10 +175,10 @@ export class CollectionsService {
          FROM whatsapp.tenant_members AS member
          JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
          JOIN receivables.settings AS settings ON settings.tenant_id = tenant.id AND settings.enabled
-              AND (settings.active_until IS NULL OR settings.active_until > CURRENT_TIMESTAMP)
+              AND (settings.active_until IS NULL OR settings.active_until > $2)
         WHERE member.contact_id = $1 AND member.status = 'active'
         ORDER BY tenant.name`,
-      [request.contact_id],
+      [request.contact_id, this.now()],
     );
     return rows.map((row) => ({ id: String(row.id), name: String(row.name) }));
   }
@@ -364,8 +364,8 @@ export class CollectionsService {
       };
     });
     if (escalate.length) {
-      await this.query("UPDATE receivables.debts SET escalated_at = CURRENT_TIMESTAMP WHERE tenant_id = $1 AND id = ANY($2::uuid[])",
-        [companyId, escalate]);
+      await this.query("UPDATE receivables.debts SET escalated_at = $3 WHERE tenant_id = $1 AND id = ANY($2::uuid[])",
+        [companyId, escalate, this.now()]);
     }
     return {
       settings,
@@ -494,15 +494,15 @@ export class CollectionsService {
       const balance = num(debt.balance_cents) - portion;
       if (payment.paymentId && !applied.length) {
         await client.query(
-          `UPDATE receivables.payments SET status = 'confirmed', amount_cents = $3, debt_id = $4, decided_by_contact_id = $5, decided_at = CURRENT_TIMESTAMP
-            WHERE tenant_id = $1 AND id = $2`, [companyId, payment.paymentId, portion, debt.id, payment.contactId]);
+          `UPDATE receivables.payments SET status = 'confirmed', amount_cents = $3, debt_id = $4, decided_by_contact_id = $5, decided_at = $6
+            WHERE tenant_id = $1 AND id = $2`, [companyId, payment.paymentId, portion, debt.id, payment.contactId, this.now()]);
       } else {
         await client.query(
           `INSERT INTO receivables.payments (id, tenant_id, debt_id, amount_cents, method, operation_number, paid_on, status, source_ref,
              reported_by_contact_id, decided_by_contact_id, decided_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed', $8, $9, $9, CURRENT_TIMESTAMP)`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed', $8, $9, $9, $10)`,
           [randomUUID(), companyId, debt.id, portion, payment.method, payment.operationNumber, payment.paidOn,
-            applied.length ? null : payment.sourceRef ?? null, payment.contactId]);
+            applied.length ? null : payment.sourceRef ?? null, payment.contactId, this.now()]);
       }
       await client.query(
         `UPDATE receivables.debts SET balance_cents = $3::bigint, status = CASE WHEN $3::bigint = 0 THEN 'paid' ELSE status END, updated_at = CURRENT_TIMESTAMP
@@ -559,8 +559,8 @@ export class CollectionsService {
     const customer = await client.query("SELECT name FROM commerce.customers WHERE id = $1", [payment.customer_id]);
     if (!approve) {
       await client.query(
-        "UPDATE receivables.payments SET status = 'rejected', decided_by_contact_id = $3, decided_at = CURRENT_TIMESTAMP WHERE tenant_id = $1 AND id = $2",
-        [companyId, paymentId, actor.contactId]);
+        "UPDATE receivables.payments SET status = 'rejected', decided_by_contact_id = $3, decided_at = $4 WHERE tenant_id = $1 AND id = $2",
+        [companyId, paymentId, actor.contactId, this.now()]);
       await this.audit(client, companyId, actor, "reject_payment", { paymentId });
       return { approved: false, customer: String(customer.rows[0]?.name ?? "") };
     }
@@ -595,13 +595,14 @@ export class CollectionsService {
     const settings = await this.settings(companyId, client);
     const today = this.today();
     const summary = this.summary({ ...debt, phone }, today);
+    const now = this.now();
     const tone = toneFor(summary.daysLate, summary.remindersSent, settings.maxReminders);
     await client.query(
-      `INSERT INTO receivables.reminders (id, tenant_id, debt_id, channel, tone, contact_id) VALUES ($1, $2, $3, 'prepared', $4, $5)`,
-      [randomUUID(), companyId, debt.id, tone, actor.contactId]);
+      `INSERT INTO receivables.reminders (id, tenant_id, debt_id, channel, tone, contact_id, created_at) VALUES ($1, $2, $3, 'prepared', $4, $5, $6)`,
+      [randomUUID(), companyId, debt.id, tone, actor.contactId, now]);
     await client.query(
-      `UPDATE receivables.debts SET reminders_sent = reminders_sent + 1, last_reminder_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-        WHERE tenant_id = $1 AND id = $2`, [companyId, debt.id]);
+      `UPDATE receivables.debts SET reminders_sent = reminders_sent + 1, last_reminder_at = $3, updated_at = $3
+        WHERE tenant_id = $1 AND id = $2`, [companyId, debt.id, now]);
     await this.audit(client, companyId, actor, "remind", { debtId: debt.id, tone });
     return {
       companyName,
@@ -610,7 +611,7 @@ export class CollectionsService {
       openDebts: debts.length,
       tone,
       lastReminder: summary.remindersSent + 1 >= settings.maxReminders,
-      outsideWindow: !insideWindow(this.now(), settings),
+      outsideWindow: !insideWindow(now, settings),
       payment: { yapePhone: settings.yapePhone, plinPhone: settings.plinPhone, bankText: settings.bankText, paymentLink: settings.paymentLink },
     };
   }

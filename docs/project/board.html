@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 85 · Total: 211</span>
+      <span class="summary">Abiertas: 83 · Total: 211</span>
     </div>
   </div>
 </header>
@@ -1048,7 +1048,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">11</span>
+          <span class="count">9</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1106,17 +1106,6 @@
           <p class="card-meta">Actualizado: 2026-11-11</p>
           <code class="card-id">wrangler-config-drift-20261106</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Ops" data-text="versionar el caddyfile real del vps ops /opt/facturaya-ai/docker/caddy/caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-ops">Ops</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Versionar el Caddyfile real del VPS</h3>
-          
-          <p class="card-notes">/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">vps-caddyfile-drift-20261111</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cobros" data-text="collections cat: cobro por whatsapp cobros fase 4 del adr-0007. collections cat es el mismo agente vendible y meowlab su primer cliente: cobra por qr de yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en adr-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3. ">
           <div class="card-top">
             <span class="badge area-other">Cobros</span>
@@ -1161,23 +1150,12 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
           <code class="card-id">landing-fuentes-woff2-20261113</code>
         </article>
-        <article class="card" data-priority="low" data-area="Manolo" data-text="collections: remind() guarda current_timestamp en vez del reloj inyectado manolo collectionsservice.remind() escribe last_reminder_at y reminders.created_at con current_timestamp de postgresql e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncremindertimestamp(); al corregir el servicio, quitar ese parche. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Manolo</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado</h3>
-          
-          <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
-          <code class="card-id">collections-remind-clock-20261120</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">126</span>
+          <span class="count">128</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2368,6 +2346,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">app-portal-4-pantallas-20261111</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Ops" data-text="versionar el caddyfile real del vps ops /opt/facturaya-ai/docker/caddy/caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. asignada en docs/agents/tareas-agy-2026-11-20.md. pr https://github.com/diogofabricioag/facturaya-ai/pull/5 (rama ops/caddyfile-vivo): docker/caddy/caddyfile.vps sincronizado con {$debt_hub_api_upstream}, docs/caddy-vivo-2026-11-20.md agregado y validado con caddy:2-alpine caddy validate (valid configuration).">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Versionar el Caddyfile real del VPS</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR https://github.com/DiogoFabricioAG/facturaya-ai/pull/5 (rama ops/caddyfile-vivo): docker/caddy/Caddyfile.vps sincronizado con {$DEBT_HUB_API_UPSTREAM}, docs/caddy-vivo-2026-11-20.md agregado y validado con caddy:2-alpine caddy validate (Valid configuration).</p>
+          <p class="card-notes">/opt/facturaya-ai/docker/caddy/Caddyfile (vivo, con debt-hub y radar) difiere de docker/caddy/Caddyfile.vps del repo facturaya-ai, y /opt/facturaya-ai no es un repo git. Llevar la versión viva a git antes de cambiar el bloque app.meowlab.tech. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">vps-caddyfile-drift-20261111</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Plataforma" data-text="retirar los roles de finanzas del catálogo de postgresql plataforma la migración 007 existía y nunca se había aplicado: finance, finance-cat y finance-player-cat seguían asignables y un contacto activo tenía finance-cat. 007 aplicada (hash igual a git): 3 roles inactivos, 1 contacto sin rol, home-finance con cat por defecto. acta: docs/operations/manolo-onboarding-y-roles-2026-11-12.md">
           <div class="card-top">
             <span class="badge area-platform">Plataforma</span>
@@ -2510,6 +2499,17 @@
           <p class="card-notes">El 2026-11-15 falla «Rosita is due for a reminder…» sin cambios en Collections (pasó el 14/11). Buscar el uso de la fecha real (CURRENT_DATE o created_at) y fijarla con el reloj de la prueba.</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY</p>
           <code class="card-id">collections-pg-check-date-20261115</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Manolo" data-text="collections: remind() guarda current_timestamp en vez del reloj inyectado manolo collectionsservice.remind() escribe last_reminder_at y reminders.created_at con current_timestamp de postgresql e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncremindertimestamp(); al corregir el servicio, quitar ese parche. asignada en docs/agents/tareas-agy-2026-11-20.md. collectionsservice usa this.now() en remind(), companies(), overview(), apply() y decidepayment(); se quitó syncremindertimestamp() de tools/collections-pg-check.ts; vitest (collections-service.test.ts + collections-role.test.ts: 14 passed), npx tsc --noemit y collections-pg-check contra postgresql 16 (all collections checks passed, exit 0).">
+          <div class="card-top">
+            <span class="badge area-other">Manolo</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Collections: remind() guarda CURRENT_TIMESTAMP en vez del reloj inyectado</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> CollectionsService usa this.now() en remind(), companies(), overview(), apply() y decidePayment(); se quitó syncReminderTimestamp() de tools/collections-pg-check.ts; vitest (collections-service.test.ts + collections-role.test.ts: 14 passed), npx tsc --noEmit y collections-pg-check contra PostgreSQL 16 (all collections checks passed, exit 0).</p>
+          <p class="card-notes">CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-2</p>
+          <code class="card-id">collections-remind-clock-20261120</code>
         </article>
         <article class="card" data-priority="" data-area="" data-text="estructurar resumen whatsapp en bloques breves y corregir negritas undefined  activo 35d4c8bb; 271 pruebas, typecheck, 61 aisladas, dry-run y salud. docs/apps/radar-conversation.md">
           <div class="card-top">

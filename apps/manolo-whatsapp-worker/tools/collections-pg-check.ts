@@ -102,36 +102,11 @@ check("a rejected capture does not count", (await pool.query("SELECT sum(balance
 check("who decided is logged", (await pool.query("SELECT action, contact_id::int FROM receivables.audit_log WHERE action LIKE '%_payment' ORDER BY created_at")).rows
   .map((row) => `${row.action}:${row.contact_id}`), ["record_payment:2", "approve_payment:1", "reject_payment:2"]);
 
-// CollectionsService.remind() currently writes CURRENT_TIMESTAMP in SQL instead of this.now().
-// Sync the recorded reminder timestamp to the simulated clock so overview() stays deterministic.
-async function syncReminderTimestamp(at: Date, customer: string) {
-  const iso = at.toISOString();
-  await pool.query(
-    `UPDATE receivables.debts
-        SET last_reminder_at = $1, updated_at = $1
-      WHERE tenant_id = 'org_jd'
-        AND customer_id IN (SELECT id FROM commerce.customers WHERE tenant_id = 'org_jd' AND name = $2)
-        AND last_reminder_at IS NOT NULL`,
-    [iso, customer],
-  );
-  await pool.query(
-    `UPDATE receivables.reminders
-        SET created_at = $1
-      WHERE debt_id IN (
-        SELECT d.id FROM receivables.debts d
-        JOIN commerce.customers c ON c.id = d.customer_id
-        WHERE d.tenant_id = 'org_jd' AND c.name = $2
-      )`,
-    [iso, customer],
-  );
-}
-
 // Reminders.
 check("without a phone there is no reminder", (await call(2, "add_debt", { customer: "Bodega Rosita", amountCents: 35000, dueOn: "2026-11-15" }),
   (await call(2, "remind", { customer: "Bodega Rosita" })).error), { code: "no_phone", details: { customer: "Bodega Rosita" } });
 await call(2, "set_customer", { customer: "Bodega Rosita", phone: "51944555666" });
 result = await call(2, "remind", { customer: "Bodega Rosita" });
-await syncReminderTimestamp(now, "Bodega Rosita");
 check("a reminder before the due date is friendly and carries the payment options",
   { tone: result.data.tone, phone: result.data.debt.phone, company: result.data.companyName, yape: result.data.payment.yapePhone, outside: result.data.outsideWindow },
   { tone: "friendly", phone: "51944555666", company: "CREACIONES J&D", yape: null, outside: false });
@@ -149,7 +124,6 @@ check("Rosita is due for a reminder after its due date; Juan, who asked not to b
   { remind: result.data.toRemind.map((d: any) => d.customer), owner: result.data.escalated.map((d: any) => d.customer) },
   { remind: ["Bodega Rosita"], owner: [] });
 await call(2, "remind", { customer: "Bodega Rosita" });
-await syncReminderTimestamp(now, "Bodega Rosita");
 now = new Date("2026-11-28T15:00:00Z");
 result = await call(2, "overview");
 check("after its last reminder and a week without paying, Rosita goes to the owner too",
