@@ -262,6 +262,7 @@ export function isPortalCompanyRequest(value: unknown): value is PortalCompanyRe
         && (value.name === undefined || (typeof value.name === "string" && value.name.length <= 160));
     case "team":
     case "weekly":
+    case "activity":
     case "stock_view":
     case "collections_view":
     case "reorder_view":

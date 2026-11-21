@@ -60,4 +60,14 @@ describe("Inicio: how each cat is doing", () => {
     expect(agentPulse("stock", weekly)).toBe("quiet");
     expect(agentPulse("invoice", null)).toBe("quiet");
   });
+
+  it("shows a Tender Cat ISO deadline as a readable Lima date, not the raw timestamp", () => {
+    const items = attentionItems({ ...quiet, tender: { enabled: true, found: 1, foundToday: 1, interesting: 1, highlights: [
+      { description: "Cemento Portland", displayTitle: null, buyer: "MUNICIPALIDAD DE CANAYRE", deadline: "2026-11-27T04:59:00.000Z", amount: null, interesting: true, sourceUrl: null },
+    ] } } as never);
+    const text = items.find((item) => item.agent === "tender")?.text ?? "";
+    expect(text).not.toContain("T04:59");
+    expect(text).toMatch(/^MUNICIPALIDAD DE CANAYRE · cierra \S/);
+  });
 });
+
