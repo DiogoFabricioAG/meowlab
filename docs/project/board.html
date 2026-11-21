@@ -694,28 +694,6 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-org-3-invoice-sol-20261113</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transferir la propiedad y salir de una empresa portal adr-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. tanda 6, t11 (ops 4), junto con portal-org-vincular-despues-20261113. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: transferir la propiedad y salir de una empresa</h3>
-          
-          <p class="card-notes">ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. Tanda 6, T11 (OPS 4), junto con portal-org-vincular-despues-20261113.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-org-transferir-20261113</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: dar acceso a los agentes cuando el miembro vincula su whatsapp después de unirse portal hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. tanda 6, t11 (ops 4). ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse</h3>
-          
-          <p class="card-notes">Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. Tanda 6, T11 (OPS 4).</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-org-vincular-despues-20261113</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="asignar dueño en el portal a las empresas creadas por el operador (p. ej. creaciones j&amp;d) portal creaciones j&amp;d ya tiene dueño (cuenta admin del portal, 13/11/2026; acta portal-invitaciones-2026-11-13). faltan kromata, home finance y manolo si llegan a necesitar invitaciones. ">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -974,7 +952,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">7</span>
+          <span class="count">9</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="búsqueda automática y alternativas de precio en tender cat portal publicado en producción desde el commit privado 19df5ac88224. el portal y el servicio están saludables, el proceso registró una búsqueda en curso y las 14 imágenes se verificaron por https. pendiente la aceptación con un pdf nuevo por whatsapp. pruebas de servicio con ingreso de bases por whatsapp simulado. pruebas locales con postgresql, proveedor simulado y chrome para confirmar referencias, precio guardado y subtotal.">
@@ -1042,6 +1020,28 @@
           <p class="card-notes">Fase 4 del ADR-0007. Collections Cat es el mismo agente vendible y MeowLab su primer cliente: cobra por QR de Yape o capturas, registra pendientes y concilia; la acreditación la aprueba un administrador. Diseño: docs/decisions/0007-cobros-mercado-pago-y-yape.md 2026-11-14: diseño en ADR-0015; la fase 1 está desplegada (docs/operations/collections-cat-2026-11-14.md); faltan las fases 2 y 3.</p>
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: transferir la propiedad y salir de una empresa portal adr-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. tanda 6, t11 (ops 4), junto con portal-org-vincular-despues-20261113. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: transferir la propiedad y salir de una empresa</h3>
+          
+          <p class="card-notes">ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. Tanda 6, T11 (OPS 4), junto con portal-org-vincular-despues-20261113.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T11</p>
+          <code class="card-id">portal-org-transferir-20261113</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: dar acceso a los agentes cuando el miembro vincula su whatsapp después de unirse portal hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. tanda 6, t11 (ops 4). ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: dar acceso a los agentes cuando el miembro vincula su WhatsApp después de unirse</h3>
+          
+          <p class="card-notes">Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. Tanda 6, T11 (OPS 4).</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: Codex T11</p>
+          <code class="card-id">portal-org-vincular-despues-20261113</code>
         </article>
         <article class="card" data-priority="medium" data-area="Landing" data-text="landing: evaluar subir astro 5 a 7 (vulnerabilidad crítica de astro &lt;=7.4.6) landing detectado por npm audit en la tanda 2 (pr #41). es un salto mayor; la landing es estática, pero hay que medir el impacto. tanda 5, t4: docs/agents/tareas-agy-2026-11-21-tanda5.md. bloqueo: @astrojs/tailwind 6.0.2 solo admite astro 3, 4 y 5 seg?n pnpm view @astrojs/tailwind@latest peerdependencies. t4 exige detenerse si falta una integraci?n compatible. ">
           <div class="card-top">
