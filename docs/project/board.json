@@ -1863,10 +1863,10 @@
       "area": "Landing",
       "owner": "AGY-3",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "El gate de taste-skill sólo mide 1440 y 390. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
-      "evidence": ""
+      "evidence": "Corregido en src/styles/home.css: hero crece con min-height:100svh bajo 1024px y max-height:760px; #gatos mantiene teléfono a 340px en 860-1023px y apila con etapa sticky bajo 860px; pill del compositor ajustado. Verificado sin scroll horizontal ni recortes en 360, 390, 768, 820, 912, 1024, 1280@90% y 1440px; capturas antes/después en 768 y 1024px."
     },
     {
       "id": "landing-fuentes-woff2-20261113",
@@ -1874,10 +1874,10 @@
       "area": "Landing",
       "owner": "AGY-3",
       "priority": "low",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "WARN de perf.mjs. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
-      "evidence": ""
+      "evidence": "4 fuentes subconjuntadas (latín + español + lnum/tnum) a WOFF2 en public/fonts/: Blinker Regular 73000->18872 B, SemiBold 80044->20900 B, Bold 74312->19408 B, Actor Regular 62752->21184 B (284.1 KiB -> 79.2 KiB). Actualizados src/styles/fonts.css y src/layouts/LandingLayout.astro. perf.mjs: PASS font bytes 79.2 KiB."
     },
     {
       "id": "landing-libro-reclamaciones-20261113",
