@@ -35,8 +35,10 @@ UPDATE billing_agents
        description = 'Lleva tus cuentas por cobrar, recuerda a tus clientes y valida pagos.'
  WHERE key = 'collections';
 
+-- Tender Cat queda en el catálogo pero no a la venta: el pago todavía no lo activa
+-- (tarea tender-activacion-suscripcion-20261120). Se habilita en la migración de esa tarea.
 INSERT INTO billing_agents (key, name, role_key, description, price_cents, available, sort) VALUES
-  ('tender', 'Tender Cat', 'radar', 'Te avisa de licitaciones del Estado que encajan con tu negocio y te ayuda a preparar tu oferta.', 3500, true, 7)
+  ('tender', 'Tender Cat', 'radar', 'Te avisa de licitaciones del Estado que encajan con tu negocio y te ayuda a preparar tu oferta.', 3500, false, 7)
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   role_key = EXCLUDED.role_key,
