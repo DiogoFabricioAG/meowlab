@@ -42,17 +42,36 @@ function fakeClient(overrides: Partial<StockClient> = {}): StockClient & Record<
     query: vi.fn(async () => ({ ok: true as const, data: { items: [{ name: "Polo blanco M", kind: "product" as const, onHand: 4, minQty: 5, low: true, needsCount: false }] } })),
     syncDocuments: vi.fn(async () => ({ ok: true as const, data: { processed: 0, alerts: [], unmatched: [], available: true } })),
     linkAlias: vi.fn(async () => ({ ok: true as const, data: { item: { name: "Taza personalizada", onHand: 9 }, applied: 1, alerts: [] } })),
+    parseSpreadsheet: vi.fn(async () => ({
+      ok: true as const,
+      data: {
+        status: "parsed" as const,
+        lines: [
+          { name: "Polo blanco M", quantity: 30, unitCostCents: 1200 },
+          { name: "Polera negra L", quantity: 10, unitCostCents: 3500, minQty: 4 },
+        ],
+        skippedRows: 0,
+      },
+    })),
     ...overrides,
   } as StockClient & Record<string, ReturnType<typeof vi.fn>>;
 }
 
 function scriptedAi(...answers: Array<Record<string, unknown>>): AiProvider {
   const base = { intent: "other", items: [], minQty: -1, queryType: "none", itemName: "", period: "none", allowNegative: "none",
-    alias: { description: "", name: "" }, reply: "" };
+    alias: { description: "", name: "" }, supplier: { name: "", ruc: "" }, invoiceNumber: "", illegible: [], reply: "" };
   return { complete: vi.fn(async () => JSON.stringify({ ...base, ...answers.shift() })) } as unknown as AiProvider;
 }
 
-function run(options: { text?: string; interactionId?: string | null; client: StockClient; ai?: AiProvider | null; state: RoleStateRepository }) {
+function run(options: {
+  text?: string;
+  interactionId?: string | null;
+  client: StockClient;
+  ai?: AiProvider | null;
+  state: RoleStateRepository;
+  document?: RoleHandlerContext["document"];
+  hasVisualContext?: boolean;
+}) {
   const calls = {
     reply: vi.fn(async (_text: string) => undefined),
     sendButtons: vi.fn(async (_body: string, _buttons: Array<{ id: string; title: string }>) => ({ status: "sent" as const, metaMessageId: "b" })),
@@ -60,12 +79,20 @@ function run(options: { text?: string; interactionId?: string | null; client: St
     sendDocument: vi.fn(async () => ({ status: "sent" as const, metaMessageId: "d" })),
   };
   const context = {
-    message: { id: "wamid.1", interactionId: options.interactionId ?? null, phoneNumberId: "pn", to: "51911111111", inputType: "text",
-      text: options.text ?? options.interactionId ?? "" },
+    message: {
+      id: "wamid.1",
+      interactionId: options.interactionId ?? null,
+      phoneNumberId: "pn",
+      to: "51911111111",
+      inputType: options.document ? "document" : options.hasVisualContext ? "image" : "text",
+      text: options.text ?? options.interactionId ?? "",
+      hasVisualContext: options.hasVisualContext,
+    },
     tenant,
     persisted: { duplicate: false, conversationId: "c", contactId: 1 },
     env: {} as unknown as Env,
     ai: options.ai ?? null,
+    document: options.document ?? null,
     roleState: options.state,
     history: [],
     ...calls,
@@ -114,10 +141,10 @@ describe("Stock Cat in the chat", () => {
     await first.promise;
     expect(client.move).not.toHaveBeenCalled();
     expect(first.calls.sendButtons).toHaveBeenCalledWith("*Entrada*\n• 50 × Polo blanco M a S/ 12.00 c/u",
-      [{ id: "stock:confirm", title: "Guardar" }, { id: "stock:cancel", title: "Cancelar" }]);
+      [{ id: "stock:confirm", title: "Guardar" }, { id: "stock:edit", title: "Corregir" }, { id: "stock:cancel", title: "Cancelar" }]);
     const confirm = run({ interactionId: "stock:confirm", client, state });
     await confirm.promise;
-    expect(client.move).toHaveBeenCalledWith("org_jd", "in", [{ name: "Polo blanco M", quantity: 50, unitCostCents: 1200, kind: "product" }], null, null);
+    expect(client.move).toHaveBeenCalledWith("org_jd", "in", [{ name: "Polo blanco M", quantity: 50, unitCostCents: 1200, kind: "product" }], null, null, null);
     expect(confirm.calls.reply.mock.calls[0][0]).toContain("⚠️ *Se está acabando:*");
   });
 
@@ -162,5 +189,77 @@ describe("Stock Cat in the chat", () => {
     expect(await stockAlertsAfterInvoice(low)).toContain("Polo blanco M: quedan 4 (mínimo 5)");
     const none = fakeClient({ companies: vi.fn(async () => ({ ok: true as const, data: [] })) });
     expect(await stockAlertsAfterInvoice(none)).toBeNull();
+  });
+
+  it("loads Excel/CSV with confirmation and cancellation without saving beforehand", async () => {
+    const state = memoryState();
+    const client = fakeClient();
+    const doc = { filename: "inventario.csv", mimeType: "text/csv", bytes: new TextEncoder().encode("Producto,Cantidad\nPolo,10") };
+    const first = run({ client, state, document: doc });
+    await first.promise;
+    expect(client.move).not.toHaveBeenCalled();
+    expect(first.calls.sendButtons).toHaveBeenCalledWith(
+      expect.stringContaining("Polera negra L a S/ 35.00 c/u · mín 4 (nuevo)"),
+      [{ id: "stock:confirm", title: "Guardar" }, { id: "stock:edit", title: "Corregir" }, { id: "stock:cancel", title: "Cancelar" }],
+    );
+
+    const edit = run({ interactionId: "stock:edit", client, state });
+    await edit.promise;
+    expect(edit.calls.reply).toHaveBeenCalledWith(expect.stringContaining("¿Qué quieres corregir?"));
+    expect(client.move).not.toHaveBeenCalled();
+
+    const cancel = run({ interactionId: "stock:cancel", client, state });
+    await cancel.promise;
+    expect(client.move).not.toHaveBeenCalled();
+    expect(cancel.calls.reply).toHaveBeenCalledWith("Descartado. ¿Algo más?");
+  });
+
+  it("rejects spreadsheets larger than 2 MB before calling the bridge", async () => {
+    const state = memoryState();
+    const client = fakeClient();
+    const big = new Uint8Array(2 * 1024 * 1024 + 1);
+    const res = run({ client, state, document: { filename: "grande.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes: big } });
+    await res.promise;
+    expect(client.parseSpreadsheet).not.toHaveBeenCalled();
+    expect(res.calls.reply).toHaveBeenCalledWith(expect.stringContaining("más de 2 MB"));
+  });
+
+  it("marks illegible items from a photo without inventing quantities", async () => {
+    const state = memoryState();
+    const client = fakeClient();
+    const ai = scriptedAi({
+      intent: "in",
+      items: [{ name: "Polo blanco M", quantity: 12, unitCost: 10, kind: "product" }],
+      illegible: ["línea 2: cantidad borrosa"],
+    });
+    const res = run({ text: "Foto de cuaderno: Polo blanco M 12, línea 2 borrosa", hasVisualContext: true, client, ai, state });
+    await res.promise;
+    expect(client.move).not.toHaveBeenCalled();
+    expect(res.calls.sendButtons).toHaveBeenCalledWith(
+      expect.stringContaining("⚠️ No pude leer bien: línea 2: cantidad borrosa"),
+      expect.any(Array),
+    );
+  });
+
+  it("reports duplicate supplier invoices clearly and clears pending", async () => {
+    const state = memoryState();
+    const client = fakeClient({
+      move: vi.fn(async () => ({
+        ok: false as const,
+        code: "duplicate_supplier_invoice",
+        details: { supplier: "Textiles Lima S.A.C.", documentNumber: "F002-881" },
+      })),
+    });
+    const ai = scriptedAi({
+      intent: "in",
+      items: [{ name: "Tela jersey", quantity: 20, unitCost: 180, kind: "supply" }],
+      supplier: { name: "Textiles Lima S.A.C.", ruc: "20512345678" },
+      invoiceNumber: "F002-881",
+    });
+    await run({ text: "Foto factura F002-881 Textiles Lima", hasVisualContext: true, client, ai, state }).promise;
+    const confirm = run({ interactionId: "stock:confirm", client, state });
+    await confirm.promise;
+    expect(confirm.calls.reply).toHaveBeenCalledWith(expect.stringContaining("F002-881"));
+    expect(confirm.calls.reply).toHaveBeenCalledWith(expect.stringContaining("ya estaba registrada"));
   });
 });

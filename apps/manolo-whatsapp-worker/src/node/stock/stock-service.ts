@@ -12,6 +12,7 @@ import type {
 } from "../../stock/bridge-contracts";
 import type { BridgeRequestIdentity, BridgeRequestStore } from "../bridge/request-store";
 import type { RoleLog } from "../../roles/contracts";
+import { parseStockSpreadsheet, SpreadsheetError } from "./spreadsheet";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type Db = { query(sql: string, values?: readonly unknown[]): Promise<unknown> };
@@ -190,7 +191,8 @@ export class StockService {
       case "move":
         return this.transaction((client) => this.move(client, companyId, contactId, payload.kind as MoveKind,
           payload.lines as StockLineInput[], (payload.note as string | null | undefined) ?? null,
-          (payload.supplier as { name: string; ruc?: string | null } | undefined) ?? null));
+          (payload.supplier as { name: string; ruc?: string | null } | undefined) ?? null,
+          (payload.documentNumber as string | null | undefined) ?? null));
       case "set_min": {
         if (!owner) throw new StockError("owner_only");
         const { rows } = await this.query(
@@ -216,6 +218,17 @@ export class StockService {
         return this.syncDocuments(companyId);
       case "link_alias":
         return this.transaction((client) => this.linkAlias(client, companyId, contactId, String(payload.description), String(payload.name)));
+      case "parse_spreadsheet":
+        try {
+          return await parseStockSpreadsheet({
+            filename: String(payload.filename),
+            mimeType: typeof payload.mimeType === "string" ? payload.mimeType : undefined,
+            dataBase64: String(payload.dataBase64),
+          });
+        } catch (error) {
+          if (error instanceof SpreadsheetError) throw new StockError(error.code, error.details);
+          throw error;
+        }
     }
   }
 
@@ -270,7 +283,8 @@ export class StockService {
 
   /** One move on one item: updates the balance and the weighted average cost. */
   private async apply(db: Db, companyId: string, item: Record<string, unknown>, kind: string, delta: number,
-    unitCostCents: number | null, contactId: number | null, documentNumber: string | null, note: string | null) {
+    unitCostCents: number | null, contactId: number | null, documentNumber: string | null, note: string | null,
+    supplier: { name: string; ruc?: string | null } | null = null) {
     const before = num(item.on_hand);
     const after = qty(before + delta);
     let avg = item.avg_cost_cents === null || item.avg_cost_cents === undefined ? null : num(item.avg_cost_cents);
@@ -287,9 +301,10 @@ export class StockService {
       [item.id, after, avg, outward, kind], db,
     );
     await this.query(
-      `INSERT INTO stock.moves (id, tenant_id, item_id, kind, delta, balance_after, unit_cost_cents, document_number, note, contact_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [randomUUID(), companyId, item.id, kind, qty(delta), after, kind === "in" ? unitCostCents ?? null : null, documentNumber, note, contactId], db,
+      `INSERT INTO stock.moves (id, tenant_id, item_id, kind, delta, balance_after, unit_cost_cents, document_number, note, contact_id, supplier_name, supplier_ruc)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      [randomUUID(), companyId, item.id, kind, qty(delta), after, kind === "in" ? unitCostCents ?? null : null,
+        documentNumber, note, contactId, supplier?.name ?? null, supplier?.ruc ?? null], db,
     );
     item.on_hand = after;
     item.avg_cost_cents = avg;
@@ -297,19 +312,35 @@ export class StockService {
   }
 
   private async move(client: QueryClient, companyId: string, contactId: number, kind: MoveKind, lines: StockLineInput[], note: string | null,
-    supplier: { name: string; ruc?: string | null } | null = null) {
+    supplier: { name: string; ruc?: string | null } | null = null, documentNumber: string | null = null) {
+    const cleanDoc = documentNumber?.trim().replace(/\s+/g, " ").toUpperCase() || null;
+    if (kind === "in" && supplier && cleanDoc) {
+      const supplierKey = (supplier.ruc?.trim() || supplier.name.trim().replace(/\s+/g, " ").toLowerCase()).slice(0, 200);
+      const claimed = await this.query(
+        `INSERT INTO stock.supplier_invoices (tenant_id, supplier_key, document_number, supplier_name, supplier_ruc, contact_id)
+         VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING RETURNING document_number`,
+        [companyId, supplierKey, cleanDoc, supplier.name.trim().slice(0, 200), supplier.ruc ?? null, contactId], client,
+      );
+      if (!claimed.rows.length) {
+        throw new StockError("duplicate_supplier_invoice", { supplier: supplier.name, documentNumber: cleanDoc });
+      }
+    }
     const { allowNegative } = await this.settingsIn(client, companyId);
     const results: Array<{ name: string; onHand: number; delta: number }> = [];
     const entries: Array<{ itemId: string; name: string; quantity: number; unitCostCents: number | null }> = [];
     for (const line of lines) {
       const item = await this.resolve(client, companyId, line.name, kind === "out" ? null : { kind: line.kind ?? "product", contactId });
       if (!item) throw new StockError("not_found", { name: line.name });
+      if (line.minQty !== undefined && line.minQty !== null && kind !== "out") {
+        await this.query("UPDATE stock.items SET min_qty = $2, below_min_alerted = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+          [item.id, line.minQty], client);
+      }
       const current = num(item.on_hand);
       const delta = kind === "in" ? line.quantity : kind === "out" ? -line.quantity : qty(line.quantity - current);
       if (kind === "out" && !allowNegative && current - line.quantity < 0) {
         throw new StockError("insufficient", { name: String(item.name), onHand: current });
       }
-      const after = await this.apply(client, companyId, item, kind, delta, line.unitCostCents ?? null, contactId, null, note);
+      const after = await this.apply(client, companyId, item, kind, delta, line.unitCostCents ?? null, contactId, cleanDoc, note, supplier);
       results.push({ name: String(item.name), onHand: after, delta: qty(delta) });
       if (kind === "in") entries.push({ itemId: String(item.id), name: String(item.name), quantity: line.quantity, unitCostCents: line.unitCostCents ?? null });
     }

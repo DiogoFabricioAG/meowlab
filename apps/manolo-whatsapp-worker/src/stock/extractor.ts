@@ -17,6 +17,10 @@ export type StockExtraction = {
   alias: { description: string; name: string } | null;
   /** Who sold it, when the entry comes from a purchase invoice (ADR-0016, point 3). */
   supplier: { name: string; ruc: string | null } | null;
+  /** Supplier invoice number (e.g. F001-248) for idempotency. */
+  invoiceNumber: string | null;
+  /** Lines from a photo that could not be read reliably (never guessed). */
+  illegible: string[];
   reply: string;
 };
 
@@ -24,7 +28,7 @@ export type StockExtraction = {
 const SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["intent", "items", "minQty", "queryType", "itemName", "period", "allowNegative", "alias", "supplier", "reply"],
+  required: ["intent", "items", "minQty", "queryType", "itemName", "period", "allowNegative", "alias", "supplier", "invoiceNumber", "illegible", "reply"],
   properties: {
     intent: { type: "string", enum: [...STOCK_INTENTS] },
     items: {
@@ -58,6 +62,8 @@ const SCHEMA = {
       required: ["name", "ruc"],
       properties: { name: { type: "string" }, ruc: { type: "string" } },
     },
+    invoiceNumber: { type: "string" },
+    illegible: { type: "array", items: { type: "string" } },
     reply: { type: "string" },
   },
 };
@@ -78,7 +84,9 @@ Reglas:
 - "unitCost": costo por unidad en soles si lo dice (si da un total, divide entre la cantidad); -1 si no lo dice. Nunca inventes costos.
 - "kind": "supply" si es insumo o materia prima (papel, tinta, vinil, tela, hilo), "product" si es algo que se vende, "none" si no está claro.
 - "supplier": sólo en "in" cuando el mensaje es una factura o boleta de compra (o lo dice): "name" es la razón social del emisor (el que vende) y "ruc" sus 11 dígitos. Nunca uses los datos del cliente (la empresa que compra). Vacíos si no aparecen.
-- Usa "-1", "none" o "" para todo lo que no aplique.
+- "invoiceNumber": serie y número de la factura/boleta del proveedor (ej. "F001-248"), o "" si no aparece.
+- "illegible": si el mensaje viene de una foto (cuaderno, lista impresa o factura) y hay líneas o números ilegibles/borrosos, anótalos aquí (ej. "línea 3: cantidad borrosa"). Nunca inventes datos ilegibles ni los metas en "items".
+- Usa "-1", "none", [] o "" para todo lo que no aplique.
 - "reply": una frase corta en español peruano, de tú: lo que falta o la respuesta a "help"/"other". Sin inventar datos.`;
 
 function clean(value: unknown): StockExtraction | null {
@@ -112,6 +120,11 @@ function clean(value: unknown): StockExtraction | null {
     supplier: intent === "in" && supplier && string(supplier.name, 200)
       ? { name: string(supplier.name, 200)!, ruc: typeof supplier.ruc === "string" && /^[0-9]{11}$/.test(supplier.ruc.trim()) ? supplier.ruc.trim() : null }
       : null,
+    invoiceNumber: intent === "in" ? string(raw.invoiceNumber, 64) : null,
+    illegible: (Array.isArray(raw.illegible) ? raw.illegible : [])
+      .slice(0, 20)
+      .map((entry) => string(entry, 200))
+      .filter((entry): entry is string => Boolean(entry)),
     reply: string(raw.reply, 600) ?? "",
   };
 }

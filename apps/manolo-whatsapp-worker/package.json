@@ -30,6 +30,7 @@
     "wrangler": "^4.166.0"
   },
   "dependencies": {
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "read-excel-file": "^9.3.20"
   }
 }
