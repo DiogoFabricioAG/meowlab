@@ -55,10 +55,37 @@ export function leadingAliasCandidate(text: string): string | null {
   return match ? match[1] : null;
 }
 
+export const SALES_ALIAS_CACHE_KEY = "sales:aliases";
+export const SALES_ALIAS_CACHE_TTL_MS = 5 * 60_000;
+
 /** Strips a matched custom cat name from the beginning of a chat message. */
 export function stripCatAlias(text: string, catName: string | null): string {
   const trimmed = text.trim();
   if (!catName) return trimmed;
   const escaped = catName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return trimmed.replace(new RegExp(`^${escaped}(?:[\\s,.:;!?]+|$)`, "i"), "").trim();
+}
+
+export function parseSalesAliasCache(json: string | null, now = Date.now()): string[] | null {
+  if (!json) return null;
+  try {
+    const parsed = JSON.parse(json) as { v?: unknown; expiresAt?: unknown; aliases?: unknown };
+    if (parsed?.v !== 1 || typeof parsed.expiresAt !== "number" || parsed.expiresAt <= now || !Array.isArray(parsed.aliases)) {
+      return null;
+    }
+    return parsed.aliases.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  } catch {
+    return null;
+  }
+}
+
+export function serializeSalesAliasCache(aliases: readonly string[], now = Date.now()): string {
+  const unique = [...new Set(aliases.map((a) => a.trim().toLowerCase()).filter(Boolean))];
+  return JSON.stringify({ v: 1, expiresAt: now + SALES_ALIAS_CACHE_TTL_MS, aliases: unique });
+}
+
+export function matchesSalesAlias(text: string, aliases: readonly string[]): boolean {
+  const candidate = leadingAliasCandidate(text)?.toLowerCase();
+  if (!candidate || !aliases.length) return false;
+  return aliases.some((alias) => alias.trim().toLowerCase() === candidate);
 }
