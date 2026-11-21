@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchJson, postJson, type Membership } from "./auth-client";
+import { PageHeader } from "./PageHeader";
 
 type Agent = { key: string; name: string; description: string; priceCents: number; available: boolean };
 type Discount = { minAgents: number; percent: number };
@@ -72,7 +73,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
     // Never a dead end: the heading and the way forward stay even without payments.
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Tu plan</h1>
+        <PageHeader eyebrow={company.name} title="Tu plan" />
         <p className="max-w-[60ch] rounded-2xl bg-surface-subtle px-5 py-4 text-ink-2">
           Los pagos en línea no están disponibles en este momento. Para sumar un agente a tu chat, escríbele a MeowLab por WhatsApp
           y el equipo de MeowLab lo activa contigo.
@@ -125,12 +126,11 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
 
   return (
     <div className="space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Plan de {company.name}</h1>
-        <p className="text-ink-muted">
-          Cada empresa paga por los agentes que usa. Precios mensuales con IGV incluido.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={company.name}
+        title={`Plan de ${company.name}`}
+        subtitle="Cada empresa paga por los agentes que usa. Precios mensuales con IGV incluido."
+      />
 
       {!billing.canManage && (
         <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-2">

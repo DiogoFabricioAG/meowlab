@@ -1,6 +1,7 @@
 import type { Membership } from "./auth-client";
 import { AGENTS, agentLogo, agentState, monthlyPrice, type AgentState, type CatalogAgent, type Weekly } from "./agents";
 import { Icon } from "./icons";
+import { PageHeader } from "./PageHeader";
 
 const BADGE: Record<AgentState["kind"], { text: string; tone: string }> = {
   active: { text: "Activo", tone: "border-emerald-200 bg-emerald-50 text-emerald-800" },
@@ -24,14 +25,15 @@ export function AgentsPage({ company, weekly, catalog, go }: {
   const active = cards.filter((card) => card.state.kind === "active").length;
   return (
     <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Tus agentes</h1>
-        <p className="max-w-[62ch] text-lg text-ink-muted">
-          {active
+      <PageHeader
+        eyebrow={company.name}
+        title="Tus agentes"
+        subtitle={
+          active
             ? `${active === 1 ? "Un agente trabaja" : `${active} agentes trabajan`} para ${company.name} dentro de tu chat con MeowLab.`
-            : `Todavía ningún agente trabaja para ${company.name}. Todos se activan dentro de tu chat con MeowLab.`}
-        </p>
-      </header>
+            : `Todavía ningún agente trabaja para ${company.name}. Todos se activan dentro de tu chat con MeowLab.`
+        }
+      />
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => {
           const state = card.state;
@@ -87,23 +89,16 @@ export function TenderPanel({ weekly, onBack }: { weekly: Weekly | null; onBack:
   const tenders = weekly?.tender.highlights ?? [];
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("tender")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Tender Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          {weekly
+      <PageHeader
+        onBack={onBack}
+        agent="tender"
+        title="Tender Cat"
+        subtitle={
+          weekly
             ? `Esta semana encontró ${weekly.tender.found} ${weekly.tender.found === 1 ? "licitación" : "licitaciones"}; tu equipo marcó ${weekly.tender.interesting} como interesantes.`
-            : "Revisando las licitaciones de la semana…"}
-        </p>
-      </header>
+            : "Revisando las licitaciones de la semana…"
+        }
+      />
       {weekly && tenders.length === 0 && (
         <p className="rounded-2xl bg-surface-subtle px-5 py-4 text-ink-muted">
           Esta semana no hubo licitaciones para tu negocio. Tender Cat te escribe por WhatsApp apenas aparezca una.

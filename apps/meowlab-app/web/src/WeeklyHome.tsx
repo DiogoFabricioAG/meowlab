@@ -3,6 +3,7 @@ import { AGENTS, agentLogo, agentState, type CatalogAgent, type Weekly } from ".
 import { agentPulse, attentionItems, PULSE_LABEL, type AgentPulse, type AttentionItem } from "./attention";
 import { HomeActivity } from "./HomeActivity";
 import { Icon } from "./icons";
+import { PageHeader } from "./PageHeader";
 
 const soles = (value: number) =>
   `S/ ${value.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -89,14 +90,18 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-sm font-semibold text-forest">{weekly ? longDay(weekly.today) : "Hoy"}</p>
-          <h1 className="text-3xl tracking-tight text-ink sm:text-4xl">{greeting()}{firstName ? `, ${firstName}` : ""}</h1>
-          <p className="text-ink-muted">Lo que hicieron tus agentes para {company.name}.</p>
-        </div>
-        {weekly && <p className="text-sm text-ink-muted">Semana del {weekly.week.start.slice(8, 10)}/{weekly.week.start.slice(5, 7)} al {weekly.week.end.slice(8, 10)}/{weekly.week.end.slice(5, 7)}</p>}
-      </header>
+      <PageHeader
+        eyebrow={weekly ? longDay(weekly.today) : "Hoy"}
+        title={`${greeting()}${firstName ? `, ${firstName}` : ""}`}
+        subtitle={`Lo que hicieron tus agentes para ${company.name}.`}
+        actions={
+          weekly ? (
+            <p className="text-sm text-ink-muted">
+              Semana del {weekly.week.start.slice(8, 10)}/{weekly.week.start.slice(5, 7)} al {weekly.week.end.slice(8, 10)}/{weekly.week.end.slice(5, 7)}
+            </p>
+          ) : undefined
+        }
+      />
 
       {!weekly && !failed && (
         <div className="space-y-4" aria-busy="true" aria-label="Cargando">

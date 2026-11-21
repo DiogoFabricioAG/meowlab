@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchJson } from "./auth-client";
+import { PageHeader } from "./PageHeader";
 
 type AdminMetrics = {
   generatedAt: string;
@@ -49,13 +50,15 @@ export function AdminPanel() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Negocio</h1>
-        <p className="text-ink-muted">
-          Cuentas del portal. Solo totales, sin datos personales · Actualizado el{" "}
-          {new Date(metrics.generatedAt).toLocaleString("es-PE", { dateStyle: "medium", timeStyle: "short" })}
-        </p>
-      </div>
+      <PageHeader
+        title="Negocio"
+        subtitle={
+          <>
+            Cuentas del portal. Solo totales, sin datos personales · Actualizado el{" "}
+            {new Date(metrics.generatedAt).toLocaleString("es-PE", { dateStyle: "medium", timeStyle: "short" })}
+          </>
+        }
+      />
 
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((tile) => (

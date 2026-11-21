@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
-import { agentLogo } from "./agents";
+import { PageHeader } from "./PageHeader";
 
 type Settings = { monthlyBudgetCents: number | null; followupHours: number; escalateHours: number };
 type Order = {
@@ -91,26 +91,19 @@ export function ReorderPanel({ company, onBack }: { company: Membership; onBack:
 
   return (
     <div className="space-y-6">
-      <button type="button" onClick={onBack}
-        className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-forest underline-offset-4 hover:underline">
-        <span aria-hidden="true">←</span> Tus agentes
-      </button>
-      <header className="space-y-1">
-        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-ink">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-mint">
-            <img src={agentLogo("reorder")} alt="" width={40} height={40} className="h-10 w-10 mix-blend-multiply" decoding="async" />
-          </span>
-          Reorder Cat
-        </h1>
-        <p className="text-lg text-ink-muted">
-          {state === "loading" ? "Revisando tus pedidos…"
+      <PageHeader
+        onBack={onBack}
+        agent="reorder"
+        title="Reorder Cat"
+        subtitle={
+          state === "loading" ? "Revisando tus pedidos…"
             : state === "error" ? "No pudimos cargar tus pedidos. Inténtalo otra vez en unos minutos."
             : !view?.enabled ? "Reorder Cat no está activo para esta empresa."
             : view.proposals.length ? `${view.proposals.length} ${view.proposals.length === 1 ? "pedido por aprobar" : "pedidos por aprobar"}.`
             : view.open.length ? `${view.open.length} ${view.open.length === 1 ? "pedido en curso" : "pedidos en curso"}.`
-            : "Nada que pedir por ahora."}
-        </p>
-      </header>
+            : "Nada que pedir por ahora."
+        }
+      />
 
       {view?.enabled && (
         <>
