@@ -29,6 +29,27 @@ describe("pricing (informe ejecutivo 2027-2029)", () => {
     expect(quote(catalog.map((a) => a.key), [...catalog.slice(0, 5), all], discounts).totalCents).toBe(17280);
   });
 
+  it("prices the full 7-cat catalog (including tender at S/ 35) with 20% discount from 5 agents", () => {
+    const fullCatalog: CatalogAgent[] = [
+      ...catalog.slice(0, 5),
+      { ...catalog[5], available: true },
+      { key: "tender", name: "Tender Cat", description: "", priceCents: 3500, available: true },
+    ];
+    expect(fullCatalog).toHaveLength(7);
+    expect(fullCatalog.every((a) => a.available)).toBe(true);
+    // 39 + 59 + 29 + 25 + 39 + 25 + 35 = 251.00 PEN -> 20% discount = 200.80 PEN (20080 cents)
+    const seven = quote(fullCatalog.map((a) => a.key), fullCatalog, discounts);
+    expect(seven.discountPercent).toBe(20);
+    expect(seven.subtotalCents).toBe(25100);
+    expect(seven.totalCents).toBe(20080);
+
+    // 5 agents -> 20% discount
+    const five = quote(["invoice", "sales", "stock", "reorder", "tender"], fullCatalog, discounts);
+    expect(five.discountPercent).toBe(20);
+    expect(five.subtotalCents).toBe(18700);
+    expect(five.totalCents).toBe(14960);
+  });
+
   it("uses the highest tier reached and rejects bad selections", () => {
     expect(discountFor(4, discounts)).toBe(15);
     expect(discountFor(6, discounts)).toBe(20);

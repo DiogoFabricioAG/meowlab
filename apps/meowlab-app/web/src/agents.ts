@@ -142,7 +142,7 @@ export function agentState(key: AgentKey, company: Membership, weekly: Weekly | 
   if (key === "invoice") {
     return company.invoicing === "active"
       ? { kind: "active", today: todayLine("invoice", weekly) }
-      : { kind: "setup", step: "Falta conectar tu clave SOL de SUNAT. Escríbele a MeowLab y lo conectamos contigo." };
+      : { kind: "setup", step: "Después del pago, conecta tu clave SOL de SUNAT. Escríbele a MeowLab y lo conectamos contigo." };
   }
   if (key === "tender") {
     if (weekly?.tender.enabled) return { kind: "active", today: todayLine("tender", weekly) };
