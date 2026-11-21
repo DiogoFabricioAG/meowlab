@@ -66,7 +66,7 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
   if (key === "invoice") {
     const invoicing = weekly.invoicing;
     if (!invoicing) return "Todavía no está conectado a SUNAT.";
-    if (invoicing.status === "unavailable") return "No pudimos consultar FacturaYa. Vuelve a intentarlo en unos minutos.";
+    if (invoicing.status === "unavailable") return "No pudimos consultar la facturación de MeowLab. Vuelve a intentarlo en unos minutos.";
     const today = invoicing.today;
     if (!today.documents) return "Hoy no emitió comprobantes.";
     const rejected = today.rejected ? `, ${plural(today.rejected, "rechazado", "rechazados")} por SUNAT` : "";
@@ -121,7 +121,7 @@ export function agentState(key: AgentKey, company: Membership, weekly: Weekly | 
   if (key === "invoice") {
     return company.invoicing === "active"
       ? { kind: "active", today: todayLine("invoice", weekly) }
-      : { kind: "setup", step: "Falta conectar tu clave SOL de SUNAT. Escríbele a Manolo y lo conectamos contigo." };
+      : { kind: "setup", step: "Falta conectar tu clave SOL de SUNAT. Escríbele a MeowLab y lo conectamos contigo." };
   }
   if (key === "tender") {
     if (weekly?.tender.enabled) return { kind: "active", today: todayLine("tender", weekly) };

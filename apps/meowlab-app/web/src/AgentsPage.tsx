@@ -28,8 +28,8 @@ export function AgentsPage({ company, weekly, catalog, go }: {
         <h1 className="text-3xl font-bold tracking-tight text-ink">Tus agentes</h1>
         <p className="max-w-[62ch] text-lg text-ink-muted">
           {active
-            ? `${active === 1 ? "Un agente trabaja" : `${active} agentes trabajan`} para ${company.name} dentro de tu chat con Manolo.`
-            : `Todavía ningún agente trabaja para ${company.name}. Todos se activan dentro de tu chat con Manolo.`}
+            ? `${active === 1 ? "Un agente trabaja" : `${active} agentes trabajan`} para ${company.name} dentro de tu chat con MeowLab.`
+            : `Todavía ningún agente trabaja para ${company.name}. Todos se activan dentro de tu chat con MeowLab.`}
         </p>
       </header>
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -57,7 +57,7 @@ export function AgentsPage({ company, weekly, catalog, go }: {
                   <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">{state.today}</p>
                 )}
                 {state.kind === "setup" && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{state.step}</p>}
-                {state.kind === "ask" && <p className="text-sm text-ink-2">Pídeselo a Manolo por WhatsApp y lo activamos en tu chat.</p>}
+                {state.kind === "ask" && <p className="text-sm text-ink-2">Pídelo por WhatsApp en tu chat de MeowLab y lo activamos.</p>}
                 {(state.kind === "available" || state.kind === "soon") && monthlyPrice(state.priceCents) && (
                   <p className="text-sm font-semibold text-ink-2">{monthlyPrice(state.priceCents)}</p>
                 )}
@@ -130,7 +130,7 @@ export function TenderPanel({ weekly, onBack }: { weekly: Weekly | null; onBack:
           ))}
         </ul>
       )}
-      <p className="text-sm text-ink-muted">Para marcar una licitación como interesante, respóndele a Tender Cat en el chat de Manolo.</p>
+      <p className="text-sm text-ink-muted">Para marcar una licitación como interesante, respóndele a Tender Cat en el chat de MeowLab.</p>
     </div>
   );
 }

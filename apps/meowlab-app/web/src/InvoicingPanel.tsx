@@ -199,7 +199,7 @@ function Documents({ tenantId }: { tenantId: string }) {
       </div>
 
       {result === null && <div className="h-40 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />}
-      {result === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar FacturaYa. Inténtalo en unos minutos.</p>}
+      {result === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar la facturación de MeowLab. Inténtalo en unos minutos.</p>}
       {result && result !== "error" && (
         result.data.length === 0
           ? (
@@ -311,7 +311,7 @@ function Summary({ tenantId }: { tenantId: string }) {
         </select>
       </label>
       {months === null && <div className="h-40 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />}
-      {months === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar FacturaYa. Inténtalo en unos minutos.</p>}
+      {months === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar la facturación de MeowLab. Inténtalo en unos minutos.</p>}
       {months && months !== "error" && totals && (
         <>
           <dl className="grid gap-4 sm:grid-cols-3">
@@ -402,7 +402,7 @@ function Guides({ tenantId }: { tenantId: string }) {
   }, [tenantId, page]);
 
   if (result === null) return <div className="mt-2 h-40 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando" />;
-  if (result === "error") return <p className="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar FacturaYa. Inténtalo en unos minutos.</p>;
+  if (result === "error") return <p className="mt-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">No pudimos consultar la facturación de MeowLab. Inténtalo en unos minutos.</p>;
   if (!result.data.length) {
     return <p className="mt-2 rounded-2xl bg-surface-subtle px-5 py-4 text-ink-muted">Todavía no hay guías de remisión. Pídele una a Invoice Cat cuando despaches mercadería.</p>;
   }
