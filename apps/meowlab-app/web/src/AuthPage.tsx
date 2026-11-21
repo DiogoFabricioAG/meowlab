@@ -73,7 +73,7 @@ export function AuthPage({ config, invited = false }: { config: PortalConfig; in
           </ul>
         </div>
         <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-mint">
-          <span>¿Dudas? Escríbenos a MeowLab desde tu WhatsApp.</span>
+          <span>¿Dudas? Escríbenos por WhatsApp.</span>
           <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/terminos">Términos</a>
           <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/privacidad">Privacidad</a>
         </p>
