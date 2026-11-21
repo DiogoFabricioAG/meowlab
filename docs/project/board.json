@@ -21,9 +21,20 @@
       "area": "Producto",
       "owner": "AGY-1",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
       "notes": "Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
+      "evidence": "Rama feat/marca-unica-20261120. Landing (index.astro, AgentesDetalle.astro), portal (agents.ts, CompanyStep.tsx, InvoicingPanel.tsx, etc.) y Worker (cat-role.ts, enterprise-advisor-role.ts, enterprise-despatch.ts, sales-role.ts) actualizados. Validado con git grep sin textos visibles; Worker tsc --noEmit + 4 archivos de roles (201 pruebas OK); portal vitest (12 archivos, 56 pruebas) + vite build OK; landing astro build (5 páginas) OK."
+    },
+    {
+      "id": "facturaya-ai-marca-meowlab-20261120",
+      "title": "facturaya-ai: reemplazar «FacturaYa AI» por MeowLab / Invoice Cat en vistas web",
+      "area": "Facturación",
+      "owner": "",
+      "priority": "low",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "notes": "Detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas Blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «FacturaYa AI» en títulos, encabezados y pies de página.",
       "evidence": ""
     },
     {
@@ -197,10 +208,10 @@
       "area": "Portal",
       "owner": "AGY-1",
       "priority": "low",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "notes": "apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
-      "evidence": ""
+      "notes": "apps/meowlab-app/web/src/WeeklyHome.tsx ya estaba limpio en main; se actualizaron todas las referencias restantes a Manolo en apps/meowlab-app/web/src/ (AgentsPage.tsx, AuthPage.tsx, CollectionsPanel.tsx, CompanyStep.tsx, PlanPanel.tsx, StockPanel.tsx, WhatsAppLink.tsx y agents.ts).",
+      "evidence": "git grep sobre apps/meowlab-app/web/src sin textos visibles con Manolo; vitest (12 archivos, 56 pruebas) y vite build (80 módulos) OK."
     },
     {
       "id": "landing-meowlab-caso-uso-20261116",

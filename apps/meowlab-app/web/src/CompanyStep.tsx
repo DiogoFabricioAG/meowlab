@@ -226,11 +226,11 @@ export function CompanyCards({ companies, openTeamFor = null }: { companies: Mem
               </span>
             </div>
             {company.invoicing === "active" ? (
-              <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">Invoice Cat activo con FacturaYa.</p>
+              <p className="rounded-xl bg-mint-light px-4 py-3 text-sm text-ink-2">Invoice Cat activo.</p>
             ) : (
               <p className="rounded-xl bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
                 Invoice Cat todavía no está conectado a SUNAT para esta empresa: falta registrar tu clave SOL (el usuario y clave con
-                los que entras a SUNAT Operaciones en Línea). Escríbele a Manolo por WhatsApp y lo conectamos contigo.
+                los que entras a SUNAT Operaciones en Línea). Escríbele a MeowLab por WhatsApp y lo conectamos contigo.
               </p>
             )}
             {company.role === "owner" && (

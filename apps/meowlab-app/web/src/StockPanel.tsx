@@ -152,7 +152,7 @@ export function StockPanel({ company, onBack }: { company: Membership; onBack: (
 
           <p className="text-sm text-ink-muted">
             Las facturas y boletas que emites con Invoice Cat descuentan el stock solas. Para registrar compras, salidas o conteos,
-            escríbele /stock a Manolo.{view.owner ? ` Regla de negativos: ${view.allowNegative ? "se permiten y te aviso" : "no se permiten salidas sin stock"}.` : ""}
+            escríbele /stock a MeowLab.{view.owner ? ` Regla de negativos: ${view.allowNegative ? "se permiten y te aviso" : "no se permiten salidas sin stock"}.` : ""}
           </p>
         </>
       )}

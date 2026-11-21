@@ -406,7 +406,7 @@ describe("POST /webhooks/whatsapp", () => {
     });
     expect(groqBody.messages[0]).toMatchObject({ role: "system" });
     expect(groqBody.messages[0].content).toContain("gato");
-    expect(groqBody.messages[0].content).toContain("Manolo");
+    expect(groqBody.messages[0].content).toContain("gato anfitrión de MeowLab");
     expect(groqBody.messages[1]).toEqual({
       role: "user",
       content: "hello from test",

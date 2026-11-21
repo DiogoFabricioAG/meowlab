@@ -74,7 +74,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
       <div className="space-y-4">
         <h1 className="text-3xl font-bold tracking-tight text-ink">Tu plan</h1>
         <p className="max-w-[60ch] rounded-2xl bg-surface-subtle px-5 py-4 text-ink-2">
-          Los pagos en línea no están disponibles en este momento. Para sumar un agente a tu chat, escríbele a Manolo por WhatsApp
+          Los pagos en línea no están disponibles en este momento. Para sumar un agente a tu chat, escríbele a MeowLab por WhatsApp
           y el equipo de MeowLab lo activa contigo.
         </p>
       </div>

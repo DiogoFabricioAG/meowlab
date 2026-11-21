@@ -14,7 +14,7 @@ type LinkResponse =
 type Step = { kind: "phone" } | { kind: "code"; challengeId: string; maskedPhone: string; resendAt: number };
 
 const STEPS = [
-  { n: "1", text: "Escribe el número con el que hablas con Manolo." },
+  { n: "1", text: "Escribe el número con el que hablas con MeowLab." },
   { n: "2", text: "Te llega un código de 6 dígitos por WhatsApp." },
   { n: "3", text: "Lo pegas aquí y se abren tus datos." },
 ];
@@ -102,7 +102,7 @@ export function WhatsAppLink({ whatsapp, onChange }: { whatsapp: Me["whatsapp"];
             Vincula tu WhatsApp
           </h2>
           <p className="text-ink-2">
-            Tus datos están asociados al número con el que hablas con Manolo. Te enviaremos un código a ese WhatsApp para
+            Tus datos están asociados al número con el que hablas con MeowLab. Te enviaremos un código a ese WhatsApp para
             confirmar que es tuyo.
           </p>
         </div>
@@ -144,7 +144,7 @@ export function WhatsAppLink({ whatsapp, onChange }: { whatsapp: Me["whatsapp"];
         ) : (
           <form onSubmit={verify} className="space-y-4">
             <p className="text-ink-2">
-              Si <strong className="font-semibold text-ink">{step.maskedPhone}</strong> habla con Manolo, te llegó un
+              Si <strong className="font-semibold text-ink">{step.maskedPhone}</strong> habla con MeowLab, te llegó un
               código por WhatsApp. Vence en 10 minutos.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">

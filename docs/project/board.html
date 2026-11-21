@@ -196,6 +196,7 @@
           <option value="Docs">Docs</option>
           <option value="Documentación">Documentación</option>
           <option value="FacturaYa">FacturaYa</option>
+          <option value="Facturación">Facturación</option>
           <option value="IA">IA</option>
           <option value="Landing">Landing</option>
           <option value="Manolo">Manolo</option>
@@ -217,7 +218,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 83 · Total: 211</span>
+      <span class="summary">Abiertas: 82 · Total: 212</span>
     </div>
   </div>
 </header>
@@ -226,7 +227,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">74</span>
+          <span class="count">75</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
@@ -922,6 +923,17 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-2-20261115</code>
         </article>
+        <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. ">
+          <div class="card-top">
+            <span class="badge area-other">Facturación</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">facturaya-ai: reemplazar «FacturaYa AI» por MeowLab / Invoice Cat en vistas web</h3>
+          
+          <p class="card-notes">Detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas Blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «FacturaYa AI» en títulos, encabezados y pies de página.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">facturaya-ai-marca-meowlab-20261120</code>
+        </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>
@@ -1048,7 +1060,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">9</span>
+          <span class="count">7</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1084,17 +1096,6 @@
           <p class="card-meta">Actualizado: 2026-11-12</p>
           <code class="card-id">manolo-kapso-20261112</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Producto</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios</h3>
-          
-          <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
-          <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Cloudflare" data-text="reconciliar wrangler.jsonc con producción y aislar d1/r2 de desarrollo cloudflare repo: whatsapp_burst_enabled=false y cron */5; producción: true y solo */15. el entorno por defecto usa la d1 y el r2 de producción. un npm run deploy hoy cambiaría producción sin probar. 2026-11-11: env.production igualado con producción (ráfagas true, sin cron */5, radar_presence_enabled=false). falta aislar la d1 y el r2 del entorno de desarrollo. ">
           <div class="card-top">
             <span class="badge area-cloud">Cloudflare</span>
@@ -1128,17 +1129,6 @@
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
           <code class="card-id">landing-tablet-revision-20261113</code>
         </article>
-        <article class="card" data-priority="low" data-area="Portal" data-text="portal: el inicio todavía dice «chat de manolo» portal apps/meowlab-app/web/src/weeklyhome.tsx dice «en el chat de manolo» y «le escribió … a manolo». la landing y la presentación ya lo llaman meowlab; decidir si el portal también cambia. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Portal: el Inicio todavía dice «chat de Manolo»</h3>
-          
-          <p class="card-notes">apps/meowlab-app/web/src/WeeklyHome.tsx dice «en el chat de Manolo» y «le escribió … a Manolo». La landing y la presentación ya lo llaman MeowLab; decidir si el portal también cambia. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
-          <code class="card-id">portal-inicio-nombre-meowlab-20261116</code>
-        </article>
         <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
           <div class="card-top">
             <span class="badge area-landing">Landing</span>
@@ -1155,7 +1145,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">128</span>
+          <span class="count">130</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2159,6 +2149,17 @@
           <p class="card-meta">Actualizado: 2026-11-15</p>
           <code class="card-id">support-cat-1-nucleo-20261115</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Producto" data-text="marca única: quitar «radar» y «facturaya» de todo lo que ven los usuarios producto decisión del operador del 2026-11-20: radar y facturaya quedan absorbidos por meowlab. hacia afuera son tender cat e invoice cat («la facturación de meowlab»). alcance medido en main 86083: landing, unos 3 textos (faq de index.astro y agentesdetalle.astro); portal, unos 5 (agents.ts, invoicingpanel.tsx, companystep.tsx); worker, unos 60 textos de mensajes de whatsapp en src/roles (por ejemplo «facturaya no encontró el nombre para ese dni»). también el pdf y los correos, si mencionan esos nombres. los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. los textos de radar en el worker se coordinan con el flujo de tender cat, que está editando esos archivos. asignada en docs/agents/tareas-agy-2026-11-20.md. rama feat/marca-unica-20261120. landing (index.astro, agentesdetalle.astro), portal (agents.ts, companystep.tsx, invoicingpanel.tsx, etc.) y worker (cat-role.ts, enterprise-advisor-role.ts, enterprise-despatch.ts, sales-role.ts) actualizados. validado con git grep sin textos visibles; worker tsc --noemit + 4 archivos de roles (201 pruebas ok); portal vitest (12 archivos, 56 pruebas) + vite build ok; landing astro build (5 páginas) ok.">
+          <div class="card-top">
+            <span class="badge area-other">Producto</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Marca única: quitar «RADAR» y «FacturaYa» de todo lo que ven los usuarios</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Rama feat/marca-unica-20261120. Landing (index.astro, AgentesDetalle.astro), portal (agents.ts, CompanyStep.tsx, InvoicingPanel.tsx, etc.) y Worker (cat-role.ts, enterprise-advisor-role.ts, enterprise-despatch.ts, sales-role.ts) actualizados. Validado con git grep sin textos visibles; Worker tsc --noEmit + 4 archivos de roles (201 pruebas OK); portal vitest (12 archivos, 56 pruebas) + vite build OK; landing astro build (5 páginas) OK.</p>
+          <p class="card-notes">Decisión del operador del 2026-11-20: RADAR y FacturaYa quedan absorbidos por MeowLab. Hacia afuera son Tender Cat e Invoice Cat («la facturación de MeowLab»). Alcance medido en main 86083: landing, unos 3 textos (FAQ de index.astro y AgentesDetalle.astro); portal, unos 5 (agents.ts, InvoicingPanel.tsx, CompanyStep.tsx); Worker, unos 60 textos de mensajes de WhatsApp en src/roles (por ejemplo «FacturaYa no encontró el nombre para ese DNI»). También el PDF y los correos, si mencionan esos nombres. Los nombres técnicos internos (repo facturaya-ai, servicios radar-*, identificadores y actas) no cambian por ahora. Los textos de RADAR en el Worker se coordinan con el flujo de Tender Cat, que está editando esos archivos. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">marca-unica-sin-radar-facturaya-20261120</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="portal: títulos en crete round y textos y montos en figtree portal decisión del operador tras comparar tres combinaciones (html en su escritorio). rama feat/portal-tipografia. títulos en crete round, que tiene un solo peso (font-synthesis: none para evitar la negrita falsa). textos, botones y montos en figtree: crete round tiene cifras de estilo antiguo. el logotipo conserva blinker (font-brand). actor deja de usarse. la landing no cambia. fusionado (pr #22, 8a6aee5f008f) y desplegado el 2026-11-19 como meowlab-app:8a6aee5f008f; acta en docs/operations/portal-tipografia-2026-11-19.md. apps/meowlab-app: typecheck ok, vite build ok, vitest 52/52. pantalla de ingreso revisada con chrome headless: títulos en crete round con font-synthesis none y cuerpo en figtree.">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -2455,6 +2456,17 @@
           <p class="card-notes">Pedido del operador: usar la imagen de Yape que pasó para la demo, más profesional que la burbuja dibujada. Rama feat/landing-yape-real. La usan Sales y Collections con el cliente y Collections con el dueño; los textos pasan a María Fernanda Castro y la operación 41756321 para coincidir con la imagen. Fusionado (PR #17, 130f6c1215c3) y desplegado el 2026-11-16 como meowlab-web:130f6c1215c3; acta en docs/operations/landing-yape-captura-2026-11-16.md.</p>
           <p class="card-meta">Actualizado: 2026-11-16 · Responsable: Claude</p>
           <code class="card-id">landing-yape-captura-real-20261116</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Portal" data-text="portal: el inicio todavía dice «chat de manolo» portal apps/meowlab-app/web/src/weeklyhome.tsx ya estaba limpio en main; se actualizaron todas las referencias restantes a manolo en apps/meowlab-app/web/src/ (agentspage.tsx, authpage.tsx, collectionspanel.tsx, companystep.tsx, planpanel.tsx, stockpanel.tsx, whatsapplink.tsx y agents.ts). git grep sobre apps/meowlab-app/web/src sin textos visibles con manolo; vitest (12 archivos, 56 pruebas) y vite build (80 módulos) ok.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Portal: el Inicio todavía dice «chat de Manolo»</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> git grep sobre apps/meowlab-app/web/src sin textos visibles con Manolo; vitest (12 archivos, 56 pruebas) y vite build (80 módulos) OK.</p>
+          <p class="card-notes">apps/meowlab-app/web/src/WeeklyHome.tsx ya estaba limpio en main; se actualizaron todas las referencias restantes a Manolo en apps/meowlab-app/web/src/ (AgentsPage.tsx, AuthPage.tsx, CollectionsPanel.tsx, CompanyStep.tsx, PlanPanel.tsx, StockPanel.tsx, WhatsAppLink.tsx y agents.ts).</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-1</p>
+          <code class="card-id">portal-inicio-nombre-meowlab-20261116</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="nota de arquitectura actual y corrección de la contradicción financiera docs  docs/architecture/manolo-2026-09-13.md">
           <div class="card-top">

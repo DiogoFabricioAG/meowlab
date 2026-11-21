@@ -5,7 +5,7 @@ import { Logo } from "./App";
 type Mode = "sign-in" | "sign-up";
 
 const HIGHLIGHTS = [
-  { n: "1", title: "Tus comprobantes en un lugar", text: "Facturas, boletas, notas y guías que emitiste con Manolo, con su estado en SUNAT." },
+  { n: "1", title: "Tus comprobantes en un lugar", text: "Facturas, boletas, notas y guías que emitiste con Invoice Cat, con su estado en SUNAT." },
   { n: "2", title: "Descargas al instante", text: "PDF, XML y CDR de cada comprobante, sin pedirlos por el chat." },
   { n: "3", title: "Vinculado a tu WhatsApp", text: "Solo ves los datos del número que tú confirmas desde tu propio WhatsApp." },
 ];
@@ -55,7 +55,7 @@ export function AuthPage({ config, invited = false }: { config: PortalConfig; in
           <div className="space-y-3">
             <p className="font-title text-4xl font-bold tracking-tight xl:text-5xl">Lo que hacen tus agentes, a la vista</p>
             <p className="max-w-[46ch] text-lg leading-relaxed text-mint">
-              Manolo trabaja por WhatsApp. Aquí revisas con calma lo que emitió y descargas tus documentos.
+              Tus gatos trabajan por WhatsApp. Aquí revisas con calma lo que emitieron y descargas tus documentos.
             </p>
           </div>
           <ul className="space-y-4">
@@ -73,7 +73,7 @@ export function AuthPage({ config, invited = false }: { config: PortalConfig; in
           </ul>
         </div>
         <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-mint">
-          <span>¿Dudas? Escríbenos a Manolo desde tu WhatsApp.</span>
+          <span>¿Dudas? Escríbenos por WhatsApp.</span>
           <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/terminos">Términos</a>
           <a className="underline underline-offset-4 hover:text-white" href="https://meowlab.tech/privacidad">Privacidad</a>
         </p>
@@ -96,7 +96,7 @@ export function AuthPage({ config, invited = false }: { config: PortalConfig; in
             <p className="text-ink-muted transition-colors duration-200">
               {mode === "sign-in"
                 ? "Usa el correo con el que te registraste."
-                : "Luego vincularás el número de WhatsApp con el que hablas con Manolo."}
+                : "Luego vincularás el número de WhatsApp con el que hablas con MeowLab."}
             </p>
           </div>
 

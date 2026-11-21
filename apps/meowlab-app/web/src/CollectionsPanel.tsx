@@ -202,7 +202,7 @@ export function CollectionsPanel({ company, onBack }: { company: Membership; onB
           )}
 
           <p className="text-sm text-ink-muted">
-            Para cobrarle a alguien, registrar un pago o validar una captura, escríbele /collections a Manolo.
+            Para cobrarle a alguien, registrar un pago o validar una captura, escríbele /collections a MeowLab.
             Mientras tu empresa no tenga su propio número de WhatsApp, Collections Cat te prepara cada recordatorio y tú lo envías con un toque.
           </p>
         </>

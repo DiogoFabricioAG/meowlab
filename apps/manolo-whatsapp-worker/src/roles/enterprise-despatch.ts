@@ -249,7 +249,7 @@ function reviewText(state: DespatchState, company: FacturayaTenant): string {
         `Conductor: ${data.driver?.first_name ?? ""} ${data.driver?.last_name ?? ""} · DNI ${data.driver?.dni ?? "pendiente"} · licencia ${data.driver?.license ?? "pendiente"}`]),
     "Bienes:", ...data.items.map((item) => `• ${item.quantity} ${item.unit} — ${item.description}`),
     `Alcance: ${data.vehicle_category === "M1" || data.vehicle_category === "L" ? "transporte privado con indicador M1/L" : "un vehículo y un conductor"}. No verifica inventario ni cantidades de otras guías.`,
-    "El PDF de la guía es un formato de trabajo sin QR: no sustituye la representación impresa de la GRE ni habilita por sí solo el traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa. No se garantiza habilitación de producción.",
+    "El PDF de la guía es un formato de trabajo sin QR: no sustituye la representación impresa de la GRE ni habilita por sí solo el traslado. XML/CDR sólo mediante descarga autenticada en el portal de MeowLab. No se garantiza habilitación de producción.",
     "Sólo el botón Confirmar guía autoriza el envío; un ticket pendiente no es aceptación SUNAT."].join("\n");
 }
 
@@ -274,7 +274,7 @@ async function showReview(context: RoleHandlerContext, state: DespatchState, com
   }
   const buttonId = `${CONFIRM}${crypto.randomUUID()}`;
   if (!context.sendButtons) { await context.reply("El envío requiere el botón de confirmación, no disponible ahora."); return; }
-  const sent = await context.sendButtons(valid ? "Revisa todos los datos anteriores antes de confirmar la guía." : "La respuesta de FacturaYa no coincide con esta revisión. El envío está bloqueado.", [
+  const sent = await context.sendButtons(valid ? "Revisa todos los datos anteriores antes de confirmar la guía." : "La respuesta del servicio de facturación no coincide con esta revisión. El envío está bloqueado.", [
     ...(valid ? [{ id: buttonId, title: "Confirmar guía" }] : []),
     { id: CHANGE_CATEGORY, title: "Cambiar categoría" },
     { id: CANCEL, title: "Cancelar" },
@@ -321,10 +321,10 @@ async function statusReply(context: RoleHandlerContext, state: DespatchState, co
       : guide?.status === "rejected" ? "Guía rechazada. Revisa el CDR."
         // FacturaYa's message carries SUNAT's code and reason; show it instead of a generic text.
         : guide?.status === "send_failed" || guide?.status === "preparation_failed"
-          ? `La guía no se envió a SUNAT. ${guide.message ?? "Revisa la configuración en FacturaYa."} Puedes preparar una nueva guía cuando esté corregido.`
-          : `No se pudo confirmar el resultado de la guía${guide?.series && guide.correlative ? ` ${guide.series}-${guide.correlative}` : ""}. ${guide?.message ?? ""} No se reenviará; revisa su estado en SUNAT o FacturaYa antes de preparar otra.`.replace(/\s+/g, " ").trim();
+          ? `La guía no se envió a SUNAT. ${guide.message ?? "Revisa la configuración de facturación de tu empresa."} Puedes preparar una nueva guía cuando esté corregido.`
+          : `No se pudo confirmar el resultado de la guía${guide?.series && guide.correlative ? ` ${guide.series}-${guide.correlative}` : ""}. ${guide?.message ?? ""} No se reenviará; revisa su estado en SUNAT o en el portal de MeowLab antes de preparar otra.`.replace(/\s+/g, " ").trim();
   await context.reply(`${prefix}${text}${guide?.ticket ? `\nTicket: ${guide.ticket}` : ""}${printable(guide)
-    ? "\nEl PDF es un formato de trabajo sin QR; no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada de FacturaYa; no se entregan por WhatsApp en este corte." : ""}`);
+    ? "\nEl PDF es un formato de trabajo sin QR; no se anuncia como lista para operar un traslado. XML/CDR sólo mediante descarga autenticada en el portal de MeowLab; no se entregan por WhatsApp en este corte." : ""}`);
   if (options.pdf && await sendDespatchPdf(context, state, company) === "failed") {
     await context.reply("No pude generar el PDF de la guía. Puedes pedirlo con el botón «PDF de la guía».");
   }
