@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 81 · Total: 228</span>
+      <span class="summary">Abiertas: 82 · Total: 229</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">70</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -869,6 +869,17 @@
           <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto.</p>
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">landing-astro-7-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: la actividad del inicio muestra ids internos de invoice cat y entradas duplicadas portal visto en producción el 21/11 (creaciones j&amp;d). formatinvoiceevent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «invoice cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de f001-00000027. además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. ">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: la actividad del Inicio muestra IDs internos de Invoice Cat y entradas duplicadas</h3>
+          
+          <p class="card-notes">Visto en producción el 21/11 (CREACIONES J&amp;D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación.</p>
+          <p class="card-meta">Actualizado: 2026-11-21</p>
+          <code class="card-id">portal-actividad-numeros-duplicados-20261121</code>
         </article>
         <article class="card" data-priority="low" data-area="Docs" data-text="regenerar diagrama: la tarjeta dice que finanzas conserva neon docs editar manolo-2026-09-13.architecture.json y regenerar html. ">
           <div class="card-top">
