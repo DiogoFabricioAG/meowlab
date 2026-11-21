@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 76 · Total: 238</span>
+      <span class="summary">Abiertas: 75 · Total: 238</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">69</span>
+          <span class="count">68</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -517,17 +517,6 @@
           <p class="card-notes">Lo hace el operador (ADR-0018). Decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere D-U-N-S). Clave de subida fuera del repo con respaldo.</p>
           <p class="card-meta">Actualizado: 2026-11-20</p>
           <code class="card-id">app-movil-0-cuentas-20261120</code>
-        </article>
-        <article class="card" data-priority="high" data-area="Portal" data-text="plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo portal pedido del operador el 21/11: plan se ve soso; inspirarse en páginas de suscripción por módulos (hubspot, zoho one, alegra, siigo, treble). depende de t1 (#65). tanda 5, t6: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-high">Alta</span>
-          </div>
-          <h3 class="card-title">Plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo</h3>
-          
-          <p class="card-notes">Pedido del operador el 21/11: Plan se ve soso; inspirarse en páginas de suscripción por módulos (HubSpot, Zoho One, Alegra, Siigo, Treble). Depende de T1 (#65). Tanda 5, T6: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-plan-pagina-de-venta-20261121</code>
         </article>
         <article class="card" data-priority="high" data-area="Portal" data-text="cobros: pagar 1, 3 o 6 meses por adelantado con el checkout de mercado pago (acepta yape) portal pedido del operador el 21/11: plan no ofrece yape porque las suscripciones (preapproval) solo aceptan tarjeta. se elige la opción a, pago único con checkout pro y webhook type=payment, frente a la b (qr propio con aprobación, billing-3-yape-qr-20261111). tanda 5, t9: docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
           <div class="card-top">
@@ -1081,7 +1070,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">162</span>
+          <span class="count">163</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2194,6 +2183,17 @@
           <p class="card-notes">Hallado en la revisión del PR #58. index.ts llama a resolveAlias con la primera palabra de casi cada mensaje: latencia extra y espera de timeout si el bridge cae. Bloquea desplegar el Worker con Sales Cat fase 3. Tanda 5, T5: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
           <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
           <code class="card-id">sales-alias-sin-consulta-por-mensaje-20261121</code>
+        </article>
+        <article class="card" data-priority="high" data-area="Portal" data-text="plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo portal pedido del operador el 21/11: plan se ve soso; inspirarse en páginas de suscripción por módulos (hubspot, zoho one, alegra, siigo, treble). depende de t1 (#65). tanda 5, t6: docs/agents/tareas-agy-2026-11-21-tanda5.md. planpanel.tsx + plancatalog.ts + plansalessections.tsx: encabezado comercial, 3 paquetes sugeridos (empieza a vender, tienda al día más elegido, todo el equipo), tarjetas de los 7 gatos con logo 48px, ideal si y 3 beneficios, resumen fijo desktop/móvil con incentivo de descuento y correo mercado pago colapsado, confianza (mercado pago/yape/tarjetas), 4 faq y vista de suscripción activa con cambiar gatos. portal: npm test (20 archivos, 86/86 incluyendo test/plan.test.ts), npm run typecheck y vite build ok; capturas a 1366 y 390 px.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PlanPanel.tsx + planCatalog.ts + PlanSalesSections.tsx: encabezado comercial, 3 paquetes sugeridos (Empieza a vender, Tienda al día Más elegido, Todo el equipo), tarjetas de los 7 gatos con logo 48px, Ideal si y 3 beneficios, resumen fijo desktop/móvil con incentivo de descuento y correo Mercado Pago colapsado, confianza (Mercado Pago/Yape/tarjetas), 4 FAQ y vista de suscripción activa con Cambiar gatos. Portal: npm test (20 archivos, 86/86 incluyendo test/plan.test.ts), npm run typecheck y vite build OK; capturas a 1366 y 390 px.</p>
+          <p class="card-notes">Pedido del operador el 21/11: Plan se ve soso; inspirarse en páginas de suscripción por módulos (HubSpot, Zoho One, Alegra, Siigo, Treble). Depende de T1 (#65). Tanda 5, T6: docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-2</p>
+          <code class="card-id">portal-plan-pagina-de-venta-20261121</code>
         </article>
         <article class="card" data-priority="high" data-area="Manolo" data-text="support cat: el resumen diario falla en el bridge y nunca se ha enviado manolo visto el 21/11 a las 06:00 utc: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de creaciones j&amp;d sigue null (summary_hour 20). el handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. no usar el teléfono de prueba del operador. pr fix/support-resumen-diario: quitado &#39;summaries&#39; de writes en support-service.ts (evita fk 23503 con tenant_id=&#39;cron&#39; en whatsapp.bridge_requests; ya reclama atómicamente por last_summary_on) y agregado errorcode seguro en vps_*_processing_failed de http-handler.ts. probado en test/support-summaries.test.ts y suite completa del worker.">
           <div class="card-top">

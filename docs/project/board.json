@@ -2485,11 +2485,11 @@
       "id": "portal-plan-pagina-de-venta-20261121",
       "title": "Plan como página de venta: paquetes sugeridos, tarjetas con beneficios y resumen fijo",
       "area": "Portal",
-      "owner": "",
+      "owner": "AGY-2",
       "priority": "high",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
-      "evidence": "",
+      "evidence": "PlanPanel.tsx + planCatalog.ts + PlanSalesSections.tsx: encabezado comercial, 3 paquetes sugeridos (Empieza a vender, Tienda al día Más elegido, Todo el equipo), tarjetas de los 7 gatos con logo 48px, Ideal si y 3 beneficios, resumen fijo desktop/móvil con incentivo de descuento y correo Mercado Pago colapsado, confianza (Mercado Pago/Yape/tarjetas), 4 FAQ y vista de suscripción activa con Cambiar gatos. Portal: npm test (20 archivos, 86/86 incluyendo test/plan.test.ts), npm run typecheck y vite build OK; capturas a 1366 y 390 px.",
       "notes": "Pedido del operador el 21/11: Plan se ve soso; inspirarse en páginas de suscripción por módulos (HubSpot, Zoho One, Alegra, Siigo, Treble). Depende de T1 (#65). Tanda 5, T6: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     },
     {
