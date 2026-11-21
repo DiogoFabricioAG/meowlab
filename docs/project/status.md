@@ -1,8 +1,8 @@
 # Estado del proyecto
 
-**Estado al 21/11/2026 (01:40 Lima):**
+**Estado al 21/11/2026 (02:00 Lima):**
 
-- Worker `9c8dc2a1`, desde `cad7f320a781`.
+- Worker `535d842a`, desde `1b5a2fe9734c`.
 - Bridge `main-20261121T063947Z`, desde `5b927b7798d2`.
 - Portal y servicio de Tender Cat `5b927b7798d2`.
 - Landing `meowlab-web:5b927b7798d2` (Astro 7).
@@ -12,6 +12,18 @@ Mercado Pago está en producción. En Plan ya se pueden comprar Invoice, Sales, 
 
 
 
+
+## Worker: Sales Cat fase 3, Stock Cat fase 2 y nombre propio con caché — publicado 2026-11-21
+
+Worker `535d842a`, desde `1b5a2fe9734c`, sin migraciones D1. Lo que llega a WhatsApp:
+
+- **Sales Cat:** el nombre propio del gato, la meta del mes por chat y las ventas al crédito como deuda en Collections Cat.
+- **Stock Cat:** carga por Excel, por foto y por factura del proveedor.
+- **Invoice Cat:** el error de extracción con un mensaje legible.
+
+El nombre propio se busca con una caché de 5 minutos, así que ya no hay una consulta al bridge por cada mensaje.
+
+[Acta](../operations/worker-1b5a2-2026-11-21.md).
 ## Alta de empresa sin RUC y landing en Astro 7 — publicado 2026-11-21
 
 Desde `5b927b7798d2`. Se aplicó la migración `024`, con respaldo previo.
