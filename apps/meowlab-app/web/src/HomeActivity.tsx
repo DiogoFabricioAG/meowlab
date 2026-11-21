@@ -156,79 +156,21 @@ export function HomeActivity({ companyId }: { companyId: string }) {
 
   if (!activity && !failed) {
     return (
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]" aria-busy="true" aria-label="Cargando actividad">
-        <div className="h-56 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" />
-        <div className="h-56 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" />
-      </div>
+      <div className="h-56 animate-pulse rounded-2xl bg-surface-subtle motion-reduce:animate-none" aria-busy="true" aria-label="Cargando actividad" />
     );
   }
 
   if (failed || !activity) {
     return (
       <p className="rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink-muted">
-        No pudimos cargar la tendencia de los últimos 14 días ni la actividad reciente. Vuelve a intentarlo en unos minutos.
+        No pudimos cargar la actividad reciente. Vuelve a intentarlo en unos minutos.
       </p>
     );
   }
 
-  const metrics = buildSeriesMetrics(activity);
-  const hasAnyTrend = metrics.some((metric) => metric.hasData);
-  const rangeLabel = activity.series.length
-    ? `${shortDay(activity.series[0].date)} al ${shortDay(activity.series[activity.series.length - 1].date)}`
-    : "Últimos 14 días";
-
+  // The trend lives in «Tus agentes» (the council): Inicio is today and what is pending.
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-      <section className="overflow-hidden rounded-2xl border border-line bg-white" aria-labelledby="trend-title">
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-3.5">
-          <h2 id="trend-title" className="text-xl text-ink">Tendencia (14 días)</h2>
-          <span className="text-sm text-ink-muted">{rangeLabel}</span>
-        </header>
-
-        {metrics.length === 0 || !hasAnyTrend ? (
-          <div className="flex items-center gap-3 px-5 py-6 text-sm text-ink-muted">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-subtle text-forest">
-              <Icon name="chart" />
-            </span>
-            Todavía no hay movimiento en los últimos 14 días para tus gatos activos.
-          </div>
-        ) : (
-          <div className="divide-y divide-line">
-            {metrics.map((metric) => (
-              <div key={metric.key} className="px-5 py-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: metric.color }} />
-                    <span className="text-sm font-semibold text-ink">{metric.label}</span>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums text-forest">{metric.totalText}</span>
-                </div>
-                <svg
-                  viewBox="0 0 280 64"
-                  role="img"
-                  aria-label={`${metric.label}: ${metric.totalText} en los últimos 14 días`}
-                  className="mt-2.5 h-16 w-full overflow-visible"
-                >
-                  <line x1="0" y1="58" x2="280" y2="58" stroke="#e8ece9" strokeWidth="1" />
-                  <polyline
-                    fill="none"
-                    stroke={metric.color}
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    points={metric.points}
-                  />
-                </svg>
-                <div className="mt-1 flex justify-between text-[11px] text-ink-muted">
-                  <span>{shortDay(activity.series[0].date)}</span>
-                  <span>{shortDay(activity.series[activity.series.length - 1].date)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
+    <div>
       <section className="overflow-hidden rounded-2xl border border-line bg-white" aria-labelledby="activity-title">
         <header className="border-b border-line px-5 py-3.5">
           <h2 id="activity-title" className="text-xl text-ink">Actividad reciente</h2>

@@ -1,4 +1,4 @@
-import type { PortalCompanyResponse, WeeklySummary } from "../../bridge/portal-company-contracts";
+import type { PeopleAgentKey, PortalCompanyResponse, WeeklySummary } from "../../bridge/portal-company-contracts";
 import type { RoleLog } from "../../roles/contracts";
 import type { TenderTitles } from "./tender-titles";
 
@@ -8,6 +8,8 @@ export type WeeklyCipher = { decrypt(encrypted: string): string };
 
 const LIMA_OFFSET_MS = 5 * 3_600_000; // Peru has no daylight saving time.
 const DAY_MS = 86_400_000;
+const PEOPLE_DAYS = 30;
+const PEOPLE_AGENTS: readonly PeopleAgentKey[] = ["invoice", "tender", "sales", "stock", "reorder", "support", "collections"];
 const MAX_PAGES = 8; // 200 documents a week; beyond that the total is marked partial.
 
 /** Monday 00:00 in Lima of the week containing `now`, as a UTC instant. */
@@ -66,7 +68,7 @@ export class PortalWeeklyService {
     const end = new Date(start.getTime() + 7 * DAY_MS);
     const previous = new Date(start.getTime() - 7 * DAY_MS);
     const day = limaDayStart(now);
-    const [team, tender, invoicing, sales, stock, collections, reorder, support] = await Promise.all([
+    const [team, tender, invoicing, sales, stock, collections, reorder, support, people] = await Promise.all([
       this.team(tenantId, previous, start, end, day),
       this.tender(tenantId, start, end, day),
       this.invoicing(tenantId, previous, start, end, limaDate(day)),
@@ -75,6 +77,7 @@ export class PortalWeeklyService {
       this.collections(tenantId, limaDate(start), limaDate(day)),
       this.reorder(tenantId, now),
       this.support(tenantId, start),
+      this.people(tenantId, now),
     ]);
     const summary: WeeklySummary = {
       week: { start: limaDate(start), end: limaDate(new Date(end.getTime() - 1)) },
@@ -87,6 +90,7 @@ export class PortalWeeklyService {
       collections,
       reorder,
       support,
+      ...(people ? { people } : {}),
     };
     return { status: "ok", weekly: summary };
   }
@@ -394,4 +398,54 @@ export class PortalWeeklyService {
     }
     return { documents, count, partial: documents.length < count };
   }
+
+  /**
+   * The council's report: who talked to each cat in the last 30 days. Every cat already
+   * records who asked it for something (its audit log, or Stock Cat's moves), so the count
+   * is of real requests by WhatsApp number, never of messages routed elsewhere.
+   */
+  private async people(tenantId: string, now: Date): Promise<WeeklySummary["people"]> {
+    const since = new Date(limaDayStart(now).getTime() - (PEOPLE_DAYS - 1) * DAY_MS);
+    try {
+      const { rows } = await this.query(
+        `/* council-people */
+         SELECT 'invoice' AS agent, count(DISTINCT contact_id)::int AS team, count(*)::int AS actions, 0 AS customers
+           FROM whatsapp.facturaya_audit_logs WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'tender', count(DISTINCT contact_id)::int, count(*)::int, 0
+           FROM whatsapp.radar_current_selections WHERE tenant_id = $1 AND changed_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'sales', count(DISTINCT contact_id)::int, count(*)::int, 0
+           FROM sales.audit_log WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'stock', count(DISTINCT contact_id)::int, count(*)::int, 0
+           FROM stock.moves WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'reorder', count(DISTINCT contact_id)::int, count(*)::int, 0
+           FROM purchasing.audit_log WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'collections', count(DISTINCT contact_id)::int, count(*)::int, 0
+           FROM receivables.audit_log WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL
+         UNION ALL
+         SELECT 'support',
+                (SELECT count(DISTINCT contact_id) FROM support.audit_log WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL)::int,
+                (SELECT count(*) FROM support.audit_log WHERE tenant_id = $1 AND created_at >= $2 AND contact_id IS NOT NULL)::int,
+                (SELECT count(DISTINCT customer_phone) FROM support.events WHERE tenant_id = $1 AND created_at >= $2)::int`,
+        [tenantId, since],
+      );
+      const byAgent = new Map(rows.map((row) => [String(row.agent), row]));
+      return {
+        days: PEOPLE_DAYS,
+        agents: PEOPLE_AGENTS.map((agent) => {
+          const row = byAgent.get(agent) ?? {};
+          const entry = { agent, team: Number(row.team ?? 0), actions: Number(row.actions ?? 0) };
+          return agent === "support" ? { ...entry, customers: Number(row.customers ?? 0) } : entry;
+        }),
+      };
+    } catch {
+      this.log("vps_portal_weekly_people_failed", {});
+      return undefined;
+    }
+  }
+
 }

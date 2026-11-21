@@ -76,6 +76,8 @@ export type SalesView =
 /** Add (no id), edit (id + texts) or remove (id + remove) one frequent question. */
 export type SupportFaqChange = { id?: string; question?: string; answer?: string; remove?: boolean };
 
+export type PeopleAgentKey = "invoice" | "tender" | "sales" | "stock" | "reorder" | "support" | "collections";
+
 export type WeeklySummary = {
   /** Monday to Sunday, Lima dates; `today` is the current Lima date. */
   week: { start: string; end: string };
@@ -97,6 +99,11 @@ export type WeeklySummary = {
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
   /** Support Cat (ADR-0017): customers this week, solved alone, passed to the owner, still open. */
   support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
+  /**
+   * Who talked to each cat in the last `days` days (the council's report): distinct team
+   * members by WhatsApp, the actions they asked for and, for Support Cat, distinct customers.
+   */
+  people?: { days: number; agents: Array<{ agent: PeopleAgentKey; team: number; actions: number; customers?: number }> };
   /** Sales Cat (ADR-0011): sales registered today and this week, plus optional month goal. */
   sales: {
     enabled: boolean;

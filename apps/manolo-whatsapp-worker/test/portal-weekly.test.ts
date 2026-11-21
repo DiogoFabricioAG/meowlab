@@ -91,3 +91,51 @@ describe("portal weekly summary", () => {
       .toEqual({ status: "unavailable" });
   });
 });
+
+describe("portal weekly summary: who talked to each cat (council report)", () => {
+  function serviceWith(people: (sql: string, values?: readonly unknown[]) => { rows: Array<Record<string, unknown>> }) {
+    const pool = {
+      query: vi.fn(async (sql: string, values?: readonly unknown[]) => {
+        if (sql.includes("portal_company_members")) return { rows: [{ "?column?": 1 }] };
+        if (sql.includes("council-people")) return people(sql, values);
+        return { rows: [] };
+      }),
+    };
+    const log = vi.fn();
+    const service = new PortalWeeklyService(pool, { decrypt: () => "plain" }, "https://f.example", log,
+      () => new Date("2026-11-21T15:00:00Z"), (async () => Response.json({ data: [], meta: { total: 0 } })) as unknown as typeof fetch);
+    return { service, pool, log };
+  }
+
+  it("counts people and requests per cat over the last 30 Lima days, with Support Cat's customers", async () => {
+    const { service, pool } = serviceWith(() => ({ rows: [
+      { agent: "invoice", team: 2, actions: 14, customers: 0 },
+      { agent: "sales", team: 1, actions: 5, customers: 0 },
+      { agent: "support", team: 1, actions: 3, customers: 7 },
+    ] }));
+    const result = await service.handle("u", "org_1");
+    if (result.status !== "ok" || !("weekly" in result)) throw new Error("expected weekly");
+    expect(result.weekly.people).toEqual({ days: 30, agents: [
+      { agent: "invoice", team: 2, actions: 14 },
+      { agent: "tender", team: 0, actions: 0 },
+      { agent: "sales", team: 1, actions: 5 },
+      { agent: "stock", team: 0, actions: 0 },
+      { agent: "reorder", team: 0, actions: 0 },
+      { agent: "support", team: 1, actions: 3, customers: 7 },
+      { agent: "collections", team: 0, actions: 0 },
+    ] });
+    const call = pool.query.mock.calls.find(([sql]) => String(sql).includes("council-people"))!;
+    // 21/11 10:00 Lima → since 23/10 00:00 Lima (29 days before today's midnight).
+    expect(call[1]).toEqual(["org_1", new Date("2026-10-23T05:00:00.000Z")]);
+    // Every source is filtered by the company.
+    expect((String(call[0]).match(/tenant_id = \$1/g) ?? []).length).toBe(9);
+  });
+
+  it("leaves the report out, without failing the summary, when the query fails", async () => {
+    const { service, log } = serviceWith(() => { throw new Error("relation does not exist"); });
+    const result = await service.handle("u", "org_1");
+    if (result.status !== "ok" || !("weekly" in result)) throw new Error("expected weekly");
+    expect(result.weekly.people).toBeUndefined();
+    expect(log).toHaveBeenCalledWith("vps_portal_weekly_people_failed", {});
+  });
+});

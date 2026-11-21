@@ -17,6 +17,8 @@ export type Weekly = {
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
   support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
+  /** Who talked to each cat in the last `days` days: team members, their requests and (Support Cat) customers. */
+  people?: { days: number; agents: Array<{ agent: AgentKey; team: number; actions: number; customers?: number }> };
   sales?: {
     enabled: boolean;
     todayCount: number;
