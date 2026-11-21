@@ -8,7 +8,7 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
 - Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
-  **T1**, **T2**, **T3**, **T4**, **T5** y **T6**. Hay una para cada agente y una de reserva, así
+  **T1**, **T2**, **T3**, **T4**, **T5**, **T6** y **T7**. Hay una para cada agente y una de reserva, así
   ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
@@ -443,5 +443,51 @@ Anota en el PR qué patrón tomaste de cada referencia.
 - Pasan `npm test`, `npm run typecheck` y `npm run build` del portal.
 - El PR trae capturas a 1366 y 390 px de Plan sin suscripción, con un paquete
   elegido y con una suscripción activa, más la lista de referencias usadas.
+- La tarea del tablero queda en `done`.
+
+---
+
+## T7 — Support Cat: el resumen diario falla y nunca se ha enviado
+
+- **Tarea del tablero:** `support-resumen-diario-falla-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t7-support`, rama `fix/support-resumen-diario`, desde
+  `origin/main`.
+
+### Problema
+
+- **Qué se vio:** el 21/11, a las 06:00 UTC, el bridge registró
+  `{"event":"vps_support_processing_failed","operation":"summaries"}`.
+- **Desde cuándo:** en `support.settings` de CREACIONES J&D, `last_summary_on` sigue en
+  `NULL` con `summary_hour = 20`. El resumen diario a la titular (ADR-0017, decisión 15)
+  nunca se ha enviado desde que Support Cat se activó el 15/11.
+- **Por qué no se sabe la causa:** el manejador de `src/node/bridge/http-handler.ts`
+  no registra el error.
+
+### Qué hacer
+
+1. **Que el log diga algo útil.** En los `vps_*_processing_failed` de `http-handler.ts`,
+   agrega un código de error seguro: el `code` de PostgreSQL o el nombre del error. Sin
+   mensajes con datos personales ni SQL.
+2. **Reproducir con pruebas y reloj fijo.**
+   - Llama a `summaries` desde el Worker (cron) contra el bridge.
+   - Revisa el contrato de la operación: su validación, si exige actor o contacto
+     siendo un proceso de sistema, y `WRITES`.
+   - Revisa también `stats()`, `tickets()` y `ownerPhones()`.
+3. **Corregir y comprobar** que el resumen sale a la hora configurada (`summary_hour`,
+   en hora de Lima). Debe salir una sola vez por día, con `last_summary_on`.
+4. **No envíes mensajes reales** ni uses el teléfono de prueba del operador. La prueba
+   de punta a punta la hace el coordinador al desplegar.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/src/node/support/` y `src/node/bridge/http-handler.ts`
+  (solo el registro del error).
+- La parte del cron que llama a `summaries` en el Worker.
+- Sus pruebas.
+
+### Terminado cuando
+
+- `npm test` del Worker pasa **completo**, sin línea base, y `npx tsc --noEmit` pasa.
+- El PR explica la causa encontrada y trae una prueba que falla antes del arreglo.
 - La tarea del tablero queda en `done`.
 
