@@ -248,6 +248,18 @@ export function createApp(deps: AppDeps) {
     return c.json(result.weekly);
   });
 
+  // «Inicio»: 14-day daily series and recent activity of one company the account belongs to.
+  app.get("/api/companies/:tenantId/activity", async (c) => {
+    const tenantId = tenantParam(c);
+    if (!tenantId) return c.json({ error: "invalid_request" }, 400);
+    if (!deps.bridge) return c.json({ error: "companies_unavailable" }, 503);
+    const result = await deps.bridge.companies(c.get("session").user.id, { action: "activity", tenantId });
+    if (!result) return c.json({ error: "companies_unavailable" }, 503);
+    if (result.status === "forbidden") return c.json({ error: "forbidden" }, 403);
+    if (result.status !== "ok" || !("activity" in result)) return c.json({ error: "companies_unavailable" }, 503);
+    return c.json(result.activity);
+  });
+
   // Stock Cat (ADR-0014): stock, alerts and moves of one company the account belongs to.
   app.get("/api/companies/:tenantId/stock", async (c) => {
     const tenantId = tenantParam(c);

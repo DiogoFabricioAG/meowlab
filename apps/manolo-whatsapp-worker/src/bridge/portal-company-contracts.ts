@@ -34,8 +34,9 @@ export type PortalCompanyRequest =
   | (Base & { action: "remove"; tenantId: string; memberId: string })
   | (Base & { action: "preview"; token: string })
   | (Base & { action: "accept"; token: string })
-  // «Inicio»: what the company's agents did this week.
+  // «Inicio»: what the company's agents did this week, 14-day series and recent activity.
   | (Base & { action: "weekly"; tenantId: string })
+  | (Base & { action: "activity"; tenantId: string })
   // Stock Cat (ADR-0014): stock, alerts and moves of one company.
   | (Base & { action: "stock_view"; tenantId: string })
   // Collections Cat (ADR-0015): what the company is owed, and its rules (owner only).
@@ -90,6 +91,33 @@ export type WeeklySummary = {
     };
 };
 
+export type ActivityDay = {
+  date: string;
+  invoices: number;
+  salesCents: number;
+  collectionsCents: number;
+};
+
+export type ActivityAgentKey = "invoice" | "sales" | "collections" | "reorder" | "support" | "stock";
+
+export type ActivityEvent = {
+  id: string;
+  at: string;
+  agent: ActivityAgentKey;
+  text: string;
+};
+
+export type ActivitySummary = {
+  today: string;
+  active: {
+    invoicing: boolean;
+    sales: boolean;
+    collections: boolean;
+  };
+  series: ActivityDay[];
+  events: ActivityEvent[];
+};
+
 export type TeamMember = { portalUserId: string; role: "owner" | "member"; joinedAt: string };
 export type PendingInvitation = { id: string; createdAt: string; expiresAt: string; maskedPhone: string | null; access: InvitationAccess };
 
@@ -128,6 +156,7 @@ export type PortalCompanyResponse =
   | { status: "joined"; company: PortalMembership }
   | { status: "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
   | { status: "ok"; weekly: WeeklySummary }
+  | { status: "ok"; activity: ActivitySummary }
   | { status: "ok"; stock: PortalStockView }
   | { status: "ok"; collections: PortalCollectionsView }
   | { status: "ok"; reorder: PortalReorderView }

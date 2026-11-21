@@ -26,6 +26,27 @@ export type Weekly = {
         today: { documents: number; totalPen: string; rejected: number } };
 };
 
+export type ActivityDay = {
+  date: string;
+  invoices: number;
+  salesCents: number;
+  collectionsCents: number;
+};
+
+export type ActivityEvent = {
+  id: string;
+  at: string;
+  agent: "invoice" | "sales" | "collections" | "reorder" | "support" | "stock";
+  text: string;
+};
+
+export type CompanyActivity = {
+  today: string;
+  active: { invoicing: boolean; sales: boolean; collections: boolean };
+  series: ActivityDay[];
+  events: ActivityEvent[];
+};
+
 /** The plan's catalog (prices in céntimos, IGV included); absent where payments are off. */
 export type CatalogAgent = { key: string; name: string; description: string; priceCents: number; available: boolean };
 

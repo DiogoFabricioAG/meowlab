@@ -1,6 +1,7 @@
 import type { Me, Membership } from "./auth-client";
 import { AGENTS, agentLogo, agentState, type CatalogAgent, type Weekly } from "./agents";
 import { agentPulse, attentionItems, PULSE_LABEL, type AgentPulse, type AttentionItem } from "./attention";
+import { HomeActivity } from "./HomeActivity";
 import { Icon } from "./icons";
 
 const soles = (value: number) =>
@@ -188,6 +189,8 @@ export function WeeklyHome({ me, company, weekly, failed, catalog, go }: {
               </p>
             </section>
           </div>
+
+          <HomeActivity companyId={company.id} />
         </>
       )}
 
