@@ -2449,10 +2449,10 @@
       "notes": "Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md."
     },
     {
-      "owner": "",
-      "status": "todo",
+      "owner": "AGY-3",
+      "status": "done",
       "updated": "2026-11-21",
-      "evidence": "",
+      "evidence": "ADR-0019 (docs/decisions/0019-alta-empresa-sin-ruc.md), migración 024-company-without-ruc.sql (sin aplicar: sector y city en whatsapp.tenants), create sin RUC y set_ruc en PortalCompanyService + contratos + rutas /api/companies y /api/companies/:tenantId/ruc, nueva bienvenida (Tengo RUC / Todavía no tengo RUC o prefiero no darlo / Me invitaron) con PageHeader, bloqueo de Invoice Cat sin RUC y formulario Agregar RUC en SettingsPage.tsx. Portal: npm test, typecheck y build PASS; Worker: tsc --noEmit y vitest PASS; capturas a 1366 y 390 px.",
       "id": "portal-alta-sin-ruc-20261121",
       "title": "Alta de empresa sin RUC obligatorio (solo Invoice Cat lo exige) y bienvenida con UI moderna",
       "area": "Portal",

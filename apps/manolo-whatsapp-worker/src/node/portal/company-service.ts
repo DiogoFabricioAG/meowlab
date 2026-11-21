@@ -130,17 +130,28 @@ export class PortalCompanyService {
     if (request.action === "sales_settings") {
       return this.sales ? this.sales.settings(request.portalUserId, request.tenantId, request.change) : { status: "unavailable" };
     }
-    if (request.action !== "mine" && request.action !== "lookup" && request.action !== "create") {
+    if (request.action !== "mine" && request.action !== "lookup" && request.action !== "create" && request.action !== "set_ruc") {
       return this.invitations.handle(request as InvitationRequest);
     }
     if (request.action === "mine") {
       const { rows } = await this.pool.query(MEMBERSHIPS_SQL, [request.portalUserId]) as Rows;
       return { status: "ok", companies: rows.map(membership) };
     }
-    const checked = await this.check(request.ruc);
+    if (request.action === "set_ruc") {
+      return this.setRuc(request.portalUserId, request.tenantId, request.ruc);
+    }
+    if (request.action === "create" && request.ruc === undefined) {
+      const name = request.name?.trim().replace(/\s+/g, " ") ?? "";
+      if (!name) return { status: "invalid_name" };
+      const sector = request.sector?.trim().slice(0, 80) || null;
+      const city = request.city?.trim().slice(0, 80) || null;
+      return this.createWithoutRuc(request.portalUserId, name.slice(0, 160), sector, city);
+    }
+    const checked = await this.check(request.ruc ?? "");
     if (checked.status !== "ok" || !("taxpayer" in checked)) return checked;
     if (request.action === "lookup") return checked;
-    return this.create(request.portalUserId, checked.taxpayer, request.name?.trim());
+    return this.create(request.portalUserId, checked.taxpayer, request.name?.trim(),
+      request.sector?.trim().slice(0, 80) || null, request.city?.trim().slice(0, 80) || null);
   }
 
   /** Same answers for lookup and create, so creation never trusts an earlier lookup. */
@@ -166,7 +177,8 @@ export class PortalCompanyService {
     return rows.length > 0;
   }
 
-  private async create(portalUserId: string, taxpayer: Taxpayer, name: string | undefined): Promise<PortalCompanyResponse> {
+  private async create(portalUserId: string, taxpayer: Taxpayer, name: string | undefined,
+    sector: string | null = null, city: string | null = null): Promise<PortalCompanyResponse> {
     const client = await this.pool.connect() as QueryClient;
     let destroy = false;
     try {
@@ -183,11 +195,11 @@ export class PortalCompanyService {
       }
       const id = this.newId();
       const inserted = await client.query(
-        `INSERT INTO whatsapp.tenants (id, name, legal_name, ruc, address, status, timezone, origin)
-         VALUES ($1, $2, $3, $4, $5, 'active', 'America/Lima', 'portal')
+        `INSERT INTO whatsapp.tenants (id, name, legal_name, ruc, address, sector, city, status, timezone, origin)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', 'America/Lima', 'portal')
          ON CONFLICT DO NOTHING
          RETURNING id`,
-        [id, (name || taxpayer.legalName).slice(0, 160), taxpayer.legalName, taxpayer.ruc, taxpayer.address],
+        [id, (name || taxpayer.legalName).slice(0, 160), taxpayer.legalName, taxpayer.ruc, taxpayer.address, sector, city],
       );
       if (!inserted.rows.length) {
         // Another account registered the same RUC in the meantime.
@@ -207,6 +219,101 @@ export class PortalCompanyService {
     } catch (error) {
       destroy = true;
       await client.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    } finally {
+      client.release(destroy);
+    }
+  }
+
+  private async createWithoutRuc(portalUserId: string, name: string, sector: string | null, city: string | null): Promise<PortalCompanyResponse> {
+    const client = await this.pool.connect() as QueryClient;
+    let destroy = false;
+    try {
+      await client.query("BEGIN");
+      await client.query("SELECT pg_advisory_xact_lock(hashtext('portal_company_owner:' || $1))", [portalUserId]);
+      const owned = await client.query(
+        "SELECT count(*)::int AS total FROM whatsapp.portal_company_members WHERE portal_user_id = $1 AND role = 'owner'",
+        [portalUserId],
+      );
+      if (Number(owned.rows[0]?.total ?? 0) >= MAX_OWNED_COMPANIES) {
+        await client.query("ROLLBACK");
+        return { status: "limit_reached" };
+      }
+      const id = this.newId();
+      await client.query(
+        `INSERT INTO whatsapp.tenants (id, name, legal_name, ruc, address, sector, city, status, timezone, origin)
+         VALUES ($1, $2, NULL, NULL, NULL, $3, $4, 'active', 'America/Lima', 'portal')`,
+        [id, name, sector, city],
+      );
+      await client.query(
+        "INSERT INTO whatsapp.portal_company_members (tenant_id, portal_user_id, role) VALUES ($1, $2, 'owner')",
+        [id, portalUserId],
+      );
+      await client.query("COMMIT");
+      this.log("portal_company_created_without_ruc");
+      return {
+        status: "created",
+        company: { id, name, legalName: null, ruc: null, role: "owner", invoicing: "needs_sol" },
+      };
+    } catch (error) {
+      destroy = true;
+      await client.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    } finally {
+      client.release(destroy);
+    }
+  }
+
+  private async setRuc(portalUserId: string, tenantId: string, ruc: string): Promise<PortalCompanyResponse> {
+    const current = await this.pool.query(
+      `SELECT tenant.id, tenant.name, tenant.ruc, member.role
+         FROM whatsapp.portal_company_members AS member
+         JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
+        WHERE member.tenant_id = $1 AND member.portal_user_id = $2
+        LIMIT 1`,
+      [tenantId, portalUserId],
+    ) as Rows;
+    const row = current.rows[0];
+    if (!row) return { status: "forbidden" };
+    if (row.role !== "owner") return { status: "owner_only" };
+    if (typeof row.ruc === "string" && row.ruc.trim()) return { status: "already_has_ruc" };
+
+    const checked = await this.check(ruc);
+    if (checked.status !== "ok" || !("taxpayer" in checked)) return checked;
+    const taxpayer = checked.taxpayer;
+
+    const client = await this.pool.connect() as QueryClient;
+    let destroy = false;
+    try {
+      await client.query("BEGIN");
+      const updated = await client.query(
+        `UPDATE whatsapp.tenants
+            SET ruc = $2, legal_name = $3, address = $4, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1 AND (ruc IS NULL OR BTRIM(ruc) = '')
+          RETURNING id, name, legal_name, ruc`,
+        [tenantId, taxpayer.ruc, taxpayer.legalName, taxpayer.address],
+      );
+      if (!updated.rows.length) {
+        await client.query("ROLLBACK");
+        return { status: "already_has_ruc" };
+      }
+      await client.query("COMMIT");
+      this.log("portal_company_ruc_set");
+      return {
+        status: "updated",
+        company: {
+          id: String(updated.rows[0].id),
+          name: String(updated.rows[0].name),
+          legalName: taxpayer.legalName,
+          ruc: taxpayer.ruc,
+          role: "owner",
+          invoicing: "needs_sol",
+        },
+      };
+    } catch (error) {
+      await client.query("ROLLBACK").catch(() => undefined);
+      if ((error as { code?: string })?.code === "23505") return { status: "taken" };
+      destroy = true;
       throw error;
     } finally {
       client.release(destroy);

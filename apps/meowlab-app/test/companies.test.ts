@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../server/app";
 import type { Auth } from "../server/auth";
 import type { PortalBridge, PortalCompanyResponse } from "../server/bridge";
+import { agentState } from "../web/src/agents";
 
 const session = { user: { id: "user-1", name: "Ana", email: "ana@test.pe", image: null }, session: { id: "s1" } };
 const ORIGIN = { Origin: "https://app.meowlab.tech", "Content-Type": "application/json" };
@@ -51,5 +52,36 @@ describe("company routes (ADR-0010)", () => {
     expect(bridge.companies).toHaveBeenLastCalledWith("user-1", { action: "create", ruc: "20557288016" });
     expect((await post({ ruc: "20557288016", name: "x".repeat(161) })).status).toBe(400);
     expect(await (await post({ ruc: "abc" })).json()).toEqual({ status: "invalid_ruc" });
+  });
+
+  it("creates a company without RUC and adds RUC later via POST /api/companies/:tenantId/ruc", async () => {
+    const noRuc = { id: "org_2", name: "Bodega Rosita", legalName: null, ruc: null, role: "owner" as const, invoicing: "needs_sol" as const };
+    const { app: api, bridge } = app(async (_u, req) => {
+      const r = req as { action: string };
+      if (r.action === "set_ruc") return { status: "updated", company: membership };
+      return { status: "created", company: noRuc };
+    });
+    const res = await api.request("/api/companies", {
+      method: "POST",
+      headers: ORIGIN,
+      body: JSON.stringify({ name: "  Bodega Rosita ", sector: "Bodega", city: "Lima" }),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ status: "created", company: noRuc });
+    expect(bridge.companies).toHaveBeenLastCalledWith("user-1", { action: "create", name: "Bodega Rosita", sector: "Bodega", city: "Lima" });
+
+    const setRuc = await api.request("/api/companies/org_2/ruc", {
+      method: "POST",
+      headers: ORIGIN,
+      body: JSON.stringify({ ruc: "20557288016" }),
+    });
+    expect(setRuc.status).toBe(200);
+    expect(await setRuc.json()).toEqual({ status: "updated", company: membership });
+    expect(bridge.companies).toHaveBeenLastCalledWith("user-1", { action: "set_ruc", tenantId: "org_2", ruc: "20557288016" });
+
+    expect(agentState("invoice", noRuc, null, null)).toEqual({
+      kind: "setup",
+      step: "Para emitir comprobantes, agrega el RUC de tu empresa.",
+    });
   });
 });
