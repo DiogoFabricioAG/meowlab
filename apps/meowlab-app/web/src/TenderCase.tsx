@@ -1,0 +1,195 @@
+import { agentLogo, type Weekly } from "./agents";
+import { formatDeadline } from "./tenderDates";
+import { Icon } from "./icons";
+
+export type TenderHighlight = Weekly["tender"]["highlights"][number];
+export type TenderWorkspaceStage = "quote" | "documents";
+
+function safeHttpsUrl(raw: string | null | undefined): string | null {
+  const value = raw?.trim();
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeWorkspaceHref(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return null;
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  return safeHttpsUrl(value);
+}
+
+/** Detail view for a single Tender Cat highlight harmonized with WeeklyHome. */
+export function TenderCase({
+  item,
+  onBack,
+  workspaceUrl,
+}: {
+  item: TenderHighlight;
+  onBack: () => void;
+  workspaceUrl: (stage: TenderWorkspaceStage) => string;
+}) {
+  const seaceUrl = safeHttpsUrl(item.sourceUrl);
+  const quoteHref = safeWorkspaceHref(workspaceUrl("quote"));
+  const documentsHref = safeWorkspaceHref(workspaceUrl("documents"));
+  const hasWorkspace = Boolean(quoteHref || documentsHref);
+
+  const factsNote = !item.interesting
+    ? "Para guardarla, pulsa «Me interesa» en el aviso del WhatsApp de tu empresa."
+    : hasWorkspace
+      ? "Guardada por tu equipo desde WhatsApp."
+      : "El acceso a la propuesta de esta convocatoria aún no está disponible.";
+
+  return (
+    <article className="space-y-6 wrap-anywhere" aria-labelledby="tender-case-title">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline-offset-4 hover:underline"
+      >
+        <span aria-hidden="true">←</span> Volver a licitaciones
+      </button>
+
+      <header className="space-y-3 rounded-2xl border border-line bg-white px-5 py-5 sm:px-6">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mint">
+            <img
+              src={agentLogo("tender")}
+              alt=""
+              width={32}
+              height={32}
+              className="h-8 w-8 mix-blend-multiply"
+              decoding="async"
+            />
+          </span>
+          <span className="text-sm font-semibold text-ink-muted">
+            Ficha de licitación · Tender Cat
+          </span>
+          {item.interesting ? (
+            <span className="chip border border-line-mint bg-mint-light text-forest">
+              Guardada
+            </span>
+          ) : (
+            <span className="chip border border-line bg-surface-subtle text-ink-muted">
+              No guardada
+            </span>
+          )}
+        </div>
+
+        <h1
+          id="tender-case-title"
+          className="text-2xl tracking-tight text-ink sm:text-3xl"
+        >
+          {item.displayTitle || item.description?.trim() || "Licitación sin título"}
+        </h1>
+        {item.displayTitle && item.description && item.description !== item.displayTitle && (
+          <details className="text-sm text-ink-muted">
+            <summary className="w-fit cursor-pointer font-medium text-forest">Ver descripción oficial</summary>
+            <p className="mt-2 leading-relaxed">{item.description}</p>
+          </details>
+        )}
+      </header>
+
+      <section
+        aria-labelledby="tender-facts-heading"
+        className="overflow-hidden rounded-2xl border border-line bg-white"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+          <h2 id="tender-facts-heading" className="text-xl text-ink">
+            Datos de la convocatoria
+          </h2>
+          {seaceUrl && (
+            <a
+              href={seaceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-[10px] border border-line px-3.5 text-sm font-semibold text-forest transition-colors hover:border-forest"
+            >
+              Ver en SEACE
+              <Icon name="external" className="h-4 w-4" />
+              <span className="sr-only">(se abre en otra pestaña)</span>
+            </a>
+          )}
+        </div>
+
+        <dl className="grid grid-cols-1 sm:grid-cols-3">
+          <div className="min-w-0 px-5 py-4">
+            <dt className="text-sm text-ink-muted">Comprador</dt>
+            <dd className="mt-1 text-base font-semibold text-ink">
+              {item.buyer || "No especificado"}
+            </dd>
+          </div>
+
+          <div className="min-w-0 border-t border-line px-5 py-4 sm:border-l sm:border-t-0">
+            <dt className="text-sm text-ink-muted">Plazo / Cierre</dt>
+            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">
+              {formatDeadline(item.deadline) || "No especificado"}
+            </dd>
+          </div>
+
+          <div className="min-w-0 border-t border-line px-5 py-4 sm:border-l sm:border-t-0">
+            <dt className="text-sm text-ink-muted">Monto referencial</dt>
+            <dd className="mt-1 text-base font-semibold text-ink tabular-nums">
+              {item.amount || "No especificado"}
+            </dd>
+          </div>
+        </dl>
+
+        <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
+          {factsNote}
+        </p>
+      </section>
+
+      {hasWorkspace && (
+        <section
+          aria-labelledby="tender-workspace-heading"
+          className="overflow-hidden rounded-2xl border border-line bg-white"
+        >
+          <div className="border-b border-line px-5 py-3.5">
+            <h2 id="tender-workspace-heading" className="text-xl text-ink">
+              Preparar propuesta
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap">
+            {quoteHref && (
+              <a
+                href={quoteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary min-h-11 w-full sm:w-auto"
+              >
+                <Icon name="invoice" className="h-4 w-4" />
+                Cotización
+                <Icon name="external" className="h-4 w-4" />
+                <span className="sr-only">(se abre en otra pestaña)</span>
+              </a>
+            )}
+
+            {documentsHref && (
+              <a
+                href={documentsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary min-h-11 w-full border border-line bg-white hover:bg-surface-subtle sm:w-auto"
+              >
+                <Icon name="radar" className="h-4 w-4" />
+                Expediente para OECE
+                <Icon name="external" className="h-4 w-4" />
+                <span className="sr-only">(se abre en otra pestaña)</span>
+              </a>
+            )}
+          </div>
+
+          <p className="border-t border-line bg-surface-subtle px-5 py-2.5 text-xs text-ink-muted">
+            Si faltan las bases, RADAR te pedirá que adjuntes el archivo al abrir la propuesta.
+          </p>
+        </section>
+      )}
+    </article>
+  );
+}

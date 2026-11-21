@@ -11,7 +11,7 @@ export type Weekly = {
     found: number;
     foundToday: number;
     interesting: number;
-    highlights: Array<{ description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
+    highlights: Array<{ ocid?: string; displayTitle?: string; description: string; buyer: string; deadline: string; amount: string; sourceUrl: string | null; interesting: boolean }>;
   };
   stock?: { enabled: boolean; lowCount: number; movesToday: number };
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };

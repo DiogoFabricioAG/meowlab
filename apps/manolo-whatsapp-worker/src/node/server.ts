@@ -5,6 +5,7 @@ import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/compa
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
 import { PortalActivityService } from "./portal/activity-service";
+import { TenderTitles } from "./portal/tender-titles";
 import { PortalEntitlementService } from "./portal/entitlement-service";
 import { SalesService } from "./sales/sales-service";
 import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-service";
@@ -104,7 +105,7 @@ async function readRequestBody(
  * Portal app.meowlab.tech (ADR-0006). Optional: without its secrets the portal route
  * answers 503 and the rest of the bridge is unaffected.
  */
-function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string,
+function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: CredentialCipher, facturayaBaseUrl: string, titles: TenderTitles,
   stock: StockService | null = null, collections: CollectionsService | null = null, reorder: ReorderService | null = null,
   support: SupportService | null = null) {
   const portalSecret = optionalSecret("PORTAL_BRIDGE_HMAC_SECRET", "PORTAL_BRIDGE_HMAC_SECRET_FILE");
@@ -130,7 +131,7 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       undefined,
       new PortalInvitationService(pool, logSafeEvent),
       // «Inicio»: weekly summary from FacturaYa, messages and Tender Cat.
-      new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+      new PortalWeeklyService(pool, cipher, facturayaBaseUrl, logSafeEvent, undefined, undefined, titles),
       // ADR-0014: Stock Cat's page in the portal.
       new PortalStockService(pool, stock, logSafeEvent),
       // ADR-0015: Collections Cat's page in the portal.
@@ -273,7 +274,7 @@ async function main(): Promise<void> {
     collectionsService,
     reorderService,
     supportService,
-    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, stockService, collectionsService,
+    ...portalLinkDependencies(connection.pool, new CredentialCipher(credentialsEncryptionKey), facturayaBaseUrl, new TenderTitles(ai, logSafeEvent), stockService, collectionsService,
       reorderService, supportService),
     log: logSafeEvent,
     healthCheck: async () => {

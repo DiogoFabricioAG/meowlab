@@ -7,7 +7,8 @@ import { PlanPanel } from "./PlanPanel";
 import { InvoicingPanel } from "./InvoicingPanel";
 import { CompanyCards } from "./CompanyStep";
 import { WeeklyHome } from "./WeeklyHome";
-import { AgentsPage, TenderPanel } from "./AgentsPage";
+import { AgentsPage } from "./AgentsPage";
+import { TenderPanel } from "./TenderPanel";
 import { StockPanel } from "./StockPanel";
 import { CollectionsPanel } from "./CollectionsPanel";
 import { ReorderPanel } from "./ReorderPanel";
@@ -78,16 +79,22 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const navigated = useRef(false);
 
   // Data shared by Inicio and Tus agentes, loaded once per company.
-  const [weekly, setWeekly] = useState<Weekly | null>(null);
-  const [weeklyFailed, setWeeklyFailed] = useState(false);
+  const [summary, setSummary] = useState<{ companyId: string; data: Weekly | null } | null>(null);
+  const currentSummary = company && summary?.companyId === company.id ? summary : null;
+  const weekly = currentSummary?.data ?? null;
+  const weeklyFailed = currentSummary?.data === null;
   const [catalog, setCatalog] = useState<CatalogAgent[] | null>(null);
   useEffect(() => {
     if (!company) return;
-    setWeekly(null);
-    setWeeklyFailed(false);
+    let current = true;
+    setSummary(null);
+    const finish = (data: Weekly | null) => {
+      if (current) setSummary({ companyId: company.id, data });
+    };
     void fetchJson<Weekly>(`/api/companies/${encodeURIComponent(company.id)}/weekly`)
-      .then((value) => (value ? setWeekly(value) : setWeeklyFailed(true)))
-      .catch(() => setWeeklyFailed(true));
+      .then(finish)
+      .catch(() => finish(null));
+    return () => { current = false; };
   }, [company?.id]);
   useEffect(() => {
     void fetchJson<{ agents: CatalogAgent[] }>("/api/billing").then((value) => setCatalog(value?.agents ?? null)).catch(() => setCatalog(null));
@@ -113,6 +120,10 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   const go = useCallback((path: string) => {
     navigated.current = true;
     if (window.location.pathname !== path) window.history.pushState(null, "", path);
+    else if (path === "/agentes/licitaciones" && window.location.hash) {
+      window.history.pushState(null, "", path);
+      window.dispatchEvent(new Event("popstate"));
+    }
     setSection(sectionOf(path));
     window.scrollTo({ top: 0 });
   }, []);
@@ -136,6 +147,9 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
   }
 
   const chooseCompany = (id: string) => {
+    if (section === "tender" && window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
     setCompanyId(id);
     writeCompany(id);
   };
@@ -238,7 +252,7 @@ export function Panel({ me, onChange }: { me: Me; onChange: () => void }) {
         )}
         {company && section === "agents" && <AgentsPage company={company} weekly={weekly} catalog={catalog} go={go} />}
         {company && section === "invoice" && <InvoicingPanel company={company} onBack={() => go("/agentes")} />}
-        {section === "tender" && <TenderPanel weekly={weekly} onBack={() => go("/agentes")} />}
+        {section === "tender" && company && <TenderPanel key={company.id} companyId={company.id} weekly={weekly} failed={weeklyFailed} onBack={() => go("/agentes")} />}
         {company && section === "stock" && <StockPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "collections" && <CollectionsPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
         {company && section === "reorder" && <ReorderPanel key={company.id} company={company} onBack={() => go("/agentes")} />}
