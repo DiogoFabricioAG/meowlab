@@ -1,8 +1,7 @@
 # Tareas para los agentes AGY — cuarta tanda del 20/11/2026
 
-Cuarta ronda. **AGY-1 sigue con su tarea de la tercera tanda** (app Android, fase 1)
-hasta abrir su PR: no cambia de tarea. Esta tanda asigna trabajo nuevo a **AGY-2** y
-**AGY-3**. Como siempre, quien coordina revisa, fusiona y despliega. **Ningún agente
+Cuarta ronda para **AGY-1**, **AGY-2** y **AGY-3**. AGY-1 terminó la app Android,
+fase 1 (PR #47, fusionado), y su sección se agregó después de las otras dos. Como siempre, quien coordina revisa, fusiona y despliega. **Ningún agente
 fusiona ni despliega.**
 
 La prioridad del operador ahora son las **funcionalidades**: los gatos y el portal
@@ -216,3 +215,85 @@ Que la dueña pueda cargar su inventario sin escribir producto por producto:
 - **El PR trae** un ejemplo de conversación para cada uno de los tres flujos, como
   texto de chat, y la librería elegida con su versión y su `npm audit`.
 - La tarea del tablero queda en `done`.
+
+---
+
+## AGY-1 — Sales Cat, fase 3: metas del mes, nombre propio y ventas al crédito en Collections
+
+- **Tarea del tablero:** `sales-cat-3-extras-20261113`. Esta tanda cubre las metas, el
+  nombre propio y las deudas; **no** cubre el stock.
+- **Worktree y rama:** `D:/meowlab-wt-sales-fase3`, rama `feat/sales-cat-fase-3`.
+- **Lectura obligatoria:** `docs/decisions/0011-sales-cat.md` (decisiones 2, 9, 14, 15,
+  16 y 17, y las fases) y `docs/decisions/0015-collections-cat.md`.
+
+### Qué hacer
+
+1. **Metas mensuales**
+   - **Cómo se pone la meta:**
+     - por chat: «mi meta de diciembre es S/ 20,000», «¿cómo voy con la meta?»;
+     - desde la ficha de Sales Cat en el portal.
+   - **Qué guarda:** una meta de monto por empresa y por mes.
+   - **Qué responde Sales Cat cuando le preguntan:** cuánto lleva, qué porcentaje es,
+     cuánto falta y a qué ritmo diario tendría que vender en los días que quedan.
+   - **No envía avisos por su cuenta** (decisión 15). Solo la línea de Inicio puede
+     mostrar el avance, por ejemplo «Sales Cat: S/ 12,400 de S/ 20,000 (62 %)».
+   - **Ventas que cuentan:** las confirmadas del mes en hora de Lima. Las anuladas no
+     cuentan.
+2. **Nombre propio del gato por empresa (decisión 2)**
+   - La titular puede ponerle nombre por chat («llámate Michi») o desde la ficha del
+     portal.
+   - En el chat, escribir ese nombre al inicio («Michi, ¿cuánto vendimos hoy?») lo
+     llama igual que `/sales`.
+   - El nombre se usa en sus respuestas.
+   - **Límites del nombre:** de 2 a 20 caracteres y sin enlaces. Tampoco puede
+     coincidir con el nombre o el comando de otro gato ni con «MeowLab».
+   - **No puede romper el ruteo de los demás roles ni la deduplicación.** Agrega
+     pruebas de que «/stock», «/collections» y los mensajes normales siguen yendo
+     donde iban.
+3. **Ventas al crédito como deuda en Collections Cat (decisión 9)**
+   - **Hoy:** una venta con forma de pago `credito` guarda su saldo en `sales.sales`,
+     pero no crea deuda en `receivables`.
+   - **Qué cambia:** al confirmarla, si la empresa tiene Collections Cat activo, crea la
+     deuda del cliente en `receivables.debts`, enlazada a la venta:
+     - el vencimiento usa `default_due_days` de Collections;
+     - si la venta trae fecha, usa esa.
+   - **Una sola deuda por venta:** idempotencia por venta.
+   - **Anular la venta** anula la deuda si aún no tiene pagos. Si ya tiene pagos, no la
+     toca y avisa a la titular.
+   - **Sin Collections Cat activo**, todo sigue como hoy: el saldo queda en la venta.
+   - **Si después se activa Collections**, ofrece por chat traer las ventas al crédito
+     con saldo pendiente. No las migres solas.
+   - **Respuestas de Sales Cat:** dice «Registré la venta al crédito; Collections Cat
+     le hará seguimiento» solo cuando de verdad creó la deuda.
+
+### Archivos permitidos
+
+- `apps/manolo-whatsapp-worker/src/roles/sales-role.ts`, `src/node/sales/` y sus pruebas.
+- `src/node/collections/`, solo para una función de alta y anulación de deuda desde
+  Sales, sin cambiar los flujos de Collections. Sus pruebas deben seguir igual.
+- El ruteo de roles, solo lo mínimo para el nombre propio, con pruebas.
+- `infra/postgres/migrations/` para la tabla de metas, el nombre del gato y el enlace
+  venta-deuda. Sin aplicar. Revisa el siguiente número libre también en las ramas de
+  AGY-2 y AGY-3 y en `origin/feat/tender-*`; si chocan, usa el siguiente y anótalo.
+- Portal: la ficha de Sales Cat en `apps/meowlab-app/web/src` (meta y nombre), la
+  línea de Inicio y la ruta de servidor que haga falta. Usa `apiFetch` y `PageHeader`,
+  que ya están en `main`.
+- **No toques Stock Cat** (es de AGY-3) **ni Plan ni la activación por pago** (son de
+  AGY-2).
+
+### Terminado cuando
+
+- **Worker:** pasan `npm test`, con la línea base de 2 fallas de Tender, y
+  `npx tsc --noEmit`.
+- **Portal:** pasan `npm test`, `npm run typecheck` y `npm run build`.
+- **Pruebas nuevas:**
+  - meta del mes con ventas anuladas;
+  - cambio de mes en hora de Lima;
+  - nombre propio que no rompe el ruteo;
+  - venta al crédito que crea una sola deuda;
+  - anulación con y sin pagos;
+  - empresa sin Collections;
+  - aislamiento por tenant.
+- **El PR trae:**
+  - un ejemplo de conversación para cada una de las tres funciones;
+  - las migraciones que habrá que aplicar, en orden.

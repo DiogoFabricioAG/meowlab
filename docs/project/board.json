@@ -1824,11 +1824,11 @@
       "id": "sales-cat-3-extras-20261113",
       "title": "Sales Cat fase 3: metas, nombre propio del gato, stock y deudas",
       "area": "Manolo",
-      "owner": "",
+      "owner": "AGY-1",
       "priority": "medium",
-      "status": "todo",
-      "updated": "2026-11-13",
-      "notes": "ADR-0011.",
+      "status": "in_progress",
+      "updated": "2026-11-20",
+      "notes": "ADR-0011. Asignada (metas, nombre propio y deudas; sin stock) en docs/agents/tareas-agy-2026-11-20-tanda4.md.",
       "evidence": ""
     },
     {
