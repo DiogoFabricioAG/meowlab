@@ -98,13 +98,6 @@ export function TenderPanel({
     window.scrollTo(0, 0);
   }
 
-  function openOpportunity(op: TenderOpportunity) {
-    const key = op.alert.ocid ?? op.id;
-    updateHash(key, "quote");
-    setLegacyItem(null);
-    window.scrollTo(0, 0);
-  }
-
   function handleOpportunityUpdated(updated: TenderOpportunity) {
     setOpportunities((prev) => {
       const exists = prev.some((op) => op.id === updated.id);
@@ -193,13 +186,9 @@ export function TenderPanel({
         <TenderList
           weekly={weekly}
           weeklyFailed={failed}
-          savedOpportunities={opportunities}
           opportunitiesError={oppsError}
           onReloadOpportunities={() => setReloadTick((n) => n + 1)}
           onSelect={openHighlight}
-          onSelectOpportunity={openOpportunity}
-          onToggleHidden={handleToggleHidden}
-          hiddenBusyId={hiddenBusyId}
           hiddenError={hiddenError}
           onBack={onBack}
         />
