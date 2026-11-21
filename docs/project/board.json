@@ -2234,6 +2234,83 @@
       "updated": "2026-11-20",
       "notes": "CollectionsService.remind() escribe last_reminder_at y reminders.created_at con CURRENT_TIMESTAMP de PostgreSQL e ignora this.now(). tools/collections-pg-check.ts lo compensa con syncReminderTimestamp(); al corregir el servicio, quitar ese parche. Asignada en docs/agents/tareas-agy-2026-11-20.md.",
       "evidence": "CollectionsService usa this.now() en remind(), companies(), overview(), apply() y decidePayment(); se quitó syncReminderTimestamp() de tools/collections-pg-check.ts; vitest (collections-service.test.ts + collections-role.test.ts: 14 passed), npx tsc --noEmit y collections-pg-check contra PostgreSQL 16 (all collections checks passed, exit 0)."
+    },
+    {
+      "area": "App móvil",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "app-movil-0-cuentas-20261120",
+      "title": "App móvil fase 0: cuenta de Play Console, proyecto Firebase y clave de subida",
+      "priority": "high",
+      "notes": "Lo hace el operador (ADR-0018). Decidir cuenta personal (prueba cerrada de 12 testers por 14 días) u organización (requiere D-U-N-S). Clave de subida fuera del repo con respaldo."
+    },
+    {
+      "area": "App móvil",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "app-movil-1-shell-20261120",
+      "title": "App móvil fase 1: Capacitor con el portal, apiFetch, sesión con token y APK de prueba",
+      "priority": "high",
+      "notes": "ADR-0018 fase 1: apiFetch() con VITE_API_ORIGIN, plugin bearer de better-auth, CORS para https://localhost, apps/meowlab-mobile con android/, ícono, splash, botón atrás, enlaces externos y pantalla sin conexión. El despliegue del servidor espera la fusión de las ramas de Tender Cat."
+    },
+    {
+      "area": "App móvil",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "app-movil-2-push-20261120",
+      "title": "App móvil fase 2: notificaciones push con FCM desde el bridge",
+      "priority": "medium",
+      "notes": "ADR-0018 fase 2: tabla app_devices, registro del dispositivo, envío HTTP v1 desde el bridge para captura de pago, pedido por aprobar y caso escalado, y preferencias por tipo."
+    },
+    {
+      "area": "App móvil",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "app-movil-3-play-20261120",
+      "title": "App móvil fase 3: prueba cerrada y publicación en Google Play",
+      "priority": "medium",
+      "notes": "ADR-0018 fase 3: AAB firmado desde un commit publicado, ficha de Play, seguridad de datos y prueba cerrada."
+    },
+    {
+      "area": "App móvil",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "app-movil-4-compartir-huella-20261120",
+      "title": "App móvil fase 4: compartir fotos hacia Stock y Collections Cat y entrar con huella",
+      "priority": "low",
+      "notes": "ADR-0018 fase 4."
+    },
+    {
+      "area": "Portal",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "portal-page-header-20261120",
+      "title": "Portal: encabezado estándar (PageHeader) con la misma altura y tamaño en todas las páginas",
+      "priority": "medium",
+      "notes": "Pedido del operador el 20/11: Tender usa h1 sm:text-4xl sin negrita y logo de 44 px; Invoice y el resto usan text-3xl font-bold y logo de 48 px. Las páginas de agentes ponen «← Tus agentes» arriba, así que su título queda unos 70 px más abajo que en las generales. Un componente con una fila superior de altura fija en todas. TenderList lo adopta cuando su rama se fusione."
+    },
+    {
+      "area": "Tender",
+      "owner": "",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "evidence": "",
+      "id": "tender-lista-simplificar-20261120",
+      "title": "Tender Cat: dejar solo «Destacadas de la semana» en /agentes/licitaciones",
+      "priority": "medium",
+      "notes": "Pedido del operador el 20/11: quitar las secciones «Guardadas anteriores» y «Quitadas» de TenderList.tsx (solo existe en las ramas de Tender Cat). Le toca al flujo de Tender Cat."
     }
   ]
 }
