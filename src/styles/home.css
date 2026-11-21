@@ -262,6 +262,7 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
 
 /* ---------------------------------------------------------------- phone */
 @media (max-width: 639px) {
+  .ml-hero { overflow-x: clip; }
   .ml-phone { --ph: min(600px, calc(100svh - 120px)); min-height: 460px; }
   .ml-hero .ml-phone { --ph: 560px; }
   .ml-hero__art::before { width: 118%; }
