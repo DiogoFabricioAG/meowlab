@@ -2502,6 +2502,17 @@
       "updated": "2026-11-21",
       "evidence": "",
       "notes": "Visto el 21/11 a las 06:00 UTC: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de CREACIONES J&D sigue NULL (summary_hour 20). El handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. No usar el teléfono de prueba del operador."
+    },
+    {
+      "id": "portal-consejo-de-gatos-20261121",
+      "title": "Tus agentes como «consejo de gatos»: cada gato da un consejo con datos reales para mejorar el negocio",
+      "area": "Portal",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     }
   ]
 }

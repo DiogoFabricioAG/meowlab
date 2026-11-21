@@ -8,7 +8,7 @@ despliegue conjunto (`docs/operations/despliegue-main-cad7f-2026-11-20.md`).
 - AGY-1 sigue con Sales Cat fase 3, AGY-2 con la activación de los gatos por pago y
   AGY-3 con Stock Cat fase 2.
 - Las tareas de esta tanda las toma **el primer agente que quede libre**, en orden:
-  **T1**, **T2**, **T3**, **T4**, **T5**, **T6** y **T7**. Hay una para cada agente y una de reserva, así
+  **T1**, **T2**, **T3**, **T4**, **T5**, **T6**, **T7** y **T8**. Hay una para cada agente y una de reserva, así
   ninguno se queda sin trabajo.
 - Antes de empezar, cada agente marca la tarea con su nombre en el tablero, para que
   otro no la tome.
@@ -489,5 +489,95 @@ Anota en el PR qué patrón tomaste de cada referencia.
 
 - `npm test` del Worker pasa **completo**, sin línea base, y `npx tsc --noEmit` pasa.
 - El PR explica la causa encontrada y trae una prueba que falla antes del arreglo.
+- La tarea del tablero queda en `done`.
+
+---
+
+## T8 — «Tus agentes» como el consejo de gatos de tu negocio
+
+- **Tarea del tablero:** `portal-consejo-de-gatos-20261121`.
+- **Worktree y rama:** `D:/meowlab-wt-t8-consejo`, rama `feat/consejo-de-gatos`, desde
+  `origin/main`.
+- **Se hace en dos pasos.** El operador no tiene una idea cerrada: primero propones y él
+  elige, después construyes.
+
+### Qué pidió el operador
+
+- **Hoy:** «Tus agentes» (`AgentsPage.tsx`) es una grilla de siete tarjetas iguales, cada
+  una con logo, «Activo», una frase y «Ver lo que hizo». Es correcta, pero no transmite
+  nada.
+- **Lo que quiere:** verla como un **consejo de gatos** cuyo tema es mejorar tu negocio,
+  con un tono divertido.
+
+### La idea base (puedes mejorarla)
+
+- **La mesa del consejo:** los gatos sentados alrededor de una mesa, ilustrada con SVG
+  propio y los logos de `/agents/*-cat.webp`.
+  - Cada gato activo tiene su silla.
+  - Un gato que la empresa no tiene es una **silla vacía**, con «Este puesto está libre:
+    suma a Reorder Cat», que lleva a Plan.
+- **La sesión de hoy:** cada gato activo «toma la palabra» con **un consejo concreto
+  sacado de datos reales**. Ejemplos:
+  - Stock Cat: «3 productos no se venden hace 30 días»;
+  - Collections Cat: «Bodega Rosita te debe S/ 350 y vence el viernes»;
+  - Sales Cat: «Llevas el 62 % de tu meta del mes».
+- **Cada consejo trae una acción:** «Ver productos», «Recordar por WhatsApp» o «Ver
+  meta».
+- **Si un gato no tiene nada que decir,** lo dice con humor y en corto: «Stock Cat:
+  todo en orden, me echo una siesta 😺».
+- **Lo de hoy no se pierde:** «Ver lo que hizo» y la línea de hoy de cada gato siguen
+  accesibles, por ejemplo al tocar el gato.
+
+### Reglas
+
+- **Nada inventado.** Los consejos salen de reglas sobre los datos que el portal ya recibe:
+  el resumen semanal (`weekly`), las vistas de cada gato y la actividad.
+  - Sin IA generativa en esta tarea.
+  - Si un dato no está, el gato no lo menciona.
+- **Divertido, no infantil.** El tono es de un equipo que trabaja para la dueña:
+  - frases cortas, de tú, con algún emoji;
+  - nunca «RADAR», «FacturaYa» ni «Manolo».
+- **Usable.**
+  - En celular la mesa se vuelve una lista vertical que se lee bien a 390 px.
+  - Respeta `prefers-reduced-motion` si hay animaciones.
+  - Lectores de pantalla: cada consejo es texto real, no imagen.
+- **Sistema visual del portal:**
+  - tokens de `styles.css`, `PageHeader`, Crete Round y Figtree;
+  - sin librerías nuevas de ilustración ni de animación.
+
+### Paso 1: propuesta (PR en borrador)
+
+- **Dos direcciones visuales distintas,** por ejemplo:
+  - «mesa redonda ilustrada»;
+  - «acta de la reunión», con los consejos como puntos de una agenda.
+- **Una pantalla estática de cada una,** con datos de ejemplo de CREACIONES J&D, a 1366
+  y 390 px.
+- **Una lista de las reglas de consejo por gato:** qué dato mira, desde qué umbral habla
+  y qué acción ofrece.
+- **Abre el PR como borrador** y avisa al coordinador para que el operador elija.
+  **No sigas hasta tener la elección.**
+
+### Paso 2: construcción
+
+- **La dirección elegida,** con las reglas de consejo en un módulo puro y probado:
+  - casos con datos, sin datos y con un gato sin contratar.
+- **Sin dañar «Tus agentes»:** las fichas de cada gato (`/agentes/*`) y su navegación no
+  cambian.
+
+### Archivos permitidos
+
+- `apps/meowlab-app/web/src/AgentsPage.tsx`, componentes nuevos en `web/src`, `agents.ts`
+  (solo textos y las reglas de consejo) y las pruebas del portal.
+- **Lo que no tocas:**
+  - las fichas de cada gato;
+  - Plan, que está en T6.
+
+  Si necesitas un dato nuevo del bridge, anótalo como pendiente en lugar de hacerlo.
+
+### Terminado cuando
+
+- **Paso 1:** está el PR en borrador con las dos propuestas.
+- **Paso 2:** pasan `npm test`, `npm run typecheck` y `npm run build`, y el PR trae
+  capturas de la versión final a 1366 y 390 px.
 - La tarea del tablero queda en `done`.
 
