@@ -61,52 +61,58 @@ it("consumes activation controls before a fiscal contact and does not change the
 });
 
 it("composes AI alert writing and context-aware follow-up through the real Worker", async () => {
-  const aiInputs: string[] = [];
-  vi.mocked(fetch).mockImplementation(async (url, init) => {
-    if (String(url).includes("graph.facebook.com")) {
-      const body = JSON.parse(String(init?.body || "{}"));
-      if (body.text?.body) replies.push(body.text.body);
-      if (body.interactive?.body?.text) replies.push(body.interactive.body.text);
-      return Response.json({ messages: [{ id: `wamid.${crypto.randomUUID()}` }] });
-    }
-    if (String(url).includes("api.openai.com") || String(url).includes("api.groq.com")) {
-      const body = JSON.parse(String(init?.body || "{}"));
-      aiInputs.push(JSON.stringify(body.messages));
-      const request = JSON.parse(String(init?.body || "{}"));
-      const text = "Warmi Nan busca proveedores de chalecos institucionales.";
-      return Response.json({ choices: [{ message: { role: "assistant", content: request.response_format
-        ? JSON.stringify({ what: text, purpose: null, objectQuote: "CHALECOS INSTITUCIONALES", purposeQuote: null }) : text } }] });
-    }
-    throw Error("Unexpected provider");
-  });
-  const api = async (path: string, body: unknown, token = "") => {
-    const ctx = createExecutionContext();
-    const result = await worker.fetch(new Request(`https://test/v1/projects/radar${path}`, { method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "CF-Connecting-IP": crypto.randomUUID() }, body: JSON.stringify(body) }) as Request<unknown, IncomingRequestCfProperties>, {
-      ...env, META_APP_SECRET: secret, META_ACCESS_TOKEN: "test-token", META_GRAPH_API_VERSION: "v25.0", OPENAI_API_KEY: "test-ai-key",
-      WHATSAPP_PHONE_NUMBER_ID: phone, VPS_BRIDGE_ENABLED: "false", VPS_PLATFORM_SHADOW_ENABLED: "false", WHATSAPP_BURST_ENABLED: "false",
-    }, ctx);
-    await waitOnExecutionContext(ctx); return result;
-  };
-  const registration = await (await api("/installations", {})).json() as { message: string; token: string };
-  await dispatch(registration.message);
-  const alert = { ocid: "ocds-routing-123", code: "TEST-2026", description: "ADQUISICION DE CHALECOS INSTITUCIONALES", buyer: "Programa Warmi Nan",
-    amount: "Monto por confirmar", deadline: "2026-11-03T23:59:00-05:00", sourceUrl: "https://contratacionesabiertas.oece.gob.pe" };
-  expect(await (await api("/alerts", alert, registration.token)).json()).toMatchObject({ status: "accepted" });
-  expect(replies.at(-1)).toContain("Warmi Nan busca proveedores");
-  expect(replies.at(-1)).not.toContain(alert.ocid);
-  await dispatch("Me interesa");
-  expect(aiInputs.at(-1)).toContain(alert.ocid);
-  expect(aiInputs.at(-1)).toContain("ultimoAviso");
-  expect(replies.at(-1)).not.toContain("FacturaYa");
-  const outgoing = vi.mocked(fetch).mock.calls.map(([, init]) => JSON.parse(String(init?.body || "{}")))
-    .find(body => body.interactive?.action?.buttons?.[0]?.reply?.id?.startsWith("radar:alert:"));
-  expect(outgoing.interactive.action.buttons.map((b: { reply: { title: string } }) => b.reply.title))
-    .toEqual(["Me interesa", "Ver detalle", "Descartar"]);
-  const beforeDetail = aiInputs.length;
-  await dispatch("Ver detalle", crypto.randomUUID(), outgoing.interactive.action.buttons[1].reply.id);
-  expect(aiInputs).toHaveLength(beforeDetail);
-  expect(replies.at(-1)).toContain("*Detalle de la convocatoria*");
-  expect(replies.at(-1)).toContain("*Entidad*\nPrograma Warmi Nan");
-  expect(replies.at(-1)).toContain("buscadorPublico.xhtml");
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-10-18T14:00:00.000Z")); // 09:00 Lima, inside [08:00, 20:00)
+  try {
+    const aiInputs: string[] = [];
+    vi.mocked(fetch).mockImplementation(async (url, init) => {
+      if (String(url).includes("graph.facebook.com")) {
+        const body = JSON.parse(String(init?.body || "{}"));
+        if (body.text?.body) replies.push(body.text.body);
+        if (body.interactive?.body?.text) replies.push(body.interactive.body.text);
+        return Response.json({ messages: [{ id: `wamid.${crypto.randomUUID()}` }] });
+      }
+      if (String(url).includes("api.openai.com") || String(url).includes("api.groq.com")) {
+        const body = JSON.parse(String(init?.body || "{}"));
+        aiInputs.push(JSON.stringify(body.messages));
+        const request = JSON.parse(String(init?.body || "{}"));
+        const text = "Warmi Nan busca proveedores de chalecos institucionales.";
+        return Response.json({ choices: [{ message: { role: "assistant", content: request.response_format
+          ? JSON.stringify({ what: text, purpose: null, objectQuote: "CHALECOS INSTITUCIONALES", purposeQuote: null }) : text } }] });
+      }
+      throw Error("Unexpected provider");
+    });
+    const api = async (path: string, body: unknown, token = "") => {
+      const ctx = createExecutionContext();
+      const result = await worker.fetch(new Request(`https://test/v1/projects/radar${path}`, { method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "CF-Connecting-IP": crypto.randomUUID() }, body: JSON.stringify(body) }) as Request<unknown, IncomingRequestCfProperties>, {
+        ...env, META_APP_SECRET: secret, META_ACCESS_TOKEN: "test-token", META_GRAPH_API_VERSION: "v25.0", OPENAI_API_KEY: "test-ai-key",
+        WHATSAPP_PHONE_NUMBER_ID: phone, VPS_BRIDGE_ENABLED: "false", VPS_PLATFORM_SHADOW_ENABLED: "false", WHATSAPP_BURST_ENABLED: "false",
+      }, ctx);
+      await waitOnExecutionContext(ctx); return result;
+    };
+    const registration = await (await api("/installations", {})).json() as { message: string; token: string };
+    await dispatch(registration.message);
+    const alert = { ocid: "ocds-routing-123", code: "TEST-2026", description: "ADQUISICION DE CHALECOS INSTITUCIONALES", buyer: "Programa Warmi Nan",
+      amount: "Monto por confirmar", deadline: "2026-11-03T23:59:00-05:00", sourceUrl: "https://contratacionesabiertas.oece.gob.pe" };
+    expect(await (await api("/alerts", alert, registration.token)).json()).toMatchObject({ status: "accepted" });
+    expect(replies.at(-1)).toContain("Warmi Nan busca proveedores");
+    expect(replies.at(-1)).not.toContain(alert.ocid);
+    await dispatch("Me interesa");
+    expect(aiInputs.at(-1)).toContain(alert.ocid);
+    expect(aiInputs.at(-1)).toContain("ultimoAviso");
+    expect(replies.at(-1)).not.toContain("FacturaYa");
+    const outgoing = vi.mocked(fetch).mock.calls.map(([, init]) => JSON.parse(String(init?.body || "{}")))
+      .find(body => body.interactive?.action?.buttons?.[0]?.reply?.id?.startsWith("radar:alert:"));
+    expect(outgoing.interactive.action.buttons.map((b: { reply: { title: string } }) => b.reply.title))
+      .toEqual(["Me interesa", "Ver detalle", "Descartar"]);
+    const beforeDetail = aiInputs.length;
+    await dispatch("Ver detalle", crypto.randomUUID(), outgoing.interactive.action.buttons[1].reply.id);
+    expect(aiInputs).toHaveLength(beforeDetail);
+    expect(replies.at(-1)).toContain("*Detalle de la convocatoria*");
+    expect(replies.at(-1)).toContain("*Entidad*\nPrograma Warmi Nan");
+    expect(replies.at(-1)).toContain("buscadorPublico.xhtml");
+  } finally {
+    vi.useRealTimers();
+  }
 });
