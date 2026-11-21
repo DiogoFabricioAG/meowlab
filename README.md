@@ -110,7 +110,7 @@ flowchart LR
 | **Portal** | [`apps/meowlab-app`](apps/meowlab-app) | Hono, React 19, Vite, Tailwind 4, better-auth | VPS, contenedor `meowlab-app` |
 | **App Android** | [`apps/meowlab-mobile`](apps/meowlab-mobile) | Capacitor sobre el portal | Celular (aún sin publicar) |
 | **Facturación electrónica** | repositorio `facturaya-ai` | Laravel, PHP 8.4, Greenter | VPS, contenedores `facturaya-ai-*` |
-| **Servicio de Tender Cat** | ramas `feat/tender-*` (en proceso de fusión) | Node | VPS, contenedor `meowlab-app-tender-service-1` |
+| **Servicio de Tender Cat** | [`apps/tender-service`](apps/tender-service) | Python 3.12 | VPS, contenedor `meowlab-app-tender-service-1` |
 
 ### Cómo viaja un mensaje
 
@@ -227,7 +227,8 @@ meowlab/
 │  │  ├─ infra/vps/               Docker, Caddy y scripts de release del bridge
 │  │  └─ test/                    Pruebas (Vitest con el pool de Workers)
 │  ├─ meowlab-app/                Portal: server/ (Hono), web/ (React), migraciones del portal
-│  └─ meowlab-mobile/             App Android (Capacitor) que empaqueta el portal
+│  ├─ meowlab-mobile/             App Android (Capacitor) que empaqueta el portal
+│  └─ tender-service/            Servicio de Tender Cat (Python): fichas, bases y expediente
 ├─ docs/
 │  ├─ architecture/               Arquitectura actual y borradores
 │  ├─ decisions/                  Decisiones de arquitectura (ADR)
