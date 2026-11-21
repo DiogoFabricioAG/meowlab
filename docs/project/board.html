@@ -218,7 +218,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 82 · Total: 212</span>
+      <span class="summary">Abiertas: 80 · Total: 212</span>
     </div>
   </div>
 </header>
@@ -1060,7 +1060,7 @@
       <section class="column" data-column="in_progress">
         <header class="column-head">
           <h2>IN PROGRESS</h2>
-          <span class="count">7</span>
+          <span class="count">5</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="diseñar estrategia multi-cliente: langgraph por fases y números por rol plataforma comparación hecha; falta adr y prototipo de migración. ">
@@ -1118,34 +1118,12 @@
           <p class="card-meta">Actualizado: 2026-11-14</p>
           <code class="card-id">billing-4-collections-cat-20261111</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: revisar a mano los anchos de tablet (768-1024 px) landing el gate de taste-skill sólo mide 1440 y 390. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Landing: revisar a mano los anchos de tablet (768-1024 px)</h3>
-          
-          <p class="card-notes">El gate de taste-skill sólo mide 1440 y 390. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">landing-tablet-revision-20261113</code>
-        </article>
-        <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. asignada en docs/agents/tareas-agy-2026-11-20.md. ">
-          <div class="card-top">
-            <span class="badge area-landing">Landing</span>
-            <span class="priority priority-low">Baja</span>
-          </div>
-          <h3 class="card-title">Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)</h3>
-          
-          <p class="card-notes">WARN de perf.mjs. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
-          <code class="card-id">landing-fuentes-woff2-20261113</code>
-        </article>
         </div>
       </section>
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">130</span>
+          <span class="count">132</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="portal: inicio como centro de mando y barra lateral clara portal propuesta del análisis de diseño, pasos 1 y 2. rama feat/portal-centro-de-mando. barra lateral blanca con el contador de pendientes en inicio y tus gatos con su estado (te necesita, trabajó hoy, sin novedades). inicio con la semana en cuatro cifras con su comparación, «para atender» (pedidos por aprobar, casos, clientes por llamar, rechazos de sunat, stock bajo, licitaciones interesantes) y tus gatos hoy. todo sale del resumen semanal existente: no hay gráficas de tendencia porque no existen series diarias, y no hay registro minuto a minuto. las aprobaciones siguen en el chat; cada pendiente abre el panel del gato. contenido más ancho (max-w-6xl). fusionado (pr #24, 4b35a5e1608f) y desplegado el 2026-11-19 como meowlab-app:4b35a5e1608f; acta en docs/operations/portal-centro-de-mando-2026-11-19.md. apps/meowlab-app: typecheck ok, vitest 56/56 (4 nuevas en test/attention.test.ts), vite build ok. capturas a 1440x900 y 390x844 con chrome headless y la api respondida con datos de ejemplo, sin desborde horizontal.">
@@ -2402,6 +2380,17 @@
           <p class="card-meta">Actualizado: 2026-11-13</p>
           <code class="card-id">portal-verde-20261113</code>
         </article>
+        <article class="card" data-priority="medium" data-area="Landing" data-text="landing: revisar a mano los anchos de tablet (768-1024 px) landing el gate de taste-skill sólo mide 1440 y 390. asignada en docs/agents/tareas-agy-2026-11-20.md. corregido en src/styles/home.css: hero crece con min-height:100svh bajo 1024px y max-height:760px; #gatos mantiene teléfono a 340px en 860-1023px y apila con etapa sticky bajo 860px; pill del compositor ajustado. verificado sin scroll horizontal ni recortes en 360, 390, 768, 820, 912, 1024, 1280@90% y 1440px; capturas antes/después en 768 y 1024px.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Landing: revisar a mano los anchos de tablet (768-1024 px)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> Corregido en src/styles/home.css: hero crece con min-height:100svh bajo 1024px y max-height:760px; #gatos mantiene teléfono a 340px en 860-1023px y apila con etapa sticky bajo 860px; pill del compositor ajustado. Verificado sin scroll horizontal ni recortes en 360, 390, 768, 820, 912, 1024, 1280@90% y 1440px; capturas antes/después en 768 y 1024px.</p>
+          <p class="card-notes">El gate de taste-skill sólo mide 1440 y 390. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">landing-tablet-revision-20261113</code>
+        </article>
         <article class="card" data-priority="medium" data-area="Portal" data-text="logos de los 7 agentes en la landing y el portal portal logos de feat/agent-logos-webp. acta: docs/operations/landing-taste-2026-11-13.md (sección de logos). producción: meowlab-web:18a507764f75 y meowlab-app:05019f9bc854; páginas y logos 200; gate de taste-skill pass; portal 31/31.">
           <div class="card-top">
             <span class="badge area-other">Portal</span>
@@ -2478,6 +2467,17 @@
           
           <p class="card-meta">Actualizado: 2026-09-13</p>
           <code class="card-id">nota-arquitectura-13-09</code>
+        </article>
+        <article class="card" data-priority="low" data-area="Landing" data-text="landing: pasar blinker y actor de ttf a woff2 (284 kb) landing warn de perf.mjs. asignada en docs/agents/tareas-agy-2026-11-20.md. 4 fuentes subconjuntadas (latín + español + lnum/tnum) a woff2 en public/fonts/: blinker regular 73000-&gt;18872 b, semibold 80044-&gt;20900 b, bold 74312-&gt;19408 b, actor regular 62752-&gt;21184 b (284.1 kib -&gt; 79.2 kib). actualizados src/styles/fonts.css y src/layouts/landinglayout.astro. perf.mjs: pass font bytes 79.2 kib.">
+          <div class="card-top">
+            <span class="badge area-landing">Landing</span>
+            <span class="priority priority-low">Baja</span>
+          </div>
+          <h3 class="card-title">Landing: pasar Blinker y Actor de TTF a WOFF2 (284 KB)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> 4 fuentes subconjuntadas (latín + español + lnum/tnum) a WOFF2 en public/fonts/: Blinker Regular 73000-&gt;18872 B, SemiBold 80044-&gt;20900 B, Bold 74312-&gt;19408 B, Actor Regular 62752-&gt;21184 B (284.1 KiB -&gt; 79.2 KiB). Actualizados src/styles/fonts.css y src/layouts/LandingLayout.astro. perf.mjs: PASS font bytes 79.2 KiB.</p>
+          <p class="card-notes">WARN de perf.mjs. Asignada en docs/agents/tareas-agy-2026-11-20.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
+          <code class="card-id">landing-fuentes-woff2-20261113</code>
         </article>
         <article class="card" data-priority="low" data-area="Portal" data-text="formato de documentos 5: cambiar logo, pagos y pie desde el chat de manolo portal adr-0012. cerrada sin hacer: adr-0013 reemplaza a adr-0012 (plantilla única, sin kit de marca). docs/decisions/0013-plantilla-unica-y-cotizacion-en-pdf.md">
           <div class="card-top">

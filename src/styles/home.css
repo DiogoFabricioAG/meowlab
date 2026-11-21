@@ -88,7 +88,7 @@ button.ml-btn:focus-visible { outline: 3px solid var(--wa-teal); outline-offset:
 .ml-btns.is-used .ml-btn { animation: none; }
 .ml-btns.is-used .ml-btn:not(.is-tapped) { opacity: .6; }
 .ml-composer { display: flex; align-items: flex-end; gap: 6px; flex: none; padding: 6px 8px 16px; }
-.ml-composer__pill { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; min-height: 44px; padding: 10px 12px; border-radius: 24px; background: #ffffff; color: #8696a0; font-size: 15px; line-height: 20px; box-shadow: 0 1px .5px rgb(11 20 26 / .13); }
+.ml-composer__pill { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 44px; padding: 9px 11px; border-radius: 24px; background: #ffffff; color: #8696a0; font-size: 15px; line-height: 20px; box-shadow: 0 1px .5px rgb(11 20 26 / .13); }
 .ml-composer__pill svg { width: 22px; height: 22px; flex: none; fill: #8696a0; color: #8696a0; }
 /* while typing the clip makes room for the text, as WhatsApp does */
 .ml-composer__text.is-typing ~ svg { display: none; }
@@ -224,8 +224,10 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
 
 /* ---------------------------------------------------------------- tablet */
 @media (max-width: 1023px) {
+  main > section.hero.ml-hero { height: auto; min-height: 100svh; }
+  main > section.hero.ml-hero > .wrap { height: auto; min-height: 100%; }
   .ml-hero__art { grid-column: 1 / -1; margin-top: var(--s-6); }
-  .ml-tour__body { gap: 24px; }
+  .ml-tour__body { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
   .ml-rail a { width: 36px; height: 36px; }
   .ml-rail a img { width: 28px; height: 28px; }
   .ml-tour__stage { --stage-h: min(560px, calc(100svh - 160px)); }
@@ -241,6 +243,21 @@ main > section.section.ml-faq { height: auto; min-height: 0; }
   .ml-app { grid-template-columns: minmax(0, 1fr); flex: none; }
   .ml-app__side { display: none; }
   .ml-faq__grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-6); }
+}
+
+@media (max-width: 859px) {
+  .ml-tour__body { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .ml-tour__stage { --stage-h: min(500px, 48svh); grid-row: 1; top: 72px; z-index: 2; gap: 10px; margin-top: 0; padding: 10px 0 14px; background: linear-gradient(var(--bg) 88%, transparent); }
+  .ml-tour__stage::before { display: none; }
+  .ml-tour .ml-phone { min-height: 400px; }
+  .ml-step { min-height: 50svh; align-content: start; max-width: none; padding-top: 16px; }
+}
+
+@media (max-height: 760px) {
+  main > section.hero.ml-hero { height: auto; min-height: 100svh; }
+  main > section.hero.ml-hero > .wrap { height: auto; min-height: 100%; }
+  .ml-phone { --ph: min(600px, calc(100svh - 150px)); min-height: 440px; }
+  .ml-tour__stage { --stage-h: min(560px, calc(100svh - 170px)); top: max(84px, calc((100svh - var(--stage-h)) / 2)); }
 }
 
 /* ---------------------------------------------------------------- phone */
