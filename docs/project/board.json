@@ -2512,7 +2512,7 @@
       "status": "todo",
       "updated": "2026-11-21",
       "evidence": "",
-      "notes": "Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+      "notes": "Pedido del operador el 21/11: la grilla de agentes es correcta pero sosa; quiere un consejo de agentes divertido con la temática de mejorar el negocio. En dos pasos: dos propuestas visuales en un PR en borrador para que el operador elija; después la construcción. Tanda 5, T8: docs/agents/tareas-agy-2026-11-21-tanda5.md. 21/11: el operador eligió la mesa redonda con enfoque estratégico (tendencias y oportunidades, sin repetir Para atender ni Tus gatos hoy). Tendencia sale de Inicio y pasa a la mesa. La versión 2 está en tareas-agy-2026-11-21-tanda6.md."
     },
     {
       "id": "billing-pago-unico-yape-20261121",
@@ -2524,6 +2524,17 @@
       "updated": "2026-11-21",
       "evidence": "",
       "notes": "Pedido del operador el 21/11: Plan no ofrece Yape porque las suscripciones (preapproval) solo aceptan tarjeta. Se elige la opción A, pago único con Checkout Pro y webhook type=payment, frente a la B (QR propio con aprobación, billing-3-yape-qr-20261111). Tanda 5, T9: docs/agents/tareas-agy-2026-11-21-tanda5.md."
+    },
+    {
+      "id": "bridge-productos-sin-movimiento-20261121",
+      "title": "Bridge: dato de productos sin movimiento (30 días) y capital inmovilizado para el consejo de gatos",
+      "area": "Manolo",
+      "owner": "",
+      "priority": "medium",
+      "status": "todo",
+      "updated": "2026-11-21",
+      "evidence": "",
+      "notes": "Stock Cat lo necesita en la mesa del consejo (T8, versión 2) para dar un consejo de tendencia. Se agrega a WeeklySummary.stock, con su contrato y sus pruebas."
     }
   ]
 }
