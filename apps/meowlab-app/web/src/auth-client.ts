@@ -1,6 +1,42 @@
 import { createAuthClient } from "better-auth/react";
+import {
+  API_ORIGIN,
+  apiFetch,
+  clearAuthToken,
+  getAuthTokenSync,
+  isNativeApp,
+  readAuthToken,
+  saveAuthToken,
+} from "./api";
 
-export const authClient = createAuthClient({ basePath: "/api/auth" });
+export const authClient = createAuthClient({
+  baseURL: API_ORIGIN || undefined,
+  basePath: "/api/auth",
+  fetchOptions: {
+    credentials: isNativeApp() ? "omit" : "same-origin",
+    auth: {
+      type: "Bearer",
+      token: () => (isNativeApp() ? getAuthTokenSync() ?? undefined : undefined),
+    },
+    onRequest: async (ctx) => {
+      if (!isNativeApp()) return;
+      const token = getAuthTokenSync() ?? (await readAuthToken());
+      if (token) {
+        const headers = new Headers(ctx.headers);
+        if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+        ctx.headers = headers;
+      }
+    },
+    onResponse: async (ctx) => {
+      if (!isNativeApp()) return;
+      const token = ctx.response.headers.get("set-auth-token");
+      if (token) await saveAuthToken(token);
+      if (ctx.request.url.toString().includes("/sign-out")) {
+        await clearAuthToken();
+      }
+    },
+  },
+});
 
 export type PortalConfig = { google: boolean; passwordReset: boolean; whatsappLinking?: boolean };
 
@@ -32,9 +68,8 @@ export type Me = {
 };
 
 export async function postJson<T>(path: string, body: Record<string, unknown> = {}): Promise<T | null> {
-  const response = await fetch(path, {
+  const response = await apiFetch(path, {
     method: "POST",
-    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
@@ -43,7 +78,7 @@ export async function postJson<T>(path: string, body: Record<string, unknown> = 
 }
 
 export async function fetchJson<T>(path: string): Promise<T | null> {
-  const response = await fetch(path, { credentials: "same-origin" });
+  const response = await apiFetch(path);
   if (!response.ok) return null;
   return (await response.json()) as T;
 }

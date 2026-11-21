@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MeowLab</string>
+    <string name="title_activity_main">MeowLab</string>
+    <string name="package_name">tech.meowlab.app</string>
+    <string name="custom_url_scheme">tech.meowlab.app</string>
+</resources>

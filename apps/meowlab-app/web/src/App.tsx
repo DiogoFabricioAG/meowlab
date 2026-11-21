@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { authClient, fetchJson, type Me, type PortalConfig } from "./auth-client";
+import { installNativeListeners, isNativeApp, readAuthToken } from "./api";
 import { AuthPage } from "./AuthPage";
 import { Panel } from "./Panel";
 import { OnboardingPage } from "./OnboardingPage";
@@ -13,20 +14,57 @@ export function App() {
   const [config, setConfig] = useState<PortalConfig>({ google: false, passwordReset: false });
   const [me, setMe] = useState<Me | null>(null);
   const [invitation, setInvitation] = useState<string | null>(() => invitedWith ?? readPendingInvitation());
+  const [tokenReady, setTokenReady] = useState(() => !isNativeApp());
+  const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
 
   useEffect(() => {
-    void fetchJson<PortalConfig>("/api/config").then((value) => value && setConfig(value));
+    if (isNativeApp()) {
+      void readAuthToken().finally(() => setTokenReady(true));
+    }
+    const onOnline = () => setOnline(true);
+    const onOffline = () => setOnline(false);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    const uninstallNative = installNativeListeners(setOnline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+      uninstallNative();
+    };
   }, []);
 
   useEffect(() => {
+    if (!online) return;
+    void fetchJson<PortalConfig>("/api/config").then((value) => value && setConfig(value));
+  }, [online]);
+
+  useEffect(() => {
+    if (!tokenReady || !online) return;
     if (!session) {
       setMe(null);
       return;
     }
     void fetchJson<Me>("/api/me").then(setMe);
-  }, [session?.user.id]);
+  }, [session?.user.id, tokenReady, online]);
 
-  if (isPending || (session && !me)) {
+  if (!online) {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-white px-6 text-center">
+        <div className="max-w-sm space-y-4">
+          <Logo />
+          <h1 className="text-2xl text-ink">Sin conexión a internet</h1>
+          <p className="text-sm text-ink-muted">
+            Revisa tu señal o Wi-Fi para ver tus comprobantes y avisos de MeowLab.
+          </p>
+          <button type="button" onClick={() => window.location.reload()} className="btn-primary w-full">
+            Reintentar
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!tokenReady || isPending || (session && !me)) {
     return (
       <div className="grid min-h-dvh place-items-center bg-white" aria-busy="true" role="status" aria-label="Cargando MeowLab">
         <img

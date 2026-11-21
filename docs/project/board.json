@@ -2252,9 +2252,9 @@
     {
       "area": "App móvil",
       "owner": "AGY-1",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-20",
-      "evidence": "",
+      "evidence": "PR feat/app-movil-fase-1: apps/meowlab-app (apiFetch, Keystore bearer auth, CORS https://localhost, vitest), apps/meowlab-mobile (Capacitor 7 + android/ + APK debug probado en emulador Medium_Phone_API_36 contra wrangler dev local).",
       "id": "app-movil-1-shell-20261120",
       "title": "App móvil fase 1: Capacitor con el portal, apiFetch, sesión con token y APK de prueba",
       "priority": "high",

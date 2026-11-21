@@ -1,4 +1,5 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
+import { bearer } from "better-auth/plugins";
 
 /** Configuration shared by every runtime (Cloudflare today, Node on the VPS later). */
 export type AuthSettings = {
@@ -36,6 +37,7 @@ export function authOptions(
     secret: settings.BETTER_AUTH_SECRET,
     database,
     trustedOrigins: [settings.BETTER_AUTH_URL, ...extraOrigins],
+    plugins: [bearer()],
     user: {
       additionalFields: {
         // "user" or "admin". input:false: nobody can set it through sign-up or profile

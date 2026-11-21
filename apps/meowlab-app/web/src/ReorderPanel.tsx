@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Membership } from "./auth-client";
 import { PageHeader } from "./PageHeader";
+import { apiFetch } from "./api";
 
 type Settings = { monthlyBudgetCents: number | null; followupHours: number; escalateHours: number };
 type Order = {
@@ -78,7 +79,7 @@ export function ReorderPanel({ company, onBack }: { company: Membership; onBack:
 
   useEffect(() => {
     setState("loading");
-    void fetch(`/api/companies/${encodeURIComponent(company.id)}/reorder`, { credentials: "same-origin" })
+    void apiFetch(`/api/companies/${encodeURIComponent(company.id)}/reorder`)
       .then(async (response) => {
         if (!response.ok) return setState("error");
         setView(await response.json() as ReorderView);
@@ -248,8 +249,8 @@ function RulesForm({ company, owner, settings, onSaved }: { company: Membership;
     const change = Object.fromEntries(Object.entries(next).filter(([key, value]) => settings[key as keyof Settings] !== value));
     if (!Object.keys(change).length) return setStatus("saved");
     setStatus("saving");
-    const response = await fetch(`/api/companies/${encodeURIComponent(company.id)}/reorder/settings`, {
-      method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ change }),
+    const response = await apiFetch(`/api/companies/${encodeURIComponent(company.id)}/reorder/settings`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ change }),
     }).catch(() => null);
     if (!response) return setStatus("error");
     if (response.status === 400) return setStatus("invalid");
