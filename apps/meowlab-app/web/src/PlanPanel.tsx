@@ -42,6 +42,7 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
   const [unavailable, setUnavailable] = useState(false);
   const [selected, setSelected] = useState<string[]>(["invoice"]);
   const [payerEmail, setPayerEmail] = useState(email);
+  const [editingEmail, setEditingEmail] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -99,6 +100,8 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
       return;
     }
     setBusy(false);
+    // Mercado Pago did not accept that e-mail: open the field so it can be changed.
+    if (result?.status === "invalid_email" || result?.status === "test_account_mismatch") setEditingEmail(true);
     setMessage(
       result?.status === "invalid_email"
         ? "Revisa el correo de Mercado Pago."
@@ -257,14 +260,25 @@ export function PlanPanel({ email, company }: { email: string; company: Membersh
                 {soles(price.total)} <span className="text-base font-normal text-ink-muted">al mes</span>
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <label className="block space-y-1.5">
-                <span className="text-sm font-semibold text-ink-2">Correo de tu cuenta de Mercado Pago</span>
-                <input className="field sm:w-72" type="email" value={payerEmail} onChange={(e) => setPayerEmail(e.target.value)} required />
-              </label>
+            <div className="flex flex-col gap-2 sm:items-end">
+              {editingEmail ? (
+                <label className="block w-full space-y-1.5 sm:w-72">
+                  <span className="text-sm font-semibold text-ink-2">Correo de tu cuenta de Mercado Pago</span>
+                  <input className="field w-full" type="email" value={payerEmail} onChange={(e) => setPayerEmail(e.target.value)} required autoFocus />
+                </label>
+              ) : null}
               <button type="button" onClick={subscribe} disabled={busy || selected.length === 0} className="btn-primary">
                 {busy ? "Abriendo Mercado Pago…" : "Suscribirme con Mercado Pago"}
               </button>
+              {!editingEmail && (
+                // Mercado Pago asks which account will pay; the portal's e-mail is the usual answer.
+                <p className="text-xs text-ink-muted">
+                  Pagarás con la cuenta de Mercado Pago de <span className="font-semibold text-ink-2">{payerEmail}</span>.{" "}
+                  <button type="button" onClick={() => setEditingEmail(true)} className="font-semibold text-forest underline-offset-4 hover:underline">
+                    Usar otro correo
+                  </button>
+                </p>
+              )}
             </div>
           </div>
           <p className="text-sm text-ink-muted">

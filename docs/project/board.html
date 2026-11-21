@@ -220,7 +220,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 81 · Total: 235</span>
+      <span class="summary">Abiertas: 78 · Total: 235</span>
     </div>
   </div>
 </header>
@@ -229,7 +229,7 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">75</span>
+          <span class="count">72</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Plataforma" data-text="verificar divergencia de contact_id d1 vs postgresql en facturaya plataforma el worker envía el contact_id de d1 y el bridge autoriza por whatsapp.contacts.id (identity propio; sync con on conflict (id) do nothing). comparar (whatsapp_user_id, id) en ambas bases; resolver en el bridge por (tenant_id, whatsapp_user_id). 2026-11-07: postgresql tiene 11 contactos, 1 con membresia activa de facturaya (1 empresa); id maximo 711. la comparacion con d1 quedo pendiente: la lectura remota de d1 de produccion requiere aprobacion del operador. script de solo lectura preparado (compara huellas md5 del numero; imprime solo conteos e ids).">
@@ -892,39 +892,6 @@
           <p class="card-meta">Actualizado: 2026-11-21</p>
           <code class="card-id">landing-astro-7-20261120</code>
         </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: la actividad del inicio muestra ids internos de invoice cat y entradas duplicadas portal visto en producción el 21/11 (creaciones j&amp;d). formatinvoiceevent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «invoice cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de f001-00000027. además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. tanda 5, t1: avance en origin/feat/portal-actividad-config-plan (25ebe). definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: la actividad del Inicio muestra IDs internos de Invoice Cat y entradas duplicadas</h3>
-          
-          <p class="card-notes">Visto en producción el 21/11 (CREACIONES J&amp;D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. Tanda 5, T1: avance en origin/feat/portal-actividad-config-plan (25ebe). Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-actividad-numeros-duplicados-20261121</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="plan: no mostrar siempre el campo «correo de tu cuenta de mercado pago» portal reportado por el operador el 21/11. mercado pago exige payer_email en preapproval; usar el correo del portal por defecto y ofrecer «usar otro correo». tanda 5, t1. definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Plan: no mostrar siempre el campo «Correo de tu cuenta de Mercado Pago»</h3>
-          
-          <p class="card-notes">Reportado por el operador el 21/11. Mercado Pago exige payer_email en preapproval; usar el correo del portal por defecto y ofrecer «Usar otro correo». Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-plan-correo-mercadopago-20261121</code>
-        </article>
-        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: rediseñar configuración (cuenta, whatsapp, empresa con el estado de cada gato) portal reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «invoice cat activo», estilos distintos). tanda 5, t1. definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. ">
-          <div class="card-top">
-            <span class="badge area-other">Portal</span>
-            <span class="priority priority-medium">Media</span>
-          </div>
-          <h3 class="card-title">Portal: rediseñar Configuración (cuenta, WhatsApp, empresa con el estado de cada gato)</h3>
-          
-          <p class="card-notes">Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
-          <p class="card-meta">Actualizado: 2026-11-21</p>
-          <code class="card-id">portal-configuracion-ui-20261121</code>
-        </article>
         <article class="card" data-priority="medium" data-area="Tender" data-text="tender cat: activar el servicio de tender cuando el pago de suscripción llega al bridge tender portalentitlementservice ya registra el pago de tender y lo devuelve en skipped sin error. falta conectar el flujo de tender cat para habilitar el servicio de la empresa hasta active_until. ">
           <div class="card-top">
             <span class="badge area-other">Tender</span>
@@ -1136,7 +1103,7 @@
       <section class="column" data-column="done">
         <header class="column-head">
           <h2>DONE</h2>
-          <span class="count">154</span>
+          <span class="count">157</span>
         </header>
         <div class="column-body">
         <article class="card" data-priority="high" data-area="Portal" data-text="simplificar ficha, bases y documentos para participar portal publicado en producción desde el commit privado 887bba550816. la ficha reúne el título, las bases descargables y su reemplazo. cotización conserva el avance y los errores. expediente muestra los documentos para participar y conserva los borradores editados. chrome confirmó el ajuste del título, la descarga del archivo vigente, el reemplazo y la conservación del archivo ante un pdf inválido, el zip y el ancho móvil de 390 px.">
@@ -2645,6 +2612,39 @@
           <p class="card-notes">Detectado por npm audit en la tanda 2 (PR #41). server/node.ts usa serve y serveStatic. Asignada en docs/agents/tareas-agy-2026-11-20-tanda3.md.</p>
           <p class="card-meta">Actualizado: 2026-11-20 · Responsable: AGY-3</p>
           <code class="card-id">portal-hono-node-server-2-20261120</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: la actividad del inicio muestra ids internos de invoice cat y entradas duplicadas portal visto en producción el 21/11 (creaciones j&amp;d). formatinvoiceevent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «invoice cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de f001-00000027. además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. tanda 5, t1: avance en origin/feat/portal-actividad-config-plan (25ebe). definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. pr feat/portal-actividad-config-plan: activity-service.ts traduce resource_id vía issued-documents, deduplica por operación+recurso y distingue record_payment de approve_payment; homeactivity.tsx agrupa por día con «ver más». probado en portal-activity.test.ts y revisión visual a 1366/390 px.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: la actividad del Inicio muestra IDs internos de Invoice Cat y entradas duplicadas</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR feat/portal-actividad-config-plan: activity-service.ts traduce resource_id vía issued-documents, deduplica por operación+recurso y distingue record_payment de approve_payment; HomeActivity.tsx agrupa por día con «Ver más». Probado en portal-activity.test.ts y revisión visual a 1366/390 px.</p>
+          <p class="card-notes">Visto en producción el 21/11 (CREACIONES J&amp;D). formatInvoiceEvent en apps/manolo-whatsapp-worker/src/node/portal/activity-service.ts usa resource_id cuando el metadata del log de facturación no trae number: se ve «Invoice Cat emitió 01m7j3emrtxy1f05x211j39pfd» en lugar de F001-00000027. Además la guía del 06/11 aparece dos veces (dos logs completed para el mismo recurso). Mostrar serie-correlativo (leer de la tabla o del servicio de facturación) y deduplicar por recurso y operación. Tanda 5, T1: avance en origin/feat/portal-actividad-config-plan (25ebe). Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
+          <code class="card-id">portal-actividad-numeros-duplicados-20261121</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="plan: no mostrar siempre el campo «correo de tu cuenta de mercado pago» portal reportado por el operador el 21/11. mercado pago exige payer_email en preapproval; usar el correo del portal por defecto y ofrecer «usar otro correo». tanda 5, t1. definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. pr feat/portal-actividad-config-plan: planpanel.tsx usa el correo del portal por defecto con «usar otro correo» y abre el campo si mercado pago lo rechaza. verificado con npm test y capturas a 1366/390 px.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Plan: no mostrar siempre el campo «Correo de tu cuenta de Mercado Pago»</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR feat/portal-actividad-config-plan: PlanPanel.tsx usa el correo del portal por defecto con «Usar otro correo» y abre el campo si Mercado Pago lo rechaza. Verificado con npm test y capturas a 1366/390 px.</p>
+          <p class="card-notes">Reportado por el operador el 21/11. Mercado Pago exige payer_email en preapproval; usar el correo del portal por defecto y ofrecer «Usar otro correo». Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
+          <code class="card-id">portal-plan-correo-mercadopago-20261121</code>
+        </article>
+        <article class="card" data-priority="medium" data-area="Portal" data-text="portal: rediseñar configuración (cuenta, whatsapp, empresa con el estado de cada gato) portal reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «invoice cat activo», estilos distintos). tanda 5, t1. definida en docs/agents/tareas-agy-2026-11-21-tanda5.md. pr feat/portal-actividad-config-plan: settingspage.tsx unifica tarjetas (tu cuenta, whatsapp, tu empresa) y muestra el estado de los 7 gatos con enlace. verificado con npm test, build y capturas a 1366/390 px.">
+          <div class="card-top">
+            <span class="badge area-other">Portal</span>
+            <span class="priority priority-medium">Media</span>
+          </div>
+          <h3 class="card-title">Portal: rediseñar Configuración (cuenta, WhatsApp, empresa con el estado de cada gato)</h3>
+          <p class="card-evidence"><strong>Evidencia:</strong> PR feat/portal-actividad-config-plan: SettingsPage.tsx unifica tarjetas (Tu cuenta, WhatsApp, Tu empresa) y muestra el estado de los 7 gatos con enlace. Verificado con npm test, build y capturas a 1366/390 px.</p>
+          <p class="card-notes">Reportado por el operador el 21/11: la página se ve fea (tarjeta de empresa a media pantalla con solo «Invoice Cat activo», estilos distintos). Tanda 5, T1. Definida en docs/agents/tareas-agy-2026-11-21-tanda5.md.</p>
+          <p class="card-meta">Actualizado: 2026-11-21 · Responsable: AGY-1</p>
+          <code class="card-id">portal-configuracion-ui-20261121</code>
         </article>
         <article class="card" data-priority="low" data-area="Facturación" data-text="facturaya-ai: reemplazar «facturaya ai» por meowlab / invoice cat en vistas web facturación detectado durante marca-unica-sin-radar-facturaya-20261120 (fuera de alcance del repo meowlab): las vistas blade de facturaya-ai (resources/views/platform/companies.blade.php, invoices/create.blade.php y despatches/index.blade.php) aún muestran «facturaya ai» en títulos, encabezados y pies de página. actualizadas en facturaya-ai (rama fix/extraccion-422-y-marca) a meowlab / invoice cat. git grep -i facturaya sobre resources/views, app/mail y app/notifications en facturaya-ai sin coincidencias visibles; phpunit 205 pruebas ejecutadas en contenedor temporal (204 pasando, solo fallo conocido de vite manifest en companyadministrationtest).">
           <div class="card-top">
