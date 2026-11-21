@@ -2400,7 +2400,8 @@
       "id": "landing-astro-7-20261120",
       "title": "Landing: evaluar subir Astro 5 a 7 (vulnerabilidad crítica de astro <=7.4.6)",
       "area": "Landing",
-      "owner": "",
+      "owner": "Codex T4",
+      "status": "in_progress",
       "priority": "medium",
       "notes": "Detectado por npm audit en la tanda 2 (PR #41). Es un salto mayor; la landing es estática, pero hay que medir el impacto. Tanda 5, T4: docs/agents/tareas-agy-2026-11-21-tanda5.md."
     },
