@@ -43,7 +43,10 @@ class SupportError extends Error {
   }
 }
 
-const WRITES = new Set(["open_ticket", "customer_quote", "answer_ticket", "mark_relayed", "close_ticket", "summaries"]);
+// `summaries` is a cross-tenant cron (`channel_tenant_id: "cron"`, no `company_id`), so it
+// cannot use `bridge_requests` (which requires a valid `whatsapp.tenants(id)` FK); it claims
+// each company atomically via `UPDATE support.settings ... last_summary_on`.
+const WRITES = new Set(["open_ticket", "customer_quote", "answer_ticket", "mark_relayed", "close_ticket"]);
 const LIMA_OFFSET_MS = 5 * 60 * 60 * 1000;
 const num = (value: unknown) => Number(value ?? 0);
 const optional = (value: unknown) => (value === null || value === undefined ? null : String(value));

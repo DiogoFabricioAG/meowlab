@@ -2496,11 +2496,11 @@
       "id": "support-resumen-diario-falla-20261121",
       "title": "Support Cat: el resumen diario falla en el bridge y nunca se ha enviado",
       "area": "Manolo",
-      "owner": "",
+      "owner": "AGY-1",
       "priority": "high",
-      "status": "todo",
+      "status": "done",
       "updated": "2026-11-21",
-      "evidence": "",
+      "evidence": "PR fix/support-resumen-diario: quitado 'summaries' de WRITES en support-service.ts (evita FK 23503 con tenant_id='cron' en whatsapp.bridge_requests; ya reclama atómicamente por last_summary_on) y agregado errorCode seguro en vps_*_processing_failed de http-handler.ts. Probado en test/support-summaries.test.ts y suite completa del Worker.",
       "notes": "Visto el 21/11 a las 06:00 UTC: vps_support_processing_failed operation=summaries. support.settings.last_summary_on de CREACIONES J&D sigue NULL (summary_hour 20). El handler de http-handler.ts no registra la causa: agregar el código de error seguro al log, reproducir, corregir y probar con reloj fijo. No usar el teléfono de prueba del operador."
     },
     {

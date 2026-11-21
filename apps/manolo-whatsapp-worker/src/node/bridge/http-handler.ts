@@ -107,6 +107,15 @@ function jsonResponse(
   };
 }
 
+const SAFE_ERROR_CODE = /^[A-Za-z0-9_]{1,32}$/;
+
+function safeErrorMeta(error: unknown): { reason: string; errorCode?: string } {
+  const reason = error instanceof Error ? error.name : "unknown";
+  const rawCode = error && typeof error === "object" && "code" in error ? (error as { code?: unknown }).code : undefined;
+  const errorCode = typeof rawCode === "string" && SAFE_ERROR_CODE.test(rawCode) ? rawCode : undefined;
+  return { reason, ...(errorCode ? { errorCode } : {}) };
+}
+
 export function createBridgeHttpHandler(
   dependencies: BridgeHttpHandlerDependencies,
 ): (request: BridgeHttpRequest) => Promise<BridgeHttpResponse> {
@@ -188,8 +197,8 @@ export function createBridgeHttpHandler(
         if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
         if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
-      } catch {
-        dependencies.log("vps_sales_processing_failed", { operation: payload.operation });
+      } catch (error) {
+        dependencies.log("vps_sales_processing_failed", { operation: payload.operation, ...safeErrorMeta(error) });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
@@ -205,8 +214,8 @@ export function createBridgeHttpHandler(
         if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
         if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
-      } catch {
-        dependencies.log("vps_stock_processing_failed", { operation: payload.operation });
+      } catch (error) {
+        dependencies.log("vps_stock_processing_failed", { operation: payload.operation, ...safeErrorMeta(error) });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
@@ -222,8 +231,8 @@ export function createBridgeHttpHandler(
         if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
         if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
-      } catch {
-        dependencies.log("vps_support_processing_failed", { operation: payload.operation });
+      } catch (error) {
+        dependencies.log("vps_support_processing_failed", { operation: payload.operation, ...safeErrorMeta(error) });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
@@ -239,8 +248,8 @@ export function createBridgeHttpHandler(
         if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
         if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
-      } catch {
-        dependencies.log("vps_reorder_processing_failed", { operation: payload.operation });
+      } catch (error) {
+        dependencies.log("vps_reorder_processing_failed", { operation: payload.operation, ...safeErrorMeta(error) });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
@@ -256,8 +265,8 @@ export function createBridgeHttpHandler(
         if (result.status === "conflict") return jsonResponse(409, { error: "idempotency_conflict" });
         if (result.status !== "completed") return jsonResponse(409, { error: "request_in_progress" });
         return jsonResponse(200, result.response as unknown as Record<string, unknown>);
-      } catch {
-        dependencies.log("vps_collections_processing_failed", { operation: payload.operation });
+      } catch (error) {
+        dependencies.log("vps_collections_processing_failed", { operation: payload.operation, ...safeErrorMeta(error) });
         return jsonResponse(500, { error: "internal_error" });
       }
     }
