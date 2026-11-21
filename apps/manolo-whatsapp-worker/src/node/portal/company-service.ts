@@ -10,6 +10,7 @@ import {
 import type { RoleLog } from "../../roles/contracts";
 import { PortalInvitationService, type InvitationRequest } from "./invitation-service";
 import type { PortalWeeklyService } from "./weekly-service";
+import type { PortalActivityService } from "./activity-service";
 import type { PortalStockService } from "../stock/portal-stock-service";
 import type { PortalCollectionsService } from "../collections/portal-collections-service";
 import type { PortalReorderService } from "../reorder/portal-reorder-service";
@@ -90,11 +91,15 @@ export class PortalCompanyService {
     private readonly collections: Pick<PortalCollectionsService, "view" | "settings"> | null = null,
     private readonly reorder: Pick<PortalReorderService, "view" | "settings"> | null = null,
     private readonly support: Pick<PortalSupportService, "view" | "faq"> | null = null,
+    private readonly activity: Pick<PortalActivityService, "handle"> | null = null,
   ) {}
 
   async handle(request: PortalCompanyRequest): Promise<PortalCompanyResponse> {
     if (request.action === "weekly") {
       return this.weekly ? this.weekly.handle(request.portalUserId, request.tenantId) : { status: "unavailable" };
+    }
+    if (request.action === "activity") {
+      return this.activity ? this.activity.handle(request.portalUserId, request.tenantId) : { status: "unavailable" };
     }
     if (request.action === "stock_view") {
       return this.stock ? this.stock.handle(request.portalUserId, request.tenantId) : { status: "unavailable" };

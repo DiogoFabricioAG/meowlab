@@ -4,6 +4,7 @@ import { PortalBillingService, type BillingPool } from "./portal/billing-service
 import { FacturayaTaxpayerDirectory, PortalCompanyService } from "./portal/company-service";
 import { PortalInvitationService } from "./portal/invitation-service";
 import { PortalWeeklyService } from "./portal/weekly-service";
+import { PortalActivityService } from "./portal/activity-service";
 import { PortalEntitlementService } from "./portal/entitlement-service";
 import { SalesService } from "./sales/sales-service";
 import { FacturayaIssuedDocumentReader, StockService } from "./stock/stock-service";
@@ -138,6 +139,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       reorder ? new PortalReorderService(pool, reorder, logSafeEvent) : null,
       // ADR-0017: Support Cat's page in the portal.
       support ? new PortalSupportService(pool, support, logSafeEvent) : null,
+      // «Inicio»: 14-day daily series and recent activity from audit logs.
+      new PortalActivityService(pool, cipher, facturayaBaseUrl, logSafeEvent),
     ),
     // Plan per company: what a company paid for, until the end of the paid period.
     portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),

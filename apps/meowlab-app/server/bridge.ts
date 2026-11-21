@@ -39,6 +39,7 @@ export type PortalCompanyAction =
   | { action: "preview"; token: string }
   | { action: "accept"; token: string }
   | { action: "weekly"; tenantId: string }
+  | { action: "activity"; tenantId: string }
   | { action: "stock_view"; tenantId: string }
   | { action: "collections_view"; tenantId: string }
   | { action: "collections_settings"; tenantId: string; change: Partial<CollectionsSettings> }
@@ -68,6 +69,27 @@ export type WeeklySummary = {
         rejected: Array<{ number: string; customer: string; message: string | null }> };
 };
 
+export type ActivityDay = {
+  date: string;
+  invoices: number;
+  salesCents: number;
+  collectionsCents: number;
+};
+
+export type ActivityEvent = {
+  id: string;
+  at: string;
+  agent: "invoice" | "sales" | "collections" | "reorder" | "support" | "stock";
+  text: string;
+};
+
+export type ActivitySummary = {
+  today: string;
+  active: { invoicing: boolean; sales: boolean; collections: boolean };
+  series: ActivityDay[];
+  events: ActivityEvent[];
+};
+
 export type PortalCompanyResponse =
   | { status: "ok"; companies: PortalMembership[] }
   | { status: "ok"; taxpayer: Taxpayer }
@@ -80,6 +102,7 @@ export type PortalCompanyResponse =
   | { status: "joined"; company: PortalMembership }
   | { status: "revoked" | "removed" | "forbidden" | "invalid_phone" | "invalid" | "expired" | "used" | "already_member" | "needs_whatsapp" | "phone_mismatch" }
   | { status: "ok"; weekly: WeeklySummary }
+  | { status: "ok"; activity: ActivitySummary }
   | { status: "ok"; stock: StockView }
   | { status: "ok"; collections: CollectionsView }
   | { status: "ok"; reorder: ReorderView }
