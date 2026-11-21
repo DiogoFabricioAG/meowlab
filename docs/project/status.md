@@ -1,6 +1,33 @@
 # Estado del proyecto
 
-**Estado al 20/11/2026:** Worker `509a3384` (desde `feat/tender-bases-whatsapp`); portal `meowlab-app:887bba550816` (con `meowlab-tender-service:887bba550816`); bridge `support-cat-20261115T201344Z` (`manolo-platform-bridge:latest`); landing `meowlab-web:130f6c1215c3`; facturación `nombres-padron-pdf-20261119T055023Z`.
+**Estado al 21/11/2026:** Worker, bridge, portal y servicio de Tender Cat salen todos de `main` `cad7f320a781`:
+
+- Worker `9c8dc2a1`;
+- bridge `main-20261121T035915Z`;
+- portal `meowlab-app:cad7f320a781`;
+- servicio de Tender Cat `meowlab-tender-service:cad7f320a781`.
+
+Fuera de ese commit:
+
+- landing `meowlab-web:4ddbb6052f72`;
+- facturación `error-extraccion-marca-20261121T025707Z`.
+
+Mercado Pago funciona en modo producción desde el 20/11.
+
+## Despliegue conjunto desde main: Worker, bridge, portal y Tender Cat — publicado 2026-11-20
+
+Tender Cat se reintegró en `main` (PR #52, #53, #54 y #56). Los cuatro componentes salieron del mismo commit, `cad7f320a781`, y no quedó ninguna migración pendiente. Con esto se vuelve a cumplir la regla crítica de git.
+
+Llegan a producción:
+
+- el encabezado estándar en todas las páginas;
+- la actividad y la tendencia en el Inicio;
+- «MeowLab» en lugar de «Manolo»;
+- los mensajes de facturación sin «FacturaYa» y el error de extracción claro;
+- el reloj de Collections;
+- la lista de licitaciones simplificada.
+
+[Acta con rollback por componente](../operations/despliegue-main-cad7f-2026-11-20.md).
 
 ## Tender Cat: recepción de bases PDF/DOCX por WhatsApp y resumen de preparación — publicado 2026-11-19
 
