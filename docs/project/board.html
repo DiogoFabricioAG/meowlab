@@ -217,7 +217,7 @@
         <option value="low">Baja</option>
       </select>
       <button id="theme" type="button">Tema</button>
-      <span class="summary">Abiertas: 87 · Total: 208</span>
+      <span class="summary">Abiertas: 88 · Total: 209</span>
     </div>
   </div>
 </header>
@@ -226,9 +226,20 @@
       <section class="column" data-column="todo">
         <header class="column-head">
           <h2>TODO</h2>
-          <span class="count">82</span>
+          <span class="count">83</span>
         </header>
         <div class="column-body">
+        <article class="card" data-priority="high" data-area="Ops" data-text="publicar y fusionar el código de tender cat que ya corre en producción ops revisión del 2026-11-20. el portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree d:/meowlab-wt-tender-nativo) y no está en origin. eso incumple la regla crítica de git de agents.md. el worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. el dueño del flujo tender debe publicar la rama, abrir los pr y fusionarlos en orden, y registrar el hash en las actas. ">
+          <div class="card-top">
+            <span class="badge area-ops">Ops</span>
+            <span class="priority priority-high">Alta</span>
+          </div>
+          <h3 class="card-title">Publicar y fusionar el código de Tender Cat que ya corre en producción</h3>
+          
+          <p class="card-notes">Revisión del 2026-11-20. El portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree D:/meowlab-wt-tender-nativo) y no está en origin. Eso incumple la regla crítica de git de AGENTS.md. El Worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. Las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. El dueño del flujo Tender debe publicar la rama, abrir los PR y fusionarlos en orden, y registrar el hash en las actas.</p>
+          <p class="card-meta">Actualizado: 2026-11-20</p>
+          <code class="card-id">tender-ramas-sin-publicar-20261120</code>
+        </article>
         <article class="card" data-priority="high" data-area="Docs" data-text="poner al día docs/project/status.md con lo publicado del 13 al 18/11 docs status.md termina el 12/11. falta: collections, reorder y support fase 1, el portal, facturaya y los cambios de la landing. fuente: docs/agents/traspaso-2026-11-18.md y las actas de docs/operations/. ">
           <div class="card-top">
             <span class="badge area-docs">Docs</span>

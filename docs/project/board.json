@@ -16,6 +16,17 @@
   ],
   "tasks": [
     {
+      "id": "tender-ramas-sin-publicar-20261120",
+      "title": "Publicar y fusionar el código de Tender Cat que ya corre en producción",
+      "area": "Ops",
+      "owner": "",
+      "priority": "high",
+      "status": "todo",
+      "updated": "2026-11-20",
+      "notes": "Revisión del 2026-11-20. El portal en producción (meowlab-app:887bba550816 y meowlab-tender-service:887bba550816) sale del commit 887bba550816, que solo existe en la rama local feat/tender-plataforma-nativa (worktree D:/meowlab-wt-tender-nativo) y no está en origin. Eso incumple la regla crítica de git de AGENTS.md. El Worker 509a3384 sale de fcc737, publicado en feat/tender-bases-whatsapp pero sin fusionar en main. Las ramas feat/tender-cat-vistas, feat/tender-bases-whatsapp y feat/tender-respuesta-interes también llevan código desplegado sin fusionar. El dueño del flujo Tender debe publicar la rama, abrir los PR y fusionarlos en orden, y registrar el hash en las actas.",
+      "evidence": ""
+    },
+    {
       "id": "portal-centro-de-mando-20261119",
       "title": "Portal: Inicio como centro de mando y barra lateral clara",
       "area": "Portal",
