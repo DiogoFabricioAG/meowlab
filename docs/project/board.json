@@ -1739,10 +1739,10 @@
       "area": "Portal",
       "owner": "Codex T11",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "ADR-0010 lo prevé; la fase 2 sólo permite al dueño quitar miembros. Tanda 6, T11 (OPS 4), junto con portal-org-vincular-despues-20261113.",
-      "evidence": ""
+      "evidence": "PostgreSQL desechable: transferencia, rechazo a no miembro, salida y aislamiento. Portal 88/88, Worker 755/755, typecheck y builds. Capturas a 1366 y 390 px en el PR de T11."
     },
     {
       "id": "portal-org-vincular-despues-20261113",
@@ -1750,10 +1750,10 @@
       "area": "Portal",
       "owner": "Codex T11",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "done",
       "updated": "2026-11-21",
       "notes": "Hoy el número entra a tenant_members sólo si ya estaba vinculado al aceptar la invitación. Tanda 6, T11 (OPS 4).",
-      "evidence": ""
+      "evidence": "PostgreSQL desechable: vincular tras aceptar, desvincular, revincular y conservar los permisos por empresa. Worker 755/755 y typecheck."
     },
     {
       "id": "portal-org-duenos-operador-20261113",

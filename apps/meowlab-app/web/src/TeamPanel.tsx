@@ -86,7 +86,7 @@ export function TeamPanel({ company, onChange = () => window.location.reload() }
           ? `Perderás el acceso a ${company.name} y a sus gatos en WhatsApp. Para volver, necesitarás otra invitación.`
           : `${confirm?.name ?? ""} administrará Plan, cobros y Configuración, y podrá quitar miembros. Tú seguirás en ${company.name} como miembro sin esos permisos.`}</p>
         {changeError && <p role="alert" className="text-sm text-red-800">{changeError}</p>}
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button type="button" autoFocus className="btn-secondary" disabled={changing} onClick={() => dialog.current?.close()}>Cancelar</button>
           <button type="button" className="btn-danger" disabled={changing} onClick={() => void changeMembership()}>
             {changing ? "Confirmando…" : leaving ? "Confirmar salida" : "Confirmar transferencia"}
