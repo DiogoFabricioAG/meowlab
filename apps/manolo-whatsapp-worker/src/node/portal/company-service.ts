@@ -15,6 +15,7 @@ import type { PortalStockService } from "../stock/portal-stock-service";
 import type { PortalCollectionsService } from "../collections/portal-collections-service";
 import type { PortalReorderService } from "../reorder/portal-reorder-service";
 import type { PortalSupportService } from "../support/portal-support-service";
+import type { PortalSalesService } from "../sales/portal-sales-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
 type QueryClient = { query(sql: string, values?: readonly unknown[]): Promise<Rows>; release(destroy?: boolean): void };
@@ -92,6 +93,7 @@ export class PortalCompanyService {
     private readonly reorder: Pick<PortalReorderService, "view" | "settings"> | null = null,
     private readonly support: Pick<PortalSupportService, "view" | "faq"> | null = null,
     private readonly activity: Pick<PortalActivityService, "handle"> | null = null,
+    private readonly sales: Pick<PortalSalesService, "view" | "settings"> | null = null,
   ) {}
 
   async handle(request: PortalCompanyRequest): Promise<PortalCompanyResponse> {
@@ -121,6 +123,12 @@ export class PortalCompanyService {
     }
     if (request.action === "reorder_settings") {
       return this.reorder ? this.reorder.settings(request.portalUserId, request.tenantId, request.change) : { status: "unavailable" };
+    }
+    if (request.action === "sales_view") {
+      return this.sales ? this.sales.view(request.portalUserId, request.tenantId) : { status: "unavailable" };
+    }
+    if (request.action === "sales_settings") {
+      return this.sales ? this.sales.settings(request.portalUserId, request.tenantId, request.change) : { status: "unavailable" };
     }
     if (request.action !== "mine" && request.action !== "lookup" && request.action !== "create") {
       return this.invitations.handle(request as InvitationRequest);

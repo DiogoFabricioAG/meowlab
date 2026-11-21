@@ -17,6 +17,7 @@ import { PortalReorderService } from "./reorder/portal-reorder-service";
 import { SupportService } from "./support/support-service";
 import { PortalSupportService } from "./support/portal-support-service";
 import { FacturayaQuotePdfRenderer, QuotePdfService } from "./sales/quote-pdf-service";
+import { PortalSalesService } from "./sales/portal-sales-service";
 import { SALES_BRIDGE_PATH } from "../sales/bridge-contracts";
 import { createServer, type IncomingHttpHeaders } from "node:http";
 import { readFileSync } from "node:fs";
@@ -142,6 +143,8 @@ function portalLinkDependencies(pool: PortalLinkPool & BillingPool, cipher: Cred
       support ? new PortalSupportService(pool, support, logSafeEvent) : null,
       // «Inicio»: 14-day daily series and recent activity from audit logs.
       new PortalActivityService(pool, cipher, facturayaBaseUrl, logSafeEvent),
+      // ADR-0011 fase 3: Sales Cat's page in the portal.
+      new PortalSalesService(pool),
     ),
     // Plan per company: what a company paid for, until the end of the paid period.
     portalEntitlementService: new PortalEntitlementService(pool, logSafeEvent),

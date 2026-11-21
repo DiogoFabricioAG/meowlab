@@ -46,7 +46,24 @@ export type PortalCompanyAction =
   | { action: "reorder_view"; tenantId: string }
   | { action: "reorder_settings"; tenantId: string; change: Partial<ReorderSettings> }
   | { action: "support_view"; tenantId: string }
-  | { action: "support_faq"; tenantId: string; faq: SupportFaqChange };
+  | { action: "support_faq"; tenantId: string; faq: SupportFaqChange }
+  | { action: "sales_view"; tenantId: string }
+  | { action: "sales_settings"; tenantId: string; change: SalesSettingsChange };
+
+export type SalesSettingsChange = { catName?: string | null; goalTargetCents?: number | null; month?: string };
+export type SalesView =
+  | { enabled: false }
+  | {
+    enabled: true;
+    owner: boolean;
+    catName: string | null;
+    month: string;
+    goalTargetCents: number | null;
+    monthTotalCents: number;
+    monthCount: number;
+    daysInMonth: number;
+    currentDay: number | null;
+  };
 
 /** Support Cat (ADR-0017): add, edit or remove one frequent question. */
 export type SupportFaqChange = { id?: string; question?: string; answer?: string; remove?: boolean };
@@ -107,7 +124,8 @@ export type PortalCompanyResponse =
   | { status: "ok"; collections: CollectionsView }
   | { status: "ok"; reorder: ReorderView }
   | { status: "ok"; support: SupportView }
-  | { status: "invalid_settings" | "owner_only" };
+  | { status: "ok"; sales: SalesView }
+  | { status: "invalid_settings" | "invalid_cat_name" | "owner_only" };
 
 /** Reorder Cat's rules (ADR-0016): monthly budget and how long to wait for a supplier. */
 export type ReorderSettings = { monthlyBudgetCents: number | null; followupHours: number; escalateHours: number };

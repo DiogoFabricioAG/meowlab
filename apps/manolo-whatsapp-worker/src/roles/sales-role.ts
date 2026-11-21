@@ -1,6 +1,7 @@
 import type { RoleHandler, RoleHandlerContext, TenantContext } from "./contracts";
 import type { FacturayaClient, ImportInvoiceDraftInput } from "../facturaya/contracts";
-import type { PaymentMethod, SalesCustomerInput, SalesSummary, SummaryPeriod } from "../sales/bridge-contracts";
+import type { PaymentMethod, SalesCustomerInput, SalesGoalStatus, SalesSummary, SummaryPeriod } from "../sales/bridge-contracts";
+import { stripCatAlias, validateCatName } from "../sales/cat-name";
 import type { SalesClient } from "../sales/client";
 import { extractSales, type SalesExtraction } from "../sales/extractor";
 
@@ -16,6 +17,7 @@ export type SalesDraft = {
   paymentMethod: PaymentMethod | null;
   discountCents: number;
   notes: string | null;
+  dueDate?: string | null;
 };
 type PendingInvoice = { saleNumber: number; draft: SalesDraft; facturayaDraftId?: string };
 export type SalesState = {
@@ -23,6 +25,8 @@ export type SalesState = {
   expiresAt: number;
   companyId: string | null;
   companyName: string | null;
+  catName?: string | null;
+  creditOfferShown?: boolean;
   draft: SalesDraft | null;
   pendingInvoice: PendingInvoice | null;
   pendingCancel: number | null;
@@ -40,6 +44,33 @@ export const soles = (cents: number) =>
 const quantityText = (value: number) => (Number.isInteger(value) ? String(value) : value.toLocaleString("es-PE", { maximumFractionDigits: 3 }));
 const toCents = (soles: number) => Math.round(soles * 100);
 const limaToday = (now = Date.now()) => new Date(now - 5 * 3_600_000).toISOString().slice(0, 10);
+const limaMonth = (now = Date.now()) => limaToday(now).slice(0, 7);
+const MONTHS_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const monthLabel = (ym: string) => {
+  const [y, m] = ym.split("-");
+  const name = MONTHS_ES[Number(m) - 1] ?? ym;
+  return `${name} ${y}`;
+};
+
+export function formatGoalStatus(goal: SalesGoalStatus, catLabel = "Sales Cat"): string {
+  const label = monthLabel(goal.month);
+  if (!goal.targetCents) {
+    return `${catLabel}: aún no pusiste meta para ${label}. Dime por ejemplo: «mi meta de ${MONTHS_ES[Number(goal.month.slice(5)) - 1] ?? "este mes"} es S/ 20,000».`;
+  }
+  const pct = Math.round((goal.achievedCents / goal.targetCents) * 100);
+  if (goal.achievedCents >= goal.targetCents) {
+    return `¡Meta de ${label} cumplida! Llevas ${soles(goal.achievedCents)} de ${soles(goal.targetCents)} (${pct} %).`;
+  }
+  const remaining = goal.targetCents - goal.achievedCents;
+  if (goal.isPastMonth) {
+    return `Meta de ${label}: cerraste con ${soles(goal.achievedCents)} de ${soles(goal.targetCents)} (${pct} %). Faltaron ${soles(remaining)}.`;
+  }
+  const daysLeft = goal.isCurrentMonth && goal.currentDay !== null
+    ? Math.max(1, goal.daysInMonth - goal.currentDay + 1)
+    : goal.daysInMonth;
+  const dailyNeeded = Math.ceil(remaining / daysLeft);
+  return `Meta de ${label}: llevas ${soles(goal.achievedCents)} de ${soles(goal.targetCents)} (${pct} %). Te faltan ${soles(remaining)} (${soles(dailyNeeded)} al día en ${daysLeft} ${daysLeft === 1 ? "día" : "días"}).`;
+}
 
 /** `/sales` (any case) opens Sales Cat; `/salir` closes it. */
 export const isSalesCommand = (text: string) => /^\/sales\b/i.test(text.trim());
@@ -80,6 +111,7 @@ export function formatDraft(draft: SalesDraft): string {
     ...(totals.discount ? [`Descuento: −${soles(totals.discount)}`] : []),
     `*Total: ${soles(totals.total)}*`,
     ...(draft.kind === "sale" ? [`Pago: ${draft.paymentMethod ? PAYMENT_LABEL[draft.paymentMethod] : "por definir"}`] : []),
+    ...(draft.kind === "sale" && draft.paymentMethod === "credito" && draft.dueDate ? [`Vence: ${draft.dueDate.split("-").reverse().join("/")}`] : []),
     ...(draft.notes ? [`Nota: ${draft.notes}`] : []),
   ].join("\n");
 }
@@ -158,9 +190,9 @@ export class SalesRoleHandler implements RoleHandler {
       const companies = await client.companies();
       const chosen = companies.ok ? companies.data.find((company) => company.id === interaction.slice("sales:company:".length)) : null;
       if (chosen) {
-        state = { ...state, companyId: chosen.id, companyName: chosen.name };
+        state = { ...state, companyId: chosen.id, companyName: chosen.name, catName: chosen.catName ?? null };
         await save();
-        await this.menu(context, `Trabajemos con ${chosen.name}.`);
+        await this.menu(context, `Trabajemos con ${chosen.name}.`, state.catName);
         return;
       }
     }
@@ -182,19 +214,24 @@ export class SalesRoleHandler implements RoleHandler {
         }]);
         return;
       }
-      state = { ...state, companyId: companies.data[0].id, companyName: companies.data[0].name };
+      state = { ...state, companyId: companies.data[0].id, companyName: companies.data[0].name, catName: companies.data[0].catName ?? null };
     }
     const companyId = state.companyId!;
+    const catLabel = state.catName || "Sales Cat";
 
     if (interaction) {
       await this.onButton(context, client, state, companyId, interaction, save, close);
       return;
     }
 
-    const message = text.replace(/^\/sales\b/i, "").trim();
+    let message = text.replace(/^\/sales\b/i, "").trim();
+    if (message === text && state.catName) {
+      message = stripCatAlias(text, state.catName);
+    }
     if (!message && !state.draft) {
       await save();
-      await this.menu(context, `Hola, soy Sales Cat${state.companyName ? ` de ${state.companyName}` : ""}.`);
+      await this.menu(context, `Hola, soy ${catLabel}${state.companyName ? ` de ${state.companyName}` : ""}.`, state.catName);
+      await this.maybeOfferCreditSync(context, client, state, companyId, save);
       return;
     }
 
@@ -224,13 +261,36 @@ export class SalesRoleHandler implements RoleHandler {
     await this.onExtraction(context, client, state, companyId, extraction, save, close);
   }
 
-  private async menu(context: RoleHandlerContext, greeting: string) {
+  private async menu(context: RoleHandlerContext, greeting: string, catName?: string | null) {
     const sent = await context.sendButtons?.(`${greeting} ¿Qué hacemos?`, [
       { id: "sales:start:sale", title: "Registrar venta" },
       { id: "sales:start:quote", title: "Nueva cotización" },
       { id: "sales:query:today", title: "Ventas de hoy" },
     ]);
-    if (!sent || sent.status !== "sent") await context.reply(HELP);
+    if (!sent || sent.status !== "sent") {
+      await context.reply(catName ? HELP.replace("Soy Sales Cat.", `Soy ${catName}.`) : HELP);
+    }
+  }
+
+  private async maybeOfferCreditSync(
+    context: RoleHandlerContext,
+    client: SalesClient,
+    state: SalesState,
+    companyId: string,
+    save: () => Promise<void>,
+  ) {
+    if (state.creditOfferShown || !client.creditSyncStatus) return;
+    const status = await client.creditSyncStatus(companyId);
+    if (!status.ok || status.data.pendingCount <= 0) return;
+    state.creditOfferShown = true;
+    await save();
+    const n = status.data.pendingCount;
+    const prompt = `Tienes ${n} ${n === 1 ? "venta al crédito" : "ventas al crédito"} con saldo pendiente que aún no ${n === 1 ? "está" : "están"} en Collections Cat. ¿Quieres ${n === 1 ? "traerla" : "traerlas"} ahora?`;
+    const sent = await context.sendButtons?.(prompt, [
+      { id: "sales:sync_credit:yes", title: "Sí, traerlas" },
+      { id: "sales:sync_credit:no", title: "Ahora no" },
+    ]);
+    if (!sent || sent.status !== "sent") await context.reply(prompt);
   }
 
   private async onExtraction(
@@ -282,6 +342,59 @@ export class SalesRoleHandler implements RoleHandler {
         ]);
         return;
       }
+      case "set_goal": {
+        await save();
+        if (!extraction.goalAmount || !client.setGoal) {
+          await context.reply("Dime el monto de tu meta mensual. Por ejemplo: «mi meta de diciembre es S/ 20,000».");
+          return;
+        }
+        const month = extraction.goalMonth ?? limaMonth();
+        const saved = await client.setGoal(companyId, month, toCents(extraction.goalAmount));
+        await context.reply(saved.ok
+          ? formatGoalStatus(saved.data, state.catName || "Sales Cat")
+          : "No pude guardar tu meta. Inténtalo otra vez.");
+        return;
+      }
+      case "goal_status": {
+        await save();
+        if (!client.goalStatus) {
+          await context.reply("No pude consultar tu meta ahora. Inténtalo en unos minutos.");
+          return;
+        }
+        const month = extraction.goalMonth ?? limaMonth();
+        const goal = await client.goalStatus(companyId, month);
+        await context.reply(goal.ok
+          ? formatGoalStatus(goal.data, state.catName || "Sales Cat")
+          : "No pude consultar tu meta ahora. Inténtalo en unos minutos.");
+        return;
+      }
+      case "set_cat_name": {
+        const check = validateCatName(extraction.catName ?? "");
+        if (!check.ok) {
+          await save();
+          await context.reply(
+            check.reason === "length" ? "El nombre debe tener entre 2 y 20 caracteres."
+              : check.reason === "link" ? "El nombre no puede contener enlaces ni dominios."
+              : "Ese nombre está reservado para MeowLab o sus gatos. Elige otro.",
+          );
+          return;
+        }
+        if (!client.setCatName) {
+          await save();
+          await context.reply("No pude cambiar el nombre ahora. Inténtalo en unos minutos.");
+          return;
+        }
+        const saved = await client.setCatName(companyId, check.name);
+        if (!saved.ok) {
+          await save();
+          await context.reply("No pude cambiar el nombre. Verifica que tenga de 2 a 20 caracteres y no esté reservado.");
+          return;
+        }
+        state.catName = saved.data.catName;
+        await save();
+        await context.reply(`¡Listo! Desde ahora me llamo *${saved.data.catName}*. Puedes hablarme empezando con «${saved.data.catName}, ...» o con /sales.`);
+        return;
+      }
       case "sale":
       case "quote":
         await this.updateDraft(context, state, extraction, save);
@@ -320,6 +433,7 @@ export class SalesRoleHandler implements RoleHandler {
       };
     }
     if (extraction.paymentMethod) draft.paymentMethod = extraction.paymentMethod;
+    if (extraction.dueDate) draft.dueDate = extraction.dueDate;
     if (extraction.discount !== null) draft.discountCents = toCents(extraction.discount);
     if (extraction.notes) draft.notes = extraction.notes;
     state.draft = draft;
@@ -402,6 +516,23 @@ export class SalesRoleHandler implements RoleHandler {
       await this.confirm(context, client, state, companyId, save);
       return;
     }
+    if (interaction === "sales:sync_credit:yes") {
+      if (!client.syncCreditDebts) {
+        await context.reply("No pude pasar las deudas ahora. Inténtalo en unos minutos.");
+        return;
+      }
+      const synced = await client.syncCreditDebts(companyId);
+      await context.reply(synced.ok
+        ? (synced.data.added > 0
+          ? `Listo, pasé ${synced.data.added} ${synced.data.added === 1 ? "venta al crédito" : "ventas al crédito"} a Collections Cat.`
+          : "No quedaron ventas al crédito pendientes por pasar.")
+        : "No pude pasar las deudas ahora. Inténtalo en unos minutos.");
+      return;
+    }
+    if (interaction === "sales:sync_credit:no") {
+      await context.reply("Listo, quedan guardadas aquí sin pasarlas todavía.");
+      return;
+    }
     if (interaction.startsWith("sales:cancelsale:")) {
       const number = Number(interaction.slice("sales:cancelsale:".length));
       if (state.pendingCancel !== number) {
@@ -411,8 +542,17 @@ export class SalesRoleHandler implements RoleHandler {
       state.pendingCancel = null;
       await save();
       const result = await client.cancelSale(companyId, number, null);
-      await context.reply(result.ok ? `Anulé la venta N.° ${number}.`
-        : result.code === "not_found" ? `No encontré una venta vigente con el N.° ${number}.` : "No pude anular la venta. Inténtalo otra vez.");
+      if (!result.ok) {
+        await context.reply(result.code === "not_found" ? `No encontré una venta vigente con el N.° ${number}.` : "No pude anular la venta. Inténtalo otra vez.");
+        return;
+      }
+      await context.reply(
+        result.data.debtStatus === "has_payments"
+          ? `Anulé la venta N.° ${number}, pero la deuda en Collections Cat ya tiene pagos registrados, así que no la toqué. Revísala en /collections.`
+          : result.data.debtStatus === "cancelled"
+          ? `Anulé la venta N.° ${number} y su deuda pendiente en Collections Cat.`
+          : `Anulé la venta N.° ${number}.`,
+      );
       return;
     }
     if (interaction.startsWith("sales:invoice:")) {
@@ -459,11 +599,12 @@ export class SalesRoleHandler implements RoleHandler {
     }
     if (!draft.paymentMethod) {
       await this.updateDraft(context, state, { intent: "sale", period: null, customer: null, items: [], replaceItems: false, paymentMethod: null,
-        discount: null, notes: null, product: null, saleNumber: null, reply: "" }, save);
+        discount: null, notes: null, product: null, saleNumber: null, dueDate: null, goalMonth: null, goalAmount: null, catName: null, reply: "" }, save);
       return;
     }
     const saved = await client.createSale(companyId, {
       customer: customerInput(draft), lines, discountCents: draft.discountCents, notes: draft.notes, paymentMethod: draft.paymentMethod,
+      ...(draft.dueDate ? { dueDate: draft.dueDate } : {}),
     });
     if (!saved.ok) {
       await context.reply("No pude guardar la venta. Inténtalo otra vez.");
@@ -472,7 +613,11 @@ export class SalesRoleHandler implements RoleHandler {
     state.draft = null;
     state.pendingInvoice = { saleNumber: saved.data.number, draft };
     await save();
-    const credit = saved.data.balanceCents ? ` Queda una deuda de ${soles(saved.data.balanceCents)}.` : "";
+    const credit = saved.data.balanceCents
+      ? (saved.data.debtCreated
+        ? ` Registré la venta al crédito; Collections Cat le hará seguimiento.`
+        : ` Queda una deuda de ${soles(saved.data.balanceCents)}.`)
+      : "";
     const sent = await context.sendButtons?.(`Guardé la venta N.° ${saved.data.number} por ${soles(saved.data.totalCents)}.${credit}\n\n¿Emito el comprobante con Invoice Cat?`, [
       { id: "sales:invoice:01", title: "Factura" },
       { id: "sales:invoice:03", title: "Boleta" },

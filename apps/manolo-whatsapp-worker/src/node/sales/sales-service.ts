@@ -3,11 +3,14 @@ import type {
   SalesBridgeRequest,
   SalesBridgeResponse,
   SalesCustomerInput,
+  SalesGoalStatus,
   SalesLineInput,
   SummaryPeriod,
 } from "../../sales/bridge-contracts";
+import { validateCatName } from "../../sales/cat-name";
 import type { BridgeRequestIdentity, BridgeRequestStore } from "../bridge/request-store";
 import type { RoleLog } from "../../roles/contracts";
+import { cancelSaleDebt, createSaleDebt } from "../collections/sales-debt";
 import { QuotePdfUnavailable, type QuotePdfService } from "./quote-pdf-service";
 
 type Rows = { rows: Array<Record<string, unknown>> };
@@ -18,9 +21,20 @@ export type SalesServiceResult =
   | { status: "completed"; response: SalesBridgeResponse }
   | { status: "conflict" | "in_progress" };
 
-const WRITES = new Set(["upsert_product", "create_quote", "create_sale", "cancel_sale", "link_invoice"]);
+const WRITES = new Set(["upsert_product", "create_quote", "create_sale", "cancel_sale", "link_invoice", "set_goal", "set_cat_name", "sync_credit_debts"]);
 const LIMA_OFFSET_MS = 5 * 3_600_000;
 const DAY_MS = 86_400_000;
+
+/** Lima calendar month boundaries (YYYY-MM) as UTC instants. */
+export function monthRange(month: string): { from: Date; to: Date; daysInMonth: number } {
+  const [yStr, mStr] = month.split("-");
+  const y = Number(yStr);
+  const m = Number(mStr) - 1;
+  const from = new Date(Date.UTC(y, m, 1) + LIMA_OFFSET_MS);
+  const to = new Date(Date.UTC(y, m + 1, 1) + LIMA_OFFSET_MS);
+  const daysInMonth = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return { from, to, daysInMonth };
+}
 
 class SalesError extends Error {
   constructor(readonly code: string, readonly details?: unknown) {
@@ -121,9 +135,9 @@ export class SalesService {
     if (!rows.length) throw new SalesError("forbidden");
   }
 
-  private async companies(contactId: number): Promise<Array<{ id: string; name: string }>> {
+  private async companies(contactId: number): Promise<Array<{ id: string; name: string; catName: string | null }>> {
     const { rows } = await this.query(
-      `SELECT tenant.id, tenant.name
+      `SELECT tenant.id, tenant.name, settings.cat_name
          FROM whatsapp.tenant_members AS member
          JOIN whatsapp.tenants AS tenant ON tenant.id = member.tenant_id AND tenant.status = 'active'
          JOIN sales.settings AS settings ON settings.tenant_id = tenant.id AND settings.enabled
@@ -132,13 +146,20 @@ export class SalesService {
         ORDER BY tenant.name`,
       [contactId],
     );
-    return rows.map((row) => ({ id: String(row.id), name: String(row.name) }));
+    return rows.map((row) => ({ id: String(row.id), name: String(row.name), catName: row.cat_name ? String(row.cat_name) : null }));
   }
 
   private async execute(request: SalesBridgeRequest): Promise<unknown> {
     await this.assertContact(request);
     const companies = await this.companies(request.contact_id);
     if (request.operation === "companies") return { companies };
+    if (request.operation === "resolve_alias") {
+      const candidate = String(request.payload?.candidate ?? "").trim().toLowerCase();
+      const matched = candidate
+        ? companies.find((company) => company.catName?.trim().toLowerCase() === candidate)
+        : undefined;
+      return { company: matched ? { id: matched.id, name: matched.name, catName: matched.catName! } : null };
+    }
     const companyId = request.company_id!;
     if (!companies.some((company) => company.id === companyId)) throw new SalesError("forbidden");
     const payload = request.payload ?? {};
@@ -172,18 +193,21 @@ export class SalesService {
         return this.transaction<unknown>((client) => request.operation === "create_quote"
           ? this.createQuote(client, companyId, contactId, payload)
           : this.createSale(client, companyId, contactId, payload));
-      case "cancel_sale": {
-        const { rows } = await this.query(
-          `UPDATE sales.sales SET status = 'cancelled', cancelled_at = $3, balance_cents = 0, updated_at = $3
-            WHERE tenant_id = $1 AND number = $2 AND status = 'confirmed'
-            RETURNING id, total_cents`,
-          [companyId, payload.number, this.now()],
-        );
-        if (!rows.length) throw new SalesError("not_found");
-        await this.audit(this.pool, companyId, "sale", String(rows[0].id), "cancelled", contactId,
-          { reason: payload.reason ?? null, totalCents: Number(rows[0].total_cents) });
-        return { cancelled: { number: payload.number } };
-      }
+      case "cancel_sale":
+        return this.transaction(async (client) => {
+          const { rows } = await client.query(
+            `UPDATE sales.sales SET status = 'cancelled', cancelled_at = $3, balance_cents = 0, updated_at = $3
+              WHERE tenant_id = $1 AND number = $2 AND status = 'confirmed'
+              RETURNING id, total_cents`,
+            [companyId, payload.number, this.now()],
+          );
+          if (!rows.length) throw new SalesError("not_found");
+          const saleId = String(rows[0].id);
+          const debt = await cancelSaleDebt(client, companyId, saleId);
+          await this.audit(client, companyId, "sale", saleId, "cancelled", contactId,
+            { reason: payload.reason ?? null, totalCents: Number(rows[0].total_cents), debtStatus: debt.status });
+          return { cancelled: { number: payload.number, debtStatus: debt.status } };
+        });
       case "link_invoice": {
         const { rows } = await this.query(
           `UPDATE sales.sales SET invoice_number = $3, updated_at = $4
@@ -196,6 +220,33 @@ export class SalesService {
       }
       case "summary":
         return this.summary(companyId, payload.period as SummaryPeriod);
+      case "set_goal": {
+        const month = String(payload.month);
+        const targetCents = Number(payload.targetCents);
+        await this.query(
+          `INSERT INTO sales.monthly_goals (tenant_id, month, target_cents, updated_by_contact_id, updated_at)
+           VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+           ON CONFLICT (tenant_id, month)
+           DO UPDATE SET target_cents = EXCLUDED.target_cents, updated_by_contact_id = EXCLUDED.updated_by_contact_id, updated_at = CURRENT_TIMESTAMP`,
+          [companyId, month, targetCents, contactId],
+        );
+        return { goal: await this.goalStatus(companyId, month) };
+      }
+      case "goal_status":
+        return { goal: await this.goalStatus(companyId, String(payload.month)) };
+      case "set_cat_name": {
+        const check = validateCatName(String(payload.catName ?? ""));
+        if (!check.ok) throw new SalesError(`invalid_cat_name:${check.reason}`);
+        await this.query(
+          `UPDATE sales.settings SET cat_name = $2, updated_at = CURRENT_TIMESTAMP WHERE tenant_id = $1`,
+          [companyId, check.name],
+        );
+        return { catName: check.name };
+      }
+      case "credit_sync_status":
+        return { pendingCount: await this.pendingCreditDebtCount(companyId) };
+      case "sync_credit_debts":
+        return { added: await this.syncCreditDebts(companyId, contactId) };
       case "quote_pdf": {
         if (!this.quotePdfs) throw new SalesError("unavailable");
         let pdf;
@@ -317,9 +368,125 @@ export class SalesService {
         credit ? totals.total : 0, (payload.notes as string | undefined)?.trim() || null, soldAt, contactId],
     );
     await this.insertLines(client, "sale_id", id, lines);
-    await this.audit(client, companyId, "sale", id, "created", contactId, { number, totalCents: totals.total });
+    const debt = credit
+      ? await createSaleDebt(client, {
+          companyId,
+          saleId: id,
+          saleNumber: number,
+          customerId: customer.id,
+          customerName: customer.name,
+          amountCents: totals.total,
+          soldAt,
+          dueDate: typeof payload.dueDate === "string" ? payload.dueDate : null,
+          contactId,
+        })
+      : { created: false, dueOn: null };
+    await this.audit(client, companyId, "sale", id, "created", contactId, { number, totalCents: totals.total, debtCreated: debt.created });
     this.log("vps_sales_sale_created");
-    return { sale: { id, number, totalCents: totals.total, balanceCents: credit ? totals.total : 0, soldAt: soldAt.toISOString() } };
+    return {
+      sale: {
+        id,
+        number,
+        totalCents: totals.total,
+        balanceCents: credit ? totals.total : 0,
+        soldAt: soldAt.toISOString(),
+        debtCreated: debt.created,
+      },
+    };
+  }
+
+  private async goalStatus(companyId: string, month: string): Promise<SalesGoalStatus> {
+    const { from, to, daysInMonth } = monthRange(month);
+    const todayLima = limaDate(this.now());
+    const currentMonth = todayLima.slice(0, 7);
+    const isCurrentMonth = month === currentMonth;
+    const isPastMonth = month < currentMonth;
+    const currentDay = isCurrentMonth ? Number(todayLima.slice(8, 10)) : null;
+    const [goalRow, salesRow] = await Promise.all([
+      this.query("SELECT target_cents FROM sales.monthly_goals WHERE tenant_id = $1 AND month = $2", [companyId, month]),
+      this.query(
+        `SELECT count(*)::int AS n, COALESCE(sum(total_cents), 0)::bigint AS total
+           FROM sales.sales WHERE tenant_id = $1 AND status = 'confirmed' AND sold_at >= $2 AND sold_at < $3`,
+        [companyId, from, to],
+      ),
+    ]);
+    return {
+      month,
+      targetCents: goalRow.rows[0] ? Number(goalRow.rows[0].target_cents) : null,
+      achievedCents: Number(salesRow.rows[0]?.total ?? 0),
+      salesCount: Number(salesRow.rows[0]?.n ?? 0),
+      daysInMonth,
+      currentDay,
+      isCurrentMonth,
+      isPastMonth,
+    };
+  }
+
+  private async collectionsEnabled(companyId: string): Promise<boolean> {
+    const { rows } = await this.query(
+      `SELECT 1 FROM receivables.settings
+        WHERE tenant_id = $1 AND enabled AND (active_until IS NULL OR active_until > CURRENT_TIMESTAMP)`,
+      [companyId],
+    );
+    return rows.length > 0;
+  }
+
+  private async pendingCreditDebtCount(companyId: string): Promise<number> {
+    if (!await this.collectionsEnabled(companyId)) return 0;
+    const { rows } = await this.query(
+      `SELECT count(*)::int AS n
+         FROM sales.sales AS sale
+        WHERE sale.tenant_id = $1 AND sale.status = 'confirmed' AND sale.payment_method = 'credito' AND sale.balance_cents > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM receivables.debts AS debt
+             WHERE debt.tenant_id = $1 AND (debt.sale_id = sale.id OR debt.source_ref = 'sale:' || sale.id::text)
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM receivables.debts AS debt
+             WHERE debt.tenant_id = $1 AND debt.source = 'invoice' AND sale.invoice_number IS NOT NULL AND debt.document_number = sale.invoice_number
+          )`,
+      [companyId],
+    );
+    return Number(rows[0]?.n ?? 0);
+  }
+
+  private async syncCreditDebts(companyId: string, contactId: number): Promise<number> {
+    if (!await this.collectionsEnabled(companyId)) return 0;
+    const { rows } = await this.query(
+      `SELECT sale.id, sale.number, sale.customer_id, sale.customer_name, sale.balance_cents, sale.sold_at, sale.invoice_number
+         FROM sales.sales AS sale
+        WHERE sale.tenant_id = $1 AND sale.status = 'confirmed' AND sale.payment_method = 'credito' AND sale.balance_cents > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM receivables.debts AS debt
+             WHERE debt.tenant_id = $1 AND (debt.sale_id = sale.id OR debt.source_ref = 'sale:' || sale.id::text)
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM receivables.debts AS debt
+             WHERE debt.tenant_id = $1 AND debt.source = 'invoice' AND sale.invoice_number IS NOT NULL AND debt.document_number = sale.invoice_number
+          )
+        ORDER BY sale.sold_at
+        LIMIT 200`,
+      [companyId],
+    );
+    let added = 0;
+    for (const sale of rows) {
+      const created = await this.transaction(async (client) => {
+        const result = await createSaleDebt(client, {
+          companyId,
+          saleId: String(sale.id),
+          saleNumber: Number(sale.number),
+          customerId: sale.customer_id ? String(sale.customer_id) : null,
+          customerName: String(sale.customer_name ?? "Cliente varios"),
+          amountCents: Number(sale.balance_cents),
+          soldAt: new Date(String(sale.sold_at)),
+          invoiceNumber: sale.invoice_number ? String(sale.invoice_number) : null,
+          contactId,
+        });
+        return result.created;
+      });
+      if (created) added++;
+    }
+    return added;
   }
 
   private async summary(companyId: string, period: SummaryPeriod) {

@@ -17,7 +17,17 @@ export type Weekly = {
   collections?: { enabled: boolean; owedCents: number; lateCount: number; needsOwner: number; paidWeekCents: number };
   reorder?: { enabled: boolean; toApprove: number; waiting: number; escalated: number; monthSpentCents: number };
   support?: { enabled: boolean; customers: number; answered: number; escalated: number; open: number };
-  sales?: { enabled: boolean; todayCount: number; todayTotalCents: number; weekCount: number; weekTotalCents: number; weekQuotes: number };
+  sales?: {
+    enabled: boolean;
+    todayCount: number;
+    todayTotalCents: number;
+    weekCount: number;
+    weekTotalCents: number;
+    weekQuotes: number;
+    catName?: string | null;
+    goalTargetCents?: number | null;
+    monthTotalCents?: number;
+  };
   invoicing:
     | null
     | { status: "unavailable" }
@@ -59,7 +69,7 @@ export type AgentKey = "invoice" | "tender" | "sales" | "stock" | "reorder" | "s
 export const AGENTS: Array<{ key: AgentKey; name: string; does: string; icon: IconName; detail?: string }> = [
   { key: "invoice", name: "Invoice Cat", does: "Emite tus facturas, boletas y guías ante SUNAT cuando se lo pides en el chat.", icon: "invoice", detail: "/agentes/facturas" },
   { key: "tender", name: "Tender Cat", does: "Te avisa de licitaciones del Estado que encajan con tu negocio.", icon: "radar", detail: "/agentes/licitaciones" },
-  { key: "sales", name: "Sales Cat", does: "Registra tus ventas y arma cotizaciones con enlace. Escríbele /sales en el chat.", icon: "chart" },
+  { key: "sales", name: "Sales Cat", does: "Registra tus ventas y arma cotizaciones con enlace. Escríbele /sales en el chat.", icon: "chart", detail: "/agentes/ventas" },
   { key: "stock", name: "Stock Cat", does: "Te avisa antes de que algo se acabe. Escríbele /stock en el chat.", icon: "package", detail: "/agentes/stock" },
   { key: "reorder", name: "Reorder Cat", does: "Pide lo que se acaba a tu proveedor cuando tú lo apruebas. Escríbele /reorder en el chat.", icon: "refresh", detail: "/agentes/reposicion" },
   { key: "support", name: "Support Cat", does: "Atiende a tus clientes las 24 horas en tu WhatsApp y te pasa lo que no sabe. Escríbele /support en el chat.", icon: "message", detail: "/agentes/soporte" },
@@ -95,8 +105,15 @@ export function todayLine(key: AgentKey, weekly: Weekly | null): string {
   }
   if (key === "sales") {
     const sales = weekly.sales;
-    if (!sales?.todayCount) return "Hoy no registró ventas.";
-    return `Hoy registró ${plural(sales.todayCount, "venta", "ventas")} por ${money(String(sales.todayTotalCents / 100))}.`;
+    const todayText = !sales?.todayCount
+      ? "Hoy no registró ventas."
+      : `Hoy registró ${plural(sales.todayCount, "venta", "ventas")} por ${money(String(sales.todayTotalCents / 100))}.`;
+    if (sales?.goalTargetCents && sales.goalTargetCents > 0) {
+      const achieved = sales.monthTotalCents ?? 0;
+      const pct = Math.round((achieved / sales.goalTargetCents) * 100);
+      return `${todayText} Meta del mes: ${money(String(achieved / 100))} de ${money(String(sales.goalTargetCents / 100))} (${pct} %).`;
+    }
+    return todayText;
   }
   if (key === "stock") {
     const stock = weekly.stock;
